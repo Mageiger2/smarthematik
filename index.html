@@ -167,7 +167,7 @@
                         <div className="shrink-0 relative flex justify-center">
                             <div className="absolute inset-0 bg-indigo-200 blur-2xl opacity-30 scale-125 rounded-full"></div>
                             <img 
-                                src="images/Logo-sMArTH.png" 
+                                src="Logo-sMArTH.png" 
                                 alt="sMArTHEMATIK Logo" 
                                 onError={(e) => {e.target.onerror = null; e.target.src="https://via.placeholder.com/300x100/ffffff/4f46e5?text=sMArTHEMATIK"}}
                                 className="relative w-64 md:w-80 h-auto object-contain drop-shadow-sm"
@@ -227,7 +227,7 @@
         );
 
         // --- IMPRESSUM ---
-        const ImpressumPage = () => (
+        const ImpressumPage = ({ navigateTo }) => (
             <div className="page-transition max-w-3xl mx-auto px-4 sm:px-6 py-16 text-slate-800">
                 <div className="flex items-center gap-3 mb-8">
                     <FileText className="w-8 h-8 text-indigo-600"/>
@@ -246,7 +246,7 @@
                     <div>
                         <h2 className="text-xl font-bold mb-2">Kontakt</h2>
                         <p>Telefon: 08131/741799<br />
-                        E-Mail: martin.geiger@ms-dachau-sud.de</p>
+                        E-Mail: martin.geiger@ms-dachau-sued.de</p>
                     </div>
 
                     <div>
@@ -256,11 +256,17 @@
                         85221 Dachau</p>
                     </div>
                 </div>
+
+                <div className="mt-12 flex justify-center">
+                    <button onClick={() => navigateTo('home')} className="inline-flex items-center gap-2 px-6 py-3 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-medium rounded-xl transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5">
+                        <HomeIcon className="w-5 h-5 text-indigo-500" /> Zurück zur Startseite
+                    </button>
+                </div>
             </div>
         );
 
         // --- DATENSCHUTZ ---
-        const DatenschutzPage = () => (
+        const DatenschutzPage = ({ navigateTo }) => (
             <div className="page-transition max-w-3xl mx-auto px-4 sm:px-6 py-16 text-slate-800">
                 <div className="flex items-center gap-3 mb-8">
                     <Shield className="w-8 h-8 text-indigo-600"/>
@@ -296,11 +302,17 @@
                     <h2 className="text-xl font-bold mt-8">5. Kontakt</h2>
                     <p>Wenn Sie Fragen zum Datenschutz haben, schreiben Sie mir bitte eine E-Mail an die im Impressum angegebene Adresse.</p>
                 </div>
+
+                <div className="mt-12 flex justify-center">
+                    <button onClick={() => navigateTo('home')} className="inline-flex items-center gap-2 px-6 py-3 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-medium rounded-xl transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5">
+                        <HomeIcon className="w-5 h-5 text-indigo-500" /> Zurück zur Startseite
+                    </button>
+                </div>
             </div>
         );
 
         // --- WACHSTUMS-TRAINER ---
-        const WachstumsTrainer = () => {
+        const WachstumsTrainer = ({ navigateTo }) => {
             const [problem, setProblem] = useState(null);
             const [step, setStep] = useState(1); 
             const [identificationFeedback, setIdentificationFeedback] = useState(null);
@@ -544,12 +556,18 @@
                             )}
                         </div>
                     </div>
+
+                    <div className="mt-12 flex justify-center">
+                        <button onClick={() => navigateTo('home')} className="inline-flex items-center gap-2 px-6 py-3 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-medium rounded-xl transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5">
+                            <HomeIcon className="w-5 h-5 text-indigo-500" /> Zurück zur Startseite
+                        </button>
+                    </div>
                 </div>
             );
         };
 
         // --- ZERFALLS-TRAINER ---
-        const ZerfallsTrainer = () => {
+        const ZerfallsTrainer = ({ navigateTo }) => {
             const [problem, setProblem] = useState(null);
             const [step, setStep] = useState(1); 
             const [identificationFeedback, setIdentificationFeedback] = useState(null);
@@ -783,6 +801,12 @@
                             )}
                         </div>
                     </div>
+
+                    <div className="mt-12 flex justify-center">
+                        <button onClick={() => navigateTo('home')} className="inline-flex items-center gap-2 px-6 py-3 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-medium rounded-xl transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5">
+                            <HomeIcon className="w-5 h-5 text-indigo-500" /> Zurück zur Startseite
+                        </button>
+                    </div>
                 </div>
             );
         };
@@ -819,8 +843,8 @@
                     {/* Header */}
                     <header className="bg-white shadow-sm sticky top-0 z-40 border-b border-slate-200">
                         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-                            <button onClick={() => setCurrentPage('home')} className="flex items-center hover:opacity-80 transition-opacity">
-                                <img src="images/cropped-BdB_Logo-1.png" alt="Beratung digitale Bildung Logo" className="h-10 md:h-12 w-auto object-contain" />
+                            <button onClick={() => setCurrentPage('home')} className="flex items-center hover:opacity-80 transition-opacity shrink-0">
+                                <img src="Logo-sMArTH.png" alt="sMArTHEMATIK Logo" className="h-6 sm:h-8 md:h-10 w-auto object-contain" />
                             </button>
                             
                             {/* Desktop Nav */}
@@ -830,10 +854,13 @@
                                 <NavButton id="zerfall" label="Zerfallstrainer" icon={TrendingDown} />
                             </nav>
 
-                            {/* Mobile Nav Toggle */}
-                            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2 text-slate-600">
-                                {mobileMenuOpen ? <XCircle className="w-6 h-6" /> : <MenuIcon className="w-6 h-6" />}
-                            </button>
+                            {/* Mobile Nav Toggle & BdB Logo */}
+                            <div className="flex items-center gap-3 shrink-0">
+                                <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2 text-slate-600 hover:bg-slate-50 rounded-lg">
+                                    {mobileMenuOpen ? <XCircle className="w-6 h-6" /> : <MenuIcon className="w-6 h-6" />}
+                                </button>
+                                <img src="cropped-BdB_Logo-1.png" alt="Beratung digitale Bildung Logo" className="h-8 sm:h-10 md:h-12 w-auto object-contain" />
+                            </div>
                         </div>
 
                         {/* Mobile Nav Dropdown */}
@@ -849,10 +876,10 @@
                     {/* Main Content Area */}
                     <main className="flex-grow">
                         {currentPage === 'home' && <HomePage navigateTo={setCurrentPage} />}
-                        {currentPage === 'wachstum' && <WachstumsTrainer />}
-                        {currentPage === 'zerfall' && <ZerfallsTrainer />}
-                        {currentPage === 'impressum' && <ImpressumPage />}
-                        {currentPage === 'datenschutz' && <DatenschutzPage />}
+                        {currentPage === 'wachstum' && <WachstumsTrainer navigateTo={setCurrentPage} />}
+                        {currentPage === 'zerfall' && <ZerfallsTrainer navigateTo={setCurrentPage} />}
+                        {currentPage === 'impressum' && <ImpressumPage navigateTo={setCurrentPage} />}
+                        {currentPage === 'datenschutz' && <DatenschutzPage navigateTo={setCurrentPage} />}
                     </main>
 
                     {/* Footer */}
@@ -861,7 +888,7 @@
                             <div>
                                 <h4 className="text-white text-lg font-bold uppercase tracking-wider mb-2">Kontakt & Infos</h4>
                                 <p className="text-slate-400 max-w-md mx-auto mb-4">Haben Sie Fragen zum digitalen Unterricht oder Anregungen zu den Tools? Schreiben Sie mir gerne.</p>
-                                <a href="mailto:martin.geiger@ms-dachau-sud.de" className="inline-block px-6 py-2 bg-slate-800 text-slate-200 font-semibold rounded-lg hover:bg-indigo-600 hover:text-white transition-colors shadow-sm text-sm">E-Mail senden</a>
+                                <a href="mailto:martin.geiger@ms-dachau-sued.de" className="inline-block px-6 py-2 bg-slate-800 text-slate-200 font-semibold rounded-lg hover:bg-indigo-600 hover:text-white transition-colors shadow-sm text-sm">E-Mail senden</a>
                             </div>
                             
                             <div className="w-full border-t border-slate-800 pt-6 mt-6 flex flex-col md:flex-row justify-between items-center text-sm gap-4">
