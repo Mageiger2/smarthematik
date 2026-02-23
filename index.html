@@ -241,7 +241,6 @@
                     </div>
 
                     <div className="grid md:grid-cols-2 gap-8">
-                        {/* Card Wachstumstrainer */}
                         <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm hover:shadow-xl transition-all hover:-translate-y-1 flex flex-col items-center text-center group cursor-pointer" onClick={() => navigateTo('wachstum')}>
                             <div className="w-16 h-16 bg-green-100 text-green-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                                 <TrendingUp className="w-8 h-8" />
@@ -255,7 +254,6 @@
                             </button>
                         </div>
 
-                        {/* Card Zerfallstrainer */}
                         <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm hover:shadow-xl transition-all hover:-translate-y-1 flex flex-col items-center text-center group cursor-pointer" onClick={() => navigateTo('zerfall')}>
                             <div className="w-16 h-16 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                                 <TrendingDown className="w-8 h-8" />
@@ -321,10 +319,9 @@
                 <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6">
                     <h2 className="text-xl font-bold">1. Datenschutz auf einen Blick</h2>
                     <h3 className="font-bold">Allgemeine Hinweise</h3>
-                    <p>Die folgenden Hinweise geben einen einfachen Überblick darüber, was mit Ihren personenbezogenen Daten passiert, wenn Sie diese Website besuchen. Personenbezogene Daten sind alle Daten, mit denen Sie persönlich identifiziert werden können.</p>
+                    <p>Die folgenden Hinweise geben einen einfachen Überblick darüber, was mit Ihren personenbezogenen Daten passiert, wenn Sie diese Website besuchen.</p>
 
                     <h2 className="text-xl font-bold mt-8">2. Hosting</h2>
-                    <h3 className="font-bold">Externes Hosting über GitHub Pages</h3>
                     <p>Diese Website wird bei dem externen Dienstleister GitHub Inc. gehostet.</p>
 
                     <h2 className="text-xl font-bold mt-8">4. Lokale Speicherung (Local Storage)</h2>
@@ -395,14 +392,14 @@
                 wn = round(w0 * Math.pow(q, n), 2);
                 if (unit === 'Einwohner' || unit === 'Bakterien') wn = Math.round(wn);
 
+                const w0_f = formatNum(w0);
+                const wn_f = formatNum(wn);
+                const rate_f = formatNum(rate);
+
                 let questionText = "";
                 const timeUnit = (scenario === 'bacteria') ? 'Stunden' : 'Jahren';
                 const timeAdverb = (scenario === 'bacteria') ? 'stündlich' : 'jährlich';
                 const valWord = (scenario === 'money') ? 'Kapital' : 'Bestand';
-
-                const w0_f = formatNum(w0);
-                const wn_f = formatNum(wn);
-                const rate_f = formatNum(rate);
 
                 switch (type) {
                     case 'Wn':
@@ -505,7 +502,6 @@
                                         <p className="text-lg md:text-xl font-medium leading-relaxed">{problem.text}</p>
                                     </div>
 
-                                    {/* Step 1 */}
                                     <div className={`transition-opacity duration-300 ${step === 1 ? 'opacity-100' : 'opacity-40 pointer-events-none'}`}>
                                         <p className="text-sm font-semibold text-slate-500 mb-4 text-center uppercase tracking-wide flex items-center justify-center gap-2"><Search className="w-4 h-4"/> 1. Was ist gesucht?</p>
                                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -517,7 +513,6 @@
                                         </div>
                                     </div>
 
-                                    {/* Step 2 */}
                                     {step >= 2 && (
                                         <div className={`transition-opacity duration-500 border-t pt-8 border-slate-100 ${step > 2 ? 'opacity-40 pointer-events-none' : ''}`}>
                                             <p className="text-sm font-semibold text-slate-500 mb-4 text-center uppercase tracking-wide">2. Fülle die Werte in die Formel ein:</p>
@@ -533,7 +528,6 @@
                                         </div>
                                     )}
 
-                                    {/* Step 3 */}
                                     {step >= 3 && (
                                         <div className={`duration-500 border-t pt-8 border-slate-100 ${step > 3 ? 'opacity-40 pointer-events-none' : ''}`}>
                                             <p className="text-sm font-semibold text-slate-500 mb-4 text-center uppercase tracking-wide">3. Wie formst du die Gleichung um?</p>
@@ -550,7 +544,6 @@
                                         </div>
                                     )}
 
-                                    {/* Step 4 */}
                                     {step >= 4 && (
                                         <div className="duration-500 border-t pt-8 border-slate-100">
                                             <p className="text-sm font-semibold text-slate-500 mb-4 text-center uppercase tracking-wide">4. Berechne das Ergebnis:</p>
@@ -751,7 +744,6 @@
                                         <p className="text-lg md:text-xl font-medium leading-relaxed">{problem.text}</p>
                                     </div>
 
-                                    {/* Step 1 */}
                                     <div className={`transition-opacity duration-300 ${step === 1 ? 'opacity-100' : 'opacity-40 pointer-events-none'}`}>
                                         <p className="text-sm font-semibold text-slate-500 mb-4 text-center uppercase tracking-wide flex items-center justify-center gap-2"><Search className="w-4 h-4"/> 1. Was ist gesucht?</p>
                                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -763,7 +755,6 @@
                                         </div>
                                     </div>
 
-                                    {/* Step 2 */}
                                     {step >= 2 && (
                                         <div className={`transition-opacity duration-500 border-t pt-8 border-slate-100 ${step > 2 ? 'opacity-40 pointer-events-none' : ''}`}>
                                             <p className="text-sm font-semibold text-slate-500 mb-4 text-center uppercase tracking-wide">2. Fülle die Werte in die Formel ein:</p>
@@ -779,7 +770,6 @@
                                         </div>
                                     )}
 
-                                    {/* Step 3 */}
                                     {step >= 3 && (
                                         <div className={`duration-500 border-t pt-8 border-slate-100 ${step > 3 ? 'opacity-40 pointer-events-none' : ''}`}>
                                             <p className="text-sm font-semibold text-slate-500 mb-4 text-center uppercase tracking-wide">3. Wie formst du die Gleichung um?</p>
@@ -796,7 +786,6 @@
                                         </div>
                                     )}
 
-                                    {/* Step 4 */}
                                     {step >= 4 && (
                                         <div className="duration-500 border-t pt-8 border-slate-100">
                                             <p className="text-sm font-semibold text-slate-500 mb-4 text-center uppercase tracking-wide">4. Berechne das Ergebnis:</p>
@@ -866,28 +855,38 @@
             return (
                 <div className="flex flex-col min-h-screen">
                     <header className="bg-white shadow-sm sticky top-0 z-40 border-b border-slate-200">
-                        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-                            <button onClick={() => setCurrentPage('home')} className="flex items-center gap-2 hover:opacity-80 transition-opacity shrink-0">
+                        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+                            {/* Linke Seite: Hauptlogo */}
+                            <button onClick={() => setCurrentPage('home')} className="flex items-center hover:opacity-80 transition-opacity shrink-0">
                                 <img src="Logo-sMArTH.png" alt="sMArTHEMATIK Logo" className="h-6 sm:h-8 md:h-10 w-auto object-contain" />
-                                <img src="LogoMSsued2.jpg" alt="Mittelschule Dachau-Süd Logo" className="h-6 sm:h-8 md:h-10 w-auto object-contain" />
                             </button>
                             
-                            <nav className="hidden md:flex items-center gap-2">
-                                <NavButton id="home" label="Startseite" icon={HomeIcon} />
-                                <NavButton id="wachstum" label="Wachstumstrainer" icon={TrendingUp} />
-                                <NavButton id="zerfall" label="Zerfallstrainer" icon={TrendingDown} />
-                            </nav>
+                            {/* Mittlere Sektion: MS-Süd Logo (Optisch zentriert) */}
+                            <div className="flex-grow flex justify-center items-center px-2">
+                                <img src="LogoMSsued2.jpg" alt="Mittelschule Dachau-Süd Logo" className="h-6 sm:h-8 md:h-10 w-auto object-contain shadow-sm rounded-sm" />
+                            </div>
 
+                            {/* Rechte Seite: Navigation & BdB Logo */}
                             <div className="flex items-center gap-3 shrink-0">
+                                {/* Desktop Nav */}
+                                <nav className="hidden md:flex items-center gap-2 mr-2">
+                                    <NavButton id="home" label="Startseite" icon={HomeIcon} />
+                                    <NavButton id="wachstum" label="Wachstumstrainer" icon={TrendingUp} />
+                                    <NavButton id="zerfall" label="Zerfallstrainer" icon={TrendingDown} />
+                                </nav>
+
+                                {/* Mobile Toggle */}
                                 <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2 text-slate-600 hover:bg-slate-50 rounded-lg">
                                     {mobileMenuOpen ? <XCircle className="w-6 h-6" /> : <MenuIcon className="w-6 h-6" />}
                                 </button>
+                                
                                 <img src="cropped-BdB_Logo-1.png" alt="Beratung digitale Bildung Logo" className="h-8 sm:h-10 md:h-12 w-auto object-contain" />
                             </div>
                         </div>
 
+                        {/* Mobile Nav Dropdown */}
                         {mobileMenuOpen && (
-                            <div className="md:hidden bg-white border-t border-slate-100 p-4 flex flex-col gap-2 shadow-lg absolute w-full">
+                            <div className="md:hidden bg-white border-t border-slate-100 p-4 flex flex-col gap-2 shadow-lg absolute w-full z-50">
                                 <NavButton id="home" label="Startseite" icon={HomeIcon} />
                                 <NavButton id="wachstum" label="Wachstumstrainer" icon={TrendingUp} />
                                 <NavButton id="zerfall" label="Zerfallstrainer" icon={TrendingDown} />
