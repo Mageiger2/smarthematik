@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Beratung digitale Bildung - Mathetrainer</title>
+    <title>sMArTHEMATIK - Beratung digitale Bildung</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -15,133 +15,32 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <style>
-        /* Sanftes Einblenden für die gesamte Seite */
-        body {
-            animation: fadeIn 0.8s ease-in-out;
+        /* Sanftes Einblenden beim Seitenwechsel */
+        .page-transition {
+            animation: fadeIn 0.4s ease-out;
         }
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        body {
+            background-color: #f8fafc; /* slate-50 */
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans flex flex-col min-h-screen">
+<body class="text-slate-800 font-sans antialiased flex flex-col min-h-screen">
 
-    <!-- Header / Navigation -->
-    <header class="bg-white shadow-sm sticky top-0 z-50">
-        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold">
-                    B
-                </div>
-                <h1 class="text-xl font-bold text-slate-800 tracking-tight">Beratung digitale Bildung</h1>
-            </div>
-            <nav>
-                <a href="#contact" class="text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors">Kontakt</a>
-            </nav>
-        </div>
-    </header>
+    <div id="root" class="flex flex-col min-h-screen"></div>
 
-    <!-- Hero Section -->
-    <section class="bg-gradient-to-b from-indigo-50 to-slate-50 py-16 sm:py-24 border-b border-slate-200">
-        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center gap-8 md:gap-12">
-            <!-- Profilbild -->
-            <div class="shrink-0 relative">
-                <div class="absolute inset-0 bg-indigo-200 rounded-full blur-lg opacity-60"></div>
-                <img 
-                    src="images/geiger1.jpg" 
-                    alt="Martin Geiger" 
-                    onerror="this.src='https://ui-avatars.com/api/?name=Martin+Geiger&background=4f46e5&color=fff&size=200'"
-                    class="relative w-40 h-40 md:w-48 md:h-48 object-cover rounded-full border-4 border-white shadow-xl ring-1 ring-slate-900/5"
-                >
-            </div>
-            
-            <!-- Intro Text -->
-            <div class="text-center md:text-left space-y-4">
-                <div class="inline-block px-3 py-1 bg-indigo-100 text-indigo-700 text-sm font-semibold rounded-full mb-2">
-                    sMArTHEMATIK
-                </div>
-                <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900">
-                    Herzlich willkommen auf dieser Übungsseite von Martin Geiger.
-                </h2>
-                <p class="text-lg text-slate-600 max-w-2xl leading-relaxed">
-                    Hier stehen Ihnen verschiedene interaktive Mathetrainer und digitale Lerntools zum Üben zur Verfügung.
-                </p>
-                <div class="pt-4 flex flex-wrap gap-4 justify-center md:justify-start">
-                    <a href="#trainer" class="inline-flex items-center justify-center px-6 py-3 border border-green-200 text-base font-medium rounded-lg text-green-700 bg-green-50 hover:bg-green-100 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5">
-                        Zum Wachstumstrainer
-                    </a>
-                    <a href="#zerfall" class="inline-flex items-center justify-center px-6 py-3 border border-rose-200 text-base font-medium rounded-lg text-rose-700 bg-rose-50 hover:bg-rose-100 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5">
-                        Zum Zerfallstrainer
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Main Content (React App Container) -->
-    <!-- Main Content (React App Container) -->
-    <main id="trainer" class="flex-grow w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 md:pt-20 pb-8">
-        <div class="text-center mb-10">
-            <h3 class="text-2xl font-bold text-slate-800">Interaktiver Wachstumstrainer</h3>
-            <p class="text-slate-500 mt-2">Thema: Exponentielles Wachstum (10. Klasse)</p>
-        </div>
-        
-        <!-- Hier wird die React App hineingerendert -->
-        <div id="root-wachstum" class="scroll-mt-24"></div>
-    </main>
-
-    <div class="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <hr class="border-slate-200">
-    </div>
-
-    <main id="zerfall" class="flex-grow w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:pb-20">
-        <div class="text-center mb-10">
-            <h3 class="text-2xl font-bold text-slate-800">Interaktiver Zerfallstrainer</h3>
-            <p class="text-slate-500 mt-2">Thema: Exponentieller Zerfall (10. Klasse)</p>
-        </div>
-        
-        <!-- Hier wird die React App hineingerendert -->
-        <div id="root-zerfall" class="scroll-mt-24"></div>
-    </main>
-
-    <!-- Footer Section -->
-    <footer id="contact" class="bg-slate-900 text-slate-300 py-12 mt-auto">
-        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center text-center space-y-6">
-            <div>
-                <h4 class="text-white text-lg font-bold uppercase tracking-wider mb-2">Get in touch with me</h4>
-                <p class="text-slate-400 max-w-md mx-auto mb-6">
-                    Haben Sie Fragen zum digitalen Unterricht oder Anregungen zu den Tools? Schreiben Sie mir gerne eine E-Mail.
-                </p>
-                <a href="mailto:martin.geiger@ms-dachau-sud.de" class="inline-block px-8 py-3 bg-white text-slate-900 font-semibold rounded-lg hover:bg-indigo-50 hover:text-indigo-600 transition-colors shadow-sm">
-                    E-Mail senden
-                </a>
-            </div>
-            
-            <div class="w-full border-t border-slate-700 pt-6 mt-6 flex flex-col md:flex-row justify-between items-center text-sm">
-                <div class="mb-4 md:mb-0">
-                    &copy; 2026 - <strong class="text-white">Beratung digitale Bildung</strong>
-                </div>
-                <div>
-                    Entwickelt für den Mathematikunterricht in Bayern.
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <!-- React App Script -->
     <script type="text/babel" data-presets="typescript,react">
         const { useState, useEffect } = React;
 
-        // --- ICONS ---
+        // ==========================================
+        // 1. ICONS (Ersatz für externe Bibliotheken)
+        // ==========================================
         const IconBase = ({ path, className }) => (
-            <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                width="24" height="24" viewBox="0 0 24 24" 
-                fill="none" stroke="currentColor" strokeWidth="2" 
-                strokeLinecap="round" strokeLinejoin="round" 
-                className={className}
-            >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
                 {path}
             </svg>
         );
@@ -152,104 +51,24 @@
         const RefreshCw = ({ className }) => <IconBase className={className} path={<><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></>} />;
         const BookOpen = ({ className }) => <IconBase className={className} path={<><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></>} />;
         const TrendingUp = ({ className }) => <IconBase className={className} path={<><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></>} />;
+        const TrendingDown = ({ className }) => <IconBase className={className} path={<><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></>} />;
         const ArrowRight = ({ className }) => <IconBase className={className} path={<><line x1="5" x2="19" y1="12" y2="12"/><polyline points="12 5 19 12 12 19"/></>} />;
         const MousePointerClick = ({ className }) => <IconBase className={className} path={<><path d="m9 9 5 12 1.8-5.2L21 14Z"/><path d="M7.2 2.2 8 5.1"/><path d="m5.1 8-2.9-.8"/><path d="M14 4.1 12 6"/><path d="m6 12-1.9 2"/></>} />;
         const Search = ({ className }) => <IconBase className={className} path={<><circle cx="11" cy="11" r="8"/><line x1="21" x2="16.65" y1="21" y2="16.65"/></>} />;
+        const HomeIcon = ({ className }) => <IconBase className={className} path={<><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></>} />;
+        const MenuIcon = ({ className }) => <IconBase className={className} path={<><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></>} />;
+        const Shield = ({ className }) => <IconBase className={className} path={<><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></>} />;
+        const FileText = ({ className }) => <IconBase className={className} path={<><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><polyline points="10 9 9 9 8 9"/></>} />;
 
-        // --- Helper Components for Formatting ---
+        // ==========================================
+        // 2. HELPER COMPONENTS (Wiederverwendbar)
+        // ==========================================
         const VarWn = () => <span>W<sub>n</sub></span>;
         const VarW0 = () => <span>W<sub>0</sub></span>;
         const VarQ = () => <span>q</span>;
         const VarN = () => <span>n</span>;
         const VarQpowN = () => <span>q<sup>n</sup></span>;
 
-        // --- Scientific Calculator Component ---
-        const ScientificCalculator = ({ onClose }) => {
-            const [display, setDisplay] = useState('');
-            const [result, setResult] = useState(null);
-
-            const handlePress = (val) => {
-                if (val === 'C') {
-                    setDisplay('');
-                    setResult(null);
-                } else if (val === 'DEL') {
-                    setDisplay(prev => prev.slice(0, -1));
-                } else if (val === '=') {
-                    try {
-                        let expr = display
-                            .replace(/\^/g, '**')
-                            .replace(/log/g, 'Math.log10')
-                            .replace(/ln/g, 'Math.log')
-                            .replace(/√/g, 'Math.sqrt');
-                        
-                        // eslint-disable-next-line no-new-func
-                        const res = new Function('return ' + expr)();
-                        const formatted = Math.round(res * 10000) / 10000;
-                        setResult(formatted.toString());
-                    } catch (e) {
-                        setResult('Error');
-                    }
-                } else {
-                    setDisplay(prev => prev + val);
-                }
-            };
-
-            const Btn = ({ label, val, color = 'bg-slate-100 text-slate-700', wide = false }) => (
-                <button 
-                    onClick={() => handlePress(val)}
-                    className={`${color} ${wide ? 'col-span-2' : ''} p-3 rounded-lg font-bold text-lg hover:brightness-95 active:scale-95 transition-all shadow-sm border border-slate-200`}
-                >
-                    {label}
-                </button>
-            );
-
-            return (
-                <div className="bg-slate-800 p-4 rounded-xl shadow-2xl w-full max-w-xs mx-auto text-white mt-4 border border-slate-600">
-                    <div className="bg-slate-900 p-3 rounded-lg mb-4 text-right min-h-[4rem] flex flex-col justify-center border border-slate-700 relative">
-                        <button onClick={onClose} className="absolute top-1 right-1 text-slate-500 hover:text-slate-300">
-                            <XCircle className="w-5 h-5"/>
-                        </button>
-                        <div className="text-slate-400 text-sm overflow-hidden whitespace-nowrap">{display || '0'}</div>
-                        <div className="text-2xl font-mono text-green-400 font-bold overflow-hidden whitespace-nowrap">{result !== null ? `= ${result}` : ''}</div>
-                    </div>
-                    
-                    <div className="grid grid-cols-4 gap-2">
-                        <Btn label="C" val="C" color="bg-red-500 text-white" />
-                        <Btn label="(" val="(" color="bg-slate-600 text-slate-100" />
-                        <Btn label=")" val=")" color="bg-slate-600 text-slate-100" />
-                        <Btn label="DEL" val="DEL" color="bg-orange-500 text-white" />
-
-                        <Btn label="log" val="log(" color="bg-indigo-600 text-white" />
-                        <Btn label="ln" val="ln(" color="bg-indigo-600 text-white" />
-                        <Btn label="√" val="√(" color="bg-indigo-600 text-white" />
-                        <Btn label="^" val="^" color="bg-indigo-600 text-white" />
-
-                        <Btn label="7" val="7" />
-                        <Btn label="8" val="8" />
-                        <Btn label="9" val="9" />
-                        <Btn label="÷" val="/" color="bg-slate-300" />
-
-                        <Btn label="4" val="4" />
-                        <Btn label="5" val="5" />
-                        <Btn label="6" val="6" />
-                        <Btn label="×" val="*" color="bg-slate-300" />
-
-                        <Btn label="1" val="1" />
-                        <Btn label="2" val="2" />
-                        <Btn label="3" val="3" />
-                        <Btn label="-" val="-" color="bg-slate-300" />
-
-                        <Btn label="0" val="0" />
-                        <Btn label="." val="." />
-                        <Btn label="=" val="=" color="bg-green-600 text-white" />
-                        <Btn label="+" val="+" color="bg-slate-300" />
-                    </div>
-                    <p className="text-xs text-slate-400 mt-2 text-center">log = Basis 10, ln = Basis e</p>
-                </div>
-            );
-        };
-
-        // --- Input Field Component ---
         const FormulaInput = ({ id, label, value, isUnknown, status, disabled, onChange, theme = "green" }) => {
             const isRose = theme === 'rose';
             return (
@@ -280,131 +99,270 @@
             );
         };
 
-        // --- MAIN APP COMPONENT ---
+        const ScientificCalculator = ({ onClose }) => {
+            const [display, setDisplay] = useState('');
+            const [result, setResult] = useState(null);
+
+            const handlePress = (val) => {
+                if (val === 'C') {
+                    setDisplay('');
+                    setResult(null);
+                } else if (val === 'DEL') {
+                    setDisplay(prev => prev.slice(0, -1));
+                } else if (val === '=') {
+                    try {
+                        let expr = display.replace(/\^/g, '**').replace(/log/g, 'Math.log10').replace(/ln/g, 'Math.log').replace(/√/g, 'Math.sqrt');
+                        const res = new Function('return ' + expr)();
+                        const formatted = Math.round(res * 10000) / 10000;
+                        setResult(formatted.toString());
+                    } catch (e) {
+                        setResult('Error');
+                    }
+                } else {
+                    setDisplay(prev => prev + val);
+                }
+            };
+
+            const Btn = ({ label, val, color = 'bg-slate-100 text-slate-700', wide = false }) => (
+                <button onClick={() => handlePress(val)} className={`${color} ${wide ? 'col-span-2' : ''} p-3 rounded-lg font-bold text-lg hover:brightness-95 active:scale-95 transition-all shadow-sm border border-slate-200`}>
+                    {label}
+                </button>
+            );
+
+            return (
+                <div className="bg-slate-800 p-4 rounded-xl shadow-2xl w-full max-w-xs mx-auto text-white mt-4 border border-slate-600 z-50">
+                    <div className="bg-slate-900 p-3 rounded-lg mb-4 text-right min-h-[4rem] flex flex-col justify-center border border-slate-700 relative">
+                        <button onClick={onClose} className="absolute top-1 right-1 text-slate-500 hover:text-slate-300"><XCircle className="w-5 h-5"/></button>
+                        <div className="text-slate-400 text-sm overflow-hidden whitespace-nowrap">{display || '0'}</div>
+                        <div className="text-2xl font-mono text-green-400 font-bold overflow-hidden whitespace-nowrap">{result !== null ? `= ${result}` : ''}</div>
+                    </div>
+                    <div className="grid grid-cols-4 gap-2">
+                        <Btn label="C" val="C" color="bg-red-500 text-white" />
+                        <Btn label="(" val="(" color="bg-slate-600 text-slate-100" />
+                        <Btn label=")" val=")" color="bg-slate-600 text-slate-100" />
+                        <Btn label="DEL" val="DEL" color="bg-orange-500 text-white" />
+                        <Btn label="log" val="log(" color="bg-indigo-600 text-white" />
+                        <Btn label="ln" val="ln(" color="bg-indigo-600 text-white" />
+                        <Btn label="√" val="√(" color="bg-indigo-600 text-white" />
+                        <Btn label="^" val="^" color="bg-indigo-600 text-white" />
+                        <Btn label="7" val="7" /> <Btn label="8" val="8" /> <Btn label="9" val="9" /> <Btn label="÷" val="/" color="bg-slate-300" />
+                        <Btn label="4" val="4" /> <Btn label="5" val="5" /> <Btn label="6" val="6" /> <Btn label="×" val="*" color="bg-slate-300" />
+                        <Btn label="1" val="1" /> <Btn label="2" val="2" /> <Btn label="3" val="3" /> <Btn label="-" val="-" color="bg-slate-300" />
+                        <Btn label="0" val="0" /> <Btn label="." val="." /> <Btn label="=" val="=" color="bg-green-600 text-white" /> <Btn label="+" val="+" color="bg-slate-300" />
+                    </div>
+                    <p className="text-xs text-slate-400 mt-2 text-center">log = Basis 10, ln = Basis e</p>
+                </div>
+            );
+        };
+
+        // ==========================================
+        // 3. PAGE COMPONENTS
+        // ==========================================
+
+        // --- STARTSEITE ---
+        const HomePage = ({ navigateTo }) => (
+            <div className="page-transition">
+                <section className="bg-gradient-to-b from-indigo-50 to-slate-50 py-16 sm:py-24 border-b border-slate-200">
+                    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center gap-8 md:gap-12">
+                        <div className="shrink-0 relative flex justify-center">
+                            <div className="absolute inset-0 bg-indigo-200 blur-2xl opacity-30 scale-125 rounded-full"></div>
+                            <img 
+                                src="images/Logo-sMArTH.png" 
+                                alt="sMArTHEMATIK Logo" 
+                                onError={(e) => {e.target.onerror = null; e.target.src="https://via.placeholder.com/300x100/ffffff/4f46e5?text=sMArTHEMATIK"}}
+                                className="relative w-64 md:w-80 h-auto object-contain drop-shadow-sm"
+                            />
+                        </div>
+                        <div className="text-center md:text-left space-y-4">
+                            <div className="inline-block px-3 py-1 bg-indigo-100 text-indigo-700 text-sm font-semibold rounded-full mb-2">
+                                sMArTHEMATIK
+                            </div>
+                            <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900">
+                                Herzlich willkommen auf dieser Übungsseite von Martin Geiger
+                            </h2>
+                            <p className="text-lg text-slate-600 max-w-2xl leading-relaxed">
+                                Hier stehen Ihnen verschiedene interaktive Mathetrainer und digitale Lerntools zum Üben zur Verfügung.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                    <div className="text-center mb-12">
+                        <h3 className="text-2xl font-bold text-slate-800">Verfügbare Mathetrainer</h3>
+                        <p className="text-slate-500 mt-2">Wähle ein Thema aus, um direkt loszulegen.</p>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-8">
+                        {/* Card Wachstumstrainer */}
+                        <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm hover:shadow-xl transition-all hover:-translate-y-1 flex flex-col items-center text-center group cursor-pointer" onClick={() => navigateTo('wachstum')}>
+                            <div className="w-16 h-16 bg-green-100 text-green-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                                <TrendingUp className="w-8 h-8" />
+                            </div>
+                            <h4 className="text-xl font-bold text-slate-800 mb-3">Wachstumstrainer</h4>
+                            <p className="text-slate-600 mb-8 flex-grow">
+                                Trainiere das Berechnen von Zinseszins, Bevölkerungsentwicklung und Bakterienwachstum.
+                            </p>
+                            <button className="w-full inline-flex items-center justify-center px-6 py-3 border border-green-200 text-base font-medium rounded-lg text-green-700 bg-green-50 group-hover:bg-green-600 group-hover:text-white shadow-sm transition-all">
+                                Zum Wachstumstrainer
+                            </button>
+                        </div>
+
+                        {/* Card Zerfallstrainer */}
+                        <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm hover:shadow-xl transition-all hover:-translate-y-1 flex flex-col items-center text-center group cursor-pointer" onClick={() => navigateTo('zerfall')}>
+                            <div className="w-16 h-16 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                                <TrendingDown className="w-8 h-8" />
+                            </div>
+                            <h4 className="text-xl font-bold text-slate-800 mb-3">Zerfallstrainer</h4>
+                            <p className="text-slate-600 mb-8 flex-grow">
+                                Trainiere das Berechnen von radioaktivem Zerfall, Wertverlust und Medikamentenabbau.
+                            </p>
+                            <button className="w-full inline-flex items-center justify-center px-6 py-3 border border-rose-200 text-base font-medium rounded-lg text-rose-700 bg-rose-50 group-hover:bg-rose-600 group-hover:text-white shadow-sm transition-all">
+                                Zum Zerfallstrainer
+                            </button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        );
+
+        // --- IMPRESSUM ---
+        const ImpressumPage = () => (
+            <div className="page-transition max-w-3xl mx-auto px-4 sm:px-6 py-16 text-slate-800">
+                <div className="flex items-center gap-3 mb-8">
+                    <FileText className="w-8 h-8 text-indigo-600"/>
+                    <h1 className="text-3xl font-bold">Impressum</h1>
+                </div>
+                
+                <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+                    <div>
+                        <h2 className="text-xl font-bold mb-2">Angaben gemäß § 5 TMG</h2>
+                        <p>Martin Geiger<br />
+                        Beratung digitale Bildung<br />
+                        Eduard-Ziegler-Str. 3<br />
+                        85221 Dachau</p>
+                    </div>
+
+                    <div>
+                        <h2 className="text-xl font-bold mb-2">Kontakt</h2>
+                        <p>Telefon: 08131/741799<br />
+                        E-Mail: martin.geiger@ms-dachau-sud.de</p>
+                    </div>
+
+                    <div>
+                        <h2 className="text-xl font-bold mb-2">Redaktionell verantwortlich</h2>
+                        <p>Martin Geiger<br />
+                        Eduard-Ziegler-Str. 3<br />
+                        85221 Dachau</p>
+                    </div>
+                </div>
+            </div>
+        );
+
+        // --- DATENSCHUTZ ---
+        const DatenschutzPage = () => (
+            <div className="page-transition max-w-3xl mx-auto px-4 sm:px-6 py-16 text-slate-800">
+                <div className="flex items-center gap-3 mb-8">
+                    <Shield className="w-8 h-8 text-indigo-600"/>
+                    <h1 className="text-3xl font-bold">Datenschutzerklärung</h1>
+                </div>
+
+                <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+                    <h2 className="text-xl font-bold">1. Datenschutz auf einen Blick</h2>
+                    <h3 className="font-bold">Allgemeine Hinweise</h3>
+                    <p>Die folgenden Hinweise geben einen einfachen Überblick darüber, was mit Ihren personenbezogenen Daten passiert, wenn Sie diese Website besuchen. Personenbezogene Daten sind alle Daten, mit denen Sie persönlich identifiziert werden können.</p>
+
+                    <h2 className="text-xl font-bold mt-8">2. Hosting</h2>
+                    <h3 className="font-bold">Externes Hosting über GitHub Pages</h3>
+                    <p>Diese Website wird bei dem externen Dienstleister GitHub Inc., 88 Colin P Kelly Jr St, San Francisco, CA 94107, USA gehostet ("GitHub"). Die personenbezogenen Daten, die auf dieser Website erfasst werden, werden auf den Servern von GitHub gespeichert. Hierbei kann es sich v. a. um IP-Adressen, Meta- und Kommunikationsdaten, Webseitenzugriffe und sonstige Daten handeln, die über eine Website generiert werden.</p>
+                    <p>Die Verwendung von GitHub erfolgt zum Zwecke einer sicheren, schnellen und effizienten Bereitstellung unseres Online-Angebots durch einen professionellen Anbieter (Art. 6 Abs. 1 lit. f DSGVO). GitHub wird Ihre Daten nur insoweit verarbeiten, wie dies zur Erfüllung seiner Leistungspflichten erforderlich ist.</p>
+
+                    <h2 className="text-xl font-bold mt-8">3. Datenerfassung auf dieser Website</h2>
+                    <h3 className="font-bold">Server-Log-Dateien</h3>
+                    <p>Der Provider der Seiten (GitHub) erhebt und speichert automatisch Informationen in so genannten Server-Log-Dateien, die Ihr Browser automatisch an uns übermittelt. Dies sind:</p>
+                    <ul className="list-disc pl-5 mt-2 space-y-1">
+                        <li>Browsertyp und Browserversion</li>
+                        <li>verwendetes Betriebssystem</li>
+                        <li>Referrer URL</li>
+                        <li>Hostname des zugreifenden Rechners</li>
+                        <li>Uhrzeit der Serveranfrage</li>
+                        <li>IP-Adresse</li>
+                    </ul>
+                    <p className="mt-2">Eine Zusammenführung dieser Daten mit anderen Datenquellen wird nicht vorgenommen. Die Erfassung dieser Daten erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO. Der Websitebetreiber hat ein berechtigtes Interesse an der technisch fehlerfreien Darstellung und der Optimierung seiner Website – hierzu müssen die Server-Log-Files erfasst werden.</p>
+
+                    <h2 className="text-xl font-bold mt-8">4. Lokale Speicherung (Local Storage)</h2>
+                    <p>Die Mathetrainer auf dieser Webseite (Wachstumstrainer, Zerfallstrainer) nutzen Ihren Browser, um Ihren aktuellen Fortschritt (z.B. die "Streak"-Zahl) temporär zu speichern. Diese Daten werden ausschließlich lokal auf Ihrem Gerät verarbeitet, nicht an Server gesendet und nicht zur Nachverfolgung Ihrer Person verwendet.</p>
+
+                    <h2 className="text-xl font-bold mt-8">5. Kontakt</h2>
+                    <p>Wenn Sie Fragen zum Datenschutz haben, schreiben Sie mir bitte eine E-Mail an die im Impressum angegebene Adresse.</p>
+                </div>
+            </div>
+        );
+
+        // --- WACHSTUMS-TRAINER ---
         const WachstumsTrainer = () => {
             const [problem, setProblem] = useState(null);
-            
-            // States
             const [step, setStep] = useState(1); 
-            
-            // Step 1 Data
             const [identificationFeedback, setIdentificationFeedback] = useState(null);
             const [selectedIdentification, setSelectedIdentification] = useState(null);
-
-            // Step 2 Data
             const [inputs, setInputs] = useState({ wn: '', w0: '', q: '', n: '' });
             const [inputFeedback, setInputFeedback] = useState({});
-            
-            // Step 3 Data
             const [options, setOptions] = useState([]);
             const [selectedOptionId, setSelectedOptionId] = useState(null);
             const [transformationFeedback, setTransformationFeedback] = useState(null);
-
-            // Step 4 Data
             const [finalAnswer, setFinalAnswer] = useState('');
             const [finalFeedback, setFinalFeedback] = useState(null);
             const [showCalculator, setShowCalculator] = useState(false);
-            
             const [showSolution, setShowSolution] = useState(false);
             const [streak, setStreak] = useState(0);
             const [loading, setLoading] = useState(true);
-
-            // Sequence: 0: Wn, 1: rate (q), 2: W0, 3: n
             const [sequenceIndex, setSequenceIndex] = useState(0);
 
-            const round = (num, decimals = 2) => {
-                return Math.round(num * Math.pow(10, decimals)) / Math.pow(10, decimals);
-            };
+            const round = (num, decimals = 2) => Math.round(num * Math.pow(10, decimals)) / Math.pow(10, decimals);
 
             const generateProblem = () => {
-                setLoading(true);
-                setStep(1);
-                
-                setIdentificationFeedback(null);
-                setSelectedIdentification(null);
+                setLoading(true); setStep(1); setIdentificationFeedback(null); setSelectedIdentification(null);
+                setInputs({ wn: '', w0: '', q: '', n: '' }); setInputFeedback({});
+                setOptions([]); setSelectedOptionId(null); setTransformationFeedback(null);
+                setFinalAnswer(''); setFinalFeedback(null); setShowCalculator(false); setShowSolution(false);
 
-                setInputs({ wn: '', w0: '', q: '', n: '' });
-                setInputFeedback({});
-
-                setOptions([]);
-                setSelectedOptionId(null);
-                setTransformationFeedback(null);
-
-                setFinalAnswer('');
-                setFinalFeedback(null);
-                setShowCalculator(false);
-                setShowSolution(false);
-
-                const scenarios = ['money', 'population', 'depreciation', 'bacteria'];
+                const scenarios = ['money', 'population', 'bacteria'];
                 const scenario = scenarios[Math.floor(Math.random() * scenarios.length)];
-                
                 const sequenceOrder = ['Wn', 'rate', 'W0', 'n'];
                 const type = sequenceOrder[sequenceIndex % sequenceOrder.length];
-
                 setSequenceIndex(prev => prev + 1);
 
-                let w0 = 0, rate = 0, n = 0, q = 0, wn = 0;
-                let unit = "";
-                let isGrowth = true;
+                let w0 = 0, rate = 0, n = 0, q = 0, wn = 0, unit = "", isGrowth = true;
 
                 switch (scenario) {
                     case 'money':
-                        unit = "€";
-                        w0 = Math.floor(Math.random() * 50) * 100 + 500; 
-                        rate = round(Math.random() * 4 + 0.5, 1); 
-                        n = Math.floor(Math.random() * 10) + 2; 
-                        isGrowth = true;
-                        break;
-                    case 'depreciation':
-                        unit = "€";
-                        w0 = Math.floor(Math.random() * 20) * 1000 + 15000; 
-                        rate = Math.floor(Math.random() * 10) + 8; 
-                        n = Math.floor(Math.random() * 6) + 3; 
-                        isGrowth = false;
+                        unit = "€"; w0 = Math.floor(Math.random() * 50) * 100 + 500; rate = round(Math.random() * 4 + 0.5, 1); n = Math.floor(Math.random() * 10) + 2;
                         break;
                     case 'population':
-                        unit = "Einwohner";
-                        w0 = Math.floor(Math.random() * 50) * 1000 + 10000; 
-                        rate = round(Math.random() * 2 + 0.5, 1);
-                        n = Math.floor(Math.random() * 15) + 5;
-                        isGrowth = Math.random() > 0.3; 
+                        unit = "Einwohner"; w0 = Math.floor(Math.random() * 50) * 1000 + 10000; rate = round(Math.random() * 2 + 0.5, 1); n = Math.floor(Math.random() * 15) + 5;
                         break;
                     case 'bacteria':
-                        unit = "Bakterien";
-                        w0 = Math.floor(Math.random() * 100) + 50;
-                        rate = Math.floor(Math.random() * 20) + 10; 
-                        n = Math.floor(Math.random() * 12) + 2; 
-                        isGrowth = true;
+                        unit = "Bakterien"; w0 = Math.floor(Math.random() * 100) + 50; rate = Math.floor(Math.random() * 20) + 10; n = Math.floor(Math.random() * 12) + 2;
                         break;
                 }
 
-                q = isGrowth ? 1 + rate / 100 : 1 - rate / 100;
-                q = round(q, 4);
-                wn = round(w0 * Math.pow(q, n), 2);
+                q = 1 + rate / 100; q = round(q, 4); wn = round(w0 * Math.pow(q, n), 2);
                 if (unit === 'Einwohner' || unit === 'Bakterien') wn = Math.round(wn);
 
                 let questionText = "";
                 const timeUnit = (scenario === 'bacteria') ? 'Stunden' : 'Jahren';
                 const timeAdverb = (scenario === 'bacteria') ? 'stündlich' : 'jährlich';
-                const valWord = (scenario === 'money') ? 'Kapital' : (scenario === 'depreciation' ? 'Wert' : 'Bestand');
+                const valWord = (scenario === 'money') ? 'Kapital' : 'Bestand';
 
                 switch (type) {
                     case 'Wn':
                         if (scenario === 'money') questionText = `Ein Kapital von ${w0} € wird für ${n} Jahre fest angelegt. Der Zinssatz beträgt ${rate} %.`;
-                        else if (scenario === 'depreciation') questionText = `Ein Neuwagen kostet ${w0} €. Er verliert jährlich ${rate} % an Wert. Die Laufzeit beträgt ${n} Jahre.`;
-                        else questionText = `Ein Bestand von ${w0} ${unit} ${isGrowth ? 'wächst' : 'schrumpft'} ${timeAdverb} um ${rate} %. Zeitraum: ${n} ${timeUnit}.`;
+                        else questionText = `Ein Bestand von ${w0} ${unit} wächst ${timeAdverb} um ${rate} %. Zeitraum: ${n} ${timeUnit}.`;
                         break;
-                    case 'W0':
-                        questionText = `Nach ${n} ${timeUnit} ist ein ${valWord} auf ${wn} ${unit} ${(isGrowth ? 'angestiegen' : 'gesunken')}. Die jährliche Veränderung betrug ${rate} %.`;
-                        break;
-                    case 'rate':
-                        questionText = `Ein ${valWord} hat sich in ${n} ${timeUnit} von ${w0} ${unit} auf ${wn} ${unit} verändert.`;
-                        break;
-                    case 'n':
-                        questionText = `Startwert: ${w0} ${unit}. Endwert: ${wn} ${unit}. Veränderung: ${rate} % pro ${timeUnit === 'Stunden' ? 'Stunde' : 'Jahr'}.`;
-                        break;
+                    case 'W0': questionText = `Nach ${n} ${timeUnit} ist ein ${valWord} auf ${wn} ${unit} angestiegen. Die jährliche Veränderung betrug ${rate} %.`; break;
+                    case 'rate': questionText = `Ein ${valWord} hat sich in ${n} ${timeUnit} von ${w0} ${unit} auf ${wn} ${unit} verändert.`; break;
+                    case 'n': questionText = `Startwert: ${w0} ${unit}. Endwert: ${wn} ${unit}. Veränderung: ${rate} % pro ${timeUnit === 'Stunden' ? 'Stunde' : 'Jahr'}.`; break;
                 }
-                
                 questionText += " Was musst du berechnen?";
 
                 let explanation = `Gegeben:\n`;
@@ -412,306 +370,131 @@
                 if (type !== 'Wn') explanation += `Wn = ${wn} ${unit}\n`;
                 if (type !== 'n') explanation += `n = ${n}\n`;
                 if (type !== 'rate') explanation += `p = ${rate}%  =>  q = ${q}\n`;
-                
                 explanation += `\nRechnung:\n`;
                 if (type === 'Wn') explanation += `Wn = ${w0} · ${q}^${n} = ${wn}`;
                 if (type === 'W0') explanation += `W0 = ${wn} / ${q}^${n} = ${w0}`;
                 if (type === 'rate') explanation += `q = (${wn}/${w0})^(1/${n}) = ${q} => p=${rate}%`;
                 if (type === 'n') explanation += `n = log(${wn}/${w0}) / log(${q}) = ${n}`;
 
-                const newProblem = {
-                    type, scenario, text: questionText,
-                    w0, wn, rate, q, n, unit,
-                    solution: type === 'rate' ? rate : (type === 'n' ? n : (type === 'W0' ? w0 : wn)),
-                    explanation
-                };
-
+                const newProblem = { type, scenario, text: questionText, w0, wn, rate, q, n, unit, solution: type === 'rate' ? rate : (type === 'n' ? n : (type === 'W0' ? w0 : wn)), explanation };
                 setProblem(newProblem);
-                generateOptions(newProblem);
+                
+                let opts = [];
+                switch (type) {
+                    case 'Wn': opts = [{ id: '1', label: 'Formel ist bereits aufgelöst. Einfach ausrechnen.', isCorrect: true }, { id: '2', label: <span>Teile durch <VarW0/></span>, isCorrect: false }, { id: '3', label: <span>Ziehe die {n}-te Wurzel</span>, isCorrect: false }]; break;
+                    case 'W0': opts = [{ id: '1', label: <span>Teile durch <VarQpowN/></span>, isCorrect: true }, { id: '2', label: <span>Multipliziere mit <VarQpowN/></span>, isCorrect: false }, { id: '3', label: <span>Subtrahiere <VarQpowN/></span>, isCorrect: false }]; break;
+                    case 'rate': opts = [{ id: '1', label: <span>1. Teile durch <VarW0/> <br/> 2. Ziehe die {n}-te Wurzel</span>, isCorrect: true }, { id: '2', label: <span>1. Teile durch <VarW0/> <br/> 2. Teile durch {n}</span>, isCorrect: false }, { id: '3', label: <span>1. Teile durch {n} <br/> 2. Ziehe die Wurzel</span>, isCorrect: false }]; break;
+                    case 'n': opts = [{ id: '1', label: <span>1. Teile durch <VarW0/> <br/> 2. Wende den Logarithmus an</span>, isCorrect: true }, { id: '2', label: <span>1. Teile durch <VarQ/> <br/> 2. Wende den Logarithmus an</span>, isCorrect: false }, { id: '3', label: <span>1. Teile durch <VarW0/> <br/> 2. Ziehe die {n}-te Wurzel</span>, isCorrect: false }]; break;
+                }
+                setOptions(opts.sort(() => Math.random() - 0.5));
                 setLoading(false);
             };
 
-            const generateOptions = (prob) => {
-                let opts = [];
-                switch (prob.type) {
-                    case 'Wn':
-                        opts = [
-                            { id: '1', label: 'Formel ist bereits aufgelöst. Einfach ausrechnen.', isCorrect: true },
-                            { id: '2', label: <span>Teile durch <VarW0/></span>, isCorrect: false },
-                            { id: '3', label: <span>Ziehe die {prob.n}-te Wurzel</span>, isCorrect: false }
-                        ];
-                        break;
-                    case 'W0':
-                        opts = [
-                            { id: '1', label: <span>Teile durch <VarQpowN/></span>, isCorrect: true },
-                            { id: '2', label: <span>Multipliziere mit <VarQpowN/></span>, isCorrect: false },
-                            { id: '3', label: <span>Subtrahiere <VarQpowN/></span>, isCorrect: false }
-                        ];
-                        break;
-                    case 'rate':
-                        opts = [
-                            { id: '1', label: <span>1. Teile durch <VarW0/> <br/> 2. Ziehe die {prob.n}-te Wurzel</span>, isCorrect: true },
-                            { id: '2', label: <span>1. Teile durch <VarW0/> <br/> 2. Teile durch {prob.n}</span>, isCorrect: false },
-                            { id: '3', label: <span>1. Teile durch {prob.n} <br/> 2. Ziehe die Wurzel</span>, isCorrect: false }
-                        ];
-                        break;
-                    case 'n':
-                        opts = [
-                            { id: '1', label: <span>1. Teile durch <VarW0/> <br/> 2. Wende den Logarithmus an</span>, isCorrect: true },
-                            { id: '2', label: <span>1. Teile durch <VarQ/> <br/> 2. Wende den Logarithmus an</span>, isCorrect: false },
-                            { id: '3', label: <span>1. Teile durch <VarW0/> <br/> 2. Ziehe die {prob.n}-te Wurzel</span>, isCorrect: false }
-                        ];
-                        break;
-                }
-                setOptions(opts.sort(() => Math.random() - 0.5));
-            };
+            useEffect(() => { generateProblem(); }, []);
 
             const handleIdentify = (selected) => {
                 if (identificationFeedback === 'correct' || !problem) return;
-                
                 setSelectedIdentification(selected);
-                if (selected === problem.type) {
-                    setIdentificationFeedback('correct');
-                    setTimeout(() => setStep(2), 1000);
-                } else {
-                    setIdentificationFeedback('incorrect');
-                    setStreak(0);
-                }
+                if (selected === problem.type) { setIdentificationFeedback('correct'); setTimeout(() => setStep(2), 1000); } else { setIdentificationFeedback('incorrect'); setStreak(0); }
             };
 
             const checkFormulaInputs = () => {
                 if (!problem) return;
-                const feedback = {};
-                let allCorrect = true;
-
-                const checkVal = (input, target) => {
-                    const val = parseFloat(input.replace(',', '.'));
-                    if (isNaN(val)) return false;
-                    return Math.abs(val - target) < (Math.max(target * 0.01, 0.005)); 
-                };
-
+                let allCorrect = true, feedback = {};
+                const checkVal = (input, target) => { const val = parseFloat(input.replace(',', '.')); if (isNaN(val)) return false; return Math.abs(val - target) < (Math.max(target * 0.01, 0.005)); };
                 if (problem.type !== 'Wn' && !checkVal(inputs.wn, problem.wn)) { feedback.wn = 'incorrect'; allCorrect = false; } else feedback.wn = 'correct';
                 if (problem.type !== 'W0' && !checkVal(inputs.w0, problem.w0)) { feedback.w0 = 'incorrect'; allCorrect = false; } else feedback.w0 = 'correct';
                 if (problem.type !== 'rate' && !checkVal(inputs.q, problem.q)) { feedback.q = 'incorrect'; allCorrect = false; } else feedback.q = 'correct';
                 if (problem.type !== 'n' && !checkVal(inputs.n, problem.n)) { feedback.n = 'incorrect'; allCorrect = false; } else feedback.n = 'correct';
-
-                setInputFeedback(feedback);
-                if (allCorrect) setStep(3);
+                setInputFeedback(feedback); if (allCorrect) setStep(3);
             };
 
             const handleOptionSelect = (opt) => {
                 if (transformationFeedback === 'correct') return;
                 setSelectedOptionId(opt.id);
-                if (opt.isCorrect) {
-                    setTransformationFeedback('correct');
-                    setTimeout(() => setStep(4), 1200);
-                } else {
-                    setTransformationFeedback('incorrect');
-                    setStreak(0);
-                }
+                if (opt.isCorrect) { setTransformationFeedback('correct'); setTimeout(() => setStep(4), 1200); } else { setTransformationFeedback('incorrect'); setStreak(0); }
             };
 
             const checkFinalResult = () => {
                 if (!problem) return;
-                const val = parseFloat(finalAnswer.replace(',', '.'));
-                if (isNaN(val)) return;
-
+                const val = parseFloat(finalAnswer.replace(',', '.')); if (isNaN(val)) return;
                 const tolerance = problem.type === 'n' ? 0.5 : (problem.solution * 0.01);
-                const diff = Math.abs(val - problem.solution);
-                const isCorrect = diff <= tolerance || (problem.type === 'n' && Math.round(val) === problem.solution);
-
-                if (isCorrect) {
-                    setFinalFeedback('correct');
-                    setStreak(s => s + 1);
-                    setShowSolution(true);
-                    setStep(5);
-                } else {
-                    setFinalFeedback('incorrect');
-                    setStreak(0);
-                }
-            };
-
-            useEffect(() => {
-                generateProblem();
-            }, []);
-
-            const handleInputChange = (id, value) => {
-                setInputs(prev => ({ ...prev, [id]: value }));
-            };
-
-            const handleKeyPressStep2 = (e) => {
-                if (e.key === 'Enter') checkFormulaInputs();
-            };
-            const handleKeyPressStep4 = (e) => {
-                if (e.key === 'Enter') checkFinalResult();
+                if (Math.abs(val - problem.solution) <= tolerance || (problem.type === 'n' && Math.round(val) === problem.solution)) {
+                    setFinalFeedback('correct'); setStreak(s => s + 1); setShowSolution(true); setStep(5);
+                } else { setFinalFeedback('incorrect'); setStreak(0); }
             };
 
             return (
-                <div className="w-full flex items-center justify-center font-sans">
-                    <div className="max-w-3xl w-full bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200 flex flex-col">
-                        
-                        {/* Header */}
+                <div className="page-transition max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-sans">
+                    <div className="text-center mb-10">
+                        <h3 className="text-2xl font-bold text-slate-800">Interaktiver Wachstumstrainer</h3>
+                        <p className="text-slate-500 mt-2">Thema: Exponentielles Wachstum (10. Klasse)</p>
+                    </div>
+
+                    <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200 flex flex-col">
                         <div className="bg-green-600 p-6 text-white flex flex-col sm:flex-row justify-between items-start sm:items-center shrink-0 gap-4">
                             <div>
-                                <h1 className="text-2xl font-bold flex items-center gap-2">
-                                    <Calculator className="w-6 h-6" />
-                                    Wachstumstrainer
-                                </h1>
+                                <h1 className="text-2xl font-bold flex items-center gap-2"><Calculator className="w-6 h-6" /> Wachstumstrainer</h1>
                                 <p className="text-green-100 text-sm mt-1">Mathe 10. Klasse: <VarWn/> = <VarW0/> · <VarQpowN/></p>
                             </div>
                             <div className="bg-green-700 px-3 py-1.5 rounded-lg text-sm font-semibold flex items-center gap-2">
-                                <TrendingUp className="w-4 h-4 text-green-300" /> 
-                                <span>Streak: {streak}</span>
+                                <TrendingUp className="w-4 h-4 text-green-300" /> <span>Streak: {streak}</span>
                             </div>
                         </div>
 
-                        {/* Content */}
-                        <div className="p-4 sm:p-6 md:p-8 flex-grow space-y-8" onKeyDown={step === 2 ? handleKeyPressStep2 : step === 4 ? handleKeyPressStep4 : undefined}>
+                        <div className="p-4 sm:p-6 md:p-8 flex-grow space-y-8" onKeyDown={e => { if(e.key === 'Enter'){ step === 2 && checkFormulaInputs(); step === 4 && checkFinalResult(); }}}>
                             {!loading && problem ? (
                                 <>
-                                    {/* Task Description */}
                                     <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 shadow-sm">
                                         <div className="flex justify-between items-center mb-3">
-                                            <span className={`text-xs font-bold px-2 py-1 rounded uppercase tracking-wider ${
-                                                problem.scenario === 'money' ? 'bg-green-100 text-green-700' :
-                                                problem.scenario === 'depreciation' ? 'bg-red-100 text-red-700' :
-                                                problem.scenario === 'bacteria' ? 'bg-purple-100 text-purple-700' :
-                                                'bg-blue-100 text-blue-700'
-                                            }`}>
-                                                {problem.scenario === 'money' ? 'Zinseszins' : 
-                                                problem.scenario === 'depreciation' ? 'Wertverlust' :
-                                                problem.scenario === 'population' ? 'Bevölkerung' : 'Biologie'}
+                                            <span className="text-xs font-bold px-2 py-1 rounded uppercase tracking-wider bg-green-100 text-green-700">
+                                                {problem.scenario === 'money' ? 'Zinseszins' : problem.scenario === 'population' ? 'Bevölkerung' : 'Biologie'}
                                             </span>
-                                            <span className="text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded">
-                                                Schritt {step > 4 ? 4 : step} von 4
-                                            </span>
+                                            <span className="text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded">Schritt {step > 4 ? 4 : step} von 4</span>
                                         </div>
-                                        <p className="text-lg md:text-xl font-medium leading-relaxed">
-                                            {problem.text}
-                                        </p>
+                                        <p className="text-lg md:text-xl font-medium leading-relaxed">{problem.text}</p>
                                     </div>
 
-                                    {/* Step 1: Identify Target */}
+                                    {/* Step 1 */}
                                     <div className={`transition-opacity duration-300 ${step === 1 ? 'opacity-100' : 'opacity-40 pointer-events-none'}`}>
-                                        <p className="text-sm font-semibold text-slate-500 mb-4 text-center uppercase tracking-wide flex items-center justify-center gap-2">
-                                            <Search className="w-4 h-4"/> 1. Was ist in dieser Aufgabe gesucht?
-                                        </p>
-                                        
+                                        <p className="text-sm font-semibold text-slate-500 mb-4 text-center uppercase tracking-wide flex items-center justify-center gap-2"><Search className="w-4 h-4"/> 1. Was ist gesucht?</p>
                                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                                            {[
-                                                { type: 'Wn', label: <VarWn/>, desc: "Endwert" },
-                                                { type: 'W0', label: <VarW0/>, desc: "Anfangswert" },
-                                                { type: 'rate', label: <VarQ/>, desc: "Faktor/Prozent" },
-                                                { type: 'n', label: <VarN/>, desc: "Laufzeit" }
-                                            ].map((item) => (
-                                                <button
-                                                    key={item.type}
-                                                    onClick={() => handleIdentify(item.type)}
-                                                    disabled={step > 1}
-                                                    className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-1
-                                                        ${selectedIdentification === item.type 
-                                                            ? (item.type === problem.type 
-                                                                ? 'border-green-500 bg-green-50 text-green-900' 
-                                                                : 'border-red-400 bg-red-50 text-red-900')
-                                                            : 'border-slate-200 hover:border-green-300 bg-white hover:bg-slate-50'}
-                                                    `}
-                                                >
-                                                    <span className="text-xl font-serif font-bold">{item.label}</span>
-                                                    <span className="text-[10px] sm:text-xs uppercase font-semibold text-slate-500 text-center">{item.desc}</span>
+                                            {[{ type: 'Wn', label: <VarWn/>, desc: "Endwert" }, { type: 'W0', label: <VarW0/>, desc: "Anfangswert" }, { type: 'rate', label: <VarQ/>, desc: "Faktor" }, { type: 'n', label: <VarN/>, desc: "Laufzeit" }].map((item) => (
+                                                <button key={item.type} onClick={() => handleIdentify(item.type)} disabled={step > 1} className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-1 ${selectedIdentification === item.type ? (item.type === problem.type ? 'border-green-500 bg-green-50 text-green-900' : 'border-red-400 bg-red-50 text-red-900') : 'border-slate-200 hover:border-green-300 bg-white hover:bg-slate-50'}`}>
+                                                    <span className="text-xl font-serif font-bold">{item.label}</span><span className="text-[10px] sm:text-xs uppercase font-semibold text-slate-500">{item.desc}</span>
                                                 </button>
                                             ))}
                                         </div>
-                                        {identificationFeedback === 'incorrect' && (
-                                            <p className="text-red-500 text-center mt-3 text-sm font-medium animate-pulse">
-                                                Lies den Text noch einmal genau. Was ist unbekannt?
-                                            </p>
-                                        )}
-                                        {identificationFeedback === 'correct' && step === 1 && (
-                                            <p className="text-green-600 text-center mt-3 text-sm font-bold animate-pulse">
-                                                Richtig erkannt!
-                                            </p>
-                                        )}
+                                        {identificationFeedback === 'incorrect' && <p className="text-red-500 text-center mt-3 text-sm font-medium animate-pulse">Lies den Text noch einmal genau. Was ist unbekannt?</p>}
+                                        {identificationFeedback === 'correct' && step === 1 && <p className="text-green-600 text-center mt-3 text-sm font-bold animate-pulse">Richtig erkannt!</p>}
                                     </div>
 
-                                    {/* Step 2: Formula Mapping */}
+                                    {/* Step 2 */}
                                     {step >= 2 && (
                                         <div className={`transition-opacity duration-500 border-t pt-8 border-slate-100 ${step > 2 ? 'opacity-40 pointer-events-none' : ''}`}>
-                                            <p className="text-sm font-semibold text-slate-500 mb-4 text-center uppercase tracking-wide">
-                                            2. Fülle die gegebenen Werte in die Formel ein:
-                                            </p>
-                                            
+                                            <p className="text-sm font-semibold text-slate-500 mb-4 text-center uppercase tracking-wide">2. Fülle die Werte in die Formel ein:</p>
                                             <div className="flex flex-wrap items-center justify-center gap-2 md:gap-4 bg-white p-4 sm:p-6 rounded-xl border border-dashed border-slate-300 overflow-x-auto">
-                                            <FormulaInput 
-                                                id="wn" label={<VarWn/>} value={inputs.wn} 
-                                                isUnknown={problem.type === 'Wn'} status={inputFeedback.wn || null}
-                                                disabled={step > 2 || inputFeedback.wn === 'correct'} onChange={handleInputChange}
-                                            />
-                                            <span className="text-2xl text-slate-400 font-bold mt-6">=</span>
-                                            <FormulaInput 
-                                                id="w0" label={<VarW0/>} value={inputs.w0} 
-                                                isUnknown={problem.type === 'W0'} status={inputFeedback.w0 || null}
-                                                disabled={step > 2 || inputFeedback.w0 === 'correct'} onChange={handleInputChange}
-                                            />
-                                            <span className="text-2xl text-slate-400 font-bold mt-6">·</span>
-                                            <FormulaInput 
-                                                id="q" label={<VarQ/>} value={inputs.q} 
-                                                isUnknown={problem.type === 'rate'} status={inputFeedback.q || null}
-                                                disabled={step > 2 || inputFeedback.q === 'correct'} onChange={handleInputChange}
-                                            />
-                                            <div className="relative -top-6">
-                                                <FormulaInput 
-                                                id="n" label={<span className="text-sm"><VarN/></span>} value={inputs.n} 
-                                                isUnknown={problem.type === 'n'} status={inputFeedback.n || null}
-                                                disabled={step > 2 || inputFeedback.n === 'correct'} onChange={handleInputChange}
-                                                />
+                                                <FormulaInput id="wn" label={<VarWn/>} value={inputs.wn} theme="green" isUnknown={problem.type === 'Wn'} status={inputFeedback.wn} disabled={step > 2 || inputFeedback.wn === 'correct'} onChange={handleInputChange} />
+                                                <span className="text-2xl text-slate-400 font-bold mt-6">=</span>
+                                                <FormulaInput id="w0" label={<VarW0/>} value={inputs.w0} theme="green" isUnknown={problem.type === 'W0'} status={inputFeedback.w0} disabled={step > 2 || inputFeedback.w0 === 'correct'} onChange={handleInputChange} />
+                                                <span className="text-2xl text-slate-400 font-bold mt-6">·</span>
+                                                <FormulaInput id="q" label={<VarQ/>} value={inputs.q} theme="green" isUnknown={problem.type === 'rate'} status={inputFeedback.q} disabled={step > 2 || inputFeedback.q === 'correct'} onChange={handleInputChange} />
+                                                <div className="relative -top-6"><FormulaInput id="n" label={<span className="text-sm"><VarN/></span>} value={inputs.n} theme="green" isUnknown={problem.type === 'n'} status={inputFeedback.n} disabled={step > 2 || inputFeedback.n === 'correct'} onChange={handleInputChange} /></div>
                                             </div>
-                                            </div>
-
-                                            {step === 2 && (
-                                            <div className="mt-6 flex justify-center">
-                                                <button 
-                                                onClick={checkFormulaInputs}
-                                                className="bg-slate-800 hover:bg-slate-900 text-white px-8 py-3 rounded-lg font-medium transition-colors w-full sm:w-auto shadow-sm"
-                                                >
-                                                Werte prüfen
-                                                </button>
-                                            </div>
-                                            )}
+                                            {step === 2 && <div className="mt-6 flex justify-center"><button onClick={checkFormulaInputs} className="bg-slate-800 hover:bg-slate-900 text-white px-8 py-3 rounded-lg font-medium w-full sm:w-auto shadow-sm">Werte prüfen</button></div>}
                                         </div>
                                     )}
 
-                                    {/* Step 3: Transformation */}
+                                    {/* Step 3 */}
                                     {step >= 3 && (
                                         <div className={`duration-500 border-t pt-8 border-slate-100 ${step > 3 ? 'opacity-40 pointer-events-none' : ''}`}>
-                                            <p className="text-sm font-semibold text-slate-500 mb-4 text-center uppercase tracking-wide">
-                                            3. Wie formst du die Gleichung um?
-                                            </p>
-
+                                            <p className="text-sm font-semibold text-slate-500 mb-4 text-center uppercase tracking-wide">3. Wie formst du die Gleichung um?</p>
                                             <div className="flex justify-center items-center gap-2 text-lg sm:text-xl md:text-2xl font-mono bg-slate-100 py-4 px-2 rounded-lg mb-6 text-slate-700 overflow-x-auto text-center">
-                                                <span>{problem.type === 'Wn' ? <span className="text-green-600 font-bold">Wn</span> : problem.wn}</span>
-                                                <span>=</span>
-                                                <span>{problem.type === 'W0' ? <span className="text-green-600 font-bold">W0</span> : problem.w0}</span>
-                                                <span>·</span>
-                                                <span>
-                                                {problem.type === 'rate' ? <span className="text-green-600 font-bold">q</span> : problem.q}
-                                                <sup>{problem.type === 'n' ? <span className="text-green-600 font-bold">n</span> : problem.n}</sup>
-                                                </span>
+                                                <span>{problem.type === 'Wn' ? <span className="text-green-600 font-bold">Wn</span> : problem.wn} = {problem.type === 'W0' ? <span className="text-green-600 font-bold">W0</span> : problem.w0} · {problem.type === 'rate' ? <span className="text-green-600 font-bold">q</span> : problem.q}<sup>{problem.type === 'n' ? <span className="text-green-600 font-bold">n</span> : problem.n}</sup></span>
                                             </div>
-
                                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                             {options.map((opt) => (
-                                                <button
-                                                key={opt.id}
-                                                onClick={() => handleOptionSelect(opt)}
-                                                disabled={step > 3}
-                                                className={`p-4 rounded-xl border-2 text-sm md:text-base font-medium transition-all text-center flex flex-col items-center justify-center gap-2 hover:bg-slate-50
-                                                    ${selectedOptionId === opt.id 
-                                                    ? (opt.isCorrect 
-                                                        ? 'border-green-500 bg-green-50 text-green-900' 
-                                                        : 'border-red-400 bg-red-50 text-red-900') 
-                                                    : 'border-slate-200 text-slate-600 hover:border-green-300'}
-                                                `}
-                                                >
+                                                <button key={opt.id} onClick={() => handleOptionSelect(opt)} disabled={step > 3} className={`p-4 rounded-xl border-2 text-sm md:text-base font-medium flex flex-col items-center justify-center gap-2 ${selectedOptionId === opt.id ? (opt.isCorrect ? 'border-green-500 bg-green-50 text-green-900' : 'border-red-400 bg-red-50 text-red-900') : 'border-slate-200 hover:border-green-300'}`}>
                                                     {selectedOptionId === opt.id && opt.isCorrect && <CheckCircle className="w-5 h-5 text-green-600 mb-1"/>}
                                                     {selectedOptionId === opt.id && !opt.isCorrect && <XCircle className="w-5 h-5 text-red-500 mb-1"/>}
                                                     {!selectedOptionId && <MousePointerClick className="w-5 h-5 text-slate-300 mb-1"/>}
@@ -719,76 +502,27 @@
                                                 </button>
                                             ))}
                                             </div>
-                                            {transformationFeedback === 'incorrect' && (
-                                                <p className="text-red-500 text-center mt-3 text-sm font-medium animate-pulse">
-                                                    Das führt nicht zum Ziel. Versuch es nochmal!
-                                                </p>
-                                            )}
-                                            {transformationFeedback === 'correct' && step === 3 && (
-                                                <p className="text-green-600 text-center mt-3 text-sm font-bold animate-pulse">
-                                                    Korrekt! Weiter geht's...
-                                                </p>
-                                            )}
+                                            {transformationFeedback === 'incorrect' && <p className="text-red-500 text-center mt-3 text-sm font-medium animate-pulse">Das führt nicht zum Ziel.</p>}
+                                            {transformationFeedback === 'correct' && step === 3 && <p className="text-green-600 text-center mt-3 text-sm font-bold animate-pulse">Korrekt!</p>}
                                         </div>
                                     )}
 
-                                    {/* Step 4: Calculation */}
+                                    {/* Step 4 */}
                                     {step >= 4 && (
                                         <div className="duration-500 border-t pt-8 border-slate-100">
-                                            <p className="text-sm font-semibold text-slate-500 mb-4 text-center uppercase tracking-wide">
-                                            4. Berechne das Ergebnis:
-                                            </p>
-                                            
+                                            <p className="text-sm font-semibold text-slate-500 mb-4 text-center uppercase tracking-wide">4. Berechne das Ergebnis:</p>
                                             <div className="flex flex-col items-center gap-4">
-                                            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center w-full">
-                                                <div className="relative w-full sm:w-auto">
-                                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 font-serif text-slate-400 italic">
-                                                    {problem.type === 'Wn' ? <VarWn/> : 
-                                                    problem.type === 'W0' ? <VarW0/> : 
-                                                    problem.type === 'rate' ? 'p' : <VarN/>} =
-                                                    </span>
-                                                    <input
-                                                    type="text"
-                                                    value={finalAnswer}
-                                                    onChange={(e) => setFinalAnswer(e.target.value)}
-                                                    disabled={step === 5}
-                                                    placeholder="Ergebnis..."
-                                                    className={`pl-16 pr-12 py-3 w-full sm:w-64 rounded-lg border-2 text-lg outline-none transition-colors ${
-                                                        finalFeedback === 'correct' ? 'border-green-500 bg-green-50 text-green-900' : 
-                                                        finalFeedback === 'incorrect' ? 'border-red-400 bg-red-50' : 'border-slate-300 focus:border-green-500'
-                                                    }`}
-                                                    />
-                                                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-medium">
-                                                    {problem.type === 'rate' ? '%' : problem.unit}
-                                                    </span>
+                                                <div className="flex flex-col sm:flex-row gap-4 justify-center items-center w-full">
+                                                    <div className="relative w-full sm:w-auto">
+                                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 font-serif text-slate-400 italic">{problem.type === 'Wn' ? <VarWn/> : problem.type === 'W0' ? <VarW0/> : problem.type === 'rate' ? 'p' : <VarN/>} =</span>
+                                                        <input type="text" value={finalAnswer} onChange={(e) => setFinalAnswer(e.target.value)} disabled={step === 5} placeholder="Ergebnis..." className={`pl-16 pr-12 py-3 w-full sm:w-64 rounded-lg border-2 text-lg outline-none ${finalFeedback === 'correct' ? 'border-green-500 bg-green-50 text-green-900' : finalFeedback === 'incorrect' ? 'border-red-400 bg-red-50' : 'border-slate-300 focus:border-green-500'}`} />
+                                                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-medium">{problem.type === 'rate' ? '%' : problem.unit}</span>
+                                                    </div>
+                                                    {step === 4 && <button onClick={checkFinalResult} className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold shadow-lg shadow-green-200 flex items-center justify-center gap-2">Prüfen <ArrowRight className="w-5 h-5"/></button>}
                                                 </div>
-
-                                                {step === 4 && (
-                                                <button 
-                                                    onClick={checkFinalResult}
-                                                    className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold shadow-lg shadow-green-200 transition-all active:scale-95 flex items-center justify-center gap-2"
-                                                >
-                                                    Prüfen <ArrowRight className="w-5 h-5"/>
-                                                </button>
-                                                )}
-                                            </div>
-                                            
-                                            {step === 4 && !showCalculator && (
-                                                <button 
-                                                onClick={() => setShowCalculator(true)}
-                                                className="text-slate-500 hover:text-green-600 text-sm font-medium flex items-center gap-2 mt-2 bg-slate-100 hover:bg-green-50 px-4 py-2 rounded-lg transition-colors"
-                                                >
-                                                    <Calculator className="w-4 h-4"/> Taschenrechner anzeigen
-                                                </button>
-                                            )}
-                                            
-                                            {showCalculator && step === 4 && (
-                                                <ScientificCalculator onClose={() => setShowCalculator(false)}/>
-                                            )}
-
-                                            {finalFeedback === 'incorrect' && (
-                                                <p className="text-red-500 text-center text-sm font-medium">Das Ergebnis stimmt nicht ganz. Überprüfe Rundung und Rechenweg.</p>
-                                            )}
+                                                {step === 4 && !showCalculator && <button onClick={() => setShowCalculator(true)} className="text-slate-500 hover:text-green-600 text-sm font-medium flex items-center gap-2 mt-2 bg-slate-100 px-4 py-2 rounded-lg"><Calculator className="w-4 h-4"/> Taschenrechner anzeigen</button>}
+                                                {showCalculator && step === 4 && <ScientificCalculator onClose={() => setShowCalculator(false)}/>}
+                                                {finalFeedback === 'incorrect' && <p className="text-red-500 text-center text-sm font-medium">Das Ergebnis stimmt nicht ganz.</p>}
                                             </div>
                                         </div>
                                     )}
@@ -796,39 +530,17 @@
                                     {/* Solution */}
                                     {step === 5 && (
                                         <div className="flex flex-col items-center gap-4 mt-6">
-                                            <div className="bg-green-100 text-green-800 px-6 py-3 rounded-full font-bold flex items-center gap-2 text-lg">
-                                                <CheckCircle className="w-6 h-6" /> Richtig gelöst!
-                                            </div>
-                                            
+                                            <div className="bg-green-100 text-green-800 px-6 py-3 rounded-full font-bold flex items-center gap-2 text-lg"><CheckCircle className="w-6 h-6" /> Richtig gelöst!</div>
                                             <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto mt-4">
-                                                <button 
-                                                onClick={() => setShowSolution(!showSolution)}
-                                                className="text-slate-600 bg-slate-100 hover:bg-slate-200 hover:text-green-700 flex items-center justify-center gap-2 text-sm px-6 py-3 rounded-lg font-medium transition-colors"
-                                                >
-                                                <BookOpen className="w-4 h-4"/> Erklärung anzeigen
-                                                </button>
-                                                <button
-                                                onClick={generateProblem}
-                                                className="bg-slate-800 hover:bg-slate-900 text-white px-8 py-3 rounded-lg font-medium flex items-center justify-center gap-2 shadow-sm transition-all hover:shadow-md"
-                                                >
-                                                <RefreshCw className="w-4 h-4" /> Nächste Aufgabe
-                                                </button>
+                                                <button onClick={() => setShowSolution(!showSolution)} className="text-slate-600 bg-slate-100 hover:bg-slate-200 hover:text-green-700 flex items-center justify-center gap-2 text-sm px-6 py-3 rounded-lg font-medium"><BookOpen className="w-4 h-4"/> Erklärung anzeigen</button>
+                                                <button onClick={generateProblem} className="bg-slate-800 hover:bg-slate-900 text-white px-8 py-3 rounded-lg font-medium flex items-center justify-center gap-2 shadow-sm"><RefreshCw className="w-4 h-4" /> Nächste Aufgabe</button>
                                             </div>
-
-                                            {showSolution && (
-                                                <div className="w-full bg-yellow-50/80 p-6 rounded-xl border border-yellow-200 mt-4 text-sm font-mono whitespace-pre-line text-slate-700 shadow-inner">
-                                                {problem.explanation}
-                                                </div>
-                                            )}
+                                            {showSolution && <div className="w-full bg-yellow-50/80 p-6 rounded-xl border border-yellow-200 mt-4 text-sm font-mono whitespace-pre-line text-slate-700 shadow-inner">{problem.explanation}</div>}
                                         </div>
                                     )}
-
                                 </>
                             ) : (
-                                <div className="h-64 flex flex-col items-center justify-center text-slate-400 gap-4">
-                                    <RefreshCw className="w-8 h-8 animate-spin text-green-400"/>
-                                    Lade Aufgabe...
-                                </div>
+                                <div className="h-64 flex flex-col items-center justify-center text-slate-400 gap-4"><RefreshCw className="w-8 h-8 animate-spin text-green-400"/>Lade Aufgabe...</div>
                             )}
                         </div>
                     </div>
@@ -836,124 +548,60 @@
             );
         };
 
-        // --- ZERFALLS-TRAINER COMPONENT ---
+        // --- ZERFALLS-TRAINER ---
         const ZerfallsTrainer = () => {
             const [problem, setProblem] = useState(null);
-            
-            // States
             const [step, setStep] = useState(1); 
-            
-            // Step 1 Data
             const [identificationFeedback, setIdentificationFeedback] = useState(null);
             const [selectedIdentification, setSelectedIdentification] = useState(null);
-
-            // Step 2 Data
             const [inputs, setInputs] = useState({ wn: '', w0: '', q: '', n: '' });
             const [inputFeedback, setInputFeedback] = useState({});
-            
-            // Step 3 Data
             const [options, setOptions] = useState([]);
             const [selectedOptionId, setSelectedOptionId] = useState(null);
             const [transformationFeedback, setTransformationFeedback] = useState(null);
-
-            // Step 4 Data
             const [finalAnswer, setFinalAnswer] = useState('');
             const [finalFeedback, setFinalFeedback] = useState(null);
             const [showCalculator, setShowCalculator] = useState(false);
-            
             const [showSolution, setShowSolution] = useState(false);
             const [streak, setStreak] = useState(0);
             const [loading, setLoading] = useState(true);
-
-            // Sequence: 0: Wn, 1: rate (q), 2: W0, 3: n
             const [sequenceIndex, setSequenceIndex] = useState(0);
 
-            const round = (num, decimals = 2) => {
-                return Math.round(num * Math.pow(10, decimals)) / Math.pow(10, decimals);
-            };
+            const round = (num, decimals = 2) => Math.round(num * Math.pow(10, decimals)) / Math.pow(10, decimals);
 
             const generateProblem = () => {
-                setLoading(true);
-                setStep(1);
-                
-                setIdentificationFeedback(null);
-                setSelectedIdentification(null);
+                setLoading(true); setStep(1); setIdentificationFeedback(null); setSelectedIdentification(null);
+                setInputs({ wn: '', w0: '', q: '', n: '' }); setInputFeedback({});
+                setOptions([]); setSelectedOptionId(null); setTransformationFeedback(null);
+                setFinalAnswer(''); setFinalFeedback(null); setShowCalculator(false); setShowSolution(false);
 
-                setInputs({ wn: '', w0: '', q: '', n: '' });
-                setInputFeedback({});
-
-                setOptions([]);
-                setSelectedOptionId(null);
-                setTransformationFeedback(null);
-
-                setFinalAnswer('');
-                setFinalFeedback(null);
-                setShowCalculator(false);
-                setShowSolution(false);
-
-                const scenarios = ['radioactivity', 'medicine', 'depreciation', 'forest'];
+                const scenarios = ['radioactivity', 'medicine', 'depreciation'];
                 const scenario = scenarios[Math.floor(Math.random() * scenarios.length)];
-                
                 const sequenceOrder = ['Wn', 'rate', 'W0', 'n'];
                 const type = sequenceOrder[sequenceIndex % sequenceOrder.length];
-
                 setSequenceIndex(prev => prev + 1);
 
-                let w0 = 0, rate = 0, n = 0, q = 0, wn = 0;
-                let unit = "";
+                let w0 = 0, rate = 0, n = 0, q = 0, wn = 0, unit = "";
 
                 switch (scenario) {
-                    case 'radioactivity':
-                        unit = "mg";
-                        w0 = Math.floor(Math.random() * 100) + 50; 
-                        rate = round(Math.random() * 5 + 1, 1); 
-                        n = Math.floor(Math.random() * 20) + 5; 
-                        break;
-                    case 'medicine':
-                        unit = "mg";
-                        w0 = Math.floor(Math.random() * 500) + 100; 
-                        rate = Math.floor(Math.random() * 15) + 5; 
-                        n = Math.floor(Math.random() * 12) + 2; 
-                        break;
-                    case 'depreciation':
-                        unit = "€";
-                        w0 = Math.floor(Math.random() * 20) * 1000 + 15000;
-                        rate = Math.floor(Math.random() * 10) + 8;
-                        n = Math.floor(Math.random() * 6) + 3;
-                        break;
-                    case 'forest':
-                        unit = "Hektar";
-                        w0 = Math.floor(Math.random() * 5000) + 1000;
-                        rate = round(Math.random() * 4 + 0.5, 1); 
-                        n = Math.floor(Math.random() * 15) + 5; 
-                        break;
+                    case 'radioactivity': unit = "mg"; w0 = Math.floor(Math.random() * 100) + 50; rate = round(Math.random() * 5 + 1, 1); n = Math.floor(Math.random() * 20) + 5; break;
+                    case 'medicine': unit = "mg"; w0 = Math.floor(Math.random() * 500) + 100; rate = Math.floor(Math.random() * 15) + 5; n = Math.floor(Math.random() * 12) + 2; break;
+                    case 'depreciation': unit = "€"; w0 = Math.floor(Math.random() * 20) * 1000 + 15000; rate = Math.floor(Math.random() * 10) + 8; n = Math.floor(Math.random() * 6) + 3; break;
                 }
 
-                q = 1 - rate / 100;
-                q = round(q, 4);
-                wn = round(w0 * Math.pow(q, n), 2);
+                q = 1 - rate / 100; q = round(q, 4); wn = round(w0 * Math.pow(q, n), 2);
 
                 let questionText = "";
                 const timeUnit = (scenario === 'medicine') ? 'Stunden' : (scenario === 'radioactivity' ? 'Tagen' : 'Jahren');
                 const timeAdverb = (scenario === 'medicine') ? 'stündlich' : (scenario === 'radioactivity' ? 'täglich' : 'jährlich');
-                const valWord = (scenario === 'depreciation') ? 'Wert' : (scenario === 'forest' ? 'Waldfläche' : (scenario === 'medicine' ? 'Wirkstoffmenge' : 'Masse'));
+                const valWord = (scenario === 'depreciation') ? 'Wert' : (scenario === 'medicine' ? 'Wirkstoffmenge' : 'Masse');
 
                 switch (type) {
-                    case 'Wn':
-                        if (scenario === 'depreciation') questionText = `Ein Auto kostet neu ${w0} ${unit}. Es verliert jährlich ${rate} % an Wert. Die Laufzeit beträgt ${n} Jahre.`;
-                        else questionText = `Eine ${valWord} von ${w0} ${unit} nimmt ${timeAdverb} um ${rate} % ab. Zeitraum: ${n} ${timeUnit}.`;
-                        break;
-                    case 'W0':
-                        questionText = `Nach ${n} ${timeUnit} ist die ${valWord} auf ${wn} ${unit} gesunken. Die ${timeAdverb}e Abnahme betrug ${rate} %.`;
-                        break;
-                    case 'rate':
-                        questionText = `Die ${valWord} ist in ${n} ${timeUnit} von ${w0} ${unit} auf ${wn} ${unit} gesunken.`;
-                        break;
-                    case 'n':
-                        questionText = `Startwert: ${w0} ${unit}. Endwert: ${wn} ${unit}. Abnahme: ${rate} % pro ${timeUnit === 'Stunden' ? 'Stunde' : (timeUnit === 'Tagen' ? 'Tag' : 'Jahr')}.`;
-                        break;
+                    case 'Wn': questionText = `Eine ${valWord} von ${w0} ${unit} nimmt ${timeAdverb} um ${rate} % ab. Zeitraum: ${n} ${timeUnit}.`; break;
+                    case 'W0': questionText = `Nach ${n} ${timeUnit} ist die ${valWord} auf ${wn} ${unit} gesunken. Die Abnahme betrug ${rate} %.`; break;
+                    case 'rate': questionText = `Die ${valWord} ist in ${n} ${timeUnit} von ${w0} ${unit} auf ${wn} ${unit} gesunken.`; break;
+                    case 'n': questionText = `Startwert: ${w0} ${unit}. Endwert: ${wn} ${unit}. Abnahme: ${rate} % pro ${timeUnit === 'Stunden' ? 'Stunde' : (timeUnit === 'Tagen' ? 'Tag' : 'Jahr')}.`; break;
                 }
-                
                 questionText += " Was musst du berechnen?";
 
                 let explanation = `Gegeben:\n`;
@@ -961,306 +609,131 @@
                 if (type !== 'Wn') explanation += `Wn = ${wn} ${unit}\n`;
                 if (type !== 'n') explanation += `n = ${n}\n`;
                 if (type !== 'rate') explanation += `p = ${rate}%  =>  q = ${q}\n`;
-                
                 explanation += `\nRechnung:\n`;
                 if (type === 'Wn') explanation += `Wn = ${w0} · ${q}^${n} = ${wn}`;
                 if (type === 'W0') explanation += `W0 = ${wn} / ${q}^${n} = ${w0}`;
                 if (type === 'rate') explanation += `q = (${wn}/${w0})^(1/${n}) = ${q} => p=${rate}%`;
                 if (type === 'n') explanation += `n = log(${wn}/${w0}) / log(${q}) = ${n}`;
 
-                const newProblem = {
-                    type, scenario, text: questionText,
-                    w0, wn, rate, q, n, unit,
-                    solution: type === 'rate' ? rate : (type === 'n' ? n : (type === 'W0' ? w0 : wn)),
-                    explanation
-                };
-
+                const newProblem = { type, scenario, text: questionText, w0, wn, rate, q, n, unit, solution: type === 'rate' ? rate : (type === 'n' ? n : (type === 'W0' ? w0 : wn)), explanation };
                 setProblem(newProblem);
-                generateOptions(newProblem);
+                
+                let opts = [];
+                switch (type) {
+                    case 'Wn': opts = [{ id: '1', label: 'Formel ist bereits aufgelöst. Einfach ausrechnen.', isCorrect: true }, { id: '2', label: <span>Teile durch <VarW0/></span>, isCorrect: false }, { id: '3', label: <span>Ziehe die {n}-te Wurzel</span>, isCorrect: false }]; break;
+                    case 'W0': opts = [{ id: '1', label: <span>Teile durch <VarQpowN/></span>, isCorrect: true }, { id: '2', label: <span>Multipliziere mit <VarQpowN/></span>, isCorrect: false }, { id: '3', label: <span>Subtrahiere <VarQpowN/></span>, isCorrect: false }]; break;
+                    case 'rate': opts = [{ id: '1', label: <span>1. Teile durch <VarW0/> <br/> 2. Ziehe die {n}-te Wurzel</span>, isCorrect: true }, { id: '2', label: <span>1. Teile durch <VarW0/> <br/> 2. Teile durch {n}</span>, isCorrect: false }, { id: '3', label: <span>1. Teile durch {n} <br/> 2. Ziehe die Wurzel</span>, isCorrect: false }]; break;
+                    case 'n': opts = [{ id: '1', label: <span>1. Teile durch <VarW0/> <br/> 2. Wende den Logarithmus an</span>, isCorrect: true }, { id: '2', label: <span>1. Teile durch <VarQ/> <br/> 2. Wende den Logarithmus an</span>, isCorrect: false }, { id: '3', label: <span>1. Teile durch <VarW0/> <br/> 2. Ziehe die {n}-te Wurzel</span>, isCorrect: false }]; break;
+                }
+                setOptions(opts.sort(() => Math.random() - 0.5));
                 setLoading(false);
             };
 
-            const generateOptions = (prob) => {
-                let opts = [];
-                switch (prob.type) {
-                    case 'Wn':
-                        opts = [
-                            { id: '1', label: 'Formel ist bereits aufgelöst. Einfach ausrechnen.', isCorrect: true },
-                            { id: '2', label: <span>Teile durch <VarW0/></span>, isCorrect: false },
-                            { id: '3', label: <span>Ziehe die {prob.n}-te Wurzel</span>, isCorrect: false }
-                        ];
-                        break;
-                    case 'W0':
-                        opts = [
-                            { id: '1', label: <span>Teile durch <VarQpowN/></span>, isCorrect: true },
-                            { id: '2', label: <span>Multipliziere mit <VarQpowN/></span>, isCorrect: false },
-                            { id: '3', label: <span>Subtrahiere <VarQpowN/></span>, isCorrect: false }
-                        ];
-                        break;
-                    case 'rate':
-                        opts = [
-                            { id: '1', label: <span>1. Teile durch <VarW0/> <br/> 2. Ziehe die {prob.n}-te Wurzel</span>, isCorrect: true },
-                            { id: '2', label: <span>1. Teile durch <VarW0/> <br/> 2. Teile durch {prob.n}</span>, isCorrect: false },
-                            { id: '3', label: <span>1. Teile durch {prob.n} <br/> 2. Ziehe die Wurzel</span>, isCorrect: false }
-                        ];
-                        break;
-                    case 'n':
-                        opts = [
-                            { id: '1', label: <span>1. Teile durch <VarW0/> <br/> 2. Wende den Logarithmus an</span>, isCorrect: true },
-                            { id: '2', label: <span>1. Teile durch <VarQ/> <br/> 2. Wende den Logarithmus an</span>, isCorrect: false },
-                            { id: '3', label: <span>1. Teile durch <VarW0/> <br/> 2. Ziehe die {prob.n}-te Wurzel</span>, isCorrect: false }
-                        ];
-                        break;
-                }
-                setOptions(opts.sort(() => Math.random() - 0.5));
-            };
+            useEffect(() => { generateProblem(); }, []);
 
             const handleIdentify = (selected) => {
                 if (identificationFeedback === 'correct' || !problem) return;
-                
                 setSelectedIdentification(selected);
-                if (selected === problem.type) {
-                    setIdentificationFeedback('correct');
-                    setTimeout(() => setStep(2), 1000);
-                } else {
-                    setIdentificationFeedback('incorrect');
-                    setStreak(0);
-                }
+                if (selected === problem.type) { setIdentificationFeedback('correct'); setTimeout(() => setStep(2), 1000); } else { setIdentificationFeedback('incorrect'); setStreak(0); }
             };
 
             const checkFormulaInputs = () => {
                 if (!problem) return;
-                const feedback = {};
-                let allCorrect = true;
-
-                const checkVal = (input, target) => {
-                    const val = parseFloat(input.replace(',', '.'));
-                    if (isNaN(val)) return false;
-                    return Math.abs(val - target) < (Math.max(target * 0.01, 0.005)); 
-                };
-
+                let allCorrect = true, feedback = {};
+                const checkVal = (input, target) => { const val = parseFloat(input.replace(',', '.')); if (isNaN(val)) return false; return Math.abs(val - target) < (Math.max(target * 0.01, 0.005)); };
                 if (problem.type !== 'Wn' && !checkVal(inputs.wn, problem.wn)) { feedback.wn = 'incorrect'; allCorrect = false; } else feedback.wn = 'correct';
                 if (problem.type !== 'W0' && !checkVal(inputs.w0, problem.w0)) { feedback.w0 = 'incorrect'; allCorrect = false; } else feedback.w0 = 'correct';
                 if (problem.type !== 'rate' && !checkVal(inputs.q, problem.q)) { feedback.q = 'incorrect'; allCorrect = false; } else feedback.q = 'correct';
                 if (problem.type !== 'n' && !checkVal(inputs.n, problem.n)) { feedback.n = 'incorrect'; allCorrect = false; } else feedback.n = 'correct';
-
-                setInputFeedback(feedback);
-                if (allCorrect) setStep(3);
+                setInputFeedback(feedback); if (allCorrect) setStep(3);
             };
 
             const handleOptionSelect = (opt) => {
                 if (transformationFeedback === 'correct') return;
                 setSelectedOptionId(opt.id);
-                if (opt.isCorrect) {
-                    setTransformationFeedback('correct');
-                    setTimeout(() => setStep(4), 1200);
-                } else {
-                    setTransformationFeedback('incorrect');
-                    setStreak(0);
-                }
+                if (opt.isCorrect) { setTransformationFeedback('correct'); setTimeout(() => setStep(4), 1200); } else { setTransformationFeedback('incorrect'); setStreak(0); }
             };
 
             const checkFinalResult = () => {
                 if (!problem) return;
-                const val = parseFloat(finalAnswer.replace(',', '.'));
-                if (isNaN(val)) return;
-
+                const val = parseFloat(finalAnswer.replace(',', '.')); if (isNaN(val)) return;
                 const tolerance = problem.type === 'n' ? 0.5 : (problem.solution * 0.01);
-                const diff = Math.abs(val - problem.solution);
-                const isCorrect = diff <= tolerance || (problem.type === 'n' && Math.round(val) === problem.solution);
-
-                if (isCorrect) {
-                    setFinalFeedback('correct');
-                    setStreak(s => s + 1);
-                    setShowSolution(true);
-                    setStep(5);
-                } else {
-                    setFinalFeedback('incorrect');
-                    setStreak(0);
-                }
-            };
-
-            useEffect(() => {
-                generateProblem();
-            }, []);
-
-            const handleInputChange = (id, value) => {
-                setInputs(prev => ({ ...prev, [id]: value }));
-            };
-
-            const handleKeyPressStep2 = (e) => {
-                if (e.key === 'Enter') checkFormulaInputs();
-            };
-            const handleKeyPressStep4 = (e) => {
-                if (e.key === 'Enter') checkFinalResult();
+                if (Math.abs(val - problem.solution) <= tolerance || (problem.type === 'n' && Math.round(val) === problem.solution)) {
+                    setFinalFeedback('correct'); setStreak(s => s + 1); setShowSolution(true); setStep(5);
+                } else { setFinalFeedback('incorrect'); setStreak(0); }
             };
 
             return (
-                <div className="w-full flex items-center justify-center font-sans">
-                    <div className="max-w-3xl w-full bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200 flex flex-col">
-                        
-                        {/* Header */}
+                <div className="page-transition max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-sans">
+                    <div className="text-center mb-10">
+                        <h3 className="text-2xl font-bold text-slate-800">Interaktiver Zerfallstrainer</h3>
+                        <p className="text-slate-500 mt-2">Thema: Exponentieller Zerfall (10. Klasse)</p>
+                    </div>
+
+                    <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200 flex flex-col">
                         <div className="bg-rose-600 p-6 text-white flex flex-col sm:flex-row justify-between items-start sm:items-center shrink-0 gap-4">
                             <div>
-                                <h1 className="text-2xl font-bold flex items-center gap-2">
-                                    <Calculator className="w-6 h-6" />
-                                    Zerfallstrainer
-                                </h1>
+                                <h1 className="text-2xl font-bold flex items-center gap-2"><Calculator className="w-6 h-6" /> Zerfallstrainer</h1>
                                 <p className="text-rose-100 text-sm mt-1">Mathe 10. Klasse: <VarWn/> = <VarW0/> · <VarQpowN/></p>
                             </div>
                             <div className="bg-rose-700 px-3 py-1.5 rounded-lg text-sm font-semibold flex items-center gap-2">
-                                <TrendingUp className="w-4 h-4 text-green-300" /> 
-                                <span>Streak: {streak}</span>
+                                <TrendingDown className="w-4 h-4 text-rose-200" /> <span>Streak: {streak}</span>
                             </div>
                         </div>
 
-                        {/* Content */}
-                        <div className="p-4 sm:p-6 md:p-8 flex-grow space-y-8" onKeyDown={step === 2 ? handleKeyPressStep2 : step === 4 ? handleKeyPressStep4 : undefined}>
+                        <div className="p-4 sm:p-6 md:p-8 flex-grow space-y-8" onKeyDown={e => { if(e.key === 'Enter'){ step === 2 && checkFormulaInputs(); step === 4 && checkFinalResult(); }}}>
                             {!loading && problem ? (
                                 <>
-                                    {/* Task Description */}
                                     <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 shadow-sm">
                                         <div className="flex justify-between items-center mb-3">
-                                            <span className={`text-xs font-bold px-2 py-1 rounded uppercase tracking-wider ${
-                                                problem.scenario === 'radioactivity' ? 'bg-amber-100 text-amber-700' :
-                                                problem.scenario === 'medicine' ? 'bg-teal-100 text-teal-700' :
-                                                problem.scenario === 'depreciation' ? 'bg-red-100 text-red-700' :
-                                                'bg-emerald-100 text-emerald-700'
-                                            }`}>
-                                                {problem.scenario === 'radioactivity' ? 'Radioaktivität' : 
-                                                problem.scenario === 'medicine' ? 'Medizin' :
-                                                problem.scenario === 'depreciation' ? 'Wertverlust' : 'Natur'}
+                                            <span className="text-xs font-bold px-2 py-1 rounded uppercase tracking-wider bg-rose-100 text-rose-700">
+                                                {problem.scenario === 'radioactivity' ? 'Radioaktivität' : problem.scenario === 'medicine' ? 'Medizin' : 'Wertverlust'}
                                             </span>
-                                            <span className="text-xs font-bold text-rose-600 bg-rose-50 px-2 py-1 rounded">
-                                                Schritt {step > 4 ? 4 : step} von 4
-                                            </span>
+                                            <span className="text-xs font-bold text-rose-600 bg-rose-50 px-2 py-1 rounded">Schritt {step > 4 ? 4 : step} von 4</span>
                                         </div>
-                                        <p className="text-lg md:text-xl font-medium leading-relaxed">
-                                            {problem.text}
-                                        </p>
+                                        <p className="text-lg md:text-xl font-medium leading-relaxed">{problem.text}</p>
                                     </div>
 
-                                    {/* Step 1: Identify Target */}
+                                    {/* Step 1 */}
                                     <div className={`transition-opacity duration-300 ${step === 1 ? 'opacity-100' : 'opacity-40 pointer-events-none'}`}>
-                                        <p className="text-sm font-semibold text-slate-500 mb-4 text-center uppercase tracking-wide flex items-center justify-center gap-2">
-                                            <Search className="w-4 h-4"/> 1. Was ist in dieser Aufgabe gesucht?
-                                        </p>
-                                        
+                                        <p className="text-sm font-semibold text-slate-500 mb-4 text-center uppercase tracking-wide flex items-center justify-center gap-2"><Search className="w-4 h-4"/> 1. Was ist gesucht?</p>
                                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                                            {[
-                                                { type: 'Wn', label: <VarWn/>, desc: "Endwert" },
-                                                { type: 'W0', label: <VarW0/>, desc: "Anfangswert" },
-                                                { type: 'rate', label: <VarQ/>, desc: "Faktor/Prozent" },
-                                                { type: 'n', label: <VarN/>, desc: "Laufzeit" }
-                                            ].map((item) => (
-                                                <button
-                                                    key={item.type}
-                                                    onClick={() => handleIdentify(item.type)}
-                                                    disabled={step > 1}
-                                                    className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-1
-                                                        ${selectedIdentification === item.type 
-                                                            ? (item.type === problem.type 
-                                                                ? 'border-green-500 bg-green-50 text-green-900' 
-                                                                : 'border-red-400 bg-red-50 text-red-900')
-                                                            : 'border-slate-200 hover:border-rose-300 bg-white hover:bg-slate-50'}
-                                                    `}
-                                                >
-                                                    <span className="text-xl font-serif font-bold">{item.label}</span>
-                                                    <span className="text-[10px] sm:text-xs uppercase font-semibold text-slate-500 text-center">{item.desc}</span>
+                                            {[{ type: 'Wn', label: <VarWn/>, desc: "Endwert" }, { type: 'W0', label: <VarW0/>, desc: "Anfangswert" }, { type: 'rate', label: <VarQ/>, desc: "Faktor" }, { type: 'n', label: <VarN/>, desc: "Laufzeit" }].map((item) => (
+                                                <button key={item.type} onClick={() => handleIdentify(item.type)} disabled={step > 1} className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-1 ${selectedIdentification === item.type ? (item.type === problem.type ? 'border-green-500 bg-green-50 text-green-900' : 'border-red-400 bg-red-50 text-red-900') : 'border-slate-200 hover:border-rose-300 bg-white hover:bg-slate-50'}`}>
+                                                    <span className="text-xl font-serif font-bold">{item.label}</span><span className="text-[10px] sm:text-xs uppercase font-semibold text-slate-500">{item.desc}</span>
                                                 </button>
                                             ))}
                                         </div>
-                                        {identificationFeedback === 'incorrect' && (
-                                            <p className="text-red-500 text-center mt-3 text-sm font-medium animate-pulse">
-                                                Lies den Text noch einmal genau. Was ist unbekannt?
-                                            </p>
-                                        )}
-                                        {identificationFeedback === 'correct' && step === 1 && (
-                                            <p className="text-green-600 text-center mt-3 text-sm font-bold animate-pulse">
-                                                Richtig erkannt!
-                                            </p>
-                                        )}
+                                        {identificationFeedback === 'incorrect' && <p className="text-red-500 text-center mt-3 text-sm font-medium animate-pulse">Lies den Text noch einmal genau. Was ist unbekannt?</p>}
+                                        {identificationFeedback === 'correct' && step === 1 && <p className="text-green-600 text-center mt-3 text-sm font-bold animate-pulse">Richtig erkannt!</p>}
                                     </div>
 
-                                    {/* Step 2: Formula Mapping */}
+                                    {/* Step 2 */}
                                     {step >= 2 && (
                                         <div className={`transition-opacity duration-500 border-t pt-8 border-slate-100 ${step > 2 ? 'opacity-40 pointer-events-none' : ''}`}>
-                                            <p className="text-sm font-semibold text-slate-500 mb-4 text-center uppercase tracking-wide">
-                                            2. Fülle die gegebenen Werte in die Formel ein:
-                                            </p>
-                                            
+                                            <p className="text-sm font-semibold text-slate-500 mb-4 text-center uppercase tracking-wide">2. Fülle die Werte in die Formel ein:</p>
                                             <div className="flex flex-wrap items-center justify-center gap-2 md:gap-4 bg-white p-4 sm:p-6 rounded-xl border border-dashed border-slate-300 overflow-x-auto">
-                                            <FormulaInput 
-                                                id="wn" label={<VarWn/>} value={inputs.wn} theme="rose"
-                                                isUnknown={problem.type === 'Wn'} status={inputFeedback.wn || null}
-                                                disabled={step > 2 || inputFeedback.wn === 'correct'} onChange={handleInputChange}
-                                            />
-                                            <span className="text-2xl text-slate-400 font-bold mt-6">=</span>
-                                            <FormulaInput 
-                                                id="w0" label={<VarW0/>} value={inputs.w0} theme="rose"
-                                                isUnknown={problem.type === 'W0'} status={inputFeedback.w0 || null}
-                                                disabled={step > 2 || inputFeedback.w0 === 'correct'} onChange={handleInputChange}
-                                            />
-                                            <span className="text-2xl text-slate-400 font-bold mt-6">·</span>
-                                            <FormulaInput 
-                                                id="q" label={<VarQ/>} value={inputs.q} theme="rose"
-                                                isUnknown={problem.type === 'rate'} status={inputFeedback.q || null}
-                                                disabled={step > 2 || inputFeedback.q === 'correct'} onChange={handleInputChange}
-                                            />
-                                            <div className="relative -top-6">
-                                                <FormulaInput 
-                                                id="n" label={<span className="text-sm"><VarN/></span>} value={inputs.n} theme="rose"
-                                                isUnknown={problem.type === 'n'} status={inputFeedback.n || null}
-                                                disabled={step > 2 || inputFeedback.n === 'correct'} onChange={handleInputChange}
-                                                />
+                                                <FormulaInput id="wn" label={<VarWn/>} value={inputs.wn} theme="rose" isUnknown={problem.type === 'Wn'} status={inputFeedback.wn} disabled={step > 2 || inputFeedback.wn === 'correct'} onChange={handleInputChange} />
+                                                <span className="text-2xl text-slate-400 font-bold mt-6">=</span>
+                                                <FormulaInput id="w0" label={<VarW0/>} value={inputs.w0} theme="rose" isUnknown={problem.type === 'W0'} status={inputFeedback.w0} disabled={step > 2 || inputFeedback.w0 === 'correct'} onChange={handleInputChange} />
+                                                <span className="text-2xl text-slate-400 font-bold mt-6">·</span>
+                                                <FormulaInput id="q" label={<VarQ/>} value={inputs.q} theme="rose" isUnknown={problem.type === 'rate'} status={inputFeedback.q} disabled={step > 2 || inputFeedback.q === 'correct'} onChange={handleInputChange} />
+                                                <div className="relative -top-6"><FormulaInput id="n" label={<span className="text-sm"><VarN/></span>} value={inputs.n} theme="rose" isUnknown={problem.type === 'n'} status={inputFeedback.n} disabled={step > 2 || inputFeedback.n === 'correct'} onChange={handleInputChange} /></div>
                                             </div>
-                                            </div>
-
-                                            {step === 2 && (
-                                            <div className="mt-6 flex justify-center">
-                                                <button 
-                                                onClick={checkFormulaInputs}
-                                                className="bg-slate-800 hover:bg-slate-900 text-white px-8 py-3 rounded-lg font-medium transition-colors w-full sm:w-auto shadow-sm"
-                                                >
-                                                Werte prüfen
-                                                </button>
-                                            </div>
-                                            )}
+                                            {step === 2 && <div className="mt-6 flex justify-center"><button onClick={checkFormulaInputs} className="bg-slate-800 hover:bg-slate-900 text-white px-8 py-3 rounded-lg font-medium w-full sm:w-auto shadow-sm">Werte prüfen</button></div>}
                                         </div>
                                     )}
 
-                                    {/* Step 3: Transformation */}
+                                    {/* Step 3 */}
                                     {step >= 3 && (
                                         <div className={`duration-500 border-t pt-8 border-slate-100 ${step > 3 ? 'opacity-40 pointer-events-none' : ''}`}>
-                                            <p className="text-sm font-semibold text-slate-500 mb-4 text-center uppercase tracking-wide">
-                                            3. Wie formst du die Gleichung um?
-                                            </p>
-
+                                            <p className="text-sm font-semibold text-slate-500 mb-4 text-center uppercase tracking-wide">3. Wie formst du die Gleichung um?</p>
                                             <div className="flex justify-center items-center gap-2 text-lg sm:text-xl md:text-2xl font-mono bg-slate-100 py-4 px-2 rounded-lg mb-6 text-slate-700 overflow-x-auto text-center">
-                                                <span>{problem.type === 'Wn' ? <span className="text-rose-600 font-bold">Wn</span> : problem.wn}</span>
-                                                <span>=</span>
-                                                <span>{problem.type === 'W0' ? <span className="text-rose-600 font-bold">W0</span> : problem.w0}</span>
-                                                <span>·</span>
-                                                <span>
-                                                {problem.type === 'rate' ? <span className="text-rose-600 font-bold">q</span> : problem.q}
-                                                <sup>{problem.type === 'n' ? <span className="text-rose-600 font-bold">n</span> : problem.n}</sup>
-                                                </span>
+                                                <span>{problem.type === 'Wn' ? <span className="text-rose-600 font-bold">Wn</span> : problem.wn} = {problem.type === 'W0' ? <span className="text-rose-600 font-bold">W0</span> : problem.w0} · {problem.type === 'rate' ? <span className="text-rose-600 font-bold">q</span> : problem.q}<sup>{problem.type === 'n' ? <span className="text-rose-600 font-bold">n</span> : problem.n}</sup></span>
                                             </div>
-
                                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                             {options.map((opt) => (
-                                                <button
-                                                key={opt.id}
-                                                onClick={() => handleOptionSelect(opt)}
-                                                disabled={step > 3}
-                                                className={`p-4 rounded-xl border-2 text-sm md:text-base font-medium transition-all text-center flex flex-col items-center justify-center gap-2 hover:bg-slate-50
-                                                    ${selectedOptionId === opt.id 
-                                                    ? (opt.isCorrect 
-                                                        ? 'border-green-500 bg-green-50 text-green-900' 
-                                                        : 'border-red-400 bg-red-50 text-red-900') 
-                                                    : 'border-slate-200 text-slate-600 hover:border-rose-300'}
-                                                `}
-                                                >
+                                                <button key={opt.id} onClick={() => handleOptionSelect(opt)} disabled={step > 3} className={`p-4 rounded-xl border-2 text-sm md:text-base font-medium flex flex-col items-center justify-center gap-2 ${selectedOptionId === opt.id ? (opt.isCorrect ? 'border-green-500 bg-green-50 text-green-900' : 'border-red-400 bg-red-50 text-red-900') : 'border-slate-200 hover:border-rose-300'}`}>
                                                     {selectedOptionId === opt.id && opt.isCorrect && <CheckCircle className="w-5 h-5 text-green-600 mb-1"/>}
                                                     {selectedOptionId === opt.id && !opt.isCorrect && <XCircle className="w-5 h-5 text-red-500 mb-1"/>}
                                                     {!selectedOptionId && <MousePointerClick className="w-5 h-5 text-slate-300 mb-1"/>}
@@ -1268,76 +741,27 @@
                                                 </button>
                                             ))}
                                             </div>
-                                            {transformationFeedback === 'incorrect' && (
-                                                <p className="text-red-500 text-center mt-3 text-sm font-medium animate-pulse">
-                                                    Das führt nicht zum Ziel. Versuch es nochmal!
-                                                </p>
-                                            )}
-                                            {transformationFeedback === 'correct' && step === 3 && (
-                                                <p className="text-green-600 text-center mt-3 text-sm font-bold animate-pulse">
-                                                    Korrekt! Weiter geht's...
-                                                </p>
-                                            )}
+                                            {transformationFeedback === 'incorrect' && <p className="text-red-500 text-center mt-3 text-sm font-medium animate-pulse">Das führt nicht zum Ziel.</p>}
+                                            {transformationFeedback === 'correct' && step === 3 && <p className="text-green-600 text-center mt-3 text-sm font-bold animate-pulse">Korrekt!</p>}
                                         </div>
                                     )}
 
-                                    {/* Step 4: Calculation */}
+                                    {/* Step 4 */}
                                     {step >= 4 && (
                                         <div className="duration-500 border-t pt-8 border-slate-100">
-                                            <p className="text-sm font-semibold text-slate-500 mb-4 text-center uppercase tracking-wide">
-                                            4. Berechne das Ergebnis:
-                                            </p>
-                                            
+                                            <p className="text-sm font-semibold text-slate-500 mb-4 text-center uppercase tracking-wide">4. Berechne das Ergebnis:</p>
                                             <div className="flex flex-col items-center gap-4">
-                                            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center w-full">
-                                                <div className="relative w-full sm:w-auto">
-                                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 font-serif text-slate-400 italic">
-                                                    {problem.type === 'Wn' ? <VarWn/> : 
-                                                    problem.type === 'W0' ? <VarW0/> : 
-                                                    problem.type === 'rate' ? 'p' : <VarN/>} =
-                                                    </span>
-                                                    <input
-                                                    type="text"
-                                                    value={finalAnswer}
-                                                    onChange={(e) => setFinalAnswer(e.target.value)}
-                                                    disabled={step === 5}
-                                                    placeholder="Ergebnis..."
-                                                    className={`pl-16 pr-12 py-3 w-full sm:w-64 rounded-lg border-2 text-lg outline-none transition-colors ${
-                                                        finalFeedback === 'correct' ? 'border-green-500 bg-green-50 text-green-900' : 
-                                                        finalFeedback === 'incorrect' ? 'border-red-400 bg-red-50' : 'border-slate-300 focus:border-rose-500'
-                                                    }`}
-                                                    />
-                                                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-medium">
-                                                    {problem.type === 'rate' ? '%' : problem.unit}
-                                                    </span>
+                                                <div className="flex flex-col sm:flex-row gap-4 justify-center items-center w-full">
+                                                    <div className="relative w-full sm:w-auto">
+                                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 font-serif text-slate-400 italic">{problem.type === 'Wn' ? <VarWn/> : problem.type === 'W0' ? <VarW0/> : problem.type === 'rate' ? 'p' : <VarN/>} =</span>
+                                                        <input type="text" value={finalAnswer} onChange={(e) => setFinalAnswer(e.target.value)} disabled={step === 5} placeholder="Ergebnis..." className={`pl-16 pr-12 py-3 w-full sm:w-64 rounded-lg border-2 text-lg outline-none ${finalFeedback === 'correct' ? 'border-green-500 bg-green-50 text-green-900' : finalFeedback === 'incorrect' ? 'border-red-400 bg-red-50' : 'border-slate-300 focus:border-rose-500'}`} />
+                                                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-medium">{problem.type === 'rate' ? '%' : problem.unit}</span>
+                                                    </div>
+                                                    {step === 4 && <button onClick={checkFinalResult} className="w-full sm:w-auto bg-rose-600 hover:bg-rose-700 text-white px-6 py-3 rounded-lg font-bold shadow-lg shadow-rose-200 flex items-center justify-center gap-2">Prüfen <ArrowRight className="w-5 h-5"/></button>}
                                                 </div>
-
-                                                {step === 4 && (
-                                                <button 
-                                                    onClick={checkFinalResult}
-                                                    className="w-full sm:w-auto bg-rose-600 hover:bg-rose-700 text-white px-6 py-3 rounded-lg font-bold shadow-lg shadow-rose-200 transition-all active:scale-95 flex items-center justify-center gap-2"
-                                                >
-                                                    Prüfen <ArrowRight className="w-5 h-5"/>
-                                                </button>
-                                                )}
-                                            </div>
-                                            
-                                            {step === 4 && !showCalculator && (
-                                                <button 
-                                                onClick={() => setShowCalculator(true)}
-                                                className="text-slate-500 hover:text-rose-600 text-sm font-medium flex items-center gap-2 mt-2 bg-slate-100 hover:bg-rose-50 px-4 py-2 rounded-lg transition-colors"
-                                                >
-                                                    <Calculator className="w-4 h-4"/> Taschenrechner anzeigen
-                                                </button>
-                                            )}
-                                            
-                                            {showCalculator && step === 4 && (
-                                                <ScientificCalculator onClose={() => setShowCalculator(false)}/>
-                                            )}
-
-                                            {finalFeedback === 'incorrect' && (
-                                                <p className="text-red-500 text-center text-sm font-medium">Das Ergebnis stimmt nicht ganz. Überprüfe Rundung und Rechenweg.</p>
-                                            )}
+                                                {step === 4 && !showCalculator && <button onClick={() => setShowCalculator(true)} className="text-slate-500 hover:text-rose-600 text-sm font-medium flex items-center gap-2 mt-2 bg-slate-100 px-4 py-2 rounded-lg"><Calculator className="w-4 h-4"/> Taschenrechner anzeigen</button>}
+                                                {showCalculator && step === 4 && <ScientificCalculator onClose={() => setShowCalculator(false)}/>}
+                                                {finalFeedback === 'incorrect' && <p className="text-red-500 text-center text-sm font-medium">Das Ergebnis stimmt nicht ganz.</p>}
                                             </div>
                                         </div>
                                     )}
@@ -1345,39 +769,17 @@
                                     {/* Solution */}
                                     {step === 5 && (
                                         <div className="flex flex-col items-center gap-4 mt-6">
-                                            <div className="bg-green-100 text-green-800 px-6 py-3 rounded-full font-bold flex items-center gap-2 text-lg">
-                                                <CheckCircle className="w-6 h-6" /> Richtig gelöst!
-                                            </div>
-                                            
+                                            <div className="bg-green-100 text-green-800 px-6 py-3 rounded-full font-bold flex items-center gap-2 text-lg"><CheckCircle className="w-6 h-6" /> Richtig gelöst!</div>
                                             <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto mt-4">
-                                                <button 
-                                                onClick={() => setShowSolution(!showSolution)}
-                                                className="text-slate-600 bg-slate-100 hover:bg-slate-200 hover:text-rose-700 flex items-center justify-center gap-2 text-sm px-6 py-3 rounded-lg font-medium transition-colors"
-                                                >
-                                                <BookOpen className="w-4 h-4"/> Erklärung anzeigen
-                                                </button>
-                                                <button
-                                                onClick={generateProblem}
-                                                className="bg-slate-800 hover:bg-slate-900 text-white px-8 py-3 rounded-lg font-medium flex items-center justify-center gap-2 shadow-sm transition-all hover:shadow-md"
-                                                >
-                                                <RefreshCw className="w-4 h-4" /> Nächste Aufgabe
-                                                </button>
+                                                <button onClick={() => setShowSolution(!showSolution)} className="text-slate-600 bg-slate-100 hover:bg-slate-200 hover:text-rose-700 flex items-center justify-center gap-2 text-sm px-6 py-3 rounded-lg font-medium"><BookOpen className="w-4 h-4"/> Erklärung anzeigen</button>
+                                                <button onClick={generateProblem} className="bg-slate-800 hover:bg-slate-900 text-white px-8 py-3 rounded-lg font-medium flex items-center justify-center gap-2 shadow-sm"><RefreshCw className="w-4 h-4" /> Nächste Aufgabe</button>
                                             </div>
-
-                                            {showSolution && (
-                                                <div className="w-full bg-yellow-50/80 p-6 rounded-xl border border-yellow-200 mt-4 text-sm font-mono whitespace-pre-line text-slate-700 shadow-inner">
-                                                {problem.explanation}
-                                                </div>
-                                            )}
+                                            {showSolution && <div className="w-full bg-yellow-50/80 p-6 rounded-xl border border-yellow-200 mt-4 text-sm font-mono whitespace-pre-line text-slate-700 shadow-inner">{problem.explanation}</div>}
                                         </div>
                                     )}
-
                                 </>
                             ) : (
-                                <div className="h-64 flex flex-col items-center justify-center text-slate-400 gap-4">
-                                    <RefreshCw className="w-8 h-8 animate-spin text-rose-400"/>
-                                    Lade Aufgabe...
-                                </div>
+                                <div className="h-64 flex flex-col items-center justify-center text-slate-400 gap-4"><RefreshCw className="w-8 h-8 animate-spin text-rose-400"/>Lade Aufgabe...</div>
                             )}
                         </div>
                     </div>
@@ -1385,11 +787,99 @@
             );
         };
 
-        const rootWachstum = ReactDOM.createRoot(document.getElementById('root-wachstum'));
-        rootWachstum.render(<WachstumsTrainer />);
-        
-        const rootZerfall = ReactDOM.createRoot(document.getElementById('root-zerfall'));
-        rootZerfall.render(<ZerfallsTrainer />);
+
+        // ==========================================
+        // 4. MAIN APP (Navigation & Layout)
+        // ==========================================
+        const App = () => {
+            const [currentPage, setCurrentPage] = useState('home');
+            const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+            // Scroll to top when page changes
+            useEffect(() => {
+                window.scrollTo(0, 0);
+                setMobileMenuOpen(false); // Close mobile menu on navigate
+            }, [currentPage]);
+
+            const NavButton = ({ id, label, icon: Icon }) => {
+                const isActive = currentPage === id;
+                return (
+                    <button 
+                        onClick={() => setCurrentPage(id)}
+                        className={`flex items-center gap-2 px-3 py-2 rounded-lg font-medium transition-colors ${isActive ? 'text-indigo-600 bg-indigo-50' : 'text-slate-600 hover:text-indigo-600 hover:bg-slate-50'}`}
+                    >
+                        {Icon && <Icon className="w-4 h-4" />}
+                        {label}
+                    </button>
+                );
+            };
+
+            return (
+                <div className="flex flex-col min-h-screen">
+                    {/* Header */}
+                    <header className="bg-white shadow-sm sticky top-0 z-40 border-b border-slate-200">
+                        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+                            <button onClick={() => setCurrentPage('home')} className="flex items-center hover:opacity-80 transition-opacity">
+                                <img src="images/cropped-BdB_Logo-1.png" alt="Beratung digitale Bildung Logo" className="h-10 md:h-12 w-auto object-contain" />
+                            </button>
+                            
+                            {/* Desktop Nav */}
+                            <nav className="hidden md:flex items-center gap-2">
+                                <NavButton id="home" label="Startseite" icon={HomeIcon} />
+                                <NavButton id="wachstum" label="Wachstumstrainer" icon={TrendingUp} />
+                                <NavButton id="zerfall" label="Zerfallstrainer" icon={TrendingDown} />
+                            </nav>
+
+                            {/* Mobile Nav Toggle */}
+                            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2 text-slate-600">
+                                {mobileMenuOpen ? <XCircle className="w-6 h-6" /> : <MenuIcon className="w-6 h-6" />}
+                            </button>
+                        </div>
+
+                        {/* Mobile Nav Dropdown */}
+                        {mobileMenuOpen && (
+                            <div className="md:hidden bg-white border-t border-slate-100 p-4 flex flex-col gap-2 shadow-lg absolute w-full">
+                                <NavButton id="home" label="Startseite" icon={HomeIcon} />
+                                <NavButton id="wachstum" label="Wachstumstrainer" icon={TrendingUp} />
+                                <NavButton id="zerfall" label="Zerfallstrainer" icon={TrendingDown} />
+                            </div>
+                        )}
+                    </header>
+
+                    {/* Main Content Area */}
+                    <main className="flex-grow">
+                        {currentPage === 'home' && <HomePage navigateTo={setCurrentPage} />}
+                        {currentPage === 'wachstum' && <WachstumsTrainer />}
+                        {currentPage === 'zerfall' && <ZerfallsTrainer />}
+                        {currentPage === 'impressum' && <ImpressumPage />}
+                        {currentPage === 'datenschutz' && <DatenschutzPage />}
+                    </main>
+
+                    {/* Footer */}
+                    <footer className="bg-slate-900 text-slate-400 py-10 mt-auto border-t-4 border-indigo-600">
+                        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center text-center space-y-6">
+                            <div>
+                                <h4 className="text-white text-lg font-bold uppercase tracking-wider mb-2">Kontakt & Infos</h4>
+                                <p className="text-slate-400 max-w-md mx-auto mb-4">Haben Sie Fragen zum digitalen Unterricht oder Anregungen zu den Tools? Schreiben Sie mir gerne.</p>
+                                <a href="mailto:martin.geiger@ms-dachau-sud.de" className="inline-block px-6 py-2 bg-slate-800 text-slate-200 font-semibold rounded-lg hover:bg-indigo-600 hover:text-white transition-colors shadow-sm text-sm">E-Mail senden</a>
+                            </div>
+                            
+                            <div className="w-full border-t border-slate-800 pt-6 mt-6 flex flex-col md:flex-row justify-between items-center text-sm gap-4">
+                                <div>&copy; 2026 - <strong className="text-white">Beratung digitale Bildung</strong></div>
+                                <div className="flex items-center gap-4">
+                                    <button onClick={() => setCurrentPage('impressum')} className="hover:text-white transition-colors">Impressum</button>
+                                    <span className="text-slate-700">|</span>
+                                    <button onClick={() => setCurrentPage('datenschutz')} className="hover:text-white transition-colors">Datenschutz</button>
+                                </div>
+                            </div>
+                        </div>
+                    </footer>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
     </script>
 </body>
 </html>
