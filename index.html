@@ -70,6 +70,7 @@
         // ==========================================
         const IconBase = ({ path, className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>{path}</svg>;
         const Calculator = ({ className }) => <IconBase className={className} path={<><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></>} />;
+        const CalculatorOff = ({ className }) => <IconBase className={className} path={<><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/><line x1="2" y1="2" x2="22" y2="22"/></>} />;
         const CheckCircle = ({ className }) => <IconBase className={className} path={<><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></>} />;
         const XCircle = ({ className }) => <IconBase className={className} path={<><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></>} />;
         const RefreshCw = ({ className }) => <IconBase className={className} path={<><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></>} />;
@@ -77,12 +78,15 @@
         const TrendingUp = ({ className }) => <IconBase className={className} path={<><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></>} />;
         const TrendingDown = ({ className }) => <IconBase className={className} path={<><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></>} />;
         const ArrowRight = ({ className }) => <IconBase className={className} path={<><line x1="5" x2="19" y1="12" y2="12"/><polyline points="12 5 19 12 12 19"/></>} />;
+        const ChevronRight = ({ className }) => <IconBase className={className} path={<><polyline points="9 18 15 12 9 6"/></>} />;
         const HomeIcon = ({ className }) => <IconBase className={className} path={<><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></>} />;
         const MenuIcon = ({ className }) => <IconBase className={className} path={<><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></>} />;
         const Shield = ({ className }) => <IconBase className={className} path={<><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></>} />;
         const FileText = ({ className }) => <IconBase className={className} path={<><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><polyline points="10 9 9 9 8 9"/></>} />;
         const DeleteIcon = ({ className }) => <IconBase className={className} path={<><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></>} />;
         const HelpCircle = ({ className }) => <IconBase className={className} path={<><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></>} />;
+        const FastForward = ({ className }) => <IconBase className={className} path={<><polygon points="13 19 22 12 13 5 13 19"/><polygon points="2 19 11 12 2 5 2 19"/></>} />;
+        const Target = ({ className }) => <IconBase className={className} path={<><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></>} />;
         const FractionIcon = ({ className }) => (
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
                 <line x1="4" x2="20" y1="12" y2="12"/><path d="M11 7 L12 5 L12 9" /><path d="M10 15 L14 19 M14 15 L10 19" />
@@ -95,8 +99,11 @@
         const themeColors = {
             emerald: { activeBorder: 'border-emerald-500', activeBg: 'bg-emerald-50', activeTitle: 'text-emerald-900', badgeBg: 'bg-emerald-600', shadow: 'shadow-emerald-100', btnBg: 'bg-emerald-600', btnHover: 'hover:bg-emerald-700' },
             rose: { activeBorder: 'border-rose-400', activeBg: 'bg-rose-50', activeTitle: 'text-rose-900', badgeBg: 'bg-rose-500', shadow: 'shadow-rose-100', btnBg: 'bg-rose-500', btnHover: 'hover:bg-rose-600' },
-            amber: { activeBorder: 'border-amber-400', activeBg: 'bg-amber-50', activeTitle: 'text-amber-900', badgeBg: 'bg-amber-500', shadow: 'shadow-amber-100', btnBg: 'bg-amber-500', btnHover: 'hover:bg-amber-600' }
+            amber: { activeBorder: 'border-amber-400', activeBg: 'bg-amber-50', activeTitle: 'text-amber-900', badgeBg: 'bg-amber-500', shadow: 'shadow-amber-100', btnBg: 'bg-amber-500', btnHover: 'hover:bg-amber-600' },
+            sky: { activeBorder: 'border-sky-400', activeBg: 'bg-sky-50', activeTitle: 'text-sky-900', badgeBg: 'bg-sky-500', shadow: 'shadow-sky-100', btnBg: 'bg-sky-500', btnHover: 'hover:bg-sky-600' }
         };
+
+        const Frac = ({ top, bot }) => <span className="inline-flex flex-col items-center align-middle mx-1 px-1"><span className="border-b-[1.5px] border-current px-1 pb-0.5 w-full text-center leading-none">{top}</span><span className="px-1 pt-0.5 text-center leading-none">{bot}</span></span>;
 
         const StepCard = ({ title, stepNum, currentStep, theme = 'amber', children }) => {
             const isPast = currentStep > stepNum;
@@ -244,6 +251,7 @@
             const handleInputChange = (id, val) => { setInputs(prev => ({ ...prev, [id]: val.replace('.', ',') })); setInputFeedback(prev => ({ ...prev, [id]: null })); };
 
             const generateProblem = () => {
+                setCalcOpen(false); // Taschenrechner automatisch einklappen
                 setLoading(true); setStep(1); setSelectedIdentification(null); setInputs({ wn: '', w0: '', q: '', n: '' }); setInputFeedback({});
                 setOptions([]); setSelectedOptionId(null); setFinalAnswer(''); setFinalFeedback(null); setShowSolution(false); setErrors(0); setTipRevealed(false);
 
@@ -507,6 +515,7 @@
             const handleInputChange = (id, val) => { setInputs(prev => ({ ...prev, [id]: val.replace('.', ',') })); setInputFeedback(prev => ({ ...prev, [id]: null })); };
 
             const generateProblem = () => {
+                setCalcOpen(false); // Taschenrechner automatisch einklappen
                 setLoading(true); setStep(1); setSelectedIdentification(null); setInputs({ wn: '', w0: '', t: '', thalf: '' }); setInputFeedback({});
                 setOptions([]); setSelectedOptionId(null); setFinalAnswer(''); setFinalFeedback(null); setShowSolution(false); setErrors(0); setTipRevealed(false);
 
@@ -770,8 +779,6 @@
             return sign + val;
         };
 
-        const Frac = ({ top, bot }) => <div className="inline-flex flex-col items-center align-middle mx-1 px-1"><div className="border-b-2 border-amber-900 px-2 pb-0.5 w-full text-center">{top}</div><div className="px-2 pt-0.5 text-center">{bot}</div></div>;
-
         const generateTemplate1 = () => { // Leicht
             while(true) {
                 let x1 = getRandomInt(-6, 6) || 1; let x2 = getRandomInt(-6, 6) || 2;
@@ -858,6 +865,7 @@
             const prob = probList[currentProblemIdx];
 
             const clearForm = () => {
+                setCalcOpen(false); // Taschenrechner automatisch einklappen
                 setCurrentStep(1); setErrors(0); setErrorMsg(""); setTipRevealed(false);
                 setDefInputs(["", ""]); setHnInput(""); setMultLeft(""); setMultRight(""); setZusInput(""); setPqP(""); setPqQ(""); setEinsetzenP1(""); setEinsetzenP2(""); setEinsetzenQ(""); setPqX(["", ""]); setLmInputs(["", ""]);
             };
@@ -1078,8 +1086,351 @@
             );
         };
 
+
         // ==========================================
-        // 5. SEITEN (Home, Impressum, etc.)
+        // 5. KOPFRECHENTRAINER (Neu, V3: 8 Kategorien + Superscripts)
+        // ==========================================
+        const shuffleArray = (array) => {
+            const newArr = [...array];
+            for (let i = newArr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [newArr[i], newArr[j]] = [newArr[j], newArr[i]]; }
+            return newArr;
+        };
+
+        const fDe = (n) => String(n).replace('.', ','); // Hilfsfunktion für Komma statt Punkt
+
+        const genProzent = (diff) => {
+            if (diff === 'leicht') {
+                const percent = [10, 20, 25, 50][Math.floor(Math.random()*4)];
+                const base = [20, 40, 50, 100, 200][Math.floor(Math.random()*5)];
+                const ans = (percent * base) / 100;
+                const options = shuffleArray([ans, ans+10, ans-10 > 0 ? ans-10 : ans+5, ans*2].map(n => fDe(n)));
+                return { category: 'Prozentrechnung', question: `Berechne ${percent}% von ${base}.`, options, correctAnswer: options.indexOf(fDe(ans)), explanation: `${percent}% ist als Bruch ${percent}/100. Also rechnen wir: ${base} / 100 · ${percent} = ${fDe(ans)}.` };
+            } else if (diff === 'mittel') {
+                const percent = [5, 15, 75][Math.floor(Math.random()*3)];
+                const base = [40, 60, 80, 120, 200][Math.floor(Math.random()*5)];
+                const ans = (percent * base) / 100;
+                const options = shuffleArray([ans, ans+5, ans-5 > 0 ? ans-5 : ans+2, ans*2].map(n => fDe(n)));
+                return { category: 'Prozentrechnung', question: `Berechne ${percent}% von ${base}.`, options, correctAnswer: options.indexOf(fDe(ans)), explanation: `Zerlege den Prozentwert im Kopf (z.B. in 10% und 5%). Das Ergebnis ist ${fDe(ans)}.` };
+            } else {
+                const p = [5, 10, 20, 25][Math.floor(Math.random()*4)];
+                const k = [2, 3, 4, 5, 8][Math.floor(Math.random()*5)];
+                const W = p * k; const G = 100 * k;
+                const options = shuffleArray([G, G/2, G*2, W*10].map(fDe));
+                return { category: 'Prozentrechnung', question: `${p}% einer Strecke sind ${W} km. Wie lang ist die gesamte Strecke (100%)?`, options, correctAnswer: options.indexOf(fDe(G)), explanation: `Wenn ${p}% = ${W} km sind, dann teile durch ${p}, um 1% zu erhalten (1% = ${fDe(W/p)} km). 100% sind also 100 · ${fDe(W/p)} = ${fDe(G)} km.` };
+            }
+        };
+
+        const genLinear = (diff) => {
+            if (diff === 'leicht') {
+                const x = Math.floor(Math.random()*10)+1; const a = Math.floor(Math.random()*4)+2; const b = Math.floor(Math.random()*10)+1; const c = a*x + b;
+                const options = shuffleArray([x, x+1, x-1 > 0 ? x-1 : x+2, x+3].map(n => `x = ${n}`));
+                return { category: 'Lineare Gleichungen', question: `Löse im Kopf nach x auf: ${a}x + ${b} = ${c}`, options, correctAnswer: options.indexOf(`x = ${x}`), explanation: `1. Subtrahiere ${b} auf beiden Seiten: ${a}x = ${c-b}. 2. Teile durch ${a}: x = ${x}.` };
+            } else if (diff === 'mittel') {
+                const a = Math.floor(Math.random()*5)+3; const b = Math.floor(Math.random()*15)+5; const x = Math.floor(Math.random()*8)+2; const c = a*x - b;
+                const options = shuffleArray([x, x+1, Math.abs(x-2)||x+2, x+3].map(n => `x = ${n}`));
+                return { category: 'Lineare Gleichungen', question: `Löse im Kopf nach x auf: ${a}x - ${b} = ${c}`, options, correctAnswer: options.indexOf(`x = ${x}`), explanation: `1. Addiere ${b}: ${a}x = ${c+b}. 2. Teile durch ${a}: x = ${x}.` };
+            } else {
+                const a = Math.floor(Math.random()*4)+3; const c = Math.floor(Math.random()*2)+1; const x = Math.floor(Math.random()*5)+2; const b = Math.floor(Math.random()*5)+1; const d = a*x + b - c*x;
+                const correct = `x = ${x}`; const options = shuffleArray([x, x+1, Math.abs(x-1)||x+2, x+3].map(n => `x = ${n}`));
+                return { category: 'Lineare Gleichungen', question: `Löse auf: ${a}x + ${b} = ${c === 1 ? '' : c}x + ${d}`, options, correctAnswer: options.indexOf(correct), explanation: `1. Subtrahiere ${c === 1 ? 'x' : c+'x'}: ${(a-c) === 1 ? 'x' : (a-c)+'x'} + ${b} = ${d}. 2. Subtrahiere ${b}: ${(a-c) === 1 ? 'x' : (a-c)+'x'} = ${d-b}. 3. Teile durch ${a-c}: x = ${x}.` };
+            }
+        };
+
+        const genBruch = (diff) => {
+            if (diff === 'leicht') {
+                const v = Math.random();
+                if (v > 0.5) {
+                    const options = shuffleArray([{el: <Frac top="3" bot="4" />, id: 'c'}, {el: <Frac top="2" bot="6" />, id:'w1'}, {el: <Frac top="1" bot="4" />, id:'w2'}, {el: <Frac top="2" bot="4" />, id:'w3'}]);
+                    return { category: 'Bruchrechnen', question: <span className="flex items-center gap-1">Was ergibt <Frac top="1" bot="2" /> + <Frac top="1" bot="4" /> ?</span>, options: options.map(o => o.el), correctAnswer: options.findIndex(o => o.id === 'c'), explanation: <span className="flex items-center gap-1">Erweitere <Frac top="1" bot="2" /> auf Viertel: <Frac top="2" bot="4" />. Dann: <Frac top="2" bot="4" /> + <Frac top="1" bot="4" /> = <Frac top="3" bot="4" />.</span> };
+                } else {
+                    const options = shuffleArray([{el: <Frac top="1" bot="2" />, id: 'c'}, {el: <Frac top="1" bot="4" />, id:'w1'}, {el: <Frac top="3" bot="4" />, id:'w2'}, {el: <Frac top="1" bot="8" />, id:'w3'}]);
+                    return { category: 'Bruchrechnen', question: <span className="flex items-center gap-1">Was ergibt <Frac top="3" bot="4" /> - <Frac top="1" bot="4" /> (gekürzt)?</span>, options: options.map(o => o.el), correctAnswer: options.findIndex(o => o.id === 'c'), explanation: <span className="flex items-center gap-1"><Frac top="3" bot="4" /> - <Frac top="1" bot="4" /> = <Frac top="2" bot="4" />. Gekürzt mit 2 ergibt das <Frac top="1" bot="2" />.</span> };
+                }
+            } else if (diff === 'mittel') {
+                const a = [2, 3][Math.floor(Math.random()*2)]; const b = [4, 5][Math.floor(Math.random()*2)];
+                const top = a+b; const bot = a*b;
+                const options = shuffleArray([{el: <Frac top={top} bot={bot}/>, id: 'c'}, {el: <Frac top="2" bot={a+b}/>, id:'w1'}, {el: <Frac top={top+1} bot={bot}/>, id:'w2'}, {el: <Frac top={top} bot={a+b}/>, id:'w3'}]);
+                return { category: 'Bruchrechnen', question: <span className="flex items-center gap-1">Addiere: <Frac top="1" bot={a} /> + <Frac top="1" bot={b} /></span>, options: options.map(o => o.el), correctAnswer: options.findIndex(o => o.id === 'c'), explanation: <span className="flex items-center gap-1">Bringe beide auf den Hauptnenner {bot}. <Frac top={b} bot={bot} /> + <Frac top={a} bot={bot} /> = <Frac top={top} bot={bot} />.</span> };
+            } else {
+                const a = 2; const b = 3; const c = 3; const d = 4;
+                const options = shuffleArray([{el: <Frac top="1" bot="2" />, id: 'c'}, {el: <Frac top="5" bot="7" />, id:'w1'}, {el: <Frac top="6" bot="12" />, id:'w2'}, {el: <Frac top="8" bot="9" />, id:'w3'}]);
+                return { category: 'Bruchrechnen', question: <span className="flex items-center gap-1">Multipliziere und kürze: <Frac top={a} bot={b} /> · <Frac top={c} bot={d} /></span>, options: options.map(o => o.el), correctAnswer: options.findIndex(o => o.id === 'c'), explanation: <span className="flex items-center gap-1">Zähler mal Zähler, Nenner mal Nenner: <Frac top={a*c} bot={b*d} />. Gekürzt mit 6 ergibt das <Frac top="1" bot="2" />.</span> };
+            }
+        };
+
+        const genGeo = (diff) => {
+            if (diff === 'leicht') {
+                const k = [2, 3, 4][Math.floor(Math.random()*3)]; const k2 = k*k;
+                const options = shuffleArray([`Faktor ${k2}`, `Faktor ${k*2}`, `Faktor ${k}`, `Faktor ${k*k*k}`]);
+                return { category: 'Geometrie (Fläche)', question: `Die Seitenlänge eines Quadrats wird mit k = ${k} vergrößert. Mit welchem Faktor wächst der Flächeninhalt?`, options, correctAnswer: options.indexOf(`Faktor ${k2}`), explanation: `Bei Flächen ändert sich der Inhalt quadratisch (k²). Also rechnen wir: ${k}² = ${k2}.` };
+            } else if (diff === 'mittel') {
+                const k = [2, 3, 4, 5, 10][Math.floor(Math.random()*5)]; const k3 = k*k*k;
+                const options = shuffleArray([`Faktor ${k3}`, `Faktor ${k*2}`, `Faktor ${k*k}`, `Faktor ${k}`]);
+                return { category: 'Geometrie (Volumen)', question: `Der Radius einer Kugel wird mit dem Faktor k = ${k} vergrößert. Mit welchem Faktor wächst das Volumen?`, options, correctAnswer: options.indexOf(`Faktor ${k3}`), explanation: `Im Dreidimensionalen ändert sich das Volumen mit dem Faktor k³. Hier ist k = ${k}. Also rechnen wir: ${k}³ = ${k} · ${k} · ${k} = ${k3}.` };
+            } else {
+                const k = [2, 3, 4, 5][Math.floor(Math.random()*4)]; const k3 = k*k*k;
+                const options = shuffleArray([`k = ${k}`, `k = ${k3}`, `k = ${k*k}`, `k = ${Math.floor(k3/3)}`]);
+                return { category: 'Geometrie (Streckung)', question: `Das Volumen eines Würfels hat sich um den Faktor ${k3} vergrößert. Welcher Streckungsfaktor k wurde für die Kantenlänge verwendet?`, options, correctAnswer: options.indexOf(`k = ${k}`), explanation: `Das Volumen wächst mit k³. Wir suchen also die Zahl, die dreimal mit sich selbst multipliziert ${k3} ergibt (die 3. Wurzel). Das ist ${k}.` };
+            }
+        };
+
+        const genProb = (diff) => {
+            if (diff === 'leicht') {
+                const tot = 10; const red = Math.floor(Math.random()*5)+2;
+                const options = shuffleArray([{el: <Frac top={red} bot={tot}/>, id: 'c'}, {el: <Frac top={red-1} bot={tot}/>, id: 'w1'}, {el: <Frac top={tot} bot={red}/>, id: 'w2'}, {el: <Frac top={red+1} bot={tot}/>, id: 'w3'}]);
+                return { category: 'Wahrscheinlichkeit', question: `In einer Urne liegen ${tot} Kugeln, davon sind ${red} rot. Wie groß ist die Wahrscheinlichkeit, eine rote zu ziehen?`, options: options.map(o=>o.el), correctAnswer: options.findIndex(o=>o.id==='c'), explanation: <span className="flex items-center gap-1">Die Formel lautet: (Günstige Ergebnisse) / (Alle Ergebnisse) = <Frac top={red} bot={tot}/>.</span> };
+            } else if (diff === 'mittel') {
+                const total = [20, 50, 100][Math.floor(Math.random() * 3)];
+                const fracs = [{ t: 1, b: 4, v: 0.25 }, { t: 1, b: 5, v: 0.2 }, { t: 1, b: 10, v: 0.1 }]; 
+                const f = fracs[Math.floor(Math.random() * 3)];
+                const black = total * f.v;
+                if (!Number.isInteger(black)) return genProb(diff); // Schutz vor halben Kugeln
+                const optionsArray = [black, black + 2, Math.abs(black - 2)||1, black * 2].map(n => `${n} Kugeln`);
+                const options = shuffleArray(optionsArray);
+                return { category: 'Wahrscheinlichkeit', question: <span className="flex flex-wrap items-center gap-1">In einer Urne sind {total} Kugeln. Die Wahrscheinlichkeit für "Schwarz" beträgt <Frac top={f.t} bot={f.b} />. Wie viele schwarze Kugeln gibt es?</span>, options, correctAnswer: options.indexOf(`${black} Kugeln`), explanation: <span className="flex flex-wrap items-center gap-1">Ein Anteil von <Frac top={f.t} bot={f.b} /> von {total} Kugeln entspricht genau {total} / {f.b} = {black} Kugeln.</span> };
+            } else {
+                const red = 3; const blue = 2; const tot = red+blue; // 5
+                const options = shuffleArray([{el: <Frac top="3" bot="10"/>, id: 'c'}, {el: <Frac top="9" bot="25"/>, id: 'w1'}, {el: <Frac top="6" bot="25"/>, id: 'w2'}, {el: <Frac top="2" bot="5"/>, id: 'w3'}]);
+                return { category: 'Wahrscheinlichkeit', question: `In einer Urne sind ${red} rote und ${blue} blaue Kugeln. Du ziehst 2 Kugeln OHNE Zurücklegen. Wahrscheinlichkeit für "rot und dann nochmal rot"?`, options: options.map(o=>o.el), correctAnswer: options.findIndex(o=>o.id==='c'), explanation: <span className="flex items-center flex-wrap gap-1">Erster Zug: <Frac top="3" bot="5"/>. Beim zweiten Zug ist eine rote weniger da: <Frac top="2" bot="4"/>. Multipliziert: <Frac top="3" bot="5"/> · <Frac top="2" bot="4"/> = <Frac top="6" bot="20"/>, gekürzt <Frac top="3" bot="10"/>.</span> };
+            }
+        };
+
+        const genQuad = (diff) => {
+            if (diff === 'leicht') {
+                const c = Math.floor(Math.random()*9)-4; const correct = `S(0 | ${c})`;
+                const options = shuffleArray([correct, `S(${c} | 0)`, `S(0 | ${-c})`, `S(${-c} | 0)`]);
+                return { category: 'Quadratische Funktionen', question: <span className="flex items-center gap-1">Lies den Scheitelpunkt der Parabel ab: y = x<sup>2</sup> {c >= 0 ? '+ ' + c : '- ' + Math.abs(c)}</span>, options, correctAnswer: options.indexOf(correct), explanation: `Die Parabel ist nur auf der y-Achse verschoben, nicht auf der x-Achse. Daher liegt der Scheitelpunkt bei x=0 und y=${c}.` };
+            } else if (diff === 'mittel') {
+                const d = Math.floor(Math.random()*5)+1; const signD = Math.random()>0.5 ? 1 : -1;
+                const e = Math.floor(Math.random()*5)+1; const signE = Math.random()>0.5 ? 1 : -1;
+                const correct = `S(${signD * d} | ${signE * e})`;
+                const options = shuffleArray([correct, `S(${-signD * d} | ${signE * e})`, `S(${signD * d} | ${-signE * e})`, `S(${-signD * d} | ${-signE * e})`]);
+                return { category: 'Quadratische Funktionen', question: <span className="flex items-center gap-1">Lies den Scheitelpunkt ab: y = (x {signD < 0 ? '+ ' + d : '- ' + d})<sup>2</sup> {signE > 0 ? '+ ' + e : '- ' + e}</span>, options, correctAnswer: options.indexOf(correct), explanation: `Aus der Scheitelpunktform y = (x - d)² + e liest man den Scheitel S(d | e) ab. Achte auf das umgedrehte Vorzeichen in der Klammer!` };
+            } else {
+                const xs = Math.floor(Math.random() * 4) + 1; const ys = Math.floor(Math.random() * 4) + 1;
+                const p = -2 * xs; const q = xs*xs + ys;
+                const correct = `S(${xs} | ${ys})`;
+                const options = shuffleArray([correct, `S(${-xs} | ${ys})`, `S(${xs} | ${-ys})`, `S(${-xs} | ${-ys})`]);
+                return { category: 'Quadratische Funktionen', question: <span className="flex items-center gap-1">Wo liegt der Scheitelpunkt von y = x<sup>2</sup> {p >= 0 ? '+ ' + p : '- ' + Math.abs(p)}x {q >= 0 ? '+ ' + q : '- ' + Math.abs(q)} ?</span>, options, correctAnswer: options.indexOf(correct), explanation: `Nutze die Formel für die x-Koordinate: xs = -p / 2 = ${-p} / 2 = ${xs}. Setzt man ${xs} in die Gleichung ein, erhält man ys = ${ys}. Also ${correct}.` };
+            }
+        };
+
+        const genPotenz = (diff) => {
+            if (diff === 'leicht') {
+                const a = Math.floor(Math.random()*5)+2; const b = Math.floor(Math.random()*4)+2;
+                const options = shuffleArray([{ el: <span className="flex items-center">x<sup>{a+b}</sup></span>, id: 'c' }, { el: <span className="flex items-center">x<sup>{a*b}</sup></span>, id: 'w1' }, { el: <span className="flex items-center">x<sup>{Math.abs(a-b)||1}</sup></span>, id: 'w2' }, { el: <span className="flex items-center">2x<sup>{a+b}</sup></span>, id: 'w3' }]);
+                return { category: 'Potenzgesetze', question: <span className="flex items-center gap-1">Fasse zusammen: x<sup>{a}</sup> · x<sup>{b}</sup></span>, options: options.map(o=>o.el), correctAnswer: options.findIndex(o=>o.id==='c'), explanation: <span className="flex items-center gap-1">Bei Multiplikation mit gleicher Basis werden die Exponenten addiert: {a} + {b} = {a+b}. Also x<sup>{a+b}</sup>.</span> };
+            } else if (diff === 'mittel') {
+                const a = Math.floor(Math.random()*3)+2; const b = Math.floor(Math.random()*3)+2;
+                const options = shuffleArray([{ el: <span className="flex items-center">x<sup>{a*b}</sup></span>, id: 'c' }, { el: <span className="flex items-center">x<sup>{a+b}</sup></span>, id: 'w1' }, { el: <span className="flex items-center">x<sup>{Math.pow(a,b)}</sup></span>, id: 'w2' }, { el: <span className="flex items-center">2x<sup>{a*b}</sup></span>, id: 'w3' }]);
+                return { category: 'Potenzgesetze', question: <span className="flex items-center gap-1">Fasse zusammen: (x<sup>{a}</sup>)<sup>{b}</sup></span>, options: options.map(o=>o.el), correctAnswer: options.findIndex(o=>o.id==='c'), explanation: <span className="flex items-center gap-1">Wird eine Potenz potenziert, werden die Exponenten multipliziert: {a} · {b} = {a*b}. Also x<sup>{a*b}</sup>.</span> };
+            } else {
+                const base = [2, 3][Math.floor(Math.random()*2)]; const e = -Math.floor(Math.random()*2)-2; 
+                const ans = Math.pow(base, Math.abs(e));
+                const options = shuffleArray([{el: <Frac top="1" bot={ans}/>, id:'c'}, {el: `-${ans}`, id:'w1'}, {el: <Frac top="-1" bot={ans}/>, id:'w2'}, {el: String(ans), id:'w3'}]);
+                return { category: 'Potenzgesetze', question: <span className="flex items-center gap-1">Berechne im Kopf: {base}<sup>{e}</sup></span>, options: options.map(o=>o.el), correctAnswer: options.findIndex(o=>o.id==='c'), explanation: <span className="flex items-center gap-1">Ein negativer Exponent bedeutet den Kehrbruch. {base}<sup>{e}</sup> ist also 1 / {base}<sup>{Math.abs(e)}</sup>. Das ergibt <Frac top="1" bot={ans}/>.</span> };
+            }
+        };
+
+        const genDef = (diff) => {
+            if (diff === 'leicht') {
+                const a = Math.floor(Math.random() * 9) - 4; if(a===0) return genDef('leicht');
+                const sign = a > 0 ? `+ ${a}` : `- ${Math.abs(a)}`; const val = -a;
+                const correctD = `D = ℝ \\ {${val}}`;
+                const opts = shuffleArray([correctD, `D = ℝ \\ {${-val}}`, `D = ℝ \\ {0}`, `D = ℝ`]);
+                return { category: 'Definitionsmenge', question: <span className="flex items-center gap-1">Welche Definitionsmenge hat der Term: <Frac top="1" bot={`x ${sign}`}/> ?</span>, options: opts, correctAnswer: opts.indexOf(correctD), explanation: `Der Nenner darf nicht 0 werden. Die Gleichung x ${sign} = 0 liefert x = ${val}. Dieser Wert muss ausgeschlossen werden.` };
+            } else if (diff === 'mittel') {
+                const a = Math.floor(Math.random()*4)+1; const b = Math.floor(Math.random()*4)+1 + a; 
+                const correctD = `D = ℝ \\ {${a}; ${b}}`;
+                const opts = shuffleArray([correctD, `D = ℝ \\ {${-a}; ${-b}}`, `D = ℝ \\ {${a}}`, `D = ℝ \\ {0; ${a}}`]);
+                return { category: 'Definitionsmenge', question: <span className="flex items-center gap-1">Finde D für: <Frac top="5" bot={`(x - ${a})(x - ${b})`}/></span>, options: opts, correctAnswer: opts.indexOf(correctD), explanation: `Ein Produkt ist 0, wenn einer der Faktoren 0 ist. Das passiert hier bei x = ${a} und x = ${b}. Beide müssen aus ℝ ausgeschlossen werden.` };
+            } else {
+                const a = Math.floor(Math.random()*4)+2; const a2 = a*a;
+                const correctD = `D = ℝ \\ {${-a}; ${a}}`;
+                const opts = shuffleArray([correctD, `D = ℝ \\ {${a2}}`, `D = ℝ \\ {${a}}`, `D = ℝ \\ {0; ${a}}`]);
+                return { category: 'Definitionsmenge', question: <span className="flex items-center gap-1">Bestimme D: <Frac top="2" bot={`x² - ${a2}`}/></span>, options: opts, correctAnswer: opts.indexOf(correctD), explanation: `Der Nenner x² - ${a2} wird 0, wenn x² = ${a2} ist. Dies gilt für x = ${a} UND x = ${-a}. Beide Werte müssen ausgeschlossen werden.` };
+            }
+        };
+
+        const generators = [
+            { id: 'prozent', fn: genProzent }, { id: 'linear', fn: genLinear }, { id: 'bruch', fn: genBruch }, { id: 'geo', fn: genGeo },
+            { id: 'prob', fn: genProb }, { id: 'quad', fn: genQuad }, { id: 'potenz', fn: genPotenz }, { id: 'def', fn: genDef }
+        ];
+
+        const generateKopfrechenQuestion = (diff, lastCatId) => {
+            const available = generators.filter(g => g.id !== lastCatId);
+            const selected = available[Math.floor(Math.random() * available.length)];
+            return { ...selected.fn(diff), categoryId: selected.id };
+        };
+
+        const KopfrechenTrainer = () => {
+            const [difficulty, setDifficulty] = useState('mittel');
+            const [currentQuestion, setCurrentQuestion] = useState(() => generateKopfrechenQuestion('mittel', null));
+            const [selectedOption, setSelectedOption] = useState(null);
+            const [isAnswerChecked, setIsAnswerChecked] = useState(false);
+            const [tipRevealed, setTipRevealed] = useState(false);
+            
+            const [streak, setStreak] = useState(() => getStorage('smarth_streak_kopf', 0));
+            const [showAnim, setShowAnim] = useState(false);
+
+            useEffect(() => { setStorage('smarth_streak_kopf', streak); }, [streak]);
+
+            const handleDifficultyChange = (newDiff) => {
+                setDifficulty(newDiff);
+                setCurrentQuestion(generateKopfrechenQuestion(newDiff, currentQuestion?.categoryId));
+                setSelectedOption(null);
+                setIsAnswerChecked(false);
+                setTipRevealed(false);
+            };
+
+            const handleOptionSelect = (index) => {
+                if (!isAnswerChecked) setSelectedOption(index);
+            };
+
+            const handleCheckAnswer = () => {
+                if (selectedOption === null) return;
+                setIsAnswerChecked(true);
+                const isCorrect = selectedOption === currentQuestion.correctAnswer;
+                
+                if (isCorrect && !tipRevealed) {
+                    const newStreak = streak + 1;
+                    setStreak(newStreak);
+                    if (newStreak > 0 && newStreak % 6 === 0) triggerCelebration(setShowAnim);
+                } else {
+                    setStreak(0);
+                }
+            };
+
+            const loadNextQuestion = () => {
+                setCurrentQuestion(generateKopfrechenQuestion(difficulty, currentQuestion.categoryId));
+                setSelectedOption(null);
+                setIsAnswerChecked(false);
+                setTipRevealed(false);
+            };
+
+            const handleSkip = () => {
+                setStreak(0); // Überspringen bricht den Streak
+                loadNextQuestion();
+            };
+
+            const handleShowTip = () => {
+                setTipRevealed(true);
+                setStreak(0); // Tipp ansehen bricht den Streak
+            };
+
+            const getOptionStyles = (index) => {
+                if (!isAnswerChecked) {
+                    return selectedOption === index ? 'border-sky-500 bg-sky-50 ring-2 ring-sky-200' : 'border-slate-200 hover:border-sky-300 hover:bg-slate-50';
+                }
+                if (index === currentQuestion.correctAnswer) return 'border-green-500 bg-green-50 text-green-800 ring-2 ring-green-200';
+                if (index === selectedOption && index !== currentQuestion.correctAnswer) return 'border-red-500 bg-red-50 text-red-800 ring-2 ring-red-200';
+                return 'border-slate-200 opacity-50';
+            };
+
+            return (
+                <div className="page-transition max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                    {showAnim && <CelebrationOverlay />}
+                    
+                    <header className="bg-sky-500 text-sky-950 shadow-md p-6 rounded-xl mb-6">
+                        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <div className="flex items-center space-x-3 text-white">
+                                <CalculatorOff className="w-8 h-8" />
+                                <div>
+                                    <h1 className="text-2xl font-bold tracking-tight flex items-center">Kopfrechnen <span className="hidden sm:inline text-sky-200 text-lg font-normal border-l-2 border-sky-400 pl-2 ml-2">MSA Training</span></h1>
+                                </div>
+                            </div>
+                            <div className="bg-sky-600 px-4 py-1.5 rounded-full text-sm font-bold shadow-sm flex items-center text-white">
+                                <Target className="w-4 h-4 mr-2 text-sky-200" /> Streak: {streak}
+                            </div>
+                        </div>
+                    </header>
+
+                    {/* Difficulty Selector */}
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6 bg-white p-3 rounded-xl shadow-sm border border-slate-200">
+                        <span className="font-bold text-slate-700">Neue Aufgabe generieren:</span>
+                        <div className="flex gap-2">
+                            {['leicht', 'mittel', 'schwer'].map(d => (
+                                <button key={d} onClick={() => handleDifficultyChange(d)} className={`px-4 py-2 font-bold rounded-lg shadow-sm transition-colors ${difficulty === d ? 'bg-sky-500 text-white' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'}`}>
+                                    {d.charAt(0).toUpperCase() + d.slice(1)}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    <main className="space-y-6 relative">
+                        <div className="bg-white rounded-3xl shadow-md overflow-hidden border border-slate-200">
+                            {/* Card Header */}
+                            <div className="bg-sky-50 px-6 py-4 border-b border-sky-200 flex justify-between items-center relative overflow-hidden">
+                                <div className="relative z-10 flex items-center text-sky-900 font-bold text-lg"><BookOpen className="w-5 h-5 mr-2 text-sky-600" /> {currentQuestion.category}</div>
+                                <div className="absolute -right-4 -top-4 opacity-10"><CalculatorOff className="w-24 h-24" /></div>
+                            </div>
+
+                            {/* Quiz Area */}
+                            <div className="p-6 md:p-8">
+                                <div className="mb-8 min-h-[60px] flex items-center">
+                                    <h2 className="text-xl md:text-2xl font-semibold text-slate-800 leading-snug">{currentQuestion.question}</h2>
+                                </div>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
+                                    {currentQuestion.options.map((option, index) => (
+                                        <button key={index} onClick={() => handleOptionSelect(index)} disabled={isAnswerChecked} className={`text-left p-4 rounded-xl border-2 transition-all duration-200 flex items-center justify-between ${getOptionStyles(index)}`}>
+                                            <span className="font-medium text-[16px] flex flex-wrap items-center gap-1">{option}</span>
+                                            {isAnswerChecked && index === currentQuestion.correctAnswer && <CheckCircle className="w-6 h-6 text-green-500 flex-shrink-0 ml-3" />}
+                                            {isAnswerChecked && index === selectedOption && index !== currentQuestion.correctAnswer && <XCircle className="w-6 h-6 text-red-500 flex-shrink-0 ml-3" />}
+                                        </button>
+                                    ))}
+                                </div>
+
+                                {!isAnswerChecked && (
+                                    <div className="mb-6">
+                                        {!tipRevealed ? (
+                                            <button onClick={handleShowTip} className="text-sky-600 bg-sky-50 hover:bg-sky-100 px-4 py-2 rounded-lg font-medium flex items-center transition-colors border border-sky-200">
+                                                <HelpCircle className="w-5 h-5 mr-2" /> Lösungsweg anzeigen (Tipp)
+                                            </button>
+                                        ) : (
+                                            <div className="bg-sky-50 border-l-4 border-sky-500 p-4 rounded shadow-sm text-sky-900 text-sm animate-fade-in flex">
+                                                <HelpCircle className="w-6 h-6 mr-3 shrink-0 text-sky-600" />
+                                                <div><strong className="block mb-1 text-sky-800">Tipp / Lösungsweg:</strong> <span className="flex flex-wrap items-center gap-1">{currentQuestion.explanation}</span></div>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
+                                {isAnswerChecked && (
+                                    <div className="mb-8 p-5 bg-sky-50 border border-sky-100 rounded-xl animate-fade-in flex flex-col sm:flex-row gap-4">
+                                        <div className="shrink-0 pt-1"><HelpCircle className="w-6 h-6 text-sky-600" /></div>
+                                        <div>
+                                            <h3 className="text-sm font-bold text-sky-800 uppercase tracking-wider mb-1">Erklärung</h3>
+                                            <p className="text-sky-900 leading-relaxed font-medium flex flex-wrap items-center gap-1">{currentQuestion.explanation}</p>
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="flex justify-between items-center border-t border-slate-100 pt-6 mt-4">
+                                    {!isAnswerChecked ? (
+                                        <>
+                                            <button onClick={handleSkip} className="flex items-center gap-2 py-3 px-5 rounded-xl font-medium text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-all">
+                                                <FastForward className="w-5 h-5" /> <span className="hidden sm:inline">Überspringen</span>
+                                            </button>
+                                            <button onClick={handleCheckAnswer} disabled={selectedOption === null} className={`py-3 px-8 rounded-xl font-semibold transition-all flex items-center ${selectedOption !== null ? 'bg-sky-500 hover:bg-sky-600 text-white shadow-md transform hover:-translate-y-0.5' : 'bg-slate-100 text-slate-400 cursor-not-allowed'}`}>
+                                                Antwort prüfen <ArrowRight className="w-5 h-5 ml-2" />
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <button onClick={loadNextQuestion} className="w-full flex justify-center items-center gap-2 py-4 px-8 rounded-xl font-bold bg-slate-800 hover:bg-slate-900 text-white transition-all shadow-md transform hover:-translate-y-0.5 text-lg animate-fade-in">
+                                            Nächste Aufgabe <ChevronRight className="w-6 h-6" />
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </main>
+                </div>
+            );
+        };
+
+        // ==========================================
+        // 6. SEITEN (Home, Impressum, etc.)
         // ==========================================
 
         const HomePage = ({ navigateTo }) => (
@@ -1102,7 +1453,7 @@
 
                 <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
                     <div className="text-center mb-12"><h3 className="text-2xl font-bold text-slate-800">Verfügbare Mathetrainer</h3></div>
-                    <div className="grid md:grid-cols-3 gap-6">
+                    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
                         <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl transition-all hover:-translate-y-1 flex flex-col items-center text-center group cursor-pointer" onClick={() => navigateTo('wachstum')}>
                             <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform"><TrendingUp className="w-8 h-8" /></div>
                             <h4 className="text-xl font-bold text-slate-800 mb-3">Wachstum & Zerfall</h4>
@@ -1120,6 +1471,12 @@
                             <h4 className="text-xl font-bold text-slate-800 mb-3">Bruchgleichungen</h4>
                             <p className="text-slate-600 mb-8 flex-grow text-sm">Training zur Lösung komplexer Bruchgleichungen mit pq-Formel.</p>
                             <button className="w-full inline-flex items-center justify-center px-4 py-2 border border-amber-200 font-medium rounded-lg text-amber-700 bg-amber-50 group-hover:bg-amber-600 group-hover:text-white shadow-sm transition-all">Zum Trainer</button>
+                        </div>
+                        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl transition-all hover:-translate-y-1 flex flex-col items-center text-center group cursor-pointer" onClick={() => navigateTo('kopfrechnen')}>
+                            <div className="w-16 h-16 bg-sky-100 text-sky-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform"><CalculatorOff className="w-8 h-8" /></div>
+                            <h4 className="text-xl font-bold text-slate-800 mb-3">Kopfrechnen</h4>
+                            <p className="text-slate-600 mb-8 flex-grow text-sm">Schnelles Denken: Verschiedene Aufgabentypen für den MSA im Kopf lösen.</p>
+                            <button className="w-full inline-flex items-center justify-center px-4 py-2 border border-sky-200 font-medium rounded-lg text-sky-700 bg-sky-50 group-hover:bg-sky-500 group-hover:text-white shadow-sm transition-all">Zum Trainer</button>
                         </div>
                     </div>
                 </section>
@@ -1157,7 +1514,7 @@
         );
 
         // ==========================================
-        // 6. HAUPT-APP ROUTER
+        // 7. HAUPT-APP ROUTER
         // ==========================================
         const App = () => {
             const [currentPage, setCurrentPage] = useState('home');
@@ -1180,7 +1537,7 @@
                                 <img src="Logo-sMArTH.png" alt="sMArTHEMATIK Logo" className="h-5 sm:h-8 md:h-10 w-auto object-contain" />
                             </button>
                             
-                            {/* Mitte: MS-Süd Logo klickbar - Jetzt auch auf Mobile sichtbar (kleiner) */}
+                            {/* Mitte: MS-Süd Logo klickbar */}
                             <a href="https://ms-dachau-sued.de/" target="_blank" rel="noopener noreferrer" className="flex-grow flex justify-center items-center px-1 sm:px-2 hover:opacity-80 transition-opacity min-w-0">
                                 <img src="LogoMSsued2.jpg" alt="Mittelschule Dachau-Süd Logo" className="h-4 sm:h-8 md:h-10 w-auto object-contain shadow-sm rounded-sm" />
                             </a>
@@ -1192,6 +1549,7 @@
                                     <NavButton id="wachstum" label="Wachstum" icon={TrendingUp} />
                                     <NavButton id="zerfall" label="Halbwertszeit" icon={TrendingDown} />
                                     <NavButton id="gleichungen" label="Bruchgleichungen" icon={FractionIcon} />
+                                    <NavButton id="kopfrechnen" label="Kopfrechnen" icon={CalculatorOff} />
                                 </nav>
                                 <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="lg:hidden p-1 sm:p-2 text-slate-600 hover:bg-slate-50 rounded-lg">
                                     {mobileMenuOpen ? <XCircle className="w-6 h-6" /> : <MenuIcon className="w-6 h-6" />}
@@ -1206,6 +1564,7 @@
                                 <NavButton id="wachstum" label="Wachstum & Zerfall" icon={TrendingUp} />
                                 <NavButton id="zerfall" label="Halbwertszeit" icon={TrendingDown} />
                                 <NavButton id="gleichungen" label="Bruchgleichungen" icon={FractionIcon} />
+                                <NavButton id="kopfrechnen" label="Kopfrechnen" icon={CalculatorOff} />
                             </div>
                         )}
                     </header>
@@ -1215,6 +1574,7 @@
                         {currentPage === 'wachstum' && <WachstumsTrainer />}
                         {currentPage === 'zerfall' && <ZerfallsTrainer />}
                         {currentPage === 'gleichungen' && <BruchgleichungsTrainer />}
+                        {currentPage === 'kopfrechnen' && <KopfrechenTrainer />}
                         {currentPage === 'impressum' && <ImpressumPage navigateTo={setCurrentPage} />}
                         {currentPage === 'datenschutz' && <DatenschutzPage navigateTo={setCurrentPage} />}
                     </main>
@@ -1224,7 +1584,11 @@
                             <div>
                                 <h4 className="text-white text-lg font-bold uppercase tracking-wider mb-4">Kontakt & Infos</h4>
                                 <a href="mailto:martin.geiger@ms-dachau-sued.de" className="inline-block px-6 py-2 bg-slate-800 text-slate-200 font-semibold rounded-lg hover:bg-indigo-600 hover:text-white transition-colors shadow-sm text-sm">E-Mail senden</a>
-                                <p className="text-xs text-slate-500 mt-6 max-w-2xl mx-auto">Hinweis: Für die Richtigkeit der generierten Aufgaben und Berechnungen kann keine Garantie übernommen werden.</p>
+                                <p className="text-xs text-slate-500 mt-6 max-w-2xl mx-auto">
+                                    Hinweis: Für die Richtigkeit der generierten Aufgaben und Berechnungen kann keine Garantie übernommen werden.
+                                    <br/><br/>
+                                    Quelle der Prüfungsaufgaben im Bereich Bruchgleichungen: <a href="https://www.bycs.de/pruefungsarchiv" target="_blank" rel="noopener noreferrer" className="underline hover:text-slate-300 transition-colors">Prüfungsarchiv des Bayerischen Staatsministeriums für Unterricht und Kultus (bycs.de)</a>.
+                                </p>
                             </div>
                             
                             <div className="w-full border-t border-slate-800 pt-6 mt-2 flex flex-col justify-between items-center text-sm gap-4">
