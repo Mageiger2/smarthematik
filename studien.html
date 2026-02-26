@@ -8,10 +8,10 @@
     <!-- Tailwind CSS für das Styling laden -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- React, ReactDOM & Babel über zuverlässigere cdnjs laden (behebt Chrome-Blockaden) -->
-    <script crossorigin="anonymous" src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-    <script crossorigin="anonymous" src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-    <script crossorigin="anonymous" src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.3/babel.min.js"></script>
+    <!-- HINWEIS: crossorigin="anonymous" wurde entfernt, damit Chrome lokale HTML-Dateien (file://) nicht blockiert -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.3/babel.min.js"></script>
 </head>
 <body>
     <!-- Hier wird die React-App hineingeladen -->
@@ -474,8 +474,9 @@
                         <div className="text-center text-slate-500 py-10">Keine Karten gefunden.</div>
                     ) : viewMode === 'single' ? (
                         <div className="max-w-2xl mx-auto flex flex-col items-center">
-                            <div className="w-full flex flex-col min-h-[16rem] mb-6">
-                                <FactCard fact={activeFacts[currentIndex]} className="flex-1" />
+                            {/* WICHTIG: grid statt flex für das Card-Layout erzwingt in Chrome die richtige Höhe */}
+                            <div className="w-full min-h-[16rem] grid mb-6">
+                                <FactCard fact={activeFacts[currentIndex]} />
                             </div>
                             
                             <div className="flex items-center gap-6 mt-4">
