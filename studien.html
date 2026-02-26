@@ -8,18 +8,16 @@
     <!-- Tailwind CSS für das Styling laden -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- React & ReactDOM laden -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    
-    <!-- Babel laden, um den JSX-Code direkt im Browser auszuführen -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- React, ReactDOM & Babel über zuverlässigere cdnjs laden (behebt Chrome-Blockaden) -->
+    <script crossorigin="anonymous" src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script crossorigin="anonymous" src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script crossorigin="anonymous" src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.3/babel.min.js"></script>
 </head>
 <body>
     <!-- Hier wird die React-App hineingeladen -->
     <div id="root"></div>
 
-    <script type="text/babel">
+    <script type="text/babel" data-presets="react">
         const { useState, useMemo } = React;
 
         // --- ICONS (Ersatz für lucide-react, damit es als OnePager funktioniert) ---
@@ -378,8 +376,8 @@
         ];
 
         // --- KOMPONENTEN ---
-        const FactCard = ({ fact }) => (
-            <div className="bg-white p-5 rounded-xl border border-slate-200 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg flex flex-col justify-between h-full">
+        const FactCard = ({ fact, className = "" }) => (
+            <div className={`bg-white p-5 rounded-xl border border-slate-200 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg flex flex-col justify-between w-full h-full ${className}`}>
                 <p className="text-slate-800 font-medium leading-relaxed mb-4 text-[15px] whitespace-pre-line">{fact.text}</p>
                 <div className="mt-auto pt-3 border-t border-slate-100 flex flex-wrap gap-2 text-[11px] text-slate-500 font-semibold tracking-wide uppercase">
                     <span className="bg-blue-50 text-blue-700 px-2 py-1 rounded-md">{fact.study}</span>
@@ -450,8 +448,8 @@
                         <div className="text-center text-slate-500 py-10">Keine Karten gefunden.</div>
                     ) : viewMode === 'single' ? (
                         <div className="max-w-2xl mx-auto flex flex-col items-center">
-                            <div className="w-full min-h-[16rem] mb-6">
-                                <FactCard fact={filteredFacts[currentIndex]} />
+                            <div className="w-full flex flex-col min-h-[16rem] mb-6">
+                                <FactCard fact={filteredFacts[currentIndex]} className="flex-1" />
                             </div>
                             
                             <div className="flex items-center gap-6 mt-4">
@@ -576,9 +574,9 @@
                                         disabled={isAnswered}
                                         className={btnClass}
                                     >
-                                        <span>{opt}</span>
-                                        {isAnswered && idx === question.correct && <CheckCircle className="text-green-600" size={20} />}
-                                        {isAnswered && idx === selectedIdx && idx !== question.correct && <XCircle className="text-red-600" size={20} />}
+                                        <span className="flex-1 pr-4">{opt}</span>
+                                        {isAnswered && idx === question.correct && <CheckCircle className="text-green-600 flex-shrink-0" size={20} />}
+                                        {isAnswered && idx === selectedIdx && idx !== question.correct && <XCircle className="text-red-600 flex-shrink-0" size={20} />}
                                     </button>
                                 );
                             })}
