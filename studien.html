@@ -189,7 +189,7 @@ const LearnModule = () => {
     }, [filter]);
 
     return (
-        <div className="animate-in fade-in duration-300">
+        <div>
             <div className="flex flex-wrap gap-2 mb-8 justify-center">
                 {categories.map(cat => (
                     <button 
@@ -249,7 +249,7 @@ const QuizModule = () => {
     if (quizFinished) {
         const percentage = Math.round((score / quizQuestions.length) * 100);
         return (
-            <div className="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-sm border border-slate-200 text-center animate-in fade-in duration-500">
+            <div className="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-sm border border-slate-200 text-center">
                 <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6 text-blue-600">
                     <Brain size={40} />
                 </div>
@@ -268,7 +268,7 @@ const QuizModule = () => {
     }
 
     return (
-        <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden animate-in fade-in duration-300">
+        <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
             <div className="bg-slate-50 px-8 py-4 border-b border-slate-200 flex justify-between items-center text-sm font-semibold text-slate-500">
                 <span>Frage {currentQ + 1} von {quizQuestions.length}</span>
                 <span>Punkte: {score}</span>
@@ -308,13 +308,13 @@ const QuizModule = () => {
                 </div>
 
                 {isAnswered && (
-                    <div className="mt-6 p-4 bg-blue-50 border border-blue-100 rounded-xl text-blue-800 text-sm leading-relaxed animate-in fade-in duration-300">
+                    <div className="mt-6 p-4 bg-blue-50 border border-blue-100 rounded-xl text-blue-800 text-sm leading-relaxed">
                         <strong>Erklärung: </strong> {question.explanation}
                     </div>
                 )}
 
                 {isAnswered && (
-                    <div className="mt-8 flex justify-end animate-in fade-in duration-300">
+                    <div className="mt-8 flex justify-end">
                         <button 
                             onClick={nextQuestion}
                             className="bg-slate-800 hover:bg-slate-900 text-white font-semibold py-3 px-6 rounded-xl transition-colors shadow-sm flex items-center gap-2"
