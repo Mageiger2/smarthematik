@@ -1,0 +1,372 @@
+import React, { useState, useMemo } from 'react';
+import { Book, CheckCircle, XCircle, Brain, ChevronRight } from 'lucide-react';
+
+// --- DATENBASIS ---
+const facts = [
+    // KINDER (6-13)
+    { category: "Kinder (6–13)", study: "KIM‑Studie", year: "2024", text: "Medienausstattung: 46%: eigenes Gerät (v. a. Smartphone)." },
+    { category: "Kinder (6–13)", study: "KIM‑Studie", year: "2024", text: "Freizeit / Social Media: WhatsApp: 60% täglich bzw. fast täglich." },
+    { category: "Kinder (6–13)", study: "KIM‑Studie", year: "2024", text: "Beim Surfen im Internet: Mehrheit (59%) überwiegend auf sich gestellt." },
+    { category: "Kinder (6–13)", study: "KIM‑Studie", year: "2024", text: "Digitale Spiele: Liebste digitale Spiele: Minecraft, Fortnite, FIFA, Roblox." },
+    { category: "Kinder (6–13)", study: "KIM‑Studie", year: "2024", text: "Medien in der Familie: Streit in der Familie: 40%." },
+    { category: "Kinder (6–13)", study: "KIM‑Studie", year: "2024", text: "Medien in der Familie: Schwierigkeiten, mit Medien aufzuhören: 47%." },
+    { category: "Kinder (6–13)", study: "KIM‑Studie", year: "2024", text: "Medien in der Familie: 81% der Eltern wünschen Schulfach „Medienkompetenz“." },
+    { category: "Kinder (6–13)", study: "KIM‑Studie", year: "2024", text: "Jugendmedienschutz: Bei 50%: keine Kontrolle der Bildschirmzeit (Tablet)." },
+    { category: "Kinder (6–13)", study: "KIM‑Studie", year: "2024", text: "Jugendmedienschutz: Kein Benutzerkonto fürs Kind auf irgendeinem Gerät: 69%." },
+    { category: "Kinder (6–13)", study: "KIM‑Studie", year: "2024", text: "Nutzungsunterschiede Handynutzung: 3./4.-Klässler (8–10 J.) 38% vs. 6./7.-Klässler (12–13 J.) 97%." },
+    { category: "Kinder (6–13)", study: "KIM‑Studie", year: "2024", text: "Nutzungsunterschiede Tabletnutzung Schule (mind. 1×/Woche): 3./4.-Klässler 17% vs. 6./7.-Klässler 41%." },
+    { category: "Kinder (6–13)", study: "KIM‑Studie", year: "2024", text: "Nutzungsunterschiede Tägliche digitale Spiele: 3./4.-Klässler 25% vs. 6./7.-Klässler 45%." },
+
+    // JUGENDLICHE (10-19)
+    { category: "Jugendliche (10–19)", study: "DAK‑Mediensucht‑Studie (10–17-Jährige)", year: "2024", text: "Tägliche Nutzungszeiten: Bildschirmzeiten stagnieren ggü. Vorjahr." },
+    { category: "Jugendliche (10–19)", study: "DAK‑Mediensucht‑Studie (10–17-Jährige)", year: "2024", text: "Gaming: werktags 105 Min., Wochenende 171 Min." },
+    { category: "Jugendliche (10–19)", study: "DAK‑Mediensucht‑Studie (10–17-Jährige)", year: "2024", text: "Video‑Streaming: werktags 93 Min., Wochenende 145 Min." },
+    { category: "Jugendliche (10–19)", study: "DAK‑Mediensucht‑Studie (10–17-Jährige)", year: "2024", text: "Soziale Medien: werktags 157 Min., Wochenende 227 Min." },
+    
+    { category: "Jugendliche (10–19)", study: "JIM‑Studie (12–19-Jährige)", year: "2025", text: "95% besitzen ein eigenes Smartphone; 95% nutzen es täglich." },
+    { category: "Jugendliche (10–19)", study: "JIM‑Studie (12–19-Jährige)", year: "2025", text: "Durchschnittliche Smartphone‑Bildschirmzeit: 231 Min./Tag." },
+    { category: "Jugendliche (10–19)", study: "JIM‑Studie (12–19-Jährige)", year: "2025", text: "Wichtigste Apps (Top‑3‑Nennungen): WhatsApp 84%, Instagram 33%, Snapchat 24%, TikTok 23%, YouTube 20%." },
+    { category: "Jugendliche (10–19)", study: "JIM‑Studie (12–19-Jährige)", year: "2025", text: "KI‑Nutzung: 91% nutzen KI‑Anwendungen." },
+    { category: "Jugendliche (10–19)", study: "JIM‑Studie (12–19-Jährige)", year: "2025", text: "KI‑Nutzung: 74% für Hausaufgaben/Lernen." },
+    { category: "Jugendliche (10–19)", study: "JIM‑Studie (12–19-Jährige)", year: "2025", text: "KI‑Nutzung: 70% zur Informationssuche." },
+    { category: "Jugendliche (10–19)", study: "JIM‑Studie (12–19-Jährige)", year: "2025", text: "KI‑Nutzung: 57% halten KI‑Infos für vertrauenswürdig." },
+    { category: "Jugendliche (10–19)", study: "JIM‑Studie (12–19-Jährige)", year: "2025", text: "Jugendliche nutzen KI‑Tools zunehmend; Umgang mit KI kritisch begleiten!" },
+    { category: "Jugendliche (10–19)", study: "JIM‑Studie (12–19-Jährige)", year: "2025", text: "Selbstregulation: 68% öfter länger als geplant; 67% genießen Offline‑Zeit; 36% schalten Handy regelmäßig bewusst aus." },
+    { category: "Jugendliche (10–19)", study: "JIM‑Studie (12–19-Jährige)", year: "2025", text: "Folgen im Alltag: 30% morgens oft müde (nachts zu lange am Handy); 44% bei Hausaufgaben durchs Handy abgelenkt." },
+    { category: "Jugendliche (10–19)", study: "JIM‑Studie (12–19-Jährige)", year: "2025", text: "Problematische Inhalte (letzte 4 Wochen): Fake News 67%, Hassbotschaften 47%, Beleidigungen 64%, extreme politische Ansichten 59%." },
+    { category: "Jugendliche (10–19)", study: "JIM‑Studie (12–19-Jährige)", year: "2025", text: "Viele Jugendliche informieren sich über Social Media → Risiko für Desinformation." },
+    
+    { category: "Jugendliche (10–19)", study: "Always On (FHNW, Schweiz)", year: "2019", text: "Ständiges Online‑Sein: Bereicherung und Belastung." },
+    { category: "Jugendliche (10–19)", study: "Always On (FHNW, Schweiz)", year: "2019", text: "„Always On“ als soziale Erwartung; Nichterreichbarkeit → Risiko von Ausschluss/Missverständnissen." },
+    { category: "Jugendliche (10–19)", study: "Always On (FHNW, Schweiz)", year: "2019", text: "Selbstregulationsstrategien: Offline‑Zeiten, Stummschalten, Priorisieren." },
+
+    // SCHULE / UNTERRICHT & META
+    { category: "Schule/Unterricht & Meta", study: "Metastudie (Review; Informationskompetenz)", year: "2023", author: "Leber et al.", text: "Informationskompetenz (finden, prüfen, bewerten): Voraussetzung für Bildung/Teilhabe." },
+    { category: "Schule/Unterricht & Meta", study: "Metastudie (Review; Informationskompetenz)", year: "2023", author: "Leber et al.", text: "Digitale Medien fördern Informationskompetenz wirksam (Analyse von 22 Studien)." },
+    { category: "Schule/Unterricht & Meta", study: "Metastudie (Review; Informationskompetenz)", year: "2023", author: "Leber et al.", text: "Digitale Medien als Lernwerkzeug, Lernumgebung, Lerninhalt." },
+
+    { category: "Schule/Unterricht & Meta", study: "ICILS (Achtklässler*innen)", year: "2023", text: "Computer‑/informationsbezogene Kompetenzen: seit 2013 deutlich gesunken." },
+    { category: "Schule/Unterricht & Meta", study: "ICILS (Achtklässler*innen)", year: "2023", text: "Leistungsspitze extrem klein; z. B. Kompetenzstufe V: 1,1%." },
+    { category: "Schule/Unterricht & Meta", study: "ICILS (Achtklässler*innen)", year: "2023", text: "Viele mit sehr geringen Kompetenzen (max. Stufe II): 40,8%." },
+    { category: "Schule/Unterricht & Meta", study: "ICILS (Achtklässler*innen)", year: "2023", text: "Schere zwischen Schulformen groß; benachteiligte Jugendliche mit Defiziten in Medienkompetenz." },
+    { category: "Schule/Unterricht & Meta", study: "ICILS (Achtklässler*innen)", year: "2023", text: "Technische Ausstattung ist besser geworden." },
+    { category: "Schule/Unterricht & Meta", study: "ICILS (Achtklässler*innen)", year: "2023", text: "90% der SuS sehen Schule als Ort für Medienkompetenzerwerb." },
+
+    { category: "Schule/Unterricht & Meta", study: "vbw‑Studie (Lehrerinnen, Schülerinnen, Eltern)", year: "2024", text: "Digitale Medien: Potenzial, Lernbegeisterung zu steigern." },
+    { category: "Schule/Unterricht & Meta", study: "vbw‑Studie (Lehrerinnen, Schülerinnen, Eltern)", year: "2024", text: "Digitale Medien: „selbstverständlicher Bestandteil des Unterrichts“." },
+    { category: "Schule/Unterricht & Meta", study: "vbw‑Studie (Lehrerinnen, Schülerinnen, Eltern)", year: "2024", text: "Seit 2021: Einsatz etwas zurückgegangen; dafür gezielter, kognitiv aktivierender." },
+
+    { category: "Schule/Unterricht & Meta", study: "Würzburger Studie (8 weiterführende Schulen in Bayern)", year: "2025", author: "Gerhild Nieding", text: "1:1‑Tablet‑Schulen: signifikant höhere intrinsische Motivation; mehr kollaboratives Lernen." },
+    { category: "Schule/Unterricht & Meta", study: "Würzburger Studie (8 weiterführende Schulen in Bayern)", year: "2025", author: "Gerhild Nieding", text: "Je höher Medienkompetenz, desto bessere schulische Leistungen." },
+    { category: "Schule/Unterricht & Meta", study: "Würzburger Studie (8 weiterführende Schulen in Bayern)", year: "2025", author: "Gerhild Nieding", text: "Generelle Einschränkungen auf Geräten im Unterricht nicht nötig; die meisten nutzen nicht instruktionsfremd." },
+    { category: "Schule/Unterricht & Meta", study: "Würzburger Studie (8 weiterführende Schulen in Bayern)", year: "2025", author: "Gerhild Nieding", text: "Tablet → mehr Kollaboration → höhere Motivation → bessere Noten (v. a. Deutsch)." },
+    { category: "Schule/Unterricht & Meta", study: "Würzburger Studie (8 weiterführende Schulen in Bayern)", year: "2025", author: "Gerhild Nieding", text: "Nutzung: kurz (5–8 Min.), gezielt; kaum Ablenkung; „Daddeln“ max. 1,8% der Zeit." },
+    { category: "Schule/Unterricht & Meta", study: "Würzburger Studie (8 weiterführende Schulen in Bayern)", year: "2025", author: "Gerhild Nieding", text: "Lehrkräfte: Vorteile (selbstständiges Lernen, individuelle Förderung, organisatorische Entlastung)." },
+    { category: "Schule/Unterricht & Meta", study: "Würzburger Studie (8 weiterführende Schulen in Bayern)", year: "2025", author: "Gerhild Nieding", text: "Lehrkräfte: Herausforderungen (Technik, WLAN, Ablenkungspotenzial)." },
+
+    { category: "Schule/Unterricht & Meta", study: "Metaanalyse (digitale Medien im naturwissenschaftlichen Unterricht)", year: "2020", author: "Hillmayer et al.", text: "Leistung: verbessert (g=0.65)." },
+    { category: "Schule/Unterricht & Meta", study: "Metaanalyse (digitale Medien im naturwissenschaftlichen Unterricht)", year: "2020", author: "Hillmayer et al.", text: "Einstellung zum Fach: verbessert (g=0.45)." },
+    { category: "Schule/Unterricht & Meta", study: "Metaanalyse (digitale Medien im naturwissenschaftlichen Unterricht)", year: "2020", author: "Hillmayer et al.", text: "Besonders wirksam: dynamische Visualisierungen (g=1.02), intelligente Tutoren (g=0.89)." },
+    { category: "Schule/Unterricht & Meta", study: "Metaanalyse (digitale Medien im naturwissenschaftlichen Unterricht)", year: "2020", author: "Hillmayer et al.", text: "Ergänzend wirksamer als ersetzend (g=0.64)." },
+    { category: "Schule/Unterricht & Meta", study: "Metaanalyse (digitale Medien im naturwissenschaftlichen Unterricht)", year: "2020", author: "Hillmayer et al.", text: "Kooperation verstärkt Wirkung (g=0.72)." },
+    { category: "Schule/Unterricht & Meta", study: "Metaanalyse (digitale Medien im naturwissenschaftlichen Unterricht)", year: "2020", author: "Hillmayer et al.", text: "Lehrkräftefortbildung: wichtigster Erfolgsfaktor (g=0.84)." },
+    { category: "Schule/Unterricht & Meta", study: "Metaanalyse (digitale Medien im naturwissenschaftlichen Unterricht)", year: "2020", author: "Hillmayer et al.", text: "Ältere Schüler*innen profitieren tendenziell stärker." },
+
+    { category: "Schule/Unterricht & Meta", study: "Forschung", year: "2018", author: "Zhang & Nouri", text: "Leitmotive durch mobile Endgeräte: kollaboratives Lernen; spielbasiertes Lernen; multimodales Lernen; AR/VR." },
+    { category: "Schule/Unterricht & Meta", study: "Forschung", year: "2018", author: "Stegmann et al.", text: "Digitale Medien überlegen, wenn: aktives/interaktives Lernen; analog nicht mögliche Aktivitäten (z. B. Simulationen)." },
+    
+    { category: "Schule/Unterricht & Meta", study: "Zusammenstellung empirischer Befunde", year: "2019", author: "Vera Haldenwang", text: "Warum digitale Medien im Unterricht sinnvoll sind: Individuelle Förderung, Methodisches Repertoire erweitern, Motivation steigern, Chancengerechtigkeit unterstützen, Vorbereitung auf digitale Arbeitswelt, Lernleistung verbessern, Lehrkräfte entlasten." },
+    { category: "Schule/Unterricht & Meta", study: "Zusammenstellung empirischer Befunde", year: "2019", author: "Vera Haldenwang", text: "Wie viel Digitalisierung sinnvoll ist: Hybride Modelle: digital + analog ergänzend; Digitale Medien unterstützen, nicht ersetzen; Bildschirmzeit: Qualität wichtiger als Dauer." },
+    { category: "Schule/Unterricht & Meta", study: "Zusammenstellung empirischer Befunde", year: "2019", author: "Vera Haldenwang", text: "Herausforderungen: Ablenkung; Überforderung; fehlende Lehrkräftekompetenz; digitale Kluft; Datenschutz; Verlust basaler Fähigkeiten; gesundheitliche Risiken; technische Infrastruktur." },
+
+    { category: "Schule/Unterricht & Meta", study: "Allgemeine empirische Einordnung", text: "Schule vs. Freizeit: Schule (strukturiert; klare Lernziele; Kooperation; ausgewogene Bildschirmzeit) vs. Freizeit (unstrukturiert; Unterhaltung; höheres Ablenkungsrisiko)." },
+    { category: "Schule/Unterricht & Meta", study: "Allgemeine empirische Einordnung", text: "Ablenkung minimieren: Klare Regeln; LMS‑Steuerung; interaktive Aufgaben; Selbstregulation fördern; Medienkompetenzprogramme." },
+    { category: "Schule/Unterricht & Meta", study: "Allgemeine empirische Einordnung", text: "Schutz vor jugendgefährdenden Inhalten: Filter; Medienkompetenz; pädagogische Begleitung; Elternarbeit; klare Richtlinien." },
+    { category: "Schule/Unterricht & Meta", study: "Allgemeine empirische Einordnung", text: "Lehren aus Skandinavien: Kehrtwende Schweden: Konzepte statt nur Geräte; hybride Modelle am wirksamsten; Lehrkräftequalifizierung zentral." },
+
+    { category: "Schule/Unterricht & Meta", study: "Forschung", year: "2015", author: "Fischer et al.", text: "Digitale Medien unterstützen Lernen wirksam: nicht automatisch; abhängig von didaktischer Gestaltung." },
+    { category: "Schule/Unterricht & Meta", study: "Forschung", year: "2015", author: "Fischer et al.", text: "Positiv, wenn: zielgerichtet; kognitive Belastung reduziert; aktiv/konstruktiv/kollaborativ; Lehrkräfte geschult und sinnvoll integriert." },
+
+    { category: "Schule/Unterricht & Meta", study: "Hattie", year: "2018–2026", text: "Hinge Point liegt bei d = 0.40." },
+    { category: "Schule/Unterricht & Meta", study: "Hattie", year: "2018–2026", text: "Top‑Einflussfaktoren: Selbsteinschätzung (d = 1.44), Lehrkraft‑Klarheit (d = 0.75), Feedback (d = 0.70), Lehrkraft‑Professionalität/Qualität (d = 0.70)." },
+    { category: "Schule/Unterricht & Meta", study: "Hattie", year: "2018–2026", text: "Mittlerer Bereich: Hausaufgaben Sek I/II (d = 0.64), Peer‑Tutoring (d = 0.55)." },
+    { category: "Schule/Unterricht & Meta", study: "Hattie", year: "2018–2026", text: "Unter Hinge Point: Digitale Medien (d = 0.34), Individualisierung (d = 0.23)." },
+
+    { category: "Schule/Unterricht & Meta", study: "Vodafone‑Stiftung (Kurzfassung)", year: "2024", text: "Wunsch: verbindliche Regeln für KI‑Nutzung." },
+    { category: "Schule/Unterricht & Meta", study: "Vodafone‑Stiftung (Kurzfassung)", year: "2024", text: "KI als Unterstützung, nicht als Ersatz für Lehrkräfte." },
+    { category: "Schule/Unterricht & Meta", study: "Vodafone‑Stiftung (Kurzfassung)", year: "2024", text: "Forderungen: Kompetenzaufbau, faire Rahmenbedingungen (Zugang für alle), mehr Mut der Schulen, KI auszuprobieren." },
+
+    { category: "Schule/Unterricht & Meta", study: "Zentrale Positionen", year: "seit 2019 / 2023/24", author: "Manfred Spitzer", text: "Er warnt vor: digitalen Medien im Unterricht, Smartphones im Kinder- und Jugendalter, KI‑Tools als Lernhilfen, Bildschirmzeit generell." },
+    { category: "Schule/Unterricht & Meta", study: "Zentrale Positionen", year: "seit 2019 / 2023/24", author: "Manfred Spitzer", text: "Er argumentiert: Lernen sei analog effektiver. Digitale Geräte reduzieren Konzentration, schwächen Gedächtnisleistung, fördern oberflächliches Lernen." },
+    { category: "Schule/Unterricht & Meta", study: "Zentrale Positionen", year: "seit 2019 / 2023/24", author: "Manfred Spitzer", text: "Smartphones machen „süchtig“: Dopamin‑Effekte, soziale Abhängigkeit, Verlust von Selbstregulation." },
+    { category: "Schule/Unterricht & Meta", study: "Zentrale Positionen", year: "seit 2019 / 2023/24", author: "Manfred Spitzer", text: "Digitalisierung verstärkt psychische Probleme: steigende Stresswerte, Schlafprobleme, depressive Symptome, Vereinsamung." },
+    { category: "Schule/Unterricht & Meta", study: "Zentrale Positionen", year: "seit 2019 / 2023/24", author: "Manfred Spitzer", text: "KI Kritik (seit 2023/24): fehlende Transparenz, mögliche Fehlinformationen, Verlust eigener Denkfähigkeit, Abhängigkeit von Systemen." },
+    { category: "Schule/Unterricht & Meta", study: "Zentrale Positionen", year: "seit 2019 / 2023/24", author: "Manfred Spitzer", text: "Wissenschaftliche Kritik an Spitzer: Er wählt Studien selektiv aus, überbetont Risiken, blendet Chancen digitaler Medien aus, vereinfacht komplexe Zusammenhänge." }
+];
+
+const quizQuestions = [
+    {
+        question: "Wie viel Prozent der Eltern wünschen sich laut KIM-Studie ein Schulfach „Medienkompetenz“?",
+        options: ["40%", "47%", "69%", "81%"],
+        correct: 3,
+        explanation: "Laut KIM-Studie 2024 wünschen sich 81% der Eltern das Schulfach „Medienkompetenz“."
+    },
+    {
+        question: "Bei welchem Anteil der Kinder (KIM 2024) gibt es kein Benutzerkonto auf irgendeinem Gerät?",
+        options: ["25%", "46%", "50%", "69%"],
+        correct: 3,
+        explanation: "Bei 69% existiert kein Benutzerkonto fürs Kind auf irgendeinem Gerät."
+    },
+    {
+        question: "Welche App wird laut JIM-Studie 2025 von Jugendlichen am wichtigsten eingestuft?",
+        options: ["WhatsApp (84%)", "Instagram (33%)", "TikTok (23%)", "YouTube (20%)"],
+        correct: 0,
+        explanation: "WhatsApp ist mit 84% Nennungen (Top 3) die wichtigste App."
+    },
+    {
+        question: "Wie lange beträgt die durchschnittliche Smartphone-Bildschirmzeit laut JIM-Studie (2025)?",
+        options: ["105 Min./Tag", "157 Min./Tag", "231 Min./Tag", "270 Min./Tag"],
+        correct: 2,
+        explanation: "Sie beträgt im Durchschnitt 231 Minuten am Tag."
+    },
+    {
+        question: "Welcher Faktor hat laut Hillmayer et al. (2020) die höchste isolierte Wirksamkeit?",
+        options: ["Kooperation (g=0.72)", "Intelligente Tutoren (g=0.89)", "Dynamische Visualisierungen (g=1.02)", "Lehrkräftefortbildung (g=0.84)"],
+        correct: 2,
+        explanation: "Dynamische Visualisierungen sind besonders wirksam (g=1.02). Aber Achtung: Lehrkräftefortbildung gilt als wichtigster Erfolgsfaktor."
+    },
+    {
+        question: "Welche Effektstärke haben 'Digitale Medien' laut Hattie (2018-2026)?",
+        options: ["d = 0.23", "d = 0.34", "d = 0.40 (Hinge Point)", "d = 0.70"],
+        correct: 1,
+        explanation: "Digitale Medien liegen mit d = 0.34 unter dem Hinge Point (d=0.40)."
+    },
+    {
+        question: "Was zeigte die Würzburger Studie 2025 (Gerhild Nieding) bzgl. Tablet-Schulen?",
+        options: ["Mehr 'Daddeln' (ca. 20% der Zeit)", "Signifikant höhere intrinsische Motivation & mehr kollaboratives Lernen", "Generelle Einschränkungen auf Geräten sind zwingend", "Schlechtere Noten in Deutsch"],
+        correct: 1,
+        explanation: "1:1-Tablet-Schulen zeigen höhere intrinsische Motivation und mehr kollaboratives Lernen. 'Daddeln' macht max. 1,8% der Zeit aus."
+    },
+    {
+        question: "Wie viel Prozent der Achtklässler erreichen laut ICILS 2023 die höchste Kompetenzstufe V?",
+        options: ["1,1%", "12,5%", "25,0%", "40,8%"],
+        correct: 0,
+        explanation: "Die Leistungsspitze ist extrem klein; nur 1,1% erreichen Kompetenzstufe V."
+    },
+    {
+        question: "Was ist ein zentraler Kritikpunkt der Wissenschaft an Manfred Spitzer?",
+        options: ["Er verleugnet die Existenz von Smartphones.", "Er blendet Risiken aus.", "Er wählt Studien selektiv aus und blendet Chancen digitaler Medien aus.", "Er fordert mehr Bildschirmzeit."],
+        correct: 2,
+        explanation: "Die Wissenschaft kritisiert, dass er Studien selektiv auswählt, Risiken überbetont und Chancen ausblendet."
+    },
+    {
+        question: "Wofür nutzen Jugendliche (JIM 2025) KI-Anwendungen am häufigsten (74%)?",
+        options: ["Spiele generieren", "Informationssuche (allgemein)", "Hausaufgaben/Lernen", "Programmieren"],
+        correct: 2,
+        explanation: "74% nutzen KI-Anwendungen für Hausaufgaben/Lernen (und 70% zur Informationssuche)."
+    }
+];
+
+// --- KOMPONENTEN ---
+const FactCard = ({ fact }) => (
+    <div className="bg-white p-5 rounded-xl border border-slate-200 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg flex flex-col justify-between h-full">
+        <p className="text-slate-800 font-medium leading-relaxed mb-4 text-[15px]">{fact.text}</p>
+        <div className="mt-auto pt-3 border-t border-slate-100 flex flex-wrap gap-2 text-[11px] text-slate-500 font-semibold tracking-wide uppercase">
+            <span className="bg-blue-50 text-blue-700 px-2 py-1 rounded-md">{fact.study}</span>
+            {fact.year && <span className="bg-slate-100 px-2 py-1 rounded-md">{fact.year}</span>}
+            {fact.author && <span className="bg-amber-50 text-amber-700 px-2 py-1 rounded-md">{fact.author}</span>}
+        </div>
+    </div>
+);
+
+const LearnModule = () => {
+    const [filter, setFilter] = useState("Alle");
+    const categories = ["Alle", "Kinder (6–13)", "Jugendliche (10–19)", "Schule/Unterricht & Meta"];
+
+    const filteredFacts = useMemo(() => {
+        if (filter === "Alle") return facts;
+        return facts.filter(f => f.category === filter);
+    }, [filter]);
+
+    return (
+        <div className="animate-in fade-in duration-300">
+            <div className="flex flex-wrap gap-2 mb-8 justify-center">
+                {categories.map(cat => (
+                    <button 
+                        key={cat}
+                        onClick={() => setFilter(cat)}
+                        className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${filter === cat ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'}`}
+                    >
+                        {cat}
+                    </button>
+                ))}
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {filteredFacts.map((fact, idx) => (
+                    <FactCard key={idx} fact={fact} />
+                ))}
+            </div>
+        </div>
+    );
+};
+
+const QuizModule = () => {
+    const [currentQ, setCurrentQ] = useState(0);
+    const [selectedIdx, setSelectedIdx] = useState(null);
+    const [isAnswered, setIsAnswered] = useState(false);
+    const [score, setScore] = useState(0);
+    const [quizFinished, setQuizFinished] = useState(false);
+
+    const question = quizQuestions[currentQ];
+
+    const handleAnswer = (idx) => {
+        if (isAnswered) return;
+        setSelectedIdx(idx);
+        setIsAnswered(true);
+        if (idx === question.correct) {
+            setScore(prev => prev + 1);
+        }
+    };
+
+    const nextQuestion = () => {
+        if (currentQ < quizQuestions.length - 1) {
+            setCurrentQ(prev => prev + 1);
+            setSelectedIdx(null);
+            setIsAnswered(false);
+        } else {
+            setQuizFinished(true);
+        }
+    };
+
+    const restartQuiz = () => {
+        setCurrentQ(0);
+        setSelectedIdx(null);
+        setIsAnswered(false);
+        setScore(0);
+        setQuizFinished(false);
+    };
+
+    if (quizFinished) {
+        const percentage = Math.round((score / quizQuestions.length) * 100);
+        return (
+            <div className="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-sm border border-slate-200 text-center animate-in fade-in duration-500">
+                <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6 text-blue-600">
+                    <Brain size={40} />
+                </div>
+                <h2 className="text-3xl font-bold text-slate-800 mb-2">Quiz abgeschlossen!</h2>
+                <p className="text-slate-600 mb-6">Du hast {score} von {quizQuestions.length} Fragen richtig beantwortet.</p>
+                
+                <div className="w-full bg-slate-100 rounded-full h-4 mb-8 overflow-hidden">
+                    <div className="bg-blue-500 h-4 rounded-full transition-all duration-1000" style={{width: `${percentage}%`}}></div>
+                </div>
+                
+                <button onClick={restartQuiz} className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-xl transition-colors shadow-sm">
+                    Quiz neu starten
+                </button>
+            </div>
+        );
+    }
+
+    return (
+        <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden animate-in fade-in duration-300">
+            <div className="bg-slate-50 px-8 py-4 border-b border-slate-200 flex justify-between items-center text-sm font-semibold text-slate-500">
+                <span>Frage {currentQ + 1} von {quizQuestions.length}</span>
+                <span>Punkte: {score}</span>
+            </div>
+            
+            <div className="p-8">
+                <h3 className="text-xl font-bold text-slate-800 mb-6 leading-snug">{question.question}</h3>
+                
+                <div className="space-y-3">
+                    {question.options.map((opt, idx) => {
+                        let btnClass = "w-full text-left p-4 rounded-xl border-2 font-medium transition-all duration-200 flex justify-between items-center ";
+                        if (!isAnswered) {
+                            btnClass += "border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300 cursor-pointer";
+                        } else {
+                            if (idx === question.correct) {
+                                btnClass += "border-green-500 bg-green-50 text-green-800";
+                            } else if (idx === selectedIdx) {
+                                btnClass += "border-red-500 bg-red-50 text-red-800";
+                            } else {
+                                btnClass += "border-slate-200 text-slate-400 opacity-50 cursor-not-allowed";
+                            }
+                        }
+
+                        return (
+                            <button 
+                                key={idx} 
+                                onClick={() => handleAnswer(idx)}
+                                disabled={isAnswered}
+                                className={btnClass}
+                            >
+                                <span>{opt}</span>
+                                {isAnswered && idx === question.correct && <CheckCircle className="text-green-600" size={20} />}
+                                {isAnswered && idx === selectedIdx && idx !== question.correct && <XCircle className="text-red-600" size={20} />}
+                            </button>
+                        );
+                    })}
+                </div>
+
+                {isAnswered && (
+                    <div className="mt-6 p-4 bg-blue-50 border border-blue-100 rounded-xl text-blue-800 text-sm leading-relaxed animate-in fade-in duration-300">
+                        <strong>Erklärung: </strong> {question.explanation}
+                    </div>
+                )}
+
+                {isAnswered && (
+                    <div className="mt-8 flex justify-end animate-in fade-in duration-300">
+                        <button 
+                            onClick={nextQuestion}
+                            className="bg-slate-800 hover:bg-slate-900 text-white font-semibold py-3 px-6 rounded-xl transition-colors shadow-sm flex items-center gap-2"
+                        >
+                            {currentQ < quizQuestions.length - 1 ? 'Nächste Frage' : 'Ergebnis anzeigen'}
+                            <ChevronRight size={18} />
+                        </button>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};
+
+export default function App() {
+    const [activeTab, setActiveTab] = useState('learn');
+
+    return (
+        <div className="min-h-screen bg-slate-50 font-sans text-slate-900 pb-20">
+            {/* Header */}
+            <header className="bg-white border-b border-slate-200 sticky top-0 z-10 shadow-sm">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex justify-between h-16 items-center">
+                        <div className="flex items-center gap-3">
+                            <div className="bg-blue-600 text-white p-2 rounded-lg">
+                                <Book size={20} />
+                            </div>
+                            <h1 className="text-xl font-bold text-slate-800 tracking-tight">Medienpädagogik <span className="text-blue-600">Smart</span></h1>
+                        </div>
+                        <div className="flex space-x-1 bg-slate-100 p-1 rounded-lg">
+                            <button 
+                                onClick={() => setActiveTab('learn')}
+                                className={`px-4 py-2 text-sm font-semibold rounded-md transition-all flex items-center gap-2 ${activeTab === 'learn' ? 'bg-white shadow-sm text-slate-800' : 'text-slate-500 hover:text-slate-700'}`}
+                            >
+                                Inhalte Lernen
+                            </button>
+                            <button 
+                                onClick={() => setActiveTab('quiz')}
+                                className={`px-4 py-2 text-sm font-semibold rounded-md transition-all flex items-center gap-2 ${activeTab === 'quiz' ? 'bg-white shadow-sm text-slate-800' : 'text-slate-500 hover:text-slate-700'}`}
+                            >
+                                <Brain size={16} />
+                                Quiz
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            {/* Main Content */}
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10">
+                {activeTab === 'learn' ? <LearnModule /> : <QuizModule />}
+            </main>
+        </div>
+    );
+}
