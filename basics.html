@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lernkarten: Medienpädagogik</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Eigene Styles für die 3D-Flip-Animation */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        
+        .transform-style-3d {
+            transform-style: preserve-3d;
+        }
+        
+        .backface-hidden {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+        
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+
+        .flip-card-inner {
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+        }
+
+        .flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        /* Verhindert das Markieren von Text beim schnellen Klicken */
+        .no-select {
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* Custom Scrollbar für lange Texte auf der Rückseite */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent; 
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1; 
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col selection:bg-indigo-200">
+
+    <!-- Header -->
+    <header class="w-full bg-white shadow-sm py-4 px-6 md:px-12 flex justify-between items-center z-10">
+        <div>
+            <h1 class="text-xl md:text-2xl font-bold text-indigo-700">Medienpädagogik Examen</h1>
+            <p class="text-xs md:text-sm text-slate-500">Lernkarten-System</p>
+        </div>
+        <div class="text-sm md:text-base font-semibold text-slate-600 bg-slate-100 py-2 px-4 rounded-full">
+            Karte <span id="current-card-num" class="text-indigo-600">1</span> / <span id="total-cards-num">23</span>
+        </div>
+    </header>
+
+    <!-- Main Content (Cards) -->
+    <main class="flex-grow flex flex-col items-center justify-center p-4 md:p-8 w-full max-w-4xl mx-auto">
+        
+        <!-- Progress Bar -->
+        <div class="w-full max-w-2xl bg-slate-200 rounded-full h-1.5 mb-8 overflow-hidden">
+            <div id="progress-bar" class="bg-indigo-600 h-1.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+        </div>
+
+        <!-- Card Container -->
+        <div id="card-container" class="perspective-1000 w-full max-w-2xl h-[450px] sm:h-[400px] cursor-pointer no-select group">
+            <div id="card-inner" class="flip-card-inner transform-style-3d relative w-full h-full rounded-2xl shadow-lg group-hover:shadow-xl transition-shadow duration-300">
+                
+                <!-- Front Side -->
+                <div class="backface-hidden absolute inset-0 w-full h-full bg-white rounded-2xl border border-slate-100 flex flex-col">
+                    <!-- Top Info (Number & Category) -->
+                    <div class="p-6 pb-2 flex justify-between items-start text-slate-400">
+                        <span id="front-number" class="text-sm font-bold bg-slate-100 py-1 px-3 rounded-lg">#1</span>
+                        <span id="front-category" class="text-xs font-medium uppercase tracking-wider text-right"></span>
+                    </div>
+                    
+                    <!-- Main Front Content -->
+                    <div class="flex-grow flex items-center justify-center p-8 text-center">
+                        <h2 id="front-title" class="text-2xl sm:text-3xl font-bold text-slate-800 leading-tight"></h2>
+                    </div>
+                    
+                    <!-- Footer (Name & Year) -->
+                    <div id="front-footer" class="bg-indigo-50/50 border-t border-indigo-100 p-4 rounded-b-2xl flex justify-center items-center gap-2 hidden">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                        <span id="front-author" class="font-semibold text-indigo-700"></span>
+                        <span id="front-year" class="text-indigo-500 text-sm font-medium ml-1"></span>
+                    </div>
+
+                    <!-- Flip Hint -->
+                    <div id="flip-hint-front" class="absolute bottom-4 left-0 right-0 text-center text-xs text-slate-400 opacity-60">
+                        Klicken zum Umdrehen
+                    </div>
+                </div>
+
+                <!-- Back Side -->
+                <div class="backface-hidden rotate-y-180 absolute inset-0 w-full h-full bg-gradient-to-br from-indigo-50 to-white rounded-2xl border border-indigo-100 flex flex-col">
+                    <div class="p-6 pb-2 flex justify-between items-start text-indigo-300">
+                        <span id="back-number" class="text-sm font-bold bg-indigo-100/50 text-indigo-600 py-1 px-3 rounded-lg">#1</span>
+                        <span class="text-xs font-medium uppercase tracking-wider text-indigo-400">Rückseite</span>
+                    </div>
+
+                    <!-- Main Back Content -->
+                    <div class="flex-grow flex items-center justify-center p-8 custom-scrollbar overflow-y-auto">
+                        <div id="back-content" class="text-lg sm:text-xl text-slate-700 text-center leading-relaxed space-y-4">
+                            <!-- Injected content -->
+                        </div>
+                    </div>
+
+                    <!-- Flip Hint Back -->
+                    <div class="pb-4 text-center text-xs text-indigo-300 opacity-80">
+                        Klicken zum Umdrehen
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="flex gap-4 mt-10 w-full max-w-2xl justify-between items-center">
+            <button onclick="prevCard()" id="btn-prev" class="px-6 py-3 rounded-xl font-medium transition-all duration-200 bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                </svg>
+                Zurück
+            </button>
+            <button onclick="nextCard()" id="btn-next" class="px-8 py-3 rounded-xl font-bold transition-all duration-200 bg-indigo-600 text-white hover:bg-indigo-700 hover:shadow-md hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                Weiter
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                </svg>
+            </button>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center py-6 text-slate-400 text-sm">
+        Viel Erfolg beim Lernen für dein Medienpädagogikexamen!
+    </footer>
+
+    <script>
+        // Aufbereitete Daten aus dem Input
+        const cardsData = [
+            { id: 1, front: "Medienerziehung", category: "Medienpädagogische Grundlagen", back: "Medienerziehung umfasst alle pädagogischen Maßnahmen, die Kinder befähigen sollen, Medien sinnvoll, kritisch und verantwortungsvoll zu nutzen." },
+            { id: 2, front: "Chancenorientierte Medienerziehung", category: "Medienpädagogische Grundlagen", back: "Betont die positiven Potenziale von Medien: Lernen, Kreativität, Teilhabe, Identitätsarbeit.<br><br>Gegenpol zu risikoorientierten Ansätzen." },
+            { id: 3, front: "Werteorientierte Medienerziehung", category: "Medienpädagogische Grundlagen", back: "Fokus auf ethische Orientierung: Respekt, Fairness, Datenschutz, Verantwortung.<br><br>Ergänzt die Chancenorientierung um moralische Leitlinien." },
+            { id: 4, front: "Pädagogische Grundhaltungen", name: "Süß", category: "Medienpädagogische Grundlagen", back: "Grundhaltungen wie unterstützend, dialogisch, entwicklungsorientiert, lebensweltorientiert." },
+            { id: 5, front: "Medienkritik", name: "Baacke", year: "(1996)", back: "<strong>Analytisch:</strong> Inhalte verstehen z. B. Fake News erkennen, Werbung durchschauen.<br><br><strong>Ethisch:</strong> moralische Bewertung.<br><br><strong>Ästhetisch:</strong> Gestaltung beurteilen." },
+            { id: 6, front: "Medienkunde", name: "Baacke", year: "(1996)", back: "Wissen über Medien und ihre Funktionsweisen.<br><br><strong>Informative Medienkunde:</strong> z. B. Was ist ein Algorithmus?<br><br><strong>Instrumentell-qualifikatorische Medienkunde:</strong> z. B. Geräte bedienen." },
+            { id: 7, front: "Mediennutzung", name: "Baacke", year: "(1996)", back: "Medien sinnvoll und zielgerichtet verwenden.<br><br><strong>Rezeptiv:</strong> Medien konsumieren.<br><br><strong>Interaktiv:</strong> kommunizieren." },
+            { id: 8, front: "Mediengestaltung", name: "Baacke", year: "(1996)", back: "Eigene Medienprodukte erstellen: Videos drehen / Podcasts aufnehmen." },
+            { id: 9, front: "Medienangebote auswählen und nutzen", name: "Tulodziecki", year: "(1997)", back: "Medien gezielt, sinnvoll und kritisch auswählen und verwenden.<br><br>Passende Informationsquellen finden, kindgerechte Apps auswählen." },
+            { id: 10, front: "Eigene Medienbeiträge gestalten und verbreiten", name: "Tulodziecki", year: "(1997)", back: "Selbst Medienprodukte erstellen und verantwortungsvoll veröffentlichen.<br><br>Z.B. Videos, Podcasts." },
+            { id: 11, front: "Mediengestaltungen verstehen und bewerten", name: "Tulodziecki", year: "(1997)", back: "Medieninhalte analysieren, hinterfragen und beurteilen.<br><br>Werbung erkennen oder Fake News durchschauen, Manipulationstechniken erkennen." },
+            { id: 12, front: "Medieneinflüsse erkennen und aufarbeiten", name: "Tulodziecki", year: "(1997)", back: "Verstehen, wie Medien auf Denken, Fühlen und Verhalten wirken.<br><br>Vorbilder in Social Media, Schönheitsideale, Gewaltwirkungen." },
+            { id: 13, front: "Bedingungen der Medienproduktion und -verbreitung durchschauen", name: "Tulodziecki", year: "(1997)", back: "Wissen, wie Medien entstehen und warum bestimmte Inhalte verbreitet werden.<br><br>Geschäftsmodelle (Werbung, Algorithmen), politische Einflussnahme." },
+            { id: 14, front: "Analytische Medienkritik", name: "Ganguin & Sander", year: "(2018)", back: "Medieninhalte, Darstellungsweisen und Strukturen verstehen und analysieren.<br><br>z. B. Fake News erkennen, Bildsprache deuten." },
+            { id: 15, front: "Reflexive Medienkritik", name: "Ganguin & Sander", year: "(2018)", back: "Eigene Mediennutzung, Motive und Wirkungen hinterfragen.<br><br>z. B. Warum nutze ich dieses Medium? Wie beeinflusst es mich?" },
+            { id: 16, front: "Ethisch‑normative Medienkritik", name: "Ganguin & Sander", year: "(2018)", back: "Medien bewerten und moralische Maßstäbe anwenden.<br><br>z. B. Datenschutz, Urheberrecht, Verantwortung im Netz." },
+            { id: 17, front: "Jugendmedienschutz", category: "Grundlagen", back: "Besteht aus zwei großen Bereichen:<br><br><strong>Jugendmedienschutz-Staatsvertrag (JMStV):</strong> regelt Online‑Medien.<br><br><strong>Jugendschutzgesetz (JuSchG):</strong> regelt Offline‑Medien (Filme, Spiele, Veranstaltungen)." },
+            { id: 18, front: "USK – Unterhaltungssoftware Selbstkontrolle", category: "Jugendmedienschutz", back: "Nur für Computerspiele, rechtlich verbindlich.<br><br>Altersklassen: 0 / 6 / 12 / 16 / 18.<br><br>Kriterien: Gewalt, Sprache, Atmosphäre." },
+            { id: 19, front: "FSK – Freiwillige Selbstkontrolle der Filmwirtschaft", category: "Jugendmedienschutz", back: "Zuständig für die Prüfung und Altersfreigabe von Filmen und anderen Trägermedien in Deutschland." },
+            { id: 20, front: "Bundesprüfstelle für jugendgefährdende Medien (BPjM)", category: "Jugendmedienschutz", back: "Zuständig für das Indizieren von jugendgefährdenden Medien (z.B. Bücher, Computerspiele, Filme)." },
+            { id: 21, front: "Rolle der Eltern", name: "Teichert", category: "Mediensozialisation", back: "Eltern haben vielfältige Rollen:<br>Vorbildrolle, Begleitrolle, Kontroll- und Schutzrolle, Unterstützungsrolle, Aushandlungsrolle, Vertrauens- und Gesprächsrolle.<br><br>Eltern sind die wichtigsten Akteure im Alltag." },
+            { id: 22, front: "Entwicklungsaufgaben", category: "Mediensozialisation", back: "Kinder müssen typische Aufgaben bewältigen (Identität, Beziehungen, Selbstständigkeit).<br><br>Medien spielen dabei eine zentrale Rolle (z. B. Zugehörigkeit über Chats)." },
+            { id: 23, front: "Mediensozialisation", category: "Grundlagen", back: "Beschreibt, wie Kinder durch Medien geprägt werden und wie Medien Teil ihrer Lebenswelt werden.<br><br>Erklärt, warum Medienerziehung notwendig ist." }
+        ];
+
+        // Status
+        let currentIndex = 0;
+        let isFlipped = false;
+
+        // DOM Elemente
+        const cardContainer = document.getElementById('card-container');
+        const frontNumber = document.getElementById('front-number');
+        const backNumber = document.getElementById('back-number');
+        const frontCategory = document.getElementById('front-category');
+        const frontTitle = document.getElementById('front-title');
+        const frontFooter = document.getElementById('front-footer');
+        const frontAuthor = document.getElementById('front-author');
+        const frontYear = document.getElementById('front-year');
+        const backContent = document.getElementById('back-content');
+        const flipHintFront = document.getElementById('flip-hint-front');
+        
+        const currentCardNumSpan = document.getElementById('current-card-num');
+        const totalCardsNumSpan = document.getElementById('total-cards-num');
+        const progressBar = document.getElementById('progress-bar');
+        
+        const btnPrev = document.getElementById('btn-prev');
+        const btnNext = document.getElementById('btn-next');
+
+        // Initialisierung
+        function init() {
+            totalCardsNumSpan.textContent = cardsData.length;
+            
+            // Event Listener fürs Klicken der Karte (Umdrehen)
+            cardContainer.addEventListener('click', () => {
+                isFlipped = !isFlipped;
+                if (isFlipped) {
+                    cardContainer.classList.add('flipped');
+                } else {
+                    cardContainer.classList.remove('flipped');
+                }
+            });
+
+            // Tastatursteuerung
+            document.addEventListener('keydown', (e) => {
+                if(e.code === 'Space') {
+                    e.preventDefault();
+                    cardContainer.click();
+                } else if(e.code === 'ArrowRight') {
+                    nextCard();
+                } else if(e.code === 'ArrowLeft') {
+                    prevCard();
+                }
+            });
+
+            renderCard();
+        }
+
+        // Karte anzeigen
+        function renderCard() {
+            const card = cardsData[currentIndex];
+            
+            // Nummern updaten
+            frontNumber.textContent = `#${card.id}`;
+            backNumber.textContent = `#${card.id}`;
+            currentCardNumSpan.textContent = card.id;
+
+            // Fortschrittsbalken
+            const progress = ((currentIndex + 1) / cardsData.length) * 100;
+            progressBar.style.width = `${progress}%`;
+
+            // Vorne: Titel und Kategorie
+            frontTitle.textContent = card.front;
+            if (card.category) {
+                frontCategory.textContent = card.category;
+            } else {
+                frontCategory.textContent = "";
+            }
+
+            // Vorne: Fußzeile (Name / Jahr)
+            if (card.name || card.year) {
+                frontFooter.classList.remove('hidden');
+                frontAuthor.textContent = card.name || "";
+                frontYear.textContent = card.year || "";
+                flipHintFront.classList.add('hidden'); // Verstecke Hint, wenn Footer da ist, um Platz zu sparen
+            } else {
+                frontFooter.classList.add('hidden');
+                flipHintFront.classList.remove('hidden');
+            }
+
+            // Hinten: Inhalt (mit HTML rendering für Absätze/Fettgedrucktes)
+            backContent.innerHTML = card.back;
+
+            // Button Stati anpassen
+            btnPrev.disabled = currentIndex === 0;
+            if (currentIndex === cardsData.length - 1) {
+                btnNext.innerHTML = 'Fertig ✓';
+                btnNext.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
+                btnNext.classList.add('bg-green-600', 'hover:bg-green-700');
+            } else {
+                btnNext.innerHTML = `Weiter <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>`;
+                btnNext.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
+                btnNext.classList.remove('bg-green-600', 'hover:bg-green-700');
+            }
+        }
+
+        // Zur nächsten Karte
+        function nextCard() {
+            if (currentIndex < cardsData.length - 1) {
+                // Falls umgedreht, erst zurückdrehen (ohne animation kurz für sauberen übergang)
+                if (isFlipped) {
+                    cardContainer.classList.remove('flipped');
+                    isFlipped = false;
+                    // Kurz warten, damit sich die Karte schließt, bevor der Text ändert
+                    setTimeout(() => {
+                        currentIndex++;
+                        renderCard();
+                    }, 300);
+                } else {
+                    currentIndex++;
+                    renderCard();
+                }
+            }
+        }
+
+        // Zur vorherigen Karte
+        function prevCard() {
+            if (currentIndex > 0) {
+                if (isFlipped) {
+                    cardContainer.classList.remove('flipped');
+                    isFlipped = false;
+                    setTimeout(() => {
+                        currentIndex--;
+                        renderCard();
+                    }, 300);
+                } else {
+                    currentIndex--;
+                    renderCard();
+                }
+            }
+        }
+
+        // Starte die App
+        init();
+    </script>
+</body>
+</html>
