@@ -135,10 +135,11 @@
             <div class="bg-emerald-50 p-6 border-b border-emerald-100 flex justify-between items-start">
                 <div>
                     <h2 id="modal-title" class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">Rezept Titel</h2>
-                    <div class="flex gap-4 text-sm font-medium text-emerald-700">
+                    <div class="flex flex-wrap gap-4 text-sm font-medium text-emerald-700">
                         <span id="modal-portions" class="flex items-center gap-1.5"><i data-lucide="users" class="w-4 h-4"></i> 4 Personen</span>
                         <span id="modal-time" class="flex items-center gap-1.5"><i data-lucide="clock" class="w-4 h-4"></i> Zeit</span>
                         <span id="modal-difficulty" class="flex items-center gap-1.5"><i data-lucide="bar-chart" class="w-4 h-4"></i> Schwierigkeit</span>
+                        <span id="modal-note" class="flex items-center gap-1.5 hidden"><i data-lucide="leaf" class="w-4 h-4"></i> Hinweis</span>
                     </div>
                 </div>
                 <button id="close-modal-btn" class="bg-white p-2 rounded-full shadow-sm hover:bg-gray-100 text-gray-500 transition">
@@ -277,6 +278,7 @@
                     category: rowData['Kategorie'] || '',
                     difficulty: rowData['Schwierigkeit'] || '',
                     time: rowData['Zeit_min'] || '',
+                    note: rowData['Hinweis'] || '',
                     portions: rowData['Portionen'] || '4',
                     displayIngredients: [], // Komplette Liste für die Detail-Ansicht
                     searchableIngredients: [], // Gefilterte Liste für die Such-Logik
@@ -554,6 +556,14 @@
             
             const diffStr = recipe.difficulty ? recipe.difficulty : 'k.A.';
             document.getElementById('modal-difficulty').innerHTML = `<i data-lucide="bar-chart" class="w-4 h-4"></i> ${diffStr}`;
+
+            const noteEl = document.getElementById('modal-note');
+            if (recipe.note && recipe.note.trim() !== '') {
+                noteEl.innerHTML = `<i data-lucide="leaf" class="w-4 h-4"></i> ${recipe.note}`;
+                noteEl.classList.remove('hidden');
+            } else {
+                noteEl.classList.add('hidden');
+            }
 
             // Zutaten füllen (inklusive Öl/Salz, da displayIngredients genutzt wird)
             const ingList = document.getElementById('modal-ingredients');
