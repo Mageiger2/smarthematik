@@ -24,37 +24,48 @@
         }
     </style>
 </head>
-<body class="bg-orange-50 min-h-screen font-sans text-gray-800">
+<body class="bg-orange-50 min-h-screen font-sans text-gray-800 flex flex-col">
 
-    <!-- LADE BEREICH (Wird beim Start angezeigt, bis die CSV geladen ist) -->
+    <!-- LADE BEREICH -->
     <div id="loading-screen" class="min-h-screen flex flex-col items-center justify-center p-4 fade-in">
         <div class="bg-white p-8 rounded-3xl shadow-xl max-w-md w-full text-center border border-emerald-100">
-            <i data-lucide="loader-2" class="w-12 h-12 text-emerald-500 animate-spin mx-auto mb-4"></i>
+            <i data-lucide="loader-2" class="w-12 h-12 text-emerald-500 animate-spin mx-auto mb-4 shrink-0"></i>
             <h1 class="text-2xl font-bold mb-2 text-gray-800">Lade Rezepte...</h1>
             <p class="text-gray-600">Die Schulküchen-Datenbank wird gestartet.</p>
-            <p id="loading-error" class="text-red-500 mt-4 hidden text-sm font-medium">Fehler: Die Datei konnte nicht geladen werden. Liegt sie im selben Ordner?</p>
+            <p id="loading-error" class="text-red-500 mt-4 hidden text-sm font-medium">Fehler: Die Datei konnte nicht geladen werden.</p>
         </div>
     </div>
 
-    <!-- HAUPT-APP BEREICH (Initial versteckt) -->
-    <div id="main-app" class="hidden">
+    <!-- HAUPT-APP BEREICH -->
+    <div id="main-app" class="hidden flex-grow flex flex-col">
         
         <!-- Header Bereich -->
         <header class="bg-emerald-500 text-white py-8 shadow-md rounded-b-3xl mb-8 relative">
-            <div class="max-w-4xl mx-auto px-4">
-                <div class="text-center mb-6">
-                    <h1 class="text-3xl md:text-4xl font-bold mb-2 flex justify-center items-center gap-3">
-                        <i data-lucide="chef-hat" class="w-10 h-10"></i>
-                        Schulküchen-Rezeptfinder
-                    </h1>
+            <div class="max-w-6xl mx-auto px-4">
+                
+                <!-- Top Row: Logos and Title -->
+                <div class="flex items-center justify-center mb-8 relative min-h-[5rem]">
+                    
+                    <!-- Center Title -->
+                    <div class="text-center z-10">
+                        <h1 class="text-3xl md:text-4xl font-bold flex justify-center items-center gap-3">
+                            <i data-lucide="chef-hat" class="w-10 h-10 shrink-0"></i>
+                            Schulküchen-Rezeptfinder
+                        </h1>
+                    </div>
+
+                    <!-- Right Logo (BdB) -->
+                    <div class="hidden md:flex absolute right-0 justify-center shrink-0 z-0">
+                        <img src="logo_bdb.png" alt="BdB Logo" class="h-16 md:h-20 object-contain drop-shadow-md">
+                    </div>
                 </div>
 
-                <!-- NEU: Direkte Rezeptsuche -->
-                <div class="max-w-2xl mx-auto relative">
+                <!-- Direkte Rezeptsuche -->
+                <div class="max-w-2xl mx-auto relative min-w-0">
                     <div class="bg-white/20 backdrop-blur-md rounded-xl p-2 flex items-center gap-2 border border-white/30 focus-within:bg-white focus-within:text-gray-800 transition-all duration-300 shadow-inner">
-                        <i data-lucide="search" class="w-6 h-6 ml-2 text-current opacity-70"></i>
+                        <i data-lucide="search" class="w-6 h-6 ml-2 text-current opacity-70 shrink-0"></i>
                         <input type="text" id="recipe-search-input" autocomplete="off"
-                            class="w-full bg-transparent border-none focus:ring-0 outline-none placeholder-white/70 focus-within:placeholder-gray-400 py-2 text-lg font-medium"
+                            class="w-full bg-transparent border-none focus:ring-0 outline-none placeholder-white/70 focus-within:placeholder-gray-400 py-2 text-lg font-medium min-w-0"
                             placeholder="Direkt nach einem Rezept suchen (z.B. Pfannkuchen)...">
                     </div>
                     <!-- Autocomplete für Rezepte -->
@@ -64,19 +75,19 @@
             </div>
         </header>
 
-        <main class="max-w-4xl mx-auto px-4 pb-12">
+        <main class="max-w-4xl mx-auto px-4 pb-12 flex-grow w-full">
             
             <!-- Eingabe-Bereich für Zutaten -->
             <section class="bg-white rounded-2xl shadow-sm p-6 mb-8 border border-orange-100 relative z-10">
                 <h2 class="text-xl font-bold mb-4 flex items-center gap-2 text-orange-600">
-                    <i data-lucide="shopping-basket" class="w-6 h-6"></i>
-                    Was haben wir im Kühlschrank?
+                    <i data-lucide="shopping-basket" class="w-6 h-6 shrink-0"></i>
+                    Rezeptfinder - welche Zutaten hast du heute zur Verfügung?
                 </h2>
                 
                 <div class="flex flex-col sm:flex-row gap-3">
-                    <div class="relative flex-grow">
+                    <div class="relative flex-grow min-w-0">
                         <input type="text" id="ingredient-input" autocomplete="off"
-                            class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-emerald-400 focus:ring-0 outline-none transition text-lg"
+                            class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-emerald-400 focus:ring-0 outline-none transition text-lg min-w-0"
                             placeholder="Zutat eintippen (Öl, Salz, Wasser werden nicht benötigt)...">
                         
                         <!-- Autocomplete für Zutaten -->
@@ -84,7 +95,7 @@
                         </ul>
                     </div>
                     <button id="add-btn" class="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold transition shadow-sm flex items-center justify-center gap-2 shrink-0">
-                        <i data-lucide="plus" class="w-5 h-5"></i> Hinzufügen
+                        <i data-lucide="plus" class="w-5 h-5 shrink-0"></i> Hinzufügen
                     </button>
                 </div>
 
@@ -101,7 +112,7 @@
             <section id="results-section">
                 <div id="perfect-matches-container" class="mb-10 hidden fade-in">
                     <h2 class="text-2xl font-bold mb-4 text-emerald-600 flex items-center gap-2">
-                        <i data-lucide="party-popper" class="w-7 h-7"></i>
+                        <i data-lucide="party-popper" class="w-7 h-7 shrink-0"></i>
                         Das können wir sofort kochen!
                     </h2>
                     <div id="perfect-matches-list" class="grid grid-cols-1 md:grid-cols-2 gap-5"></div>
@@ -109,7 +120,7 @@
 
                 <div id="partial-matches-container" class="hidden fade-in">
                     <h2 class="text-xl font-bold mb-4 text-orange-500 flex items-center gap-2">
-                        <i data-lucide="lightbulb" class="w-6 h-6"></i>
+                        <i data-lucide="lightbulb" class="w-6 h-6 shrink-0"></i>
                         Fast komplett (es fehlen max. 2 Zutaten)
                     </h2>
                     <div id="partial-matches-list" class="grid grid-cols-1 md:grid-cols-2 gap-5"></div>
@@ -117,7 +128,7 @@
 
                 <div id="no-results" class="text-center py-16 hidden fade-in bg-white rounded-2xl shadow-sm border border-gray-100">
                     <div class="bg-gray-50 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i data-lucide="search-x" class="w-12 h-12 text-gray-400"></i>
+                        <i data-lucide="search-x" class="w-12 h-12 text-gray-400 shrink-0"></i>
                     </div>
                     <h3 class="text-xl font-bold text-gray-600">Noch keine passenden Rezepte gefunden.</h3>
                     <p class="text-gray-500 mt-2">Füge noch weitere Zutaten hinzu, um Vorschläge zu erhalten.</p>
@@ -125,36 +136,86 @@
             </section>
 
         </main>
+
+        <!-- Footer mit Links -->
+        <footer class="bg-white border-t border-gray-200 mt-auto py-10 shrink-0">
+            <div class="max-w-4xl mx-auto px-4">
+                
+                <!-- Kontakt & Infos (Zentriert) -->
+                <div class="flex flex-col items-center mb-10">
+                    <h3 class="text-gray-700 font-bold mb-4 text-lg">Kontakt & Infos</h3>
+                    
+                    <a href="mailto:martin.geiger@ms-dachau-sued.de" class="inline-flex items-center gap-2 bg-emerald-100 text-emerald-700 px-6 py-3 rounded-xl hover:bg-emerald-200 transition font-bold shadow-sm mb-3">
+                        <i data-lucide="mail" class="w-5 h-5 shrink-0"></i>
+                        E-Mail schreiben
+                    </a>
+                    
+                    <p class="text-xs text-gray-400 text-center max-w-md mb-6">Hinweis: Für die Richtigkeit der Rezepte und Berechnungen kann keine Garantie übernommen werden.</p>
+                    
+                    <!-- Besucherzähler hits.sh -->
+                    <div class="opacity-70 hover:opacity-100 transition-opacity">
+                        <a href="https://hits.sh/schulkueche-rezeptfinder/" target="_blank" rel="noopener noreferrer">
+                            <img alt="Besucherzähler" src="https://hits.sh/schulkueche-rezeptfinder.svg?style=flat-square&color=10b981"/>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Unterste Zeile: Copyright links, Rechtliches rechts -->
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4 text-gray-500 text-sm border-t border-gray-100 pt-6">
+                    
+                    <!-- Copyright -->
+                    <div class="order-2 sm:order-1 font-medium shrink-0">
+                        &copy; 2026 - Martin Geiger
+                    </div>
+
+                    <!-- Impressum / Datenschutz -->
+                    <div class="flex flex-wrap justify-center gap-6 font-medium order-1 sm:order-2">
+                        <button onclick="openLegalModal('impressum')" class="hover:text-emerald-600 transition flex items-center gap-1.5 whitespace-nowrap">
+                            <i data-lucide="info" class="w-4 h-4 shrink-0"></i> Impressum
+                        </button>
+                        <button onclick="openLegalModal('datenschutz')" class="hover:text-emerald-600 transition flex items-center gap-1.5 whitespace-nowrap">
+                            <i data-lucide="shield-check" class="w-4 h-4 shrink-0"></i> Datenschutz
+                        </button>
+                    </div>
+                </div>
+                
+            </div>
+        </footer>
     </div>
 
     <!-- REZEPT-MODAL (Pop-up für Details) -->
     <div id="recipe-modal" class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col modal-enter relative">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col modal-enter relative overflow-hidden">
             
             <!-- Modal Header -->
-            <div class="bg-emerald-50 p-6 border-b border-emerald-100 flex justify-between items-start">
+            <div class="bg-emerald-50 p-6 border-b border-emerald-100 flex justify-between items-start shrink-0">
                 <div>
                     <h2 id="modal-title" class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">Rezept Titel</h2>
-                    <div class="flex flex-wrap gap-4 text-sm font-medium text-emerald-700">
-                        <span id="modal-portions" class="flex items-center gap-1.5"><i data-lucide="users" class="w-4 h-4"></i> 4 Personen</span>
-                        <span id="modal-time" class="flex items-center gap-1.5"><i data-lucide="clock" class="w-4 h-4"></i> Zeit</span>
-                        <span id="modal-difficulty" class="flex items-center gap-1.5"><i data-lucide="bar-chart" class="w-4 h-4"></i> Schwierigkeit</span>
-                        <span id="modal-note" class="flex items-center gap-1.5 hidden"><i data-lucide="leaf" class="w-4 h-4"></i> Hinweis</span>
+                    <div class="flex flex-wrap gap-4 text-sm font-medium text-emerald-700 items-center">
+                        <div class="flex items-center gap-1 bg-emerald-100/70 px-2 py-1 rounded-lg">
+                            <i data-lucide="users" class="w-4 h-4 mr-1 shrink-0"></i>
+                            <button id="btn-portions-minus" class="w-6 h-6 flex items-center justify-center rounded-full hover:bg-emerald-200 text-emerald-800 transition font-bold leading-none select-none shrink-0">-</button>
+                            <span id="modal-portions-text" class="w-[85px] text-center font-semibold shrink-0">4 Personen</span>
+                            <button id="btn-portions-plus" class="w-6 h-6 flex items-center justify-center rounded-full hover:bg-emerald-200 text-emerald-800 transition font-bold leading-none select-none shrink-0">+</button>
+                        </div>
+                        <span id="modal-time" class="flex items-center gap-1.5"><i data-lucide="clock" class="w-4 h-4 shrink-0"></i> Zeit</span>
+                        <span id="modal-difficulty" class="flex items-center gap-1.5"><i data-lucide="bar-chart" class="w-4 h-4 shrink-0"></i> Schwierigkeit</span>
+                        <span id="modal-note" class="flex items-center gap-1.5 hidden"><i data-lucide="leaf" class="w-4 h-4 shrink-0"></i> Hinweis</span>
                     </div>
                 </div>
-                <button id="close-modal-btn" class="bg-white p-2 rounded-full shadow-sm hover:bg-gray-100 text-gray-500 transition">
-                    <i data-lucide="x" class="w-6 h-6"></i>
+                <button id="close-modal-btn" class="bg-white p-2 rounded-full shadow-sm hover:bg-gray-100 text-gray-500 transition shrink-0 ml-4">
+                    <i data-lucide="x" class="w-6 h-6 shrink-0"></i>
                 </button>
             </div>
 
             <!-- Modal Content (Scrollbar) -->
-            <div class="p-6 overflow-y-auto no-scrollbar flex-grow bg-white">
+            <div class="p-6 overflow-y-auto no-scrollbar flex-grow bg-white min-h-0">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                     
                     <!-- Zutatenliste -->
                     <div class="md:col-span-1 bg-orange-50/50 p-5 rounded-2xl border border-orange-100 h-fit">
                         <h3 class="text-lg font-bold text-orange-600 mb-4 flex items-center gap-2">
-                            <i data-lucide="shopping-cart" class="w-5 h-5"></i> Zutaten
+                            <i data-lucide="shopping-cart" class="w-5 h-5 shrink-0"></i> Zutaten
                         </h3>
                         <ul id="modal-ingredients" class="space-y-3 text-gray-700 text-sm">
                             <!-- Wird per JS gefüllt -->
@@ -164,7 +225,7 @@
                     <!-- Zubereitung -->
                     <div class="md:col-span-2">
                         <h3 class="text-lg font-bold text-emerald-600 mb-4 flex items-center gap-2">
-                            <i data-lucide="list-ordered" class="w-5 h-5"></i> Zubereitung
+                            <i data-lucide="list-ordered" class="w-5 h-5 shrink-0"></i> Zubereitung
                         </h3>
                         <ol id="modal-steps" class="space-y-4 text-gray-700">
                             <!-- Wird per JS gefüllt -->
@@ -174,6 +235,21 @@
                 </div>
             </div>
             
+        </div>
+    </div>
+
+    <!-- LEGAL-MODAL (Pop-up für Impressum & Datenschutz) -->
+    <div id="legal-modal" class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col modal-enter relative overflow-hidden">
+            <div class="bg-emerald-50 p-6 border-b border-emerald-100 flex justify-between items-center shrink-0">
+                <h2 id="legal-modal-title" class="text-2xl font-bold text-gray-800">Titel</h2>
+                <button id="close-legal-btn" class="bg-white p-2 rounded-full shadow-sm hover:bg-gray-100 text-gray-500 transition shrink-0 ml-4">
+                    <i data-lucide="x" class="w-6 h-6 shrink-0"></i>
+                </button>
+            </div>
+            <div id="legal-modal-content" class="p-8 overflow-y-auto no-scrollbar flex-grow bg-white text-gray-700 min-h-0">
+                <!-- Wird per JS befüllt -->
+            </div>
         </div>
     </div>
 
@@ -192,11 +268,11 @@
         const baseIngredientsNames = ['öl', 'salz', 'pfeffer', 'wasser', 'oel', 'salz & pfeffer', 'meersalz', 'olivenöl', 'sonnenblumenöl', 'rapsöl'];
 
         // ---------------------------------------------------------
-        // CSV AUTOMATISCH LADEN (Für GitHub Pages)
+        // CSV AUTOMATISCH LADEN (Live von Google Sheets)
         // ---------------------------------------------------------
         document.addEventListener('DOMContentLoaded', () => {
-            // WICHTIG: Hier muss exakt der Dateiname deiner CSV stehen!
-            const csvUrl = 'rezepte.csv';
+            // Live-Link zur veröffentlichten Google Sheets CSV (mit Anti-Cache Zusatz)
+            const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS47FKbfUVbg0YLTW2FZFIsHhCyKG6jOK4Ve1vz8yo3dglBLC_xWWzTz9eQCKQ2Mm1ePqnV0VPkSTXf/pub?output=csv&_t=' + new Date().getTime();
             
             fetch(csvUrl)
                 .then(response => {
@@ -206,86 +282,118 @@
                 .then(csvText => {
                     try {
                         processCSV(csvText);
-                        // UI umschalten, wenn erfolgreich
                         document.getElementById('loading-screen').classList.add('hidden');
                         document.getElementById('main-app').classList.remove('hidden');
                         document.getElementById('recipe-search-input').focus();
                     } catch (err) {
                         console.error("Fehler beim Verarbeiten der CSV:", err);
                         const errorEl = document.getElementById('loading-error');
-                        errorEl.textContent = "Fehler beim Verarbeiten der CSV-Daten. Stimmt das Format?";
+                        errorEl.textContent = "Die Datenstruktur aus Google Sheets konnte nicht verarbeitet werden.";
                         errorEl.classList.remove('hidden');
                     }
                 })
                 .catch(error => {
                     console.error("Fehler beim Laden der CSV:", error);
-                    document.getElementById('loading-error').classList.remove('hidden');
-                    document.getElementById('loading-error').textContent = "Fehler: Die Datei konnte nicht geladen werden. Heißt die Datei exakt 'rezepte.csv' (alles klein) auf GitHub?";
+                    const errorEl = document.getElementById('loading-error');
+                    errorEl.textContent = "Fehler: Die Rezepte konnten nicht von Google Sheets geladen werden. Bitte prüfe die Internetverbindung.";
+                    errorEl.classList.remove('hidden');
                 });
         });
 
-        // Neue, robustere Funktion zum Splitten von CSV-Zeilen (erkennt Komma und Semikolon)
-        function parseCSVLine(line, delimiter) {
+        // ---------------------------------------------------------
+        // NEUER, ROBUSTER CSV PARSER (Behebt Google Sheets Umbrüche)
+        // ---------------------------------------------------------
+        function parseCSVFull(text) {
+            // Entfernt mögliche unsichtbare Sonderzeichen am Dateianfang (BOM)
+            text = text.replace(/^\uFEFF/, '');
+            
+            // Automatische Erkennung, ob Google Sheets Kommas oder Semikolons nutzt
+            const sample = text.substring(0, 1000);
+            const delimiter = (sample.split(';').length > sample.split(',').length) ? ';' : ',';
+            
             let result = [];
-            let inQuotes = false;
+            let row = [];
             let currentStr = '';
-            for (let i = 0; i < line.length; i++) {
-                let char = line[i];
-                if (char === '"' && line[i+1] === '"') {
-                    currentStr += '"'; // Escaped quotes
-                    i++;
-                } else if (char === '"') {
-                    inQuotes = !inQuotes;
-                } else if (char === delimiter && !inQuotes) {
-                    result.push(currentStr);
-                    currentStr = '';
+            let inQuotes = false;
+            
+            // Geht Zeichen für Zeichen durch, um Zeilenumbrüche INNERHALB von Zellen zu verstehen
+            for (let i = 0; i < text.length; i++) {
+                let char = text[i];
+                let nextChar = text[i + 1];
+                
+                if (inQuotes) {
+                    if (char === '"' && nextChar === '"') {
+                        currentStr += '"'; // Escaped quote "" -> "
+                        i++;
+                    } else if (char === '"') {
+                        inQuotes = false; // Ende des Zitates
+                    } else {
+                        currentStr += char;
+                    }
                 } else {
-                    currentStr += char;
+                    if (char === '"') {
+                        inQuotes = true;
+                    } else if (char === delimiter) {
+                        row.push(currentStr.trim());
+                        currentStr = '';
+                    } else if (char === '\n' || (char === '\r' && nextChar === '\n')) {
+                        row.push(currentStr.trim());
+                        result.push(row);
+                        row = [];
+                        currentStr = '';
+                        if (char === '\r') i++; // Skip the \n part of \r\n
+                    } else {
+                        currentStr += char;
+                    }
                 }
             }
-            result.push(currentStr);
-            return result.map(s => s.trim());
+            
+            // Letztes Wort/Letzte Zeile hinzufügen, falls die Datei ohne Enter endet
+            if (currentStr || row.length > 0) {
+                row.push(currentStr.trim());
+                result.push(row);
+            }
+            
+            return result;
         }
 
         function processCSV(csvText) {
-            const lines = csvText.split('\n');
-            if (lines.length < 2) throw new Error("CSV ist leer oder fehlerhaft.");
+            const rows = parseCSVFull(csvText);
+            if (rows.length < 2) throw new Error("CSV ist leer oder fehlerhaft.");
 
-            // Automatische Erkennung, ob Excel ein Komma oder Semikolon benutzt hat
-            // Entfernt außerdem unsichtbare Excel-Sonderzeichen (BOM) am Anfang
-            const firstLine = lines[0].replace(/^\uFEFF/, '');
-            const delimiter = (firstLine.split(';').length > firstLine.split(',').length) ? ';' : ',';
-            
-            const headers = parseCSVLine(firstLine, delimiter);
+            const headers = rows[0];
             
             let ingredientsSet = new Set();
             recipes = [];
 
-            for (let i = 1; i < lines.length; i++) {
-                if (!lines[i].trim()) continue;
+            // Zeile für Zeile verarbeiten (ab Zeile 2, da Zeile 1 die Header sind)
+            for (let i = 1; i < rows.length; i++) {
+                const currentLine = rows[i];
                 
-                // Nutze den neuen, robusten Splitter
-                const currentLine = parseCSVLine(lines[i].trim(), delimiter);
+                // Leere Zeilen überspringen
+                if (currentLine.length === 0 || (currentLine.length === 1 && !currentLine[0].trim())) continue;
+                
                 let rowData = {};
                 headers.forEach((header, index) => {
                     rowData[header] = currentLine[index] ? currentLine[index] : '';
                 });
 
-                if (!rowData['Rezept']) continue; // Leere Zeilen überspringen
+                // Wenn kein Rezepttitel da ist, Zeile ignorieren
+                if (!rowData['Rezept'] || rowData['Rezept'].trim() === '') continue;
 
                 let recipeObj = {
-                    title: rowData['Rezept'],
+                    title: rowData['Rezept'].trim(),
                     category: rowData['Kategorie'] || '',
                     difficulty: rowData['Schwierigkeit'] || '',
                     time: rowData['Zeit_min'] || '',
                     note: rowData['Hinweis'] || '',
                     portions: rowData['Portionen'] || '4',
-                    displayIngredients: [], // Komplette Liste für die Detail-Ansicht
-                    searchableIngredients: [], // Gefilterte Liste für die Such-Logik
+                    displayIngredients: [], 
+                    searchableIngredients: [],
                     steps: []
                 };
 
-                // Zutaten extrahieren (Spalten Zutat_01 bis Zutat_08)
+                // Zutaten extrahieren
                 for (let j = 1; j <= 8; j++) {
                     const num = String(j).padStart(2, '0');
                     const name = rowData[`Zutat_${num}`];
@@ -294,14 +402,12 @@
 
                     if (name && name.trim() !== '') {
                         const cleanName = name.trim();
-                        // Für die Anzeige im Rezept:
                         recipeObj.displayIngredients.push({
                             name: cleanName,
-                            amount: amount || '',
-                            unit: unit || ''
+                            amount: amount ? amount.trim() : '',
+                            unit: unit ? unit.trim() : ''
                         });
 
-                        // Für die Such-Logik (prüfen ob es eine Grundzutat ist)
                         const isBase = baseIngredientsNames.some(base => cleanName.toLowerCase().includes(base));
                         if (!isBase) {
                             recipeObj.searchableIngredients.push(cleanName);
@@ -310,7 +416,7 @@
                     }
                 }
 
-                // Schritte extrahieren (Spalten Schritt_01 bis Schritt_05)
+                // Schritte extrahieren
                 for (let j = 1; j <= 5; j++) {
                     const num = String(j).padStart(2, '0');
                     const step = rowData[`Schritt_${num}`];
@@ -323,11 +429,10 @@
             }
 
             allIngredients = Array.from(ingredientsSet).sort((a, b) => a.localeCompare(b, 'de'));
-            console.log(`Geladen: ${recipes.length} Rezepte, ${allIngredients.length} Such-Zutaten.`);
         }
 
         // ---------------------------------------------------------
-        // REZEPT-DIREKTSUCHE (Obere Leiste)
+        // REZEPT-DIREKTSUCHE
         // ---------------------------------------------------------
         const recipeSearchInput = document.getElementById('recipe-search-input');
         const recipeAutocompleteList = document.getElementById('recipe-autocomplete-list');
@@ -352,7 +457,7 @@
                     const regex = new RegExp(`(${val})`, "gi");
                     const highlightedTitle = match.title.replace(regex, "<span class='font-bold text-emerald-600'>$1</span>");
                     
-                    li.innerHTML = `<i data-lucide="utensils" class="w-4 h-4 text-gray-400"></i> <span>${highlightedTitle}</span>`;
+                    li.innerHTML = `<i data-lucide="utensils" class="w-4 h-4 text-gray-400 shrink-0"></i> <span>${highlightedTitle}</span>`;
                     
                     li.addEventListener('click', () => {
                         recipeSearchInput.value = '';
@@ -410,7 +515,6 @@
             }
         });
 
-        // Schließen der Dropdowns bei Klick außerhalb
         document.addEventListener('click', function(e) {
             if (e.target !== recipeSearchInput && e.target !== recipeAutocompleteList) {
                 recipeAutocompleteList.classList.add('hidden');
@@ -464,8 +568,8 @@
                 tag.className = "fade-in bg-emerald-100 text-emerald-800 px-3 py-1.5 rounded-full flex items-center gap-2 font-medium border border-emerald-200 shadow-sm";
                 tag.innerHTML = `
                     ${ing}
-                    <button class="hover:bg-emerald-200 rounded-full p-0.5 transition text-emerald-600 hover:text-emerald-900 focus:outline-none" title="Entfernen">
-                        <i data-lucide="x" class="w-4 h-4"></i>
+                    <button class="hover:bg-emerald-200 rounded-full p-0.5 transition text-emerald-600 hover:text-emerald-900 focus:outline-none shrink-0" title="Entfernen">
+                        <i data-lucide="x" class="w-4 h-4 shrink-0"></i>
                     </button>
                 `;
                 tag.querySelector('button').addEventListener('click', () => removeIngredient(ing));
@@ -496,7 +600,6 @@
             let partialCount = 0;
 
             recipes.forEach(recipe => {
-                // Vergleiche nur mit den filterrelevanten Zutaten (ohne Öl, Salz etc.)
                 const missing = recipe.searchableIngredients.filter(ing => !selectedIngredients.includes(ing));
                 const hasOverlap = recipe.searchableIngredients.some(ing => selectedIngredients.includes(ing));
 
@@ -521,16 +624,16 @@
             let html = `
                 <div class="flex items-start justify-between mb-3 border-b border-gray-100 pb-3">
                     <h3 class="text-lg font-bold text-gray-800 leading-tight group-hover:text-emerald-600 transition">${recipe.title}</h3>
-                    <div class="bg-gray-50 p-1.5 rounded-lg text-gray-400 group-hover:bg-emerald-50 group-hover:text-emerald-500 transition">
-                        <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                    <div class="bg-gray-50 p-1.5 rounded-lg text-gray-400 group-hover:bg-emerald-50 group-hover:text-emerald-500 transition shrink-0 ml-2">
+                        <i data-lucide="chevron-right" class="w-5 h-5 shrink-0"></i>
                     </div>
                 </div>
             `;
 
             if (missingIngredients.length === 0) {
-                html += `<p class="text-emerald-600 font-semibold text-sm flex items-center gap-1.5"><i data-lucide="check-circle-2" class="w-4 h-4"></i> Alles da! Los geht's.</p>`;
+                html += `<p class="text-emerald-600 font-semibold text-sm flex items-center gap-1.5"><i data-lucide="check-circle-2" class="w-4 h-4 shrink-0"></i> Alles da! Los geht's.</p>`;
             } else {
-                html += `<p class="text-orange-500 font-semibold text-sm mb-2 flex items-center gap-1.5"><i data-lucide="alert-circle" class="w-4 h-4"></i> Dir fehlt noch:</p>`;
+                html += `<p class="text-orange-500 font-semibold text-sm mb-2 flex items-center gap-1.5"><i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i> Dir fehlt noch:</p>`;
                 html += `<p class="text-sm text-gray-600 pl-5">${missingIngredients.join(', ')}</p>`;
             }
 
@@ -547,44 +650,88 @@
         const modal = document.getElementById('recipe-modal');
         const closeBtn = document.getElementById('close-modal-btn');
 
+        let currentOpenRecipe = null;
+        let basePortions = 4;
+        let currentPortions = 4;
+
+        document.getElementById('btn-portions-minus').addEventListener('click', () => {
+            if (currentPortions > 1) {
+                currentPortions--;
+                updatePortionsDisplay();
+                renderModalIngredients();
+            }
+        });
+
+        document.getElementById('btn-portions-plus').addEventListener('click', () => {
+            currentPortions++;
+            updatePortionsDisplay();
+            renderModalIngredients();
+        });
+
+        function updatePortionsDisplay() {
+            document.getElementById('modal-portions-text').textContent = `${currentPortions} Personen`;
+        }
+
+        function renderModalIngredients() {
+            const ingList = document.getElementById('modal-ingredients');
+            ingList.innerHTML = '';
+            
+            if (!currentOpenRecipe) return;
+
+            currentOpenRecipe.displayIngredients.forEach(ing => {
+                const li = document.createElement('li');
+                li.className = "flex justify-between border-b border-orange-100/50 pb-1 last:border-0";
+                
+                let finalAmountDisplay = '';
+                if (ing.amount && ing.amount.trim() !== '' && ing.amount !== '0') {
+                    let parsedAmount = parseFloat(ing.amount.replace(',', '.'));
+                    
+                    if (!isNaN(parsedAmount)) {
+                        let newAmount = (parsedAmount / basePortions) * currentPortions;
+                        newAmount = Math.round(newAmount * 100) / 100;
+                        finalAmountDisplay = newAmount.toString().replace('.', ',');
+                    } else {
+                        finalAmountDisplay = ing.amount;
+                    }
+                }
+                
+                let displayParts = [];
+                if (finalAmountDisplay) displayParts.push(finalAmountDisplay);
+                if (ing.unit) displayParts.push(ing.unit);
+                let amountStr = displayParts.join(' ');
+                
+                li.innerHTML = `
+                    <span class="font-medium text-gray-800">${ing.name}</span>
+                    <span class="text-gray-500 text-right ml-4 shrink-0">${amountStr}</span>
+                `;
+                ingList.appendChild(li);
+            });
+        }
+
         function openRecipeModal(recipe) {
+            currentOpenRecipe = recipe;
+            basePortions = parseInt(recipe.portions) || 4;
+            currentPortions = basePortions;
+
             document.getElementById('modal-title').textContent = recipe.title;
-            document.getElementById('modal-portions').innerHTML = `<i data-lucide="users" class="w-4 h-4"></i> ${recipe.portions} Personen`;
+            updatePortionsDisplay();
             
             const timeStr = recipe.time ? `${recipe.time} Min.` : 'k.A.';
-            document.getElementById('modal-time').innerHTML = `<i data-lucide="clock" class="w-4 h-4"></i> ${timeStr}`;
+            document.getElementById('modal-time').innerHTML = `<i data-lucide="clock" class="w-4 h-4 shrink-0"></i> ${timeStr}`;
             
             const diffStr = recipe.difficulty ? recipe.difficulty : 'k.A.';
-            document.getElementById('modal-difficulty').innerHTML = `<i data-lucide="bar-chart" class="w-4 h-4"></i> ${diffStr}`;
+            document.getElementById('modal-difficulty').innerHTML = `<i data-lucide="bar-chart" class="w-4 h-4 shrink-0"></i> ${diffStr}`;
 
             const noteEl = document.getElementById('modal-note');
             if (recipe.note && recipe.note.trim() !== '') {
-                noteEl.innerHTML = `<i data-lucide="leaf" class="w-4 h-4"></i> ${recipe.note}`;
+                noteEl.innerHTML = `<i data-lucide="leaf" class="w-4 h-4 shrink-0"></i> ${recipe.note}`;
                 noteEl.classList.remove('hidden');
             } else {
                 noteEl.classList.add('hidden');
             }
 
-            // Zutaten füllen (inklusive Öl/Salz, da displayIngredients genutzt wird)
-            const ingList = document.getElementById('modal-ingredients');
-            ingList.innerHTML = '';
-            recipe.displayIngredients.forEach(ing => {
-                const li = document.createElement('li');
-                li.className = "flex justify-between border-b border-orange-100/50 pb-1 last:border-0";
-                
-                // Menge und Einheit formatieren
-                let amountStr = '';
-                if (ing.amount && ing.amount !== '0') amountStr += ing.amount + ' ';
-                if (ing.unit) amountStr += ing.unit;
-                
-                li.innerHTML = `
-                    <span class="font-medium text-gray-800">${ing.name}</span>
-                    <span class="text-gray-500 text-right">${amountStr}</span>
-                `;
-                ingList.appendChild(li);
-            });
+            renderModalIngredients();
 
-            // Schritte füllen
             const stepList = document.getElementById('modal-steps');
             stepList.innerHTML = '';
             if (recipe.steps.length > 0) {
@@ -603,7 +750,7 @@
 
             lucide.createIcons({ root: modal });
             modal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden'; // Scrollen im Hintergrund verhindern
+            document.body.style.overflow = 'hidden';
         }
 
         function closeModal() {
@@ -613,7 +760,65 @@
 
         closeBtn.addEventListener('click', closeModal);
         modal.addEventListener('click', (e) => {
-            if (e.target === modal) closeModal(); // Schließen bei Klick daneben
+            if (e.target === modal) closeModal();
+        });
+
+
+        // ---------------------------------------------------------
+        // LEGAL MODAL LOGIK (Impressum & Datenschutz)
+        // ---------------------------------------------------------
+        const legalModal = document.getElementById('legal-modal');
+        const closeLegalBtn = document.getElementById('close-legal-btn');
+        const legalTitle = document.getElementById('legal-modal-title');
+        const legalContent = document.getElementById('legal-modal-content');
+
+        const legalData = {
+            impressum: {
+                title: 'Impressum',
+                content: `
+                    <h3 class="font-bold text-lg mb-2">Angaben gemäß § 5 TMG</h3>
+                    <p class="mb-4">Martin Geiger<br>Beratung digitale Bildung<br>Eduard-Ziegler-Str. 3<br>85221 Dachau</p>
+                    
+                    <h3 class="font-bold text-lg mb-2">Kontakt</h3>
+                    <p class="mb-4">Telefon: 08131/741799<br>E-Mail: martin.geiger@ms-dachau-sued.de</p>
+
+                    <h3 class="font-bold text-lg mb-2">Redaktionell verantwortlich</h3>
+                    <p class="mb-4">Martin Geiger<br>Eduard-Ziegler-Str. 3<br>85221 Dachau</p>
+                `
+            },
+            datenschutz: {
+                title: 'Datenschutzerklärung',
+                content: `
+                    <h3 class="font-bold text-lg mb-2">A) Datenschutz auf einen Blick</h3>
+                    <p class="mb-4"><strong>Allgemeine Hinweise</strong><br>Die folgenden Hinweise geben einen einfachen Überblick darüber, was mit Ihren personenbezogenen Daten passiert, wenn Sie diese Website besuchen.</p>
+                    
+                    <h3 class="font-bold text-lg mb-2">B) Hosting & Externe Ressourcen</h3>
+                    <p class="mb-4">Diese Website wird bei dem externen Dienstleister GitHub Inc. gehostet. Zur korrekten optischen Darstellung lädt die Seite zudem externe Design-Ressourcen (Tailwind CSS und unpkg für Icons). Bei der Verbindung zu diesen Servern wird technisch bedingt Ihre IP-Adresse übertragen.</p>
+                    
+                    <h3 class="font-bold text-lg mb-2">C) Anonymer Besucherzähler</h3>
+                    <p class="mb-4">Ganz unten auf der Webseite befindet sich ein kleiner, rein visueller Seitenaufruf-Zähler des Open-Source Dienstes "hits.sh". Dieser zählt Aufrufe streng anonym und verzichtet komplett auf das Setzen von Cookies oder das Tracking von IP-Adressen.</p>
+                `
+            }
+        };
+
+        window.openLegalModal = function(type) {
+            const data = legalData[type];
+            if(data) {
+                legalTitle.textContent = data.title;
+                legalContent.innerHTML = data.content;
+                legalModal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+        };
+
+        function closeLegalModalFunc() {
+            legalModal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        closeLegalBtn.addEventListener('click', closeLegalModalFunc);
+        legalModal.addEventListener('click', (e) => {
+            if (e.target === legalModal) closeLegalModalFunc();
         });
 
     </script>
