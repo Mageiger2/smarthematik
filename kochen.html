@@ -195,7 +195,7 @@
         // ---------------------------------------------------------
         document.addEventListener('DOMContentLoaded', () => {
             // WICHTIG: Hier muss exakt der Dateiname deiner CSV stehen!
-            const csvUrl = 'Rezepte.csv';
+            const csvUrl = 'rezepte.csv';
             
             fetch(csvUrl)
                 .then(response => {
@@ -219,25 +219,43 @@
                 .catch(error => {
                     console.error("Fehler beim Laden der CSV:", error);
                     document.getElementById('loading-error').classList.remove('hidden');
+                    document.getElementById('loading-error').textContent = "Fehler: Die Datei konnte nicht geladen werden. Heißt die Datei exakt 'rezepte.csv' (alles klein) auf GitHub?";
                 });
         });
 
-        // Funktion zum splitten von CSV-Zeilen (berücksichtigt Kommas in Anführungszeichen)
-        function splitCSVRow(row) {
-            const regex = /(?:,"|^")([^"]*)(?:",|"$)|(?:,(?!")|^([^",]*))(?=,|$)/g;
-            let matches = [];
-            let match;
-            while (match = regex.exec(row)) {
-                matches.push(match[1] !== undefined ? match[1] : (match[2] !== undefined ? match[2] : ''));
+        // Neue, robustere Funktion zum Splitten von CSV-Zeilen (erkennt Komma und Semikolon)
+        function parseCSVLine(line, delimiter) {
+            let result = [];
+            let inQuotes = false;
+            let currentStr = '';
+            for (let i = 0; i < line.length; i++) {
+                let char = line[i];
+                if (char === '"' && line[i+1] === '"') {
+                    currentStr += '"'; // Escaped quotes
+                    i++;
+                } else if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === delimiter && !inQuotes) {
+                    result.push(currentStr);
+                    currentStr = '';
+                } else {
+                    currentStr += char;
+                }
             }
-            return matches;
+            result.push(currentStr);
+            return result.map(s => s.trim());
         }
 
         function processCSV(csvText) {
             const lines = csvText.split('\n');
             if (lines.length < 2) throw new Error("CSV ist leer oder fehlerhaft.");
 
-            const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+            // Automatische Erkennung, ob Excel ein Komma oder Semikolon benutzt hat
+            // Entfernt außerdem unsichtbare Excel-Sonderzeichen (BOM) am Anfang
+            const firstLine = lines[0].replace(/^\uFEFF/, '');
+            const delimiter = (firstLine.split(';').length > firstLine.split(',').length) ? ';' : ',';
+            
+            const headers = parseCSVLine(firstLine, delimiter);
             
             let ingredientsSet = new Set();
             recipes = [];
@@ -245,11 +263,11 @@
             for (let i = 1; i < lines.length; i++) {
                 if (!lines[i].trim()) continue;
                 
-                // Nutze den robusten Splitter für die Zeile
-                const currentLine = splitCSVRow(lines[i].trim());
+                // Nutze den neuen, robusten Splitter
+                const currentLine = parseCSVLine(lines[i].trim(), delimiter);
                 let rowData = {};
                 headers.forEach((header, index) => {
-                    rowData[header] = currentLine[index] ? currentLine[index].trim() : '';
+                    rowData[header] = currentLine[index] ? currentLine[index] : '';
                 });
 
                 if (!rowData['Rezept']) continue; // Leere Zeilen überspringen
