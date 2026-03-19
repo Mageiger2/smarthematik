@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thermodynamik Lernkarten</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Konfiguration für LaTeX-Formeln
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <style>
+        body {
+            background-color: #f3f4f6;
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        .transform-style-3d {
+            transform-style: preserve-3d;
+        }
+        .backface-hidden {
+            backface-visibility: hidden;
+        }
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+        .card-inner {
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+        }
+        /* Wenn die Karte umgedreht ist */
+        .is-flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-4">
+
+    <div class="max-w-2xl w-full text-center">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">Thermodynamik & Wärmelehre</h1>
+        <p class="text-gray-500 mb-8" id="progress-text">Karte 1 von 25</p>
+
+        <!-- Karteikarte -->
+        <div class="perspective-1000 w-full h-80 sm:h-96 cursor-pointer mb-8" id="flashcard-container" onclick="flipCard()">
+            <div class="card-inner relative w-full h-full transform-style-3d shadow-xl rounded-2xl">
+                
+                <!-- Vorderseite -->
+                <div class="backface-hidden absolute w-full h-full bg-white rounded-2xl flex flex-col items-center justify-center p-8 border-2 border-blue-100">
+                    <span class="text-blue-500 font-semibold uppercase tracking-wider text-sm absolute top-6 left-6">Frage / Begriff</span>
+                    <div id="card-front" class="text-2xl sm:text-3xl font-medium text-gray-800">Lade...</div>
+                    <span class="text-gray-400 text-sm absolute bottom-6 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" /></svg>
+                        Klicken zum Umdrehen
+                    </span>
+                </div>
+
+                <!-- Rückseite -->
+                <div class="backface-hidden rotate-y-180 absolute w-full h-full bg-blue-600 rounded-2xl flex flex-col items-center justify-center p-8 text-white shadow-inner">
+                    <span class="text-blue-200 font-semibold uppercase tracking-wider text-sm absolute top-6 left-6">Antwort</span>
+                    <div id="card-back" class="text-xl sm:text-2xl font-medium leading-relaxed">Lade...</div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Steuerung -->
+        <div class="flex items-center justify-between w-full max-w-sm mx-auto">
+            <button onclick="prevCard()" class="p-4 bg-white rounded-full shadow-md hover:bg-gray-50 hover:shadow-lg transition-all text-gray-700 active:scale-95" title="Vorherige Karte (Pfeil links)">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+            </button>
+            
+            <button onclick="flipCard()" class="px-6 py-3 bg-white font-medium rounded-full shadow-md hover:bg-gray-50 hover:shadow-lg transition-all text-blue-600 active:scale-95">
+                Umdrehen
+            </button>
+
+            <button onclick="nextCard()" class="p-4 bg-white rounded-full shadow-md hover:bg-gray-50 hover:shadow-lg transition-all text-gray-700 active:scale-95" title="Nächste Karte (Pfeil rechts)">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+            </button>
+        </div>
+        <p class="text-gray-400 text-xs mt-6">Tipp: Nutze die Pfeiltasten ⬅️ ➡️ und die Leertaste zum Navigieren.</p>
+    </div>
+
+    <script>
+        const flashcards = [
+            { front: "Wärme ($Q$)", back: "Eine Energieübertragungsform, die von selbst stets vom wärmeren zum kälteren Körper fließt. Die Einheit ist Joule ($J$)." },
+            { front: "Temperatur ($T$)", back: "Eine Messgröße, die den Wärmezustand eines Körpers angibt (wie warm oder kalt er ist). Die Einheiten sind Kelvin ($K$) oder Grad Celsius ($^\\circ C$)." },
+            { front: "Was ist der fundamentale Unterschied zwischen Wärme und Temperatur?", back: "Wärme ist die übertragene Energiemenge zwischen zwei Körpern. Temperatur ist der Zustand eines einzelnen Körpers zu einem bestimmten Zeitpunkt." },
+            { front: "Nenne drei Arten von mechanischer Arbeit, durch die einem Körper Energie zugeführt und seine Temperatur erhöht werden kann.", back: "1. Reibungsarbeit (z. B. Hände reiben)<br>2. Verformungsarbeit (z. B. Draht biegen)<br>3. Kompressionsarbeit (z. B. Luftpumpe betätigen)" },
+            { front: "Nenne zwei Möglichkeiten der Energieübertragung in Form von Wärme.", back: "Wärmeleitung (z. B. Herdplatte an Topf) und Wärmestrahlung (z. B. Sonnenstrahlen, Lagerfeuer)." },
+            { front: "Verhalten der Teilchen bei Temperaturerhöhung (Teilchenmodell)", back: "Die mittlere kinetische Energie (Bewegungsenergie) der Teilchen nimmt zu. Sie bewegen sich schneller und benötigen dadurch mehr Platz." },
+            { front: "Der absolute Nullpunkt", back: "Die theoretisch tiefstmögliche Temperatur, bei der die Teilchenbewegung vollständig zum Stillstand kommt. Er liegt bei $0~K$ ($-273,15~^\\circ C$)." },
+            { front: "Formel: Umrechnung von Grad Celsius ($^\\circ C$) in Kelvin ($K$)", back: "$T(K) = \\vartheta(^\\circ C) + 273,15$" },
+            { front: "Formel: Umrechnung von Kelvin ($K$) in Grad Celsius ($^\\circ C$)", back: "$\\vartheta(^\\circ C) = T(K) - 273,15$" },
+            { front: "Ordne Gas, Flüssigkeit und Feststoff nach der Stärke ihrer Volumenausdehnung bei gleicher Erwärmung (stärkste zuerst).", back: "1. Gase (Luft)<br>2. Flüssigkeiten (Öl, Wasser)<br>3. Feststoffe (Eisen)" },
+            { front: "Die Anomalie des Wassers", back: "Wasser zieht sich beim Abkühlen nur bis $4~^\\circ C$ zusammen. Kühlt es unter $4~^\\circ C$ ab, dehnt es sich wieder aus. Dies ist eine Ausnahme zu fast allen anderen Stoffen." },
+            { front: "Bei welcher Temperatur hat Wasser sein kleinstes Volumen und seine größte Dichte?", back: "Bei exakt $+4~^\\circ C$." },
+            { front: "Warum überleben Fische den Winter am Grund eines tiefen Sees?", back: "Weil Wasser bei $4~^\\circ C$ seine größte Dichte hat. Es ist am schwersten und sinkt zu Boden. Dort friert der See nicht zu." },
+            { front: "Warum schwimmt Eis auf dem flüssigen Wasser?", back: "Beim Gefrieren ($0~^\\circ C$) nimmt Eis ein größeres Volumen ein als flüssiges Wasser. Dadurch hat Eis eine geringere Dichte als Wasser und steigt nach oben." },
+            { front: "Warum platzt eine randvolle, geschlossene Glasflasche mit Wasser im Gefrierfach?", back: "Aufgrund der Anomalie des Wassers. Das Volumen des Wassers nimmt beim Erstarren zu Eis stark zu und sprengt durch diesen Druck das Glas." },
+            { front: "Beschreibe die Temperaturschichtung eines tiefen Sees im Sommer von oben nach unten.", back: "Warmes Wasser ist leicht und oben (z. B. $20-25~^\\circ C$). Nach unten hin wird es immer kühler, bis am Grund das schwerste Wasser mit exakt $4~^\\circ C$ liegt." },
+            { front: "Beschreibe die Temperaturschichtung eines tiefen Sees im Winter von oben nach unten.", back: "Ganz oben ist eine Eisschicht ($0~^\\circ C$ oder kälter). Darunter steigt die Temperatur langsam an ($1~^\\circ C$, $2~^\\circ C$, $3~^\\circ C$), bis am Grund wieder die $4~^\\circ C$ erreicht sind." },
+            { front: "Bimetallstreifen", back: "Ein Bauteil aus zwei fest miteinander verbundenen Metallen, die sich bei Erwärmung unterschiedlich stark ausdehnen, wodurch sich der Streifen verbiegt." },
+            { front: "Dichte (eines Stoffes)", back: "Eine Materialeigenschaft, die angibt, wie viel Masse in einem bestimmten Volumen steckt. Formel: $\\rho = \\frac{m}{V}$." },
+            { front: "Wie funktioniert ein klassisches Flüssigkeitsthermometer?", back: "Eine Flüssigkeit (z. B. Alkohol) befindet sich in einem Vorratsgefäß. Bei Erwärmung dehnt sie sich aus und steigt in einem sehr dünnen Steigrohr nach oben." },
+            { front: "Wusstest du schon: Gibt es negative Temperaturen auf der Kelvin-Skala?", back: "Nein. Die Kelvin-Skala beginnt beim absoluten Nullpunkt ($0~K$). Weniger als \"keine Teilchenbewegung\" gibt es in der Physik nicht." },
+            { front: "Was passiert laut Teilchenmodell, wenn man einen Feststoff abkühlt?", back: "Die Teilchen schwingen langsamer um ihre Ruhelage, rücken näher zusammen und der Feststoff zieht sich zusammen (das Volumen wird kleiner)." },
+            { front: "Kompressionsarbeit (Beispiel)", back: "Das schnelle Zusammendrücken von Luft in einer Fahrradpumpe. Das Ventil und die Pumpe werden dabei warm, weil Energie zugeführt wurde." },
+            { front: "Wieso dehnen sich Gase bei Erwärmung viel stärker aus als Feststoffe?", back: "Weil die Anziehungskräfte zwischen den Teilchen im Gas fast nicht vorhanden sind. Sie können sich bei höherer kinetischer Energie ungehindert im Raum verteilen." },
+            { front: "Wusstest du schon: Gibt es eine theoretische Höchsttemperatur im Universum?", back: "Im Gegensatz zum absoluten Nullpunkt gibt es nach heutigem Wissen in der Thermodynamik nach oben hin theoretisch keine Grenze." }
+        ];
+
+        let currentIndex = 0;
+        let isFlipped = false;
+
+        const container = document.getElementById('flashcard-container');
+        const frontEl = document.getElementById('card-front');
+        const backEl = document.getElementById('card-back');
+        const progressEl = document.getElementById('progress-text');
+
+        function updateCard() {
+            // Text einfügen
+            frontEl.innerHTML = flashcards[currentIndex].front;
+            backEl.innerHTML = flashcards[currentIndex].back;
+            progressEl.innerText = `Karte ${currentIndex + 1} von ${flashcards.length}`;
+            
+            // LaTeX neu rendern lassen
+            if (window.MathJax) {
+                MathJax.typesetPromise([frontEl, backEl]).catch((err) => console.log('MathJax error:', err));
+            }
+        }
+
+        function flipCard() {
+            isFlipped = !isFlipped;
+            if (isFlipped) {
+                container.classList.add('is-flipped');
+            } else {
+                container.classList.remove('is-flipped');
+            }
+        }
+
+        function nextCard() {
+            if (isFlipped) {
+                flipCard();
+                setTimeout(() => {
+                    currentIndex = (currentIndex + 1) % flashcards.length;
+                    updateCard();
+                }, 300); // Warten bis Animation halb fertig ist
+            } else {
+                currentIndex = (currentIndex + 1) % flashcards.length;
+                updateCard();
+            }
+        }
+
+        function prevCard() {
+            if (isFlipped) {
+                flipCard();
+                setTimeout(() => {
+                    currentIndex = (currentIndex - 1 + flashcards.length) % flashcards.length;
+                    updateCard();
+                }, 300);
+            } else {
+                currentIndex = (currentIndex - 1 + flashcards.length) % flashcards.length;
+                updateCard();
+            }
+        }
+
+        // Tastatursteuerung
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault(); // Verhindert Scrollen
+                flipCard();
+            } else if (e.code === 'ArrowRight') {
+                nextCard();
+            } else if (e.code === 'ArrowLeft') {
+                prevCard();
+            }
+        });
+
+        // Initiale Karte laden
+        window.onload = updateCard;
+    </script>
+</body>
+</html>
+```
