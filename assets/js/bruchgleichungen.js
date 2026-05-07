@@ -1,0 +1,295 @@
+// ==========================================
+// bruchgleichungen.js — BruchgleichungsTrainer (inkl. Generators und hardcoded problems)
+// (Wird inline mit shared.js zusammen pro App-Seite kompiliert.)
+// ==========================================
+
+// ==========================================
+// GENERATORS & DATA
+// ==========================================
+const generateTemplate1 = () => { // Leicht
+    while(true) {
+        let x1 = getRandomInt(-6, 6) || 1; let x2 = getRandomInt(-6, 6) || 2;
+        if (x1 === x2 || x1 + x2 === 0) continue;
+        let p = -(x1 + x2); let q = x1 * x2;
+        let C = getRandomInt(2, 4); let x_def = getRandomInt(1, 5);
+        if (x1 === x_def || x2 === x_def || x_def === 0 || x1 === 0 || x2 === 0) continue;
+        let D = -C * x_def; let A = D - C * p; let B = -C * q;
+        if (A === 0) continue;
+        let topStr = `${formatTerm(A, true, 'x')} ${formatTerm(B)}`.trim();
+        let botStr = `${C}x ${formatTerm(D)}`; let multLeft = `${formatTerm(A, true, 'x')}${formatTerm(B)}`; if (multLeft.startsWith('+')) multLeft = multLeft.substring(1);
+        return {
+            id: Math.random(), diff: "Leicht", renderEquation: () => <div className="flex items-center text-xl font-math"><Frac top={topStr} bot={botStr} /><span className="mx-2">=</span><span>x</span></div>,
+            steps: {
+                def: { expected: [x_def.toString()], inputs: 1 }, hn: { expected: [`${C}x${formatTerm(D)}`, `${C}*(x-${x_def})`, `${C}(x-${x_def})`] }, multLeft: { expected: [multLeft] }, multRight: { expected: [`${C}x^2${formatTerm(D, false, 'x')}`, `x(${botStr})`] }, zusammen: { expected: [`x^2${formatTerm(p, false, 'x')}${formatTerm(q)}=0`, `0=x^2${formatTerm(p, false, 'x')}${formatTerm(q)}`] }, pq_p: { expected: [p.toString()] }, pq_q: { expected: [q.toString()] }, pq_x1x2: { expected: [x1.toString(), x2.toString()], inputs: 2 }, lm: { expected: [x1.toString(), x2.toString()], inputs: 2 }
+            }
+        };
+    }
+};
+
+const generateTemplate2 = () => { // Mittel
+    while(true) {
+        let A = getRandomInt(-8, 8); let B = getRandomInt(-8, 8); let C = getRandomInt(1, 6);
+        if (A===0 || B===0 || A+B+C===0) continue;
+        let p = -(A+B+C); let q = A*C; let D_disc = p*p/4 - q;
+        if (D_disc >= 0 && Number.isInteger(Math.sqrt(D_disc))) {
+            let rootD = Math.sqrt(D_disc); let x1 = -p/2 + rootD; let x2 = -p/2 - rootD;
+            if (Number.isInteger(x1) && Number.isInteger(x2) && x1 !== 0 && x2 !== 0 && x1 !== C && x2 !== C && x1 !== x2) {
+                let bot2Str = `x ${formatTerm(-C)}`; let multLeft1 = `${A}(x${formatTerm(-C)})`; let multLeft2 = `${B > 0 ? '+' : ''}${B}x`;
+                return {
+                    id: Math.random(), diff: "Mittel", renderEquation: () => <div className="flex items-center text-xl font-math"><Frac top={A} bot="x" /><span className="mx-2">{B > 0 ? '+' : '-'}</span><Frac top={Math.abs(B)} bot={bot2Str} /><span className="mx-2">=</span><span>1</span></div>,
+                    steps: {
+                        def: { expected: ["0", C.toString()], inputs: 2 }, hn: { expected: [`x(x-${C})`, `x*(x-${C})`, `x^2-${C}x`] }, multLeft: { expected: [`${multLeft1}${multLeft2}`, `${A}x${formatTerm(-A*C)}${multLeft2}`, `${formatTerm(A+B, true, 'x')}${formatTerm(-A*C)}`] }, multRight: { expected: [`x^2${formatTerm(-C, false, 'x')}`, `x(x-${C})`] }, zusammen: { expected: [`x^2${formatTerm(p, false, 'x')}${formatTerm(q)}=0`, `0=x^2${formatTerm(p, false, 'x')}${formatTerm(q)}`] }, pq_p: { expected: [p.toString()] }, pq_q: { expected: [q.toString()] }, pq_x1x2: { expected: [x1.toString(), x2.toString()], inputs: 2 }, lm: { expected: [x1.toString(), x2.toString()], inputs: 2 }
+                    }
+                };
+            }
+        }
+    }
+};
+
+const generateTemplate3 = () => { // Schwer
+    while(true) {
+        let A = getRandomInt(-6, 6); let B = getRandomInt(-6, 6); let C = getRandomInt(1, 5);
+        if (A===0 || B===0 || A+B===0) continue;
+        let p = -(A+B); let q = C * (A - B - C); let D_disc = p*p/4 - q;
+        if (D_disc >= 0 && Number.isInteger(Math.sqrt(D_disc))) {
+            let rootD = Math.sqrt(D_disc); let x1 = -p/2 + rootD; let x2 = -p/2 - rootD;
+            if (Number.isInteger(x1) && Number.isInteger(x2) && x1 !== C && x2 !== C && x1 !== -C && x2 !== -C && x1 !== x2) {
+                let term1 = `${A}(x${formatTerm(-C)})`; let term2 = `${B > 0 ? '+' : ''}${B}(x${formatTerm(C)})`;
+                return {
+                    id: Math.random(), diff: "Schwer", renderEquation: () => <div className="flex items-center text-xl font-math"><Frac top={A} bot={`x ${formatTerm(C)}`} /><span className="mx-2">{B > 0 ? '+' : '-'}</span><Frac top={Math.abs(B)} bot={`x ${formatTerm(-C)}`} /><span className="mx-2">=</span><span>1</span></div>,
+                    steps: {
+                        def: { expected: [(-C).toString(), C.toString()], inputs: 2 }, hn: { expected: [`(x+${C})(x-${C})`, `x^2-${C*C}`, `(x-${C})(x+${C})`] }, multLeft: { expected: [`${term1}${term2}`, `${A}x${formatTerm(-A*C)}${formatTerm(B, false, 'x')}${formatTerm(B*C)}`, `${formatTerm(A+B, true, 'x')}${formatTerm(-A*C + B*C)}`] }, multRight: { expected: [`x^2-${C*C}`, `(x+${C})(x-${C})`] }, zusammen: { expected: [`x^2${formatTerm(p, false, 'x')}${formatTerm(q)}=0`, `0=x^2${formatTerm(p, false, 'x')}${formatTerm(q)}`] }, pq_p: { expected: [p.toString()] }, pq_q: { expected: [q.toString()] }, pq_x1x2: { expected: [x1.toString(), x2.toString()], inputs: 2 }, lm: { expected: [x1.toString(), x2.toString()], inputs: 2 }
+                    }
+                };
+            }
+        }
+    }
+};
+
+const hardcodedProblems = [
+    { id: 1, diff: "Prüfung 2018 I", renderEquation: () => <div className="flex items-center text-xl font-math"><Frac top="8x + 39" bot="4x - 12" /><span className="mx-2">=</span><span>x</span></div>, steps: { def: { expected: ["3"], inputs: 1 }, hn: { expected: ["4x-12", "4(x-3)", "4*(x-3)", "(4x-12)"] }, multLeft: { expected: ["8x+39"] }, multRight: { expected: ["4x^2-12x", "x(4x-12)", "x*(4x-12)"] }, zusammen: { expected: ["x^2-5x-9.75=0", "x^2-5x-39/4=0", "0=x^2-5x-9.75"] }, pq_p: { expected: ["-5"] }, pq_q: { expected: ["-9.75", "-39/4"] }, pq_x1x2: { expected: ["6.5", "-1.5"], inputs: 2 }, lm: { expected: ["6.5", "-1.5"], inputs: 2 } } },
+    { id: 2, diff: "Prüfung 2018 II", renderEquation: () => <div className="flex items-center text-xl font-math"><Frac top="x" bot="2" /><span className="mx-2">+</span><Frac top="x" bot="x - 3" /><span className="mx-2">=</span><Frac top="3" bot="x - 3" /><span className="mx-2">- 2</span></div>, steps: { def: { expected: ["3"], inputs: 1 }, hn: { expected: ["2(x-3)", "2*(x-3)", "2x-6"] }, multLeft: { expected: ["x^2-x", "x(x-3)+2x", "x^2-3x+2x"] }, multRight: { expected: ["18-4x", "6-4(x-3)", "6-4x+12"] }, zusammen: { expected: ["x^2+3x-18=0", "0=x^2+3x-18"] }, pq_p: { expected: ["3"] }, pq_q: { expected: ["-18"] }, pq_x1x2: { expected: ["3", "-6"], inputs: 2 }, lm: { expected: ["-6"], inputs: 1 } } },
+    { id: 3, diff: "Prüfung 2017 I", renderEquation: () => <div className="flex items-center text-xl font-math"><Frac top="x - 4" bot="6" /><span className="mx-2">+</span><Frac top="4(x - 11)" bot="x - 6" /><span className="mx-2">=</span><Frac top="16 - x" bot="2" /></div>, steps: { def: { expected: ["6"], inputs: 1 }, hn: { expected: ["6(x-6)", "6*(x-6)", "6x-36"] }, multLeft: { expected: ["x^2+14x-240", "(x-4)(x-6)+24(x-11)"] }, multRight: { expected: ["-3x^2+66x-288", "3(x-6)(16-x)"] }, zusammen: { expected: ["x^2-13x+12=0", "0=x^2-13x+12", "4x^2-52x+48=0"] }, pq_p: { expected: ["-13"] }, pq_q: { expected: ["12"] }, pq_x1x2: { expected: ["12", "1"], inputs: 2 }, lm: { expected: ["12", "1"], inputs: 2 } } },
+    { id: 4, diff: "Prüfung 2016 I", renderEquation: () => <div className="flex items-center text-xl font-math"><Frac top="2(x + 2)" bot="x" /><span className="mx-2">=</span><span className="mx-2">2 -</span><Frac top="2 - x" bot="x - 2" /></div>, steps: { def: { expected: ["0", "2"], inputs: 2 }, hn: { expected: ["x(x-2)", "x*(x-2)", "x^2-2x"] }, multLeft: { expected: ["2x^2-8", "2(x+2)(x-2)", "(2x+4)(x-2)"] }, multRight: { expected: ["3x^2-6x", "2x(x-2)-x(2-x)", "2x^2-4x-2x+x^2"] }, zusammen: { expected: ["x^2-6x+8=0", "0=x^2-6x+8"] }, pq_p: { expected: ["-6"] }, pq_q: { expected: ["8"] }, pq_x1x2: { expected: ["4", "2"], inputs: 2 }, lm: { expected: ["4"], inputs: 1 } } }
+];
+
+// ==========================================
+// TRAINER
+// ==========================================
+const BruchgleichungsTrainer = () => {
+    const [probList, setProbList] = useState([generateTemplate1()]);
+    const [currentProblemIdx, setCurrentProblemIdx] = useState(0);
+    const [selectedDiff, setSelectedDiff] = useState('leicht');
+
+    const [currentStep, setCurrentStep] = useState(1);
+    const [errors, setErrors] = useState(0);
+    const [errorMsg, setErrorMsg] = useState("");
+    const [tipRevealed, setTipRevealed] = useState(false);
+    const [showAnim, setShowAnim] = useState(false);
+    const [streak, setStreak] = useState(() => getStorage('smarth_streak_brueche', 0));
+
+    const [defInputs, setDefInputs] = useState(["", ""]); const [hnInput, setHnInput] = useState(""); const [multLeft, setMultLeft] = useState(""); const [multRight, setMultRight] = useState(""); const [zusInput, setZusInput] = useState(""); const [pqP, setPqP] = useState(""); const [pqQ, setPqQ] = useState(""); const [einsetzenP1, setEinsetzenP1] = useState(""); const [einsetzenP2, setEinsetzenP2] = useState(""); const [einsetzenQ, setEinsetzenQ] = useState(""); const [pqX, setPqX] = useState(["", ""]); const [lmInputs, setLmInputs] = useState(["", ""]);
+
+    useEffect(() => { setStorage('smarth_streak_brueche', streak); }, [streak]);
+    const prob = probList[currentProblemIdx];
+
+    const clearForm = () => {
+        setCurrentStep(1); setErrors(0); setErrorMsg(""); setTipRevealed(false);
+        setDefInputs(["", ""]); setHnInput(""); setMultLeft(""); setMultRight(""); setZusInput(""); setPqP(""); setPqQ(""); setEinsetzenP1(""); setEinsetzenP2(""); setEinsetzenQ(""); setPqX(["", ""]); setLmInputs(["", ""]);
+    };
+
+    const changeDifficulty = (diff) => {
+        setSelectedDiff(diff); clearForm();
+        if (diff === 'leicht') setProbList([generateTemplate1()]);
+        else if (diff === 'mittel') setProbList([generateTemplate2()]);
+        else if (diff === 'schwer') setProbList([generateTemplate3()]);
+        else if (diff === 'pruefung') {
+            if (selectedDiff === 'pruefung') {
+                setCurrentProblemIdx((prev) => (prev + 1) % hardcodedProblems.length);
+                return;
+            } else {
+                setProbList(hardcodedProblems); setCurrentProblemIdx(0);
+            }
+        }
+        if(diff !== 'pruefung') setCurrentProblemIdx(0);
+    };
+
+    const handleNextPruefung = () => { setCurrentProblemIdx((prev) => (prev + 1) % hardcodedProblems.length); clearForm(); };
+    const handleError = (msg) => { setErrorMsg(msg); setErrors(prev => prev + 1); setStreak(0); };
+    const advanceStep = () => {
+        const nextStep = currentStep + 1;
+        setCurrentStep(nextStep); setErrors(0); setErrorMsg(""); setTipRevealed(false);
+        if (nextStep > 8) { setStreak(s => s + 1); triggerCelebration(setShowAnim); }
+    };
+
+    const validateStep1 = () => { const inputs = defInputs.slice(0, prob.steps.def.inputs); if (checkMultiInput(inputs, prob.steps.def.expected)) advanceStep(); else handleError("Die Definitionsmenge ist nicht ganz richtig."); };
+    const validateStep2 = () => { if (prob.steps.hn.expected.map(normalizeString).includes(normalizeString(hnInput))) advanceStep(); else handleError("Der Hauptnenner stimmt nicht."); };
+    const validateStep3 = () => { const leftOk = prob.steps.multLeft.expected.map(normalizeString).includes(normalizeString(multLeft)); const rightOk = prob.steps.multRight.expected.map(normalizeString).includes(normalizeString(multRight)); if (leftOk && rightOk) advanceStep(); else handleError("Beim Durchmultiplizieren ist ein Fehler passiert."); };
+    const validateStep4 = () => { if (prob.steps.zusammen.expected.map(normalizeString).includes(normalizeString(zusInput))) advanceStep(); else handleError("Die Normalform ist nicht korrekt."); };
+    const validateStep5 = () => { const pOk = normalizeString(pqP) === normalizeString(prob.steps.pq_p.expected[0]); const qOk = normalizeString(pqQ) === normalizeString(prob.steps.pq_q.expected[0]); if (pOk && qOk) advanceStep(); else handleError("p oder q ist falsch abgelesen."); };
+    const validateStep6 = () => { const pExp = normalizeString(prob.steps.pq_p.expected[0]); const qExp = normalizeString(prob.steps.pq_q.expected[0]); if (normalizeString(einsetzenP1) === pExp && normalizeString(einsetzenP2) === pExp && normalizeString(einsetzenQ) === qExp) advanceStep(); else handleError("Nicht richtig eingesetzt (Vorzeichen beachten!)."); };
+    const validateStep7 = () => { const inputs = pqX.slice(0, prob.steps.pq_x1x2.inputs); if (checkMultiInput(inputs, prob.steps.pq_x1x2.expected)) advanceStep(); else handleError("Das Ergebnis der pq-Formel stimmt nicht."); };
+    const validateStep8 = () => { const inputs = lmInputs.slice(0, prob.steps.lm.inputs); if (checkMultiInput(inputs, prob.steps.lm.expected)) advanceStep(); else handleError("Vergleiche deine Ergebnisse aus Schritt 7 mit D aus Schritt 1."); };
+
+    const inputStyle = (stepNum, wClass="w-16") => `border-2 rounded p-2 text-center focus:outline-none transition-colors ${wClass} ${currentStep > stepNum ? 'border-green-500 bg-green-50 text-green-900 font-bold shadow-sm' : 'border-slate-300 focus:border-amber-500 bg-white shadow-inner'}`;
+
+    return (
+        <div className="page-transition max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            {showAnim && <CelebrationOverlay />}
+            <header className="bg-amber-500 text-amber-950 shadow-md p-6 rounded-xl mb-6">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="flex items-center space-x-3">
+                        <FractionIcon className="w-8 h-8" />
+                        <h1 className="text-2xl font-bold tracking-tight">Bruchgleichungen <span className="hidden sm:inline text-amber-800 text-lg font-normal border-l-2 border-amber-600 pl-2 ml-2">10. Klasse</span></h1>
+                    </div>
+                    <div className="bg-amber-100 px-4 py-1.5 rounded-full text-sm font-bold shadow-sm">Streak: {streak}</div>
+                </div>
+            </header>
+
+            <DifficultyMenu theme="amber" active={selectedDiff} onChange={changeDifficulty}
+                options={[
+                    {id: 'leicht', label: 'Leicht'}, {id: 'mittel', label: 'Mittel'},
+                    {id: 'schwer', label: 'Schwer'}, {id: 'pruefung', label: 'Prüfungsaufgaben'}
+                ]}
+            />
+
+            <main className="space-y-6 relative">
+                <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div className="bg-amber-50 px-6 py-3 border-b border-amber-200 flex justify-between items-center">
+                        <h2 className="font-semibold text-amber-900 flex items-center"><BookOpen size={18} className="mr-2"/> Gegebene Gleichung</h2>
+                        <span className="text-xs font-bold px-2 py-1 rounded uppercase tracking-wider bg-amber-200 text-amber-800">{prob.diff}</span>
+                    </div>
+                    <div className="p-8 flex justify-center bg-white overflow-x-auto min-h-[120px] items-center">{prob.renderEquation()}</div>
+                </div>
+
+                <div className="space-y-4">
+                    <StepCard title="1. Definitionsmenge bestimmen" stepNum={1} currentStep={currentStep} theme="amber">
+                        <div className="flex items-center space-x-3 mb-2">
+                            <span className="font-semibold text-lg">D = ℝ \ {'{'}</span>
+                            <input type="text" value={defInputs[0]} onChange={e => setDefInputs([e.target.value, defInputs[1]])} className={inputStyle(1)} disabled={currentStep !== 1} />
+                            {prob.steps.def.inputs === 2 && (<><span className="font-semibold">;</span><input type="text" value={defInputs[1]} onChange={e => setDefInputs([defInputs[0], e.target.value])} className={inputStyle(1)} disabled={currentStep !== 1} /></>)}
+                            <span className="font-semibold text-lg">{'}'}</span>
+                            {currentStep === 1 && <SubmitBtn onClick={validateStep1} theme="amber" />}
+                        </div>
+                        {currentStep === 1 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} text={`Setze die Nenner gleich 0. Lösung: ${prob.steps.def.expected.map(formatDe).join(' und ')}`} />}
+                        {currentStep > 1 && <SuccessMark text={`D = ℝ \\ { ${prob.steps.def.expected.map(formatDe).join('; ')} }`} />}
+                    </StepCard>
+
+                    {currentStep >= 2 && (
+                        <StepCard title="2. Hauptnenner (HN) finden" stepNum={2} currentStep={currentStep} theme="amber">
+                            <div className="flex items-center space-x-3 mb-2">
+                                <span className="font-semibold">HN =</span>
+                                <input type="text" value={hnInput} onChange={e => setHnInput(e.target.value)} placeholder="z.B. x(x-3)" className={inputStyle(2, "w-64")} disabled={currentStep !== 2} />
+                                {currentStep === 2 && <SubmitBtn onClick={validateStep2} theme="amber" />}
+                            </div>
+                            {currentStep === 2 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} text={`Suche den kleinsten gemeinsamen Nenner. Lösung: ${formatDe(prob.steps.hn.expected[0])}`} />}
+                            {currentStep > 2 && <SuccessMark text={`HN = ${formatDe(prob.steps.hn.expected[0])}`} />}
+                        </StepCard>
+                    )}
+
+                    {currentStep >= 3 && (
+                        <StepCard title="3. Mit dem Hauptnenner durchmultiplizieren" stepNum={3} currentStep={currentStep} theme="amber">
+                            <div className="flex flex-wrap items-center gap-3 mb-2">
+                                <input type="text" value={multLeft} onChange={e => setMultLeft(e.target.value)} placeholder="Linke Seite" className={inputStyle(3, "w-64")} disabled={currentStep !== 3} />
+                                <span className="font-bold text-xl">=</span>
+                                <input type="text" value={multRight} onChange={e => setMultRight(e.target.value)} placeholder="Rechte Seite" className={inputStyle(3, "w-64")} disabled={currentStep !== 3} />
+                                {currentStep === 3 && <SubmitBtn onClick={validateStep3} theme="amber" />}
+                            </div>
+                            {currentStep === 3 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} text={`Multipliziere jeden Bruch mit dem HN (Kürzen!). Lösung: ${formatDe(prob.steps.multLeft.expected[0])} = ${formatDe(prob.steps.multRight.expected[0])}`} />}
+                            {currentStep > 3 && <SuccessMark text={`${formatDe(prob.steps.multLeft.expected[0])} = ${formatDe(prob.steps.multRight.expected[0])}`} />}
+                        </StepCard>
+                    )}
+
+                    {currentStep >= 4 && (
+                        <StepCard title="4. Zusammenfassen (Normalform)" stepNum={4} currentStep={currentStep} theme="amber">
+                            <div className="flex items-center space-x-3 mb-2">
+                                <input type="text" value={zusInput} onChange={e => setZusInput(e.target.value)} placeholder="z.B. x^2+x-12=0" className={inputStyle(4, "w-64 font-mono")} disabled={currentStep !== 4} />
+                                {currentStep === 4 && <SubmitBtn onClick={validateStep4} theme="amber" />}
+                            </div>
+                            {currentStep === 4 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} text={`Bringe alles auf eine Seite und teile, falls nötig, bis x² alleine steht. Lösung: ${formatDe(prob.steps.zusammen.expected[0])}`} />}
+                            {currentStep > 4 && <SuccessMark text={formatDe(prob.steps.zusammen.expected[0])} />}
+                        </StepCard>
+                    )}
+
+                    {currentStep >= 5 && (
+                        <StepCard title="5. Werte für die pq-Formel ablesen" stepNum={5} currentStep={currentStep} theme="amber">
+                            <div className="flex items-center space-x-6 mb-2">
+                                <div className="flex items-center space-x-2"><span className="font-semibold text-lg italic">p =</span><input type="text" value={pqP} onChange={e => setPqP(e.target.value)} className={inputStyle(5, "w-20")} disabled={currentStep !== 5} /></div>
+                                <div className="flex items-center space-x-2"><span className="font-semibold text-lg italic">q =</span><input type="text" value={pqQ} onChange={e => setPqQ(e.target.value)} className={inputStyle(5, "w-20")} disabled={currentStep !== 5} /></div>
+                                {currentStep === 5 && <SubmitBtn onClick={validateStep5} theme="amber" />}
+                            </div>
+                            {currentStep === 5 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} text={`p ist die Zahl vor dem x, q ist die Zahl ohne x. Vorzeichen mitnehmen! Lösung: p=${formatDe(prob.steps.pq_p.expected[0])}, q=${formatDe(prob.steps.pq_q.expected[0])}`} />}
+                            {currentStep > 5 && <SuccessMark text={`p = ${formatDe(prob.steps.pq_p.expected[0])}, q = ${formatDe(prob.steps.pq_q.expected[0])}`} />}
+                        </StepCard>
+                    )}
+
+                    {currentStep >= 6 && (
+                        <StepCard title="6. Werte in die pq-Formel einsetzen" stepNum={6} currentStep={currentStep} theme="amber">
+                            <div className="flex flex-wrap items-center space-x-2 text-xl font-math bg-slate-50 p-4 border border-slate-200 rounded-lg overflow-x-auto mb-2">
+                                <span>x₁,₂ = -</span>
+                                <Frac top={<input type="text" value={einsetzenP1} onChange={e=>setEinsetzenP1(e.target.value)} className={inputStyle(6, "w-16")} disabled={currentStep !== 6} placeholder="p" />} bot="2" />
+                                <span className="mx-2">±</span>
+                                <span className="text-4xl text-slate-800">√</span>
+                                <div className="border-t-2 border-slate-800 flex items-center pt-1 mt-3 space-x-2">
+                                    <span>(</span>
+                                    <Frac top={<input type="text" value={einsetzenP2} onChange={e=>setEinsetzenP2(e.target.value)} className={inputStyle(6, "w-16")} disabled={currentStep !== 6} placeholder="p" />} bot="2" />
+                                    <span>)² - </span>
+                                    <input type="text" value={einsetzenQ} onChange={e=>setEinsetzenQ(e.target.value)} className={inputStyle(6, "w-20")} disabled={currentStep !== 6} placeholder="q" />
+                                </div>
+                                {currentStep === 6 && <div className="ml-4"><SubmitBtn onClick={validateStep6} theme="amber" /></div>}
+                            </div>
+                            {currentStep === 6 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} text="Setze p und q exakt so ein, wie du sie oben abgelesen hast (inklusive Minuszeichen!)." />}
+                            {currentStep > 6 && <SuccessMark text="Richtig eingesetzt!" />}
+                        </StepCard>
+                    )}
+
+                    {currentStep >= 7 && (
+                        <StepCard title="7. pq-Formel auflösen" stepNum={7} currentStep={currentStep} theme="amber">
+                            <div className="flex items-center space-x-6 mb-2">
+                                <div className="flex items-center space-x-2"><span className="font-semibold text-lg">x₁ =</span><input type="text" value={pqX[0]} onChange={e => setPqX([e.target.value, pqX[1]])} className={inputStyle(7, "w-20")} disabled={currentStep !== 7} /></div>
+                                {prob.steps.pq_x1x2.inputs === 2 && (
+                                    <div className="flex items-center space-x-2"><span className="font-semibold text-lg">x₂ =</span><input type="text" value={pqX[1]} onChange={e => setPqX([pqX[0], e.target.value])} className={inputStyle(7, "w-20")} disabled={currentStep !== 7} /></div>
+                                )}
+                                {currentStep === 7 && <SubmitBtn onClick={validateStep7} theme="amber" />}
+                            </div>
+                            {currentStep === 7 && <div className="mt-3"><CalcButton theme="amber" /></div>}
+                            {currentStep === 7 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} text={`Tippe es vorsichtig in den Rechner ein. Lösung: ${prob.steps.pq_x1x2.expected.map(formatDe).join(' und ')}`} />}
+                            {currentStep > 7 && <SuccessMark text={`x = ${prob.steps.pq_x1x2.expected.map(formatDe).join(' oder x = ')}`} />}
+                        </StepCard>
+                    )}
+
+                    {currentStep >= 8 && (
+                        <StepCard title="8. Lösungsmenge angeben" stepNum={8} currentStep={currentStep} theme="amber">
+                            {prob.steps.lm.inputs < prob.steps.pq_x1x2.inputs && <strong className="text-red-600 block mb-2">Achtung: Eine Lösung ist laut Definitionsmenge ungültig!</strong>}
+                            <div className="flex items-center space-x-3 mb-2">
+                                <span className="font-semibold text-lg">L = {'{'}</span>
+                                <input type="text" value={lmInputs[0]} onChange={e => setLmInputs([e.target.value, lmInputs[1]])} className={inputStyle(8, "w-16")} disabled={currentStep !== 8} />
+                                {prob.steps.lm.inputs === 2 && (<><span className="font-semibold">;</span><input type="text" value={lmInputs[1]} onChange={e => setLmInputs([lmInputs[0], e.target.value])} className={inputStyle(8, "w-16")} disabled={currentStep !== 8} /></>)}
+                                <span className="font-semibold text-lg">{'}'}</span>
+                                {currentStep === 8 && <SubmitBtn onClick={validateStep8} theme="amber" />}
+                            </div>
+                            {currentStep === 8 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} text={`Lösung: L = { ${prob.steps.lm.expected.map(formatDe).join('; ')} }`} />}
+                            {currentStep > 8 && <SuccessMark text={`L = { ${prob.steps.lm.expected.map(formatDe).join('; ')} }`} />}
+                        </StepCard>
+                    )}
+
+                    {errorMsg && currentStep <= 8 && !tipRevealed && (
+                        <div className="bg-red-50 border-l-4 border-red-500 p-3 rounded shadow-sm text-red-700 font-medium flex items-center animate-fade-in"><XCircle className="w-5 h-5 mr-2 shrink-0"/>{errorMsg}</div>
+                    )}
+
+                    {currentStep > 8 && (
+                        <SuccessBox
+                            subtitle="Du hast die Bruchgleichung vollständig und richtig gelöst."
+                            onNext={() => changeDifficulty(selectedDiff)}
+                            extraBtn={selectedDiff === 'pruefung' ? <button onClick={handleNextPruefung} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-lg shadow-md transition-colors flex items-center justify-center"><BookOpen className="mr-2" size={18}/> Nächste Prüfung</button> : null}
+                            theme="amber"
+                        />
+                    )}
+                </div>
+            </main>
+        </div>
+    );
+};
+
+const root = ReactDOM.createRoot(document.getElementById('app-root'));
+root.render(<BruchgleichungsTrainer />);
