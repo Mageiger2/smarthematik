@@ -127,7 +127,10 @@ const WachstumsTrainer = () => {
     const checkFinalResult = () => {
         if (!problem) return;
         const val = parseFloat(finalAnswer.replace(',', '.')); if (isNaN(val)) return;
-        const tolerance = problem.type === 'n' ? 0.5 : (problem.solution * 0.01);
+        // Großzügige Toleranz: ±1% bei großen Werten, mindestens ±0,5 bei n und rate (Logarithmus-Rundung)
+        const tolerance = (problem.type === 'n' || problem.type === 'rate')
+            ? 0.5
+            : Math.max(0.5, Math.abs(problem.solution) * 0.01);
         if (Math.abs(val - problem.solution) <= tolerance || (problem.type === 'n' && Math.round(val) === problem.solution)) {
             setFinalFeedback('correct');
             const newStreak = streak + 1;
@@ -136,6 +139,32 @@ const WachstumsTrainer = () => {
             setShowSolution(true); advance(5);
         } else { setFinalFeedback('incorrect'); triggerError(); }
     };
+
+    // Liefert den Lösungstext für den aktuellen Schritt — wird in TipBox angezeigt,
+    // füllt aber NICHTS automatisch aus (Schüler muss selbst tippen).
+    const getSolutionText = () => {
+        if (!problem) return null;
+        const labelMap = { Wn: 'Wn', W0: 'W0', rate: 'p (Rate)', n: 'n' };
+        if (step === 1) return `Du suchst ${labelMap[problem.type]}.`;
+        if (step === 2) {
+            const parts = [];
+            if (problem.type !== 'Wn') parts.push(`Wn = ${formatNum(problem.wn)}`);
+            if (problem.type !== 'W0') parts.push(`W0 = ${formatNum(problem.w0)}`);
+            if (problem.type !== 'rate') parts.push(`q = ${formatNum(problem.q)}`);
+            if (problem.type !== 'n') parts.push(`n = ${problem.n}`);
+            return parts.join(';   ');
+        }
+        if (step === 3) {
+            const correct = options.find(o => o.isCorrect);
+            return correct ? <span>{correct.label}</span> : null;
+        }
+        if (step === 4) {
+            const u = problem.type === 'rate' ? '%' : (problem.unit || '');
+            return `${formatNum(problem.solution)} ${u}`.trim();
+        }
+        return null;
+    };
+    const onSolutionShown = () => setStreak(0);
 
     return (
         <div className="page-transition max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -175,7 +204,7 @@ const WachstumsTrainer = () => {
                                 </button>
                             ))}
                         </div>
-                        {step === 1 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} text="Lies genau: Frag nach dem Start (W0), dem Ende (Wn) oder der Dauer (n)?" />}
+                        {step === 1 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text="Lies genau: Frag nach dem Start (W0), dem Ende (Wn) oder der Dauer (n)?" />}
                         {step > 1 && <SuccessMark text="Richtig identifiziert!" />}
                     </StepCard>
 
@@ -189,7 +218,7 @@ const WachstumsTrainer = () => {
                                 <FormulaInput id="q" label={<VarQ/>} value={inputs.q} theme="emerald" isUnknown={problem.type === 'rate'} status={inputFeedback.q} disabled={step > 2 || inputFeedback.q === 'correct'} onChange={handleInputChange} />
                                 <div className="relative -top-6"><FormulaInput id="n" label={<span className="text-sm"><VarN/></span>} value={inputs.n} theme="emerald" isUnknown={problem.type === 'n'} status={inputFeedback.n} disabled={step > 2 || inputFeedback.n === 'correct'} onChange={handleInputChange} /></div>
                             </div>
-                            {step === 2 && <div className="mt-4 flex justify-between items-center"><TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} text={difficulty==='schwer'?"n ist die Differenz der Jahre. Bei Abnahme ist q < 1 (z.B. 1 - 0.05).":"q ist (1 + p/100) bei Zunahme und (1 - p/100) bei Abnahme."} /><SubmitBtn onClick={checkFormulaInputs} theme="emerald" /></div>}
+                            {step === 2 && <div className="mt-4 flex justify-between items-center"><TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text={difficulty==='schwer'?"n ist die Differenz der Jahre. Bei Abnahme ist q < 1 (z.B. 1 - 0.05).":"q ist (1 + p/100) bei Zunahme und (1 - p/100) bei Abnahme."} /><SubmitBtn onClick={checkFormulaInputs} theme="emerald" /></div>}
                             {step > 2 && <SuccessMark text="Alle Werte richtig eingesetzt!" />}
                         </StepCard>
                     )}
@@ -206,7 +235,7 @@ const WachstumsTrainer = () => {
                                     </button>
                                 ))}
                             </div>
-                            {step === 3 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} text="Um W0 freizustellen: teile durch q^n. Für n: teile durch W0 und nutze den Logarithmus." />}
+                            {step === 3 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text="Um W0 freizustellen: teile durch q^n. Für n: teile durch W0 und nutze den Logarithmus." />}
                             {step > 3 && <SuccessMark text="Richtig umgeformt!" />}
                         </StepCard>
                     )}
@@ -222,7 +251,7 @@ const WachstumsTrainer = () => {
                                 {step === 4 && <SubmitBtn onClick={checkFinalResult} theme="emerald" />}
                             </div>
                             {step === 4 && <div className="mt-3"><CalcButton theme="emerald" /></div>}
-                            {step === 4 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} text="Achte beim Taschenrechner auf Kommas und Klammern (z.B. log(Endwert/Startwert))." />}
+                            {step === 4 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text="Achte beim Taschenrechner auf Kommas und Klammern (z.B. log(Endwert/Startwert))." />}
                             {step > 4 && <SuccessMark text="Perfekt gerechnet!" />}
                         </StepCard>
                     )}

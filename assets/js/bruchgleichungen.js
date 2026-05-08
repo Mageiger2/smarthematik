@@ -131,6 +131,27 @@ const BruchgleichungsTrainer = () => {
     const validateStep7 = () => { const inputs = pqX.slice(0, prob.steps.pq_x1x2.inputs); if (checkMultiInput(inputs, prob.steps.pq_x1x2.expected)) advanceStep(); else handleError("Das Ergebnis der pq-Formel stimmt nicht."); };
     const validateStep8 = () => { const inputs = lmInputs.slice(0, prob.steps.lm.inputs); if (checkMultiInput(inputs, prob.steps.lm.expected)) advanceStep(); else handleError("Vergleiche deine Ergebnisse aus Schritt 7 mit D aus Schritt 1."); };
 
+    // Liefert den Lösungstext für den aktuellen Schritt — TipBox zeigt ihn an,
+    // füllt aber nichts automatisch aus.
+    const getSolutionText = () => {
+        if (!prob) return null;
+        const fmt = (s) => formatDe(s);
+        if (currentStep === 1) return `D = ℝ \\ { ${prob.steps.def.expected.map(fmt).join('; ')} }`;
+        if (currentStep === 2) return `HN = ${fmt(prob.steps.hn.expected[0])}`;
+        if (currentStep === 3) return `${fmt(prob.steps.multLeft.expected[0])}  =  ${fmt(prob.steps.multRight.expected[0])}`;
+        if (currentStep === 4) return fmt(prob.steps.zusammen.expected[0]);
+        if (currentStep === 5) return `p = ${fmt(prob.steps.pq_p.expected[0])},   q = ${fmt(prob.steps.pq_q.expected[0])}`;
+        if (currentStep === 6) {
+            const p = fmt(prob.steps.pq_p.expected[0]);
+            const q = fmt(prob.steps.pq_q.expected[0]);
+            return `Setze p = ${p} (zweimal) und q = ${q} ein.`;
+        }
+        if (currentStep === 7) return `x = ${prob.steps.pq_x1x2.expected.map(fmt).join('   oder   x = ')}`;
+        if (currentStep === 8) return `L = { ${prob.steps.lm.expected.map(fmt).join('; ')} }`;
+        return null;
+    };
+    const onSolutionShown = () => setStreak(0);
+
     const inputStyle = (stepNum, wClass="w-16") => `border-2 rounded p-2 text-center focus:outline-none transition-colors ${wClass} ${currentStep > stepNum ? 'border-green-500 bg-green-50 text-green-900 font-bold shadow-sm' : 'border-slate-300 focus:border-amber-500 bg-white shadow-inner'}`;
 
     return (
@@ -171,7 +192,7 @@ const BruchgleichungsTrainer = () => {
                             <span className="font-semibold text-lg">{'}'}</span>
                             {currentStep === 1 && <SubmitBtn onClick={validateStep1} theme="amber" />}
                         </div>
-                        {currentStep === 1 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} text={`Setze die Nenner gleich 0. Lösung: ${prob.steps.def.expected.map(formatDe).join(' und ')}`} />}
+                        {currentStep === 1 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text={`Setze die Nenner gleich 0. Lösung: ${prob.steps.def.expected.map(formatDe).join(' und ')}`} />}
                         {currentStep > 1 && <SuccessMark text={`D = ℝ \\ { ${prob.steps.def.expected.map(formatDe).join('; ')} }`} />}
                     </StepCard>
 
@@ -182,7 +203,7 @@ const BruchgleichungsTrainer = () => {
                                 <input type="text" value={hnInput} onChange={e => setHnInput(e.target.value)} placeholder="z.B. x(x-3)" className={inputStyle(2, "w-64")} disabled={currentStep !== 2} />
                                 {currentStep === 2 && <SubmitBtn onClick={validateStep2} theme="amber" />}
                             </div>
-                            {currentStep === 2 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} text={`Suche den kleinsten gemeinsamen Nenner. Lösung: ${formatDe(prob.steps.hn.expected[0])}`} />}
+                            {currentStep === 2 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text={`Suche den kleinsten gemeinsamen Nenner. Lösung: ${formatDe(prob.steps.hn.expected[0])}`} />}
                             {currentStep > 2 && <SuccessMark text={`HN = ${formatDe(prob.steps.hn.expected[0])}`} />}
                         </StepCard>
                     )}
@@ -195,7 +216,7 @@ const BruchgleichungsTrainer = () => {
                                 <input type="text" value={multRight} onChange={e => setMultRight(e.target.value)} placeholder="Rechte Seite" className={inputStyle(3, "w-64")} disabled={currentStep !== 3} />
                                 {currentStep === 3 && <SubmitBtn onClick={validateStep3} theme="amber" />}
                             </div>
-                            {currentStep === 3 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} text={`Multipliziere jeden Bruch mit dem HN (Kürzen!). Lösung: ${formatDe(prob.steps.multLeft.expected[0])} = ${formatDe(prob.steps.multRight.expected[0])}`} />}
+                            {currentStep === 3 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text={`Multipliziere jeden Bruch mit dem HN (Kürzen!). Lösung: ${formatDe(prob.steps.multLeft.expected[0])} = ${formatDe(prob.steps.multRight.expected[0])}`} />}
                             {currentStep > 3 && <SuccessMark text={`${formatDe(prob.steps.multLeft.expected[0])} = ${formatDe(prob.steps.multRight.expected[0])}`} />}
                         </StepCard>
                     )}
@@ -206,7 +227,7 @@ const BruchgleichungsTrainer = () => {
                                 <input type="text" value={zusInput} onChange={e => setZusInput(e.target.value)} placeholder="z.B. x^2+x-12=0" className={inputStyle(4, "w-64 font-mono")} disabled={currentStep !== 4} />
                                 {currentStep === 4 && <SubmitBtn onClick={validateStep4} theme="amber" />}
                             </div>
-                            {currentStep === 4 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} text={`Bringe alles auf eine Seite und teile, falls nötig, bis x² alleine steht. Lösung: ${formatDe(prob.steps.zusammen.expected[0])}`} />}
+                            {currentStep === 4 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text={`Bringe alles auf eine Seite und teile, falls nötig, bis x² alleine steht. Lösung: ${formatDe(prob.steps.zusammen.expected[0])}`} />}
                             {currentStep > 4 && <SuccessMark text={formatDe(prob.steps.zusammen.expected[0])} />}
                         </StepCard>
                     )}
@@ -218,7 +239,7 @@ const BruchgleichungsTrainer = () => {
                                 <div className="flex items-center space-x-2"><span className="font-semibold text-lg italic">q =</span><input type="text" value={pqQ} onChange={e => setPqQ(e.target.value)} className={inputStyle(5, "w-20")} disabled={currentStep !== 5} /></div>
                                 {currentStep === 5 && <SubmitBtn onClick={validateStep5} theme="amber" />}
                             </div>
-                            {currentStep === 5 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} text={`p ist die Zahl vor dem x, q ist die Zahl ohne x. Vorzeichen mitnehmen! Lösung: p=${formatDe(prob.steps.pq_p.expected[0])}, q=${formatDe(prob.steps.pq_q.expected[0])}`} />}
+                            {currentStep === 5 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text={`p ist die Zahl vor dem x, q ist die Zahl ohne x. Vorzeichen mitnehmen! Lösung: p=${formatDe(prob.steps.pq_p.expected[0])}, q=${formatDe(prob.steps.pq_q.expected[0])}`} />}
                             {currentStep > 5 && <SuccessMark text={`p = ${formatDe(prob.steps.pq_p.expected[0])}, q = ${formatDe(prob.steps.pq_q.expected[0])}`} />}
                         </StepCard>
                     )}
@@ -238,7 +259,7 @@ const BruchgleichungsTrainer = () => {
                                 </div>
                                 {currentStep === 6 && <div className="ml-4"><SubmitBtn onClick={validateStep6} theme="amber" /></div>}
                             </div>
-                            {currentStep === 6 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} text="Setze p und q exakt so ein, wie du sie oben abgelesen hast (inklusive Minuszeichen!)." />}
+                            {currentStep === 6 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text="Setze p und q exakt so ein, wie du sie oben abgelesen hast (inklusive Minuszeichen!)." />}
                             {currentStep > 6 && <SuccessMark text="Richtig eingesetzt!" />}
                         </StepCard>
                     )}
@@ -253,7 +274,7 @@ const BruchgleichungsTrainer = () => {
                                 {currentStep === 7 && <SubmitBtn onClick={validateStep7} theme="amber" />}
                             </div>
                             {currentStep === 7 && <div className="mt-3"><CalcButton theme="amber" /></div>}
-                            {currentStep === 7 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} text={`Tippe es vorsichtig in den Rechner ein. Lösung: ${prob.steps.pq_x1x2.expected.map(formatDe).join(' und ')}`} />}
+                            {currentStep === 7 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text={`Tippe es vorsichtig in den Rechner ein. Lösung: ${prob.steps.pq_x1x2.expected.map(formatDe).join(' und ')}`} />}
                             {currentStep > 7 && <SuccessMark text={`x = ${prob.steps.pq_x1x2.expected.map(formatDe).join(' oder x = ')}`} />}
                         </StepCard>
                     )}
@@ -268,7 +289,7 @@ const BruchgleichungsTrainer = () => {
                                 <span className="font-semibold text-lg">{'}'}</span>
                                 {currentStep === 8 && <SubmitBtn onClick={validateStep8} theme="amber" />}
                             </div>
-                            {currentStep === 8 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} text={`Lösung: L = { ${prob.steps.lm.expected.map(formatDe).join('; ')} }`} />}
+                            {currentStep === 8 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text={`Lösung: L = { ${prob.steps.lm.expected.map(formatDe).join('; ')} }`} />}
                             {currentStep > 8 && <SuccessMark text={`L = { ${prob.steps.lm.expected.map(formatDe).join('; ')} }`} />}
                         </StepCard>
                     )}

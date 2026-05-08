@@ -19,7 +19,27 @@ const triggerCelebration = (setShowAnim) => {
 
 const formatNum = (num) => { if (num === null || num === undefined) return ""; return num.toString().replace('.', ','); };
 const fDe = (n) => String(n).replace('.', ',');
-const normalizeString = (str) => { if (!str) return ""; return str.toString().toLowerCase().replace(/\s+/g, '').replace(/,/g, '.').replace(/x2/g, 'x^2').replace(/(^|[\+\-\=\(])1x/g, '$1x'); };
+// Normalisiert mathematische Eingaben für den Vergleich. Akzeptiert insbesondere
+// hochgestellte Unicode-Zahlen (² ³ ⁴ ⁵ ⁶), die Schüler mit AltGr+2 etc. tippen.
+const normalizeString = (str) => {
+    if (!str) return "";
+    return str.toString()
+        .toLowerCase()
+        .replace(/\s+/g, '')
+        .replace(/,/g, '.')
+        // Hochgestellte Unicode-Ziffern → ^N (vor weiteren Ersetzungen!)
+        .replace(/²/g, '^2')
+        .replace(/³/g, '^3')
+        .replace(/⁴/g, '^4')
+        .replace(/⁵/g, '^5')
+        .replace(/⁶/g, '^6')
+        // Variable+Ziffer ohne ^ → mit ^ (z.B. "x2" → "x^2")
+        .replace(/([a-z])2(?!\d)/g, '$1^2')
+        .replace(/([a-z])3(?!\d)/g, '$1^3')
+        .replace(/([a-z])4(?!\d)/g, '$1^4')
+        // Führende 1 vor Variable streichen ("1x" → "x")
+        .replace(/(^|[\+\-\=\(])1([a-z])/g, '$1$2');
+};
 const formatDe = (numStr) => numStr.toString().replace(/\./g, ',');
 const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
@@ -29,11 +49,33 @@ const shuffleArray = (array) => {
     return newArr;
 };
 
+// Hilfsfunktion: fragt, ob zwei normalisierte Strings numerisch gleich sind.
+// Erlaubt z.B. "6.5" ~ "6.50", oder "1/2" ~ "0.5" (jedoch nicht "1/2" ~ "0,5", weil normalizeString Brüche nicht aufrechnet).
+const isNumericMatch = (a, b) => {
+    const na = parseFloat(a), nb = parseFloat(b);
+    return !isNaN(na) && !isNaN(nb) && Math.abs(na - nb) < 1e-6;
+};
+
+// Vergleicht eine Eingabe mit einer Sollstring (string-strict ODER numerisch tolerant).
+const checkValue = (input, expected) => {
+    const ni = normalizeString(input), ne = normalizeString(expected);
+    return ni === ne || isNumericMatch(ni, ne);
+};
+
 const checkMultiInput = (inputs, expectedArr) => {
-    const normInputs = inputs.map(normalizeString).filter(s => s !== ""); const normExpected = expectedArr.map(normalizeString);
+    const normInputs = inputs.map(normalizeString).filter(s => s !== "");
+    const normExpected = expectedArr.map(normalizeString);
     if (normInputs.length !== normExpected.length) return false;
     const remaining = [...normExpected];
-    for (let val of normInputs) { const idx = remaining.indexOf(val); if (idx === -1) return false; remaining.splice(idx, 1); }
+    for (let val of normInputs) {
+        let idx = remaining.indexOf(val);
+        if (idx === -1) {
+            // Numerischer Fallback (z.B. "6.5" vs "6.50", oder "0,5" vs "0.5" nach normalizeString).
+            idx = remaining.findIndex(r => isNumericMatch(val, r));
+        }
+        if (idx === -1) return false;
+        remaining.splice(idx, 1);
+    }
     return true;
 };
 
@@ -83,7 +125,8 @@ const themeColors = {
     amber: { activeBorder: 'border-amber-400', activeBg: 'bg-amber-50', activeTitle: 'text-amber-900', badgeBg: 'bg-amber-500', shadow: 'shadow-amber-100', btnBg: 'bg-amber-500', btnHover: 'hover:bg-amber-600' },
     sky: { activeBorder: 'border-sky-400', activeBg: 'bg-sky-50', activeTitle: 'text-sky-900', badgeBg: 'bg-sky-500', shadow: 'shadow-sky-100', btnBg: 'bg-sky-500', btnHover: 'hover:bg-sky-600' },
     violet: { activeBorder: 'border-violet-500', activeBg: 'bg-violet-50', activeTitle: 'text-violet-900', badgeBg: 'bg-violet-600', shadow: 'shadow-violet-100', btnBg: 'bg-violet-600', btnHover: 'hover:bg-violet-700' },
-    teal: { activeBorder: 'border-teal-500', activeBg: 'bg-teal-50', activeTitle: 'text-teal-900', badgeBg: 'bg-teal-600', shadow: 'shadow-teal-100', btnBg: 'bg-teal-600', btnHover: 'hover:bg-teal-700' }
+    teal: { activeBorder: 'border-teal-500', activeBg: 'bg-teal-50', activeTitle: 'text-teal-900', badgeBg: 'bg-teal-600', shadow: 'shadow-teal-100', btnBg: 'bg-teal-600', btnHover: 'hover:bg-teal-700' },
+    cyan: { activeBorder: 'border-cyan-500', activeBg: 'bg-cyan-50', activeTitle: 'text-cyan-900', badgeBg: 'bg-cyan-600', shadow: 'shadow-cyan-100', btnBg: 'bg-cyan-600', btnHover: 'hover:bg-cyan-700' }
 };
 
 // ==========================================
@@ -109,7 +152,26 @@ function HelpCircle({ className }) { return <IconBase className={className} path
 function FastForward({ className }) { return <IconBase className={className} path={<><polygon points="13 19 22 12 13 5 13 19"/><polygon points="2 19 11 12 2 5 2 19"/></>} />; }
 function Target({ className }) { return <IconBase className={className} path={<><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></>} />; }
 function DicesIcon({ className }) { return <IconBase className={className} path={<><rect width="12" height="12" x="2" y="10" rx="2" ry="2"/><path d="M17.92 14H20a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2h-8a2 2 0 0 0-2 2v2"/><circle cx="6" cy="14" r="1"/><circle cx="10" cy="18" r="1"/><circle cx="16" cy="8" r="1"/></>} />; }
-function BracketsIcon({ className }) { return <IconBase className={className} path={<><path d="M8 21s-4-3-4-9 4-9 4-9"/><path d="M16 3s4 3 4 9-4 9-4 9"/></>} />; }
+function Hash({ className }) { return <IconBase className={className} path={<><line x1="4" x2="20" y1="9" y2="9"/><line x1="4" x2="20" y1="15" y2="15"/><line x1="10" x2="8" y1="3" y2="21"/><line x1="16" x2="14" y1="3" y2="21"/></>} />; }
+function SuperscriptIcon({ className }) {
+    // x mit hochgestellter 2 — eigenes SVG, weil IconBase kein <text> kann.
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" className={className}>
+            <text x="4" y="18" fontFamily="'Times New Roman', serif" fontStyle="italic" fontSize="18" fill="currentColor">x</text>
+            <text x="13" y="10" fontFamily="sans-serif" fontWeight="bold" fontSize="13" fill="currentColor">2</text>
+        </svg>
+    );
+}
+function BracketsIcon({ className }) {
+    // Runde Klammern + hochgestellte 2 oben rechts (für "Binomische Formeln").
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+            <path d="M7 19s-3-2.5-3-7 3-7 3-7"/>
+            <path d="M13 5s3 2.5 3 7-3 7-3 7"/>
+            <text x="20.5" y="8" fill="currentColor" stroke="none" fontSize="10" fontWeight="700" textAnchor="middle" fontFamily="system-ui, sans-serif">2</text>
+        </svg>
+    );
+}
 function FractionIcon({ className }) { return <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="4" x2="20" y1="12" y2="12"/><path d="M11 7 L12 5 L12 9" /><path d="M10 15 L14 19 M14 15 L10 19" /></svg>; }
 
 // ==========================================
@@ -149,19 +211,57 @@ const SuccessMark = ({ text, className = "mt-4" }) => (
     <div className={`${className} text-green-700 font-medium flex items-center bg-green-50 px-3 py-2 rounded-lg border border-green-100 inline-flex`}><CheckCircle className="w-5 h-5 mr-2 text-green-600 shrink-0" /> {text}</div>
 );
 
-const TipBox = ({ errors, revealed, setRevealed, text }) => {
+// Erscheint nach 3 Fehleingaben. Bietet einen Tipp-Button und (wenn solutionText
+// gegeben) zusätzlich einen "Lösung anzeigen"-Button. Der Lösungs-Button füllt
+// nichts automatisch aus, sondern blendet die Lösung als Text ein — der Schüler
+// muss sie selbst eintippen. onSolutionShown wird genau einmal beim ersten Klick
+// aufgerufen (z.B. zum Zurücksetzen des Streaks).
+const TipBox = ({ errors, revealed, setRevealed, text, solutionText, onSolutionShown }) => {
+    const [solRevealed, setSolRevealed] = useState(false);
+    // Bei Schritt-Wechsel (errors === 0) zurücksetzen — Lösung gehört zur aktuellen Eingabe.
+    useEffect(() => { if (errors === 0) setSolRevealed(false); }, [errors]);
+
     if (errors < 3) return null;
+
+    const handleShowSolution = () => {
+        setSolRevealed(true);
+        if (onSolutionShown) onSolutionShown();
+    };
+
+    const solBtn = (solutionText && !solRevealed) ? (
+        <button onClick={handleShowSolution} className="text-rose-700 bg-rose-50 hover:bg-rose-100 px-4 py-2 rounded-lg font-medium flex items-center transition-colors border border-rose-200">
+            <BookOpen className="w-5 h-5 mr-2" /> Lösung anzeigen
+        </button>
+    ) : null;
+
+    const solBox = (solRevealed && solutionText) ? (
+        <div className="mt-3 bg-rose-50 border-l-4 border-rose-500 p-4 rounded shadow-sm text-rose-900 text-sm animate-fade-in flex">
+            <BookOpen className="w-6 h-6 mr-3 shrink-0 text-rose-600" />
+            <div><strong className="block mb-1 text-rose-800">Lösung:</strong> <span className="break-words">{solutionText}</span></div>
+        </div>
+    ) : null;
+
     if (!revealed) {
         return (
-            <button onClick={() => setRevealed(true)} className="mt-4 text-amber-600 bg-amber-50 hover:bg-amber-100 px-4 py-2 rounded-lg font-medium flex items-center transition-colors border border-amber-200 animate-fade-in">
-                <HelpCircle className="w-5 h-5 mr-2" /> Hier gibt es einen Tipp
-            </button>
+            <div className="mt-4 animate-fade-in">
+                <div className="flex flex-wrap gap-2">
+                    <button onClick={() => setRevealed(true)} className="text-amber-700 bg-amber-50 hover:bg-amber-100 px-4 py-2 rounded-lg font-medium flex items-center transition-colors border border-amber-200">
+                        <HelpCircle className="w-5 h-5 mr-2" /> Hier gibt es einen Tipp
+                    </button>
+                    {solBtn}
+                </div>
+                {solBox}
+            </div>
         );
     }
     return (
-        <div className="mt-4 bg-amber-50 border-l-4 border-amber-500 p-4 rounded shadow-sm text-amber-900 text-sm animate-fade-in flex">
-            <HelpCircle className="w-6 h-6 mr-3 shrink-0 text-amber-600" />
-            <div><strong className="block mb-1 text-amber-800">Tipp:</strong> {text}</div>
+        <div className="mt-4 animate-fade-in">
+            <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded shadow-sm text-amber-900 text-sm flex">
+                <HelpCircle className="w-6 h-6 mr-3 shrink-0 text-amber-600" />
+                <div><strong className="block mb-1 text-amber-800">Tipp:</strong> {text}</div>
+            </div>
+            {solBtn && <div className="mt-2">{solBtn}</div>}
+            {solBox}
         </div>
     );
 };
@@ -266,21 +366,42 @@ const CalcResult = ({ value, asFraction }) => {
     return <span>{s.replace('.', ',')}</span>;
 };
 
-const ScientificCalculator = ({ isOpen, onClose, theme = 'sky' }) => {
+const ScientificCalculator = ({ onClose, theme = 'sky' }) => {
     const [expr, setExpr] = useState('');
+    const [cursorPos, setCursorPos] = useState(0);
     const [result, setResult] = useState(null);
     const [error, setError] = useState(null);
     const [angleMode, setAngleMode] = useState('DEG');
     const [showAsFraction, setShowAsFraction] = useState(false);
     const [ans, setAns] = useState(null);
 
-    if (!isOpen) return null;
     const t = themeColors[theme] || themeColors.sky;
 
-    const append = (s) => { setExpr(prev => prev + s); setError(null); };
-    const backspace = () => { setExpr(prev => prev.slice(0, -1)); setError(null); };
-    const clearAll = () => { setExpr(''); setResult(null); setError(null); };
+    // Fügt eine Zeichenkette an der Cursor-Position ein und rückt den Cursor entsprechend nach.
+    // Optionaler `cursorOffset`: setzt den Cursor relativ zum Einfügungs-Beginn (statt ans Ende).
+    // Z.B. append('^()', 2) → fügt '^()' ein, Cursor zwischen den Klammern.
+    const append = (s, cursorOffset) => {
+        setExpr(prev => prev.slice(0, cursorPos) + s + prev.slice(cursorPos));
+        if (cursorOffset !== undefined) {
+            setCursorPos(p => p + cursorOffset);
+        } else {
+            setCursorPos(p => p + s.length);
+        }
+        setError(null);
+    };
+    // Löscht das Zeichen LINKS vom Cursor.
+    const backspace = () => {
+        if (cursorPos === 0) return;
+        setExpr(prev => prev.slice(0, cursorPos - 1) + prev.slice(cursorPos));
+        setCursorPos(p => Math.max(0, p - 1));
+        setError(null);
+    };
+    const clearAll = () => { setExpr(''); setCursorPos(0); setResult(null); setError(null); };
     const useAns = () => { if (ans !== null) append(`(${ans})`); };
+    const moveLeft = () => setCursorPos(p => Math.max(0, p - 1));
+    const moveRight = () => setCursorPos(p => Math.min(expr.length, p + 1));
+    const moveStart = () => setCursorPos(0);
+    const moveEnd = () => setCursorPos(expr.length);
 
     const calc = () => {
         if (!expr.trim()) return;
@@ -300,6 +421,9 @@ const ScientificCalculator = ({ isOpen, onClose, theme = 'sky' }) => {
                 .replace(/tan\(/g, '_T(')
                 // log(b, x) -> log_b(x). Muss vor dem '),' Komma->Punkt-Schritt passieren.
                 .replace(/log\(([^,()]+),\s*([^()]+)\)/g, '(Math.log($2)/Math.log($1))')
+                // n. Wurzel: nrt(n, x) → x^(1/n). `**` statt Math.pow, sonst sprengt
+                // der spätere ,→. Ersatz die Math.pow-Argumente.
+                .replace(/nrt\(([^,()]+),\s*([^()]+)\)/g, '(($2)**(1/($1)))')
                 .replace(/ln\(/g, 'Math.log(')
                 .replace(/√\(/g, 'Math.sqrt(')
                 .replace(/\^/g, '**')
@@ -336,7 +460,7 @@ const ScientificCalculator = ({ isOpen, onClose, theme = 'sky' }) => {
     };
 
     const Btn = ({ label, onClick, variant = 'normal' }) => {
-        const base = 'h-11 rounded-lg font-bold text-sm transition-colors flex items-center justify-center select-none';
+        const base = 'h-9 sm:h-11 rounded-lg font-bold text-xs sm:text-sm transition-colors flex items-center justify-center select-none';
         const variants = {
             normal: 'bg-white border border-slate-200 hover:bg-slate-50 text-slate-700',
             number: 'bg-slate-100 hover:bg-slate-200 text-slate-900',
@@ -349,103 +473,128 @@ const ScientificCalculator = ({ isOpen, onClose, theme = 'sky' }) => {
     };
 
     return (
-        <div className="fixed inset-0 z-[200] bg-black/50 flex items-center justify-center p-4 animate-fade-in" onClick={onClose}>
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md flex flex-col overflow-hidden" onClick={e => e.stopPropagation()}>
-                <div className={`${t.btnBg} text-white px-4 py-3 flex justify-between items-center`}>
-                    <div className="flex items-center gap-2">
-                        <Calculator className="w-5 h-5" />
-                        <span className="font-bold">Wissenschaftlicher Rechner</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <button type="button" onClick={() => setAngleMode(m => m === 'DEG' ? 'RAD' : 'DEG')}
-                                className="text-xs font-bold px-2 py-1 bg-white/20 hover:bg-white/30 rounded transition-colors"
-                                title="Winkelmodus umschalten">
-                            {angleMode}
-                        </button>
-                        <button type="button" onClick={onClose} className="hover:bg-white/20 rounded p-1 transition-colors" aria-label="Schließen">
+        <div className="bg-white rounded-2xl shadow-md border border-slate-200 max-w-md w-full overflow-hidden">
+            <div className={`${t.btnBg} text-white px-3 sm:px-4 py-2 sm:py-3 flex justify-between items-center`}>
+                <div className="flex items-center gap-2">
+                    <Calculator className="w-5 h-5" />
+                    <span className="font-bold text-sm sm:text-base">Wissenschaftlicher Rechner</span>
+                </div>
+                <div className="flex items-center gap-2">
+                    <button type="button" onClick={() => setAngleMode(m => m === 'DEG' ? 'RAD' : 'DEG')}
+                            className="text-xs font-bold px-2 py-1 bg-white/20 hover:bg-white/30 rounded transition-colors"
+                            title="Winkelmodus umschalten">
+                        {angleMode}
+                    </button>
+                    {onClose && (
+                        <button type="button" onClick={onClose} className="hover:bg-white/20 rounded p-1 transition-colors" aria-label="Rechner schließen">
                             <XCircle className="w-5 h-5" />
                         </button>
-                    </div>
+                    )}
                 </div>
+            </div>
 
-                <div className="bg-slate-800 text-white px-4 py-3 font-mono text-right">
-                    <div className="text-sm opacity-70 min-h-[20px] break-all">{expr || ' '}</div>
-                    <div className="text-2xl font-bold min-h-[36px] flex items-center justify-end">
-                        {error
-                            ? <span className="text-red-400 text-lg">{error}</span>
-                            : result !== null
-                                ? <CalcResult value={result} asFraction={showAsFraction} />
-                                : <span>{' '}</span>}
-                    </div>
+            <div className="bg-slate-800 text-white px-3 sm:px-4 py-3 font-mono">
+                <div className="text-sm opacity-80 min-h-[20px] break-all flex justify-end items-center">
+                    {expr.length === 0
+                        ? <span className="inline-block w-px h-4 bg-amber-300 animate-pulse"></span>
+                        : (
+                            <span className="inline-flex items-center text-right flex-wrap justify-end">
+                                <span>{expr.slice(0, cursorPos)}</span>
+                                <span className="inline-block w-px h-4 bg-amber-300 animate-pulse mx-px"></span>
+                                <span>{expr.slice(cursorPos)}</span>
+                            </span>
+                        )}
                 </div>
-
-                <div className="bg-slate-100 px-3 py-1 text-[11px] text-slate-500 text-center border-y border-slate-200">
-                    log(Basis, Zahl) · sin/cos/tan in <strong>{angleMode}</strong>
+                <div className="text-xl sm:text-2xl font-bold min-h-[36px] flex items-center justify-end">
+                    {error
+                        ? <span className="text-red-400 text-base">{error}</span>
+                        : result !== null
+                            ? <CalcResult value={result} asFraction={showAsFraction} />
+                            : <span>{' '}</span>}
                 </div>
+            </div>
 
-                <div className="p-3 grid grid-cols-5 gap-1.5">
-                    <Btn variant="func" label="sin" onClick={() => append('sin(')} />
-                    <Btn variant="func" label="cos" onClick={() => append('cos(')} />
-                    <Btn variant="func" label="tan" onClick={() => append('tan(')} />
-                    <Btn variant="func" label="log" onClick={() => append('log(')} />
-                    <Btn variant="op" label="⌫" onClick={backspace} />
+            {/* Edit-Toolbar: Cursor-Steuerung — funktioniert auch nach "=" weiter, sodass der Ausdruck editierbar bleibt. */}
+            <div className="bg-slate-100 px-2 sm:px-3 py-1.5 grid grid-cols-4 gap-1 sm:gap-1.5 border-y border-slate-200">
+                <button type="button" onClick={moveStart} className="h-8 rounded font-bold text-xs bg-white hover:bg-slate-200 text-slate-700 border border-slate-200" title="Cursor an den Anfang">⏮</button>
+                <button type="button" onClick={moveLeft} className="h-8 rounded font-bold text-xs bg-white hover:bg-slate-200 text-slate-700 border border-slate-200" title="Cursor nach links">◀</button>
+                <button type="button" onClick={moveRight} className="h-8 rounded font-bold text-xs bg-white hover:bg-slate-200 text-slate-700 border border-slate-200" title="Cursor nach rechts">▶</button>
+                <button type="button" onClick={moveEnd} className="h-8 rounded font-bold text-xs bg-white hover:bg-slate-200 text-slate-700 border border-slate-200" title="Cursor ans Ende">⏭</button>
+            </div>
 
-                    <Btn variant="func" label={<span>sin<sup>−1</sup></span>} onClick={() => append('sin⁻¹(')} />
-                    <Btn variant="func" label={<span>cos<sup>−1</sup></span>} onClick={() => append('cos⁻¹(')} />
-                    <Btn variant="func" label={<span>tan<sup>−1</sup></span>} onClick={() => append('tan⁻¹(')} />
-                    <Btn variant="func" label="ln" onClick={() => append('ln(')} />
-                    <Btn variant="danger" label="AC" onClick={clearAll} />
+            <div className="bg-slate-50 px-2 sm:px-3 py-1 text-[10px] sm:text-[11px] text-slate-500 text-center border-b border-slate-200">
+                log(Basis, Zahl) · sin/cos/tan in <strong>{angleMode}</strong>
+            </div>
 
-                    <Btn variant="op" label="(" onClick={() => append('(')} />
-                    <Btn variant="op" label=")" onClick={() => append(')')} />
-                    <Btn variant="op" label={<span>x<sup>y</sup></span>} onClick={() => append('^')} />
-                    <Btn variant="op" label="√" onClick={() => append('√(')} />
-                    <Btn variant="op" label="π" onClick={() => append('π')} />
+            <div className="p-2 sm:p-3 grid grid-cols-5 gap-1 sm:gap-1.5">
+                <Btn variant="func" label="sin" onClick={() => append('sin(')} />
+                <Btn variant="func" label="cos" onClick={() => append('cos(')} />
+                <Btn variant="func" label="tan" onClick={() => append('tan(')} />
+                <Btn variant="func" label="log" onClick={() => append('log(')} />
+                <Btn variant="op" label="⌫" onClick={backspace} />
 
-                    <Btn variant="number" label="7" onClick={() => append('7')} />
-                    <Btn variant="number" label="8" onClick={() => append('8')} />
-                    <Btn variant="number" label="9" onClick={() => append('9')} />
-                    <Btn variant="op" label="÷" onClick={() => append('÷')} />
-                    <Btn variant="func" label="a/b" onClick={() => append('/')} />
+                <Btn variant="func" label={<span>sin<sup>−1</sup></span>} onClick={() => append('sin⁻¹(')} />
+                <Btn variant="func" label={<span>cos<sup>−1</sup></span>} onClick={() => append('cos⁻¹(')} />
+                <Btn variant="func" label={<span>tan<sup>−1</sup></span>} onClick={() => append('tan⁻¹(')} />
+                <Btn variant="func" label="ln" onClick={() => append('ln(')} />
+                <Btn variant="danger" label="AC" onClick={clearAll} />
 
-                    <Btn variant="number" label="4" onClick={() => append('4')} />
-                    <Btn variant="number" label="5" onClick={() => append('5')} />
-                    <Btn variant="number" label="6" onClick={() => append('6')} />
-                    <Btn variant="op" label="×" onClick={() => append('×')} />
-                    <Btn variant="func" label="Ans" onClick={useAns} />
+                <Btn variant="op" label="(" onClick={() => append('(')} />
+                <Btn variant="op" label=")" onClick={() => append(')')} />
+                {/* x^y öffnet "^()" mit Cursor zwischen den Klammern → erlaubt Bruch-Exponent. */}
+                <Btn variant="op" label={<span>x<sup>y</sup></span>} onClick={() => append('^()', 2)} />
+                <Btn variant="op" label="√" onClick={() => append('√()', 2)} />
+                {/* n. Wurzel: nrt(n, x) → x^(1/n). Cursor landet zwischen "nrt(" und ",". */}
+                <Btn variant="op" label={<span><sup className="text-xs">n</sup>√</span>} onClick={() => append('nrt(,)', 4)} />
 
-                    <Btn variant="number" label="1" onClick={() => append('1')} />
-                    <Btn variant="number" label="2" onClick={() => append('2')} />
-                    <Btn variant="number" label="3" onClick={() => append('3')} />
-                    <Btn variant="op" label="−" onClick={() => append('−')} />
-                    <Btn variant="func" label={<span>↔ <span className="text-[10px]">Bruch</span></span>} onClick={() => setShowAsFraction(f => !f)} />
+                <Btn variant="number" label="7" onClick={() => append('7')} />
+                <Btn variant="number" label="8" onClick={() => append('8')} />
+                <Btn variant="number" label="9" onClick={() => append('9')} />
+                <Btn variant="op" label="÷" onClick={() => append('÷')} />
+                <Btn variant="op" label="π" onClick={() => append('π')} />
 
-                    <Btn variant="number" label="0" onClick={() => append('0')} />
-                    <Btn variant="number" label="," onClick={() => append(',')} />
-                    <Btn variant="number" label="." onClick={() => append('.')} />
-                    <Btn variant="op" label="+" onClick={() => append('+')} />
-                    <Btn variant="primary" label="=" onClick={calc} />
-                </div>
+                <Btn variant="number" label="4" onClick={() => append('4')} />
+                <Btn variant="number" label="5" onClick={() => append('5')} />
+                <Btn variant="number" label="6" onClick={() => append('6')} />
+                <Btn variant="op" label="×" onClick={() => append('×')} />
+                <Btn variant="func" label="a/b" onClick={() => append('/')} />
+
+                <Btn variant="number" label="1" onClick={() => append('1')} />
+                <Btn variant="number" label="2" onClick={() => append('2')} />
+                <Btn variant="number" label="3" onClick={() => append('3')} />
+                <Btn variant="op" label="−" onClick={() => append('−')} />
+                <Btn variant="func" label="S↔D" onClick={() => setShowAsFraction(f => !f)} />
+
+                <Btn variant="number" label="0" onClick={() => append('0')} />
+                <Btn variant="number" label="," onClick={() => append(',')} />
+                <Btn variant="number" label="." onClick={() => append('.')} />
+                <Btn variant="op" label="+" onClick={() => append('+')} />
+                <Btn variant="primary" label="=" onClick={calc} />
             </div>
         </div>
     );
 };
 
-// Wiederverwendbarer Trigger-Button: Einbau via <CalcButton theme="emerald" />.
-// Hält den Open-State lokal, damit Trainer keine eigene State-Verwaltung brauchen.
+// Wiederverwendbarer Trigger-Button: rendert den Rechner inline (aufklappbar)
+// statt als Modal-Overlay — verdeckt nichts auf der Seite.
 const CalcButton = ({ theme = 'sky', label = 'Rechner' }) => {
     const [open, setOpen] = useState(false);
     const t = themeColors[theme] || themeColors.sky;
     return (
-        <>
-            <button type="button" onClick={() => setOpen(true)}
-                    className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg border-2 font-medium text-sm transition-colors bg-white hover:bg-slate-50 border-slate-200 text-slate-700`}
-                    title="Wissenschaftlichen Rechner einblenden">
+        <div className="w-full">
+            <button type="button" onClick={() => setOpen(o => !o)}
+                    className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border-2 font-medium text-sm transition-colors bg-white hover:bg-slate-50 border-slate-200 text-slate-700"
+                    aria-expanded={open}
+                    title={open ? 'Rechner einklappen' : 'Wissenschaftlichen Rechner einblenden'}>
                 <Calculator className={`w-4 h-4 ${t.activeTitle}`} />
-                <span>{label}</span>
+                <span>{open ? `${label} schließen` : label}</span>
             </button>
-            <ScientificCalculator isOpen={open} onClose={() => setOpen(false)} theme={theme} />
-        </>
+            {open && (
+                <div className="mt-3 animate-fade-in flex justify-center">
+                    <ScientificCalculator theme={theme} onClose={() => setOpen(false)} />
+                </div>
+            )}
+        </div>
     );
 };
 

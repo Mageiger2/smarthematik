@@ -118,7 +118,7 @@ const ZerfallsTrainer = () => {
     const checkFinalResult = () => {
         if (!problem) return;
         const val = parseFloat(finalAnswer.replace(',', '.')); if (isNaN(val)) return;
-        const tolerance = problem.type === 't' ? 0.5 : (problem.solution * 0.01);
+        const tolerance = problem.type === 't' ? 0.5 : Math.max(0.5, Math.abs(problem.solution) * 0.01);
         if (Math.abs(val - problem.solution) <= tolerance || (problem.type === 't' && Math.round(val) === problem.solution)) {
             setFinalFeedback('correct');
             const newStreak = streak + 1;
@@ -127,6 +127,32 @@ const ZerfallsTrainer = () => {
             setShowSolution(true); advance(5);
         } else { setFinalFeedback('incorrect'); triggerError(); }
     };
+
+    // Liefert den Lösungstext für den aktuellen Schritt — TipBox zeigt ihn an,
+    // füllt aber nichts automatisch aus.
+    const getSolutionText = () => {
+        if (!problem) return null;
+        const labelMap = { Wn: 'Wn', W0: 'W0', t: 't (Dauer)' };
+        if (step === 1) return `Du suchst ${labelMap[problem.type]}.`;
+        if (step === 2) {
+            const parts = [];
+            if (problem.type !== 'Wn') parts.push(`Wn = ${formatNum(problem.wn)}`);
+            if (problem.type !== 'W0') parts.push(`W0 = ${formatNum(problem.w0)}`);
+            if (problem.type !== 't') parts.push(`t = ${problem.t}`);
+            parts.push(`T₁/₂ = ${problem.thalf}`);
+            return parts.join(';   ');
+        }
+        if (step === 3) {
+            const correct = options.find(o => o.isCorrect);
+            return correct ? <span>{correct.label}</span> : null;
+        }
+        if (step === 4) {
+            const u = problem.type === 't' ? '' : (problem.unit || '');
+            return `${formatNum(problem.solution)} ${u}`.trim();
+        }
+        return null;
+    };
+    const onSolutionShown = () => setStreak(0);
 
     return (
         <div className="page-transition max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -165,7 +191,7 @@ const ZerfallsTrainer = () => {
                                 </button>
                             ))}
                         </div>
-                        {step === 1 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} text="Achte darauf, ob der Startwert, der Endwert oder die Dauer gefragt ist. q ist bei Halbwertszeit immer 0,5." />}
+                        {step === 1 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text="Achte darauf, ob der Startwert, der Endwert oder die Dauer gefragt ist. q ist bei Halbwertszeit immer 0,5." />}
                         {step > 1 && <SuccessMark text={`Richtig! Du suchst ${problem?.type === 'Wn' ? "Wn" : problem?.type === 'W0' ? "W0" : "t (Dauer)"}.`} />}
                     </StepCard>
 
@@ -195,7 +221,7 @@ const ZerfallsTrainer = () => {
                                 </div>
 
                             </div>
-                            {step === 2 && <div className="mt-4 flex justify-between items-center"><TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} text="Der Exponent ist ein Bruch: Oben die gesamte Dauer (t), unten die Halbwertszeit (T1/2)." /><SubmitBtn onClick={checkFormulaInputs} theme="rose" /></div>}
+                            {step === 2 && <div className="mt-4 flex justify-between items-center"><TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text="Der Exponent ist ein Bruch: Oben die gesamte Dauer (t), unten die Halbwertszeit (T1/2)." /><SubmitBtn onClick={checkFormulaInputs} theme="rose" /></div>}
                             {step > 2 && <SuccessMark text="Alle Werte richtig eingesetzt!" />}
                         </StepCard>
                     )}
@@ -212,7 +238,7 @@ const ZerfallsTrainer = () => {
                                     </button>
                                 ))}
                             </div>
-                            {step === 3 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} text="Um W0 zu erhalten, musst du durch die Potenz 0,5^(t/T1/2) teilen. Für t brauchst du den Logarithmus." />}
+                            {step === 3 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text="Um W0 zu erhalten, musst du durch die Potenz 0,5^(t/T1/2) teilen. Für t brauchst du den Logarithmus." />}
                             {step > 3 && <SuccessMark text="Richtig umgeformt!" />}
                         </StepCard>
                     )}
@@ -228,7 +254,7 @@ const ZerfallsTrainer = () => {
                                 {step === 4 && <SubmitBtn onClick={checkFinalResult} theme="rose" />}
                             </div>
                             {step === 4 && <div className="mt-3"><CalcButton theme="rose" /></div>}
-                            {step === 4 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} text="Nutze den Rechner! Wenn t gesucht ist: log(Endwert / Startwert) geteilt durch log(0.5), dann mal die Halbwertszeit!" />}
+                            {step === 4 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text="Nutze den Rechner! Wenn t gesucht ist: log(Endwert / Startwert) geteilt durch log(0.5), dann mal die Halbwertszeit!" />}
                             {step > 4 && <SuccessMark text="Perfekt gerechnet!" />}
                         </StepCard>
                     )}

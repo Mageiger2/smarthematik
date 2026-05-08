@@ -32,83 +32,261 @@ const buildProbabilityTree = (colors, isOhne, targetPath, totalCount) => {
     };
 };
 
+// Hilfs: zufälliges Element aus Array.
+const _pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+// ==========================================
+// Hardcoded Prüfungsaufgaben (Bayern MSA Mathematik — Wahrscheinlichkeit)
+// Aus dem Prüfungsarchiv des Bayerischen Staatsministeriums für Unterricht und Kultus.
+// Nur Aufgaben, die in unsere 2-Zug-Pfad-Struktur passen — adaptierte Aufgaben sind
+// im `label` als (adaptiert) gekennzeichnet.
+// ==========================================
+const wahrscheinlichkeitsExamTasks = [
+    {
+        sigKey: 'msa-2025-i-7b',
+        label: 'MSA 2025 I — Aufgabe 7b',
+        text: 'Bei einer Faschingsveranstaltung werden 150 äußerlich nicht unterscheidbare Krapfen verkauft. Davon sind 75 mit Aprikosenmarmelade (A), 70 mit Erdbeermarmelade (E) und 5 mit Senf (S) gefüllt. Die ersten beiden Kunden kaufen nacheinander je einen Krapfen. Berechne die Wahrscheinlichkeit, dass die beiden zuerst verkauften Krapfen mit Aprikosenmarmelade gefüllt sind.',
+        type: 'ohne',
+        total: 150,
+        treeColors: [
+            { id: 'A', count: 75, hex: '#f59e0b' },
+            { id: 'E', count: 70, hex: '#ef4444' },
+            { id: 'S', count: 5, hex: '#94a3b8' }
+        ],
+        targetPath: ['A', 'A']
+    },
+    {
+        sigKey: 'msa-2024-ii-5b',
+        label: 'MSA 2024 II — Aufgabe 5b',
+        text: 'In einer Getränkekiste befinden sich 12 Flaschen mit gleicher Form: 3 Flaschen Wasser (W), 5 Flaschen Apfelschorle (A) und 4 Flaschen Holunderschorle (H). Yannis holt sich zweimal nacheinander je eine Flasche aus der Kiste, ohne zurückzulegen. Berechne die Wahrscheinlichkeit, dass Yannis beide Male eine Flasche mit Holunderschorle entnimmt.',
+        type: 'ohne',
+        total: 12,
+        treeColors: [
+            { id: 'W', count: 3, hex: '#3b82f6' },
+            { id: 'A', count: 5, hex: '#10b981' },
+            { id: 'H', count: 4, hex: '#a855f7' }
+        ],
+        targetPath: ['H', 'H']
+    },
+    {
+        sigKey: 'msa-2024-i-9-adapt',
+        label: 'MSA 2024 I — Aufgabe 9 (adaptiert für 2 Züge)',
+        text: 'In einem Behälter befinden sich 20 Kugeln. Auf jede Kugel ist genau eine Zahl aufgedruckt: viermal die Zahl 1, sechsmal die Zahl 2 und zehnmal die Zahl 3. Nacheinander werden zwei Kugeln gezogen ohne Zurücklegen. Berechne die Wahrscheinlichkeit, dass beide Male die Zahl 3 gezogen wird.',
+        type: 'ohne',
+        total: 20,
+        treeColors: [
+            { id: '1', count: 4, hex: '#3b82f6' },
+            { id: '2', count: 6, hex: '#f59e0b' },
+            { id: '3', count: 10, hex: '#10b981' }
+        ],
+        targetPath: ['3', '3']
+    },
+    {
+        sigKey: 'msa-2017-ii-10b-adapt',
+        label: 'MSA 2017 II — Aufgabe 10b (adaptiert für 2 Kategorien)',
+        text: 'Bei einem Skirennen starten zwölf Läufer: 4 Deutsche, 5 Österreicher und 3 Schweizer. Die Startreihenfolge wird zufällig ausgelost. Wir unterscheiden nur zwischen "Schweizer" und "Andere" (Deutsche oder Österreicher). Berechne die Wahrscheinlichkeit, dass unter den ersten beiden Startern kein Schweizer ist.',
+        type: 'ohne',
+        total: 12,
+        treeColors: [
+            { id: 'CH', count: 3, hex: '#dc2626' },
+            { id: 'Andere', count: 9, hex: '#3b82f6' }
+        ],
+        targetPath: ['Andere', 'Andere']
+    },
+    {
+        sigKey: 'msa-2016-i-3b',
+        label: 'MSA 2016 I — Aufgabe 3b',
+        text: 'In einer Tüte befinden sich 4 rote, 2 grüne und 1 weißes Gummibärchen. Christiane nimmt ein Gummibärchen heraus und isst es. Anschließend nimmt sie ein zweites und isst es ebenfalls. Berechne die Wahrscheinlichkeit, dass beide Gummibärchen rot sind.',
+        type: 'ohne',
+        total: 7,
+        treeColors: [
+            { id: 'rot', count: 4, hex: '#ef4444' },
+            { id: 'grün', count: 2, hex: '#10b981' },
+            { id: 'weiß', count: 1, hex: '#cbd5e1' }
+        ],
+        targetPath: ['rot', 'rot']
+    },
+    {
+        sigKey: 'msa-2014-ii-8b',
+        label: 'MSA 2014 II — Aufgabe 8b',
+        text: 'In einer Lostrommel auf dem Jahrmarkt befinden sich noch 1 Hauptgewinn (H), 9 Kleingewinne (K) und 40 Nieten (N). Moritz zieht zwei Lose aus der Trommel und öffnet sie nacheinander. Berechne die Wahrscheinlichkeit, dass Moritz zwei Nieten zieht.',
+        type: 'ohne',
+        total: 50,
+        treeColors: [
+            { id: 'H', count: 1, hex: '#f59e0b' },
+            { id: 'K', count: 9, hex: '#10b981' },
+            { id: 'N', count: 40, hex: '#94a3b8' }
+        ],
+        targetPath: ['N', 'N']
+    },
+    {
+        sigKey: 'msa-2013-ii-3-adapt',
+        label: 'MSA 2013 II — Aufgabe 3 (adaptiert: beide gleich)',
+        text: 'In einem Behälter befinden sich 60 Kugeln: 24 gelbe (G) und 36 blaue (B). Nacheinander werden zwei Kugeln ohne Zurücklegen gezogen. Berechne die Wahrscheinlichkeit, dass beide Kugeln gelb sind.',
+        type: 'ohne',
+        total: 60,
+        treeColors: [
+            { id: 'G', count: 24, hex: '#f59e0b' },
+            { id: 'B', count: 36, hex: '#3b82f6' }
+        ],
+        targetPath: ['G', 'G']
+    }
+];
+
+// Wandelt einen Prüfungsaufgaben-Eintrag in das problem-Format um.
+const buildExamProblem = (task) => {
+    const isOhne = task.type === 'ohne';
+    const tot = task.total;
+    const colorByName = Object.fromEntries(task.treeColors.map(c => [c.id, c]));
+    const t1Count = colorByName[task.targetPath[0]].count;
+    const samePath = task.targetPath[0] === task.targetPath[1];
+    const t2Count = (isOhne && samePath) ? colorByName[task.targetPath[1]].count - 1 : colorByName[task.targetPath[1]].count;
+    const totalAfter = isOhne ? tot - 1 : tot;
+    const expectedPerc = (t1Count / tot) * (t2Count / totalAfter) * 100;
+
+    return {
+        id: Math.random(), diff: 'pruefung',
+        examLabel: task.label,
+        text: task.text,
+        type: task.type,
+        draw1: { top: t1Count, bot: tot },
+        draw2: { top: t2Count, bot: totalAfter },
+        resultPerc: Math.round(expectedPerc * 100) / 100,
+        explanation: `${task.label}\n\n1. Zug (${task.targetPath[0]}): ${t1Count}/${tot}\n2. Zug (${task.targetPath[1]}): ${t2Count}/${totalAfter}\nPfadregel: ${t1Count}/${tot} · ${t2Count}/${totalAfter} ≈ ${(Math.round(expectedPerc * 100) / 100).toString().replace('.',',')} %`,
+        tree: buildProbabilityTree(task.treeColors, isOhne, task.targetPath, tot),
+        sigKey: task.sigKey
+    };
+};
+
 const genWahrscheinlichkeitProblem = (diff) => {
     if (diff === 'leicht') {
-        const colors = ['rot', 'blau', 'grün', 'gelb'];
-        const c1 = colors[Math.floor(Math.random() * colors.length)];
-        let remaining = colors.filter(c => c !== c1);
-        const c2 = remaining[Math.floor(Math.random() * remaining.length)];
+        // — MIT Zurücklegen — viele Szenarien.
+        const scenarios = ['gluecksrad', 'spinner', 'lostrommel', 'wuerfelchen'];
+        const sc = _pick(scenarios);
 
-        const total = Math.floor(Math.random() * 4) * 2 + 6; // 6, 8, 10, 12
-        const count1 = Math.floor(Math.random() * 3) + 2;
-        const count2 = Math.floor(Math.random() * 3) + 2;
+        const colors = ['rot', 'blau', 'grün', 'gelb'];
+        const c1 = _pick(colors);
+        const c2 = _pick(colors.filter(c => c !== c1));
+
+        const total = _pick([6, 8, 10, 12, 15, 16, 20]);
+        const count1 = Math.floor(Math.random() * 3) + 2;          // 2..4
+        let count2 = Math.floor(Math.random() * 3) + 2;             // 2..4
+        if (count1 + count2 >= total) count2 = total - count1 - 1;
         const rest = total - count1 - count2;
 
-        const questionText = `Ein Glücksrad hat ${total} gleich große Felder. Davon sind ${count1} ${c1}, ${count2} ${c2} und der Rest hat andere Farben. Das Rad wird zweimal gedreht. Wie groß ist die Wahrscheinlichkeit, dass erst ${c1} und dann ${c2} gedreht wird?`;
         const expectedPerc = ((count1/total) * (count2/total)) * 100;
-
         const treeColors = [
             { id: c1, count: count1, hex: colorMap[c1] },
             { id: c2, count: count2, hex: colorMap[c2] },
             { id: 'Rest', count: rest, hex: colorMap['Rest'] }
         ];
 
+        let questionText;
+        if (sc === 'gluecksrad') {
+            questionText = `Ein Glücksrad hat ${total} gleich große Felder. Davon sind ${count1} ${c1}, ${count2} ${c2} und der Rest hat andere Farben. Das Rad wird zweimal gedreht. Wie groß ist die Wahrscheinlichkeit, dass erst ${c1} und dann ${c2} gedreht wird?`;
+        } else if (sc === 'spinner') {
+            questionText = `Ein Spielspinner zeigt ${total} gleichberechtigte Symbole: ${count1} ${c1}e Sterne, ${count2} ${c2}e Sterne und ${rest} Sterne in anderen Farben. Du drehst zweimal — wie groß ist die Wahrscheinlichkeit, erst ${c1} und dann ${c2} zu treffen?`;
+        } else if (sc === 'lostrommel') {
+            questionText = `In einer Lostrommel liegen ${total} gleich große Lose: ${count1} ${c1}e, ${count2} ${c2}e und ${rest} andere. Nach jedem Zug wird das Los wieder zurückgelegt. Wie groß ist die Wahrscheinlichkeit, erst ein ${c1}es und dann ein ${c2}es zu ziehen?`;
+        } else {
+            questionText = `Ein Spielwürfel ist auf jeder Seite mit einer Farbe markiert (insgesamt ${total} Seiten). ${count1} sind ${c1}, ${count2} sind ${c2} und ${rest} haben andere Farben. Du würfelst zweimal — wie groß ist die Wahrscheinlichkeit, erst ${c1} und dann ${c2} zu würfeln?`;
+        }
+
         return {
             id: Math.random(), diff, text: questionText,
-            type: 'mit', // Mit Zurücklegen
+            type: 'mit',
             draw1: { top: count1, bot: total },
             draw2: { top: count2, bot: total },
             resultPerc: Math.round(expectedPerc * 100) / 100,
-            explanation: `Das Glücksrad "vergisst" den vorherigen Dreh (Ziehen mit Zurücklegen). \n1. Zug (${c1}): ${count1}/${total}\n2. Zug (${c2}): ${count2}/${total}\nPfadregel: ${count1}/${total} · ${count2}/${total} = ${count1 * count2}/${total * total} ≈ ${(Math.round(expectedPerc * 100) / 100).toString().replace('.',',')} %`,
-            tree: buildProbabilityTree(treeColors, false, [c1, c2], total)
+            explanation: `Mit Zurücklegen — der Nenner bleibt gleich.\n1. Zug (${c1}): ${count1}/${total}\n2. Zug (${c2}): ${count2}/${total}\nPfadregel: ${count1}/${total} · ${count2}/${total} = ${count1 * count2}/${total * total} ≈ ${(Math.round(expectedPerc * 100) / 100).toString().replace('.',',')} %`,
+            tree: buildProbabilityTree(treeColors, false, [c1, c2], total),
+            sigKey: `leicht-${sc}-${total}-${c1}-${count1}-${c2}-${count2}`
         };
     } else if (diff === 'mittel') {
-        const c1 = "rote";
-        const total = Math.floor(Math.random() * 5) + 6; // 6 bis 10
-        const count1 = Math.floor(Math.random() * 2) + 3; // 3 bis 4
+        // — OHNE Zurücklegen, 2 Farben (gleicher Zug × 2).
+        const scenarios = [
+            { sc: 'gummibaerchen', name: 'Gummibärchen', cont: 'einer Tüte', verb: 'isst eines auf', adj: 'rote' },
+            { sc: 'bonbons', name: 'Bonbons', cont: 'einer Schale', verb: 'isst eines auf', adj: 'blaue' },
+            { sc: 'karten', name: 'Karten', cont: 'einem Stapel', verb: 'legt eine zur Seite', adj: 'rote' },
+            { sc: 'kugeln', name: 'Kugeln', cont: 'einer Urne', verb: 'legt eine zur Seite', adj: 'grüne' },
+            { sc: 'lose', name: 'Lose', cont: 'einer Lostrommel', verb: 'behält eines', adj: 'gelbe' },
+            { sc: 'plaettchen', name: 'Plättchen', cont: 'einem Beutel', verb: 'legt eines zur Seite', adj: 'blaue' }
+        ];
+        const s = _pick(scenarios);
+        const total = Math.floor(Math.random() * 8) + 6;            // 6..13
+        const count1 = Math.floor(Math.random() * 4) + 2;           // 2..5
+        const adjBase = s.adj.replace(/e$/, '');                    // "rote"→"rot" für colorMap
 
-        const questionText = `In einer Tüte befinden sich ${count1} ${c1} und ${total - count1} andersfarbige Gummibärchen (insgesamt ${total}). Christiane nimmt ein Gummibärchen blind heraus und isst es auf. Anschließend nimmt sie noch ein zweites. Wie groß ist die Wahrscheinlichkeit, dass beide Gummibärchen ${c1} sind?`;
+        const questionText = `In ${s.cont} sind ${count1} ${s.adj} und ${total - count1} andersfarbige ${s.name} (insgesamt ${total}). Es wird ein ${s.name.replace(/n$/, '').replace(/e$/, '')} blind herausgenommen — der Schüler ${s.verb}. Anschließend wird ein zweites entnommen. Wie groß ist die Wahrscheinlichkeit, dass beide ${s.adj} sind?`;
         const expectedPerc = ((count1/total) * ((count1-1)/(total-1))) * 100;
-
         const treeColors = [
-            { id: 'rote', count: count1, hex: colorMap['rot'] },
+            { id: s.adj, count: count1, hex: colorMap[adjBase] || colorMap['rot'] },
             { id: 'Andere', count: total - count1, hex: colorMap['Andere'] }
         ];
 
         return {
             id: Math.random(), diff, text: questionText,
-            type: 'ohne', // Ohne Zurücklegen
+            type: 'ohne',
             draw1: { top: count1, bot: total },
             draw2: { top: count1 - 1, bot: total - 1 },
             resultPerc: Math.round(expectedPerc * 100) / 100,
-            explanation: `Da Christiane das Gummibärchen isst, ist es ein Versuch "ohne Zurücklegen". \n1. Zug (${c1}): ${count1}/${total}\n2. Zug (${c1}): Es ist ein rotes und ein Bärchen insgesamt weniger! Also ${count1-1}/${total-1}\nPfadregel: ${count1}/${total} · ${count1-1}/${total-1} ≈ ${(Math.round(expectedPerc * 100) / 100).toString().replace('.',',')} %`,
-            tree: buildProbabilityTree(treeColors, true, ['rote', 'rote'], total)
+            explanation: `Ohne Zurücklegen — beim 2. Zug ist eines weniger insgesamt UND eines weniger der gefragten Farbe.\n1. Zug (${s.adj}): ${count1}/${total}\n2. Zug (${s.adj}): ${count1-1}/${total-1}\nPfadregel: ${count1}/${total} · ${count1-1}/${total-1} ≈ ${(Math.round(expectedPerc * 100) / 100).toString().replace('.',',')} %`,
+            tree: buildProbabilityTree(treeColors, true, [s.adj, s.adj], total),
+            sigKey: `mittel-${s.sc}-${total}-${count1}`
         };
-    } else {
-        const total = Math.floor(Math.random() * 6) + 12; // 12 bis 17
-        const countR = Math.floor(Math.random() * 4) + 4; // 4 bis 7 (Rot)
-        const countB = Math.floor(Math.random() * 3) + 3; // 3 bis 5 (Blau)
-        const countG = total - countR - countB; // Rest (Grün)
-
-        const questionText = `In einer Urne liegen ${total} Kugeln. Davon sind ${countR} rote, ${countB} blaue und ${countG} grüne Kugeln. Du ziehst zwei Kugeln nacheinander OHNE Zurücklegen. Wie groß ist die Wahrscheinlichkeit, dass du erst eine rote und dann eine blaue Kugel ziehst?`;
-
-        const expectedPerc = ((countR/total) * (countB/(total-1))) * 100;
-
-        const treeColors = [
-            { id: 'Rot', count: countR, hex: colorMap['rot'] },
-            { id: 'Blau', count: countB, hex: colorMap['blau'] },
-            { id: 'Grün', count: countG, hex: colorMap['grün'] }
+    } else if (diff === 'schwer') {
+        // — OHNE Zurücklegen, 3 Farben (verschiedene Zug × 2).
+        const colorTriples = [
+            { a: 'rot',  b: 'blau', c: 'grün' },
+            { a: 'rot',  b: 'gelb', c: 'blau' },
+            { a: 'blau', b: 'grün', c: 'gelb' },
+            { a: 'gelb', b: 'rot',  c: 'grün' }
         ];
+        const t = _pick(colorTriples);
+
+        const containers = [
+            'In einer Urne liegen',
+            'In einem Sack befinden sich',
+            'Im Beutel sind',
+            'In der Lostrommel liegen'
+        ];
+        const cont = _pick(containers);
+
+        const total = Math.floor(Math.random() * 8) + 12;           // 12..19
+        const countA = Math.floor(Math.random() * 4) + 4;           // 4..7
+        const countB = Math.floor(Math.random() * 4) + 3;           // 3..6
+        const countC = total - countA - countB;
+        if (countC < 2) {
+            // ungeeignete Verteilung → einmal neu (Rekursion)
+            return genWahrscheinlichkeitProblem('schwer');
+        }
+
+        const questionText = `${cont} ${total} Kugeln. Davon sind ${countA} ${t.a}e, ${countB} ${t.b}e und ${countC} ${t.c}e Kugeln. Du ziehst zwei Kugeln nacheinander OHNE Zurücklegen. Wie groß ist die Wahrscheinlichkeit, dass du erst eine ${t.a}e und dann eine ${t.b}e Kugel ziehst?`;
+        const expectedPerc = ((countA/total) * (countB/(total-1))) * 100;
+        const treeColors = [
+            { id: t.a.charAt(0).toUpperCase()+t.a.slice(1), count: countA, hex: colorMap[t.a] },
+            { id: t.b.charAt(0).toUpperCase()+t.b.slice(1), count: countB, hex: colorMap[t.b] },
+            { id: t.c.charAt(0).toUpperCase()+t.c.slice(1), count: countC, hex: colorMap[t.c] }
+        ];
+
+        const aLabel = t.a.charAt(0).toUpperCase()+t.a.slice(1);
+        const bLabel = t.b.charAt(0).toUpperCase()+t.b.slice(1);
 
         return {
             id: Math.random(), diff, text: questionText,
-            type: 'ohne', // Ohne Zurücklegen
-            draw1: { top: countR, bot: total },
+            type: 'ohne',
+            draw1: { top: countA, bot: total },
             draw2: { top: countB, bot: total - 1 },
             resultPerc: Math.round(expectedPerc * 100) / 100,
-            explanation: `Ohne Zurücklegen.\n1. Zug (Rot): ${countR}/${total}\n2. Zug (Blau): ${countB}/${total-1}\nPfadregel: ${countR}/${total} · ${countB}/${total-1} ≈ ${(Math.round(expectedPerc * 100) / 100).toString().replace('.',',')} %`,
-            tree: buildProbabilityTree(treeColors, true, ['Rot', 'Blau'], total)
+            explanation: `Ohne Zurücklegen.\n1. Zug (${t.a}): ${countA}/${total}\n2. Zug (${t.b}): ${countB}/${total-1}\nPfadregel: ${countA}/${total} · ${countB}/${total-1} ≈ ${(Math.round(expectedPerc * 100) / 100).toString().replace('.',',')} %`,
+            tree: buildProbabilityTree(treeColors, true, [aLabel, bLabel], total),
+            sigKey: `schwer-${t.a}${t.b}${t.c}-${total}-${countA}-${countB}`
         };
+    } else {
+        // — Prüfungsaufgaben: Fallback (zufällige). Der Trainer-Code ruft normalerweise
+        //   buildExamProblem direkt mit einem konkreten Index auf.
+        const task = _pick(wahrscheinlichkeitsExamTasks);
+        return buildExamProblem(task);
     }
 };
 
@@ -131,6 +309,12 @@ const WahrscheinlichkeitsTrainer = () => {
     const [errors, setErrors] = useState(0);
     const [tipRevealed, setTipRevealed] = useState(false);
     const [showAnim, setShowAnim] = useState(false);
+    // Letzte Aufgabe-Signatur — verhindert direkt aufeinanderfolgende identische Aufgaben.
+    const [lastSigKey, setLastSigKey] = useState(null);
+    // Prüfungsaufgaben-Pool (durchgemischt) und aktueller Index — verhalten sich wie
+    // bei Bruchgleichungen: Pool wird einmal gemischt, jede Aufgabe einmal durchlaufen.
+    const [examShuffled, setExamShuffled] = useState([]);
+    const [examIdx, setExamIdx] = useState(0);
 
     useEffect(() => { setStorage('smarth_streak_wahrscheinlichkeit', streak); }, [streak]);
     const advance = (nextStep) => { setStep(nextStep); setErrors(0); setTipRevealed(false); };
@@ -142,14 +326,45 @@ const WahrscheinlichkeitsTrainer = () => {
         setInputs({ t1: '', b1: '', t2: '', b2: '', perc: '' }); setInputFeedback({});
         setFinalFeedback(null); setShowSolution(false); setErrors(0); setTipRevealed(false);
 
-        const newProb = genWahrscheinlichkeitProblem(difficulty);
+        let newProb;
+
+        if (difficulty === 'pruefung') {
+            // Prüfungsaufgaben: gemischter Pool, jede Aufgabe einmal durchlaufen.
+            let pool = examShuffled;
+            let idx = examIdx;
+            if (pool.length === 0 || idx >= pool.length) {
+                pool = shuffleArray(wahrscheinlichkeitsExamTasks);
+                idx = 0;
+                setExamShuffled(pool);
+            }
+            newProb = buildExamProblem(pool[idx]);
+            setExamIdx(idx + 1);
+        } else {
+            // Generierte Aufgaben: Anti-Wiederholung über sigKey.
+            let attempts = 0;
+            do {
+                newProb = genWahrscheinlichkeitProblem(difficulty);
+                attempts++;
+            } while (newProb.sigKey === lastSigKey && attempts < 8);
+        }
+
+        setLastSigKey(newProb.sigKey);
         setProblem(newProb);
         setLoading(false);
     };
 
     useEffect(() => { generateProblem(); }, [difficulty]);
 
-    const handleDifficultyChange = (newDiff) => { if (difficulty === newDiff) generateProblem(); else setDifficulty(newDiff); };
+    const handleDifficultyChange = (newDiff) => {
+        // Bei Wechsel ZU Prüfungsaufgaben den Pool zurücksetzen, damit die Reihenfolge
+        // jedes Mal neu gemischt wird.
+        if (newDiff === 'pruefung' && difficulty !== 'pruefung') {
+            setExamShuffled([]);
+            setExamIdx(0);
+        }
+        if (difficulty === newDiff) generateProblem();
+        else setDifficulty(newDiff);
+    };
 
     const handleIdentify = (selected) => {
         if (step > 1 || !problem) return;
@@ -189,6 +404,18 @@ const WahrscheinlichkeitsTrainer = () => {
             setShowSolution(true); advance(5);
         } else { setFinalFeedback('incorrect'); triggerError(); }
     };
+
+    // Liefert Lösungstext für den aktuellen Schritt — TipBox zeigt ihn an,
+    // füllt aber nichts automatisch aus.
+    const getSolutionText = () => {
+        if (!problem) return null;
+        if (step === 1) return `Versuch ${problem.type === 'mit' ? 'mit' : 'ohne'} Zurücklegen.`;
+        if (step === 2) return `1. Zug: ${problem.draw1.top} / ${problem.draw1.bot}`;
+        if (step === 3) return `2. Zug: ${problem.draw2.top} / ${problem.draw2.bot}`;
+        if (step === 4) return `${formatNum(problem.resultPerc)} %`;
+        return null;
+    };
+    const onSolutionShown = () => setStreak(0);
 
     // INTERAKTIVES SVG-BAUMDIAGRAMM MIT FOREIGN-OBJECT EINGABEN
     const renderTree = (node, x, y, width, level) => {
@@ -304,13 +531,21 @@ const WahrscheinlichkeitsTrainer = () => {
                 </div>
             </header>
 
-            <DifficultyMenu theme="violet" active={difficulty} onChange={handleDifficultyChange} options={[{id: 'leicht', label: 'Leicht'}, {id: 'mittel', label: 'Mittel'}, {id: 'schwer', label: 'Schwer'}]} />
+            <DifficultyMenu theme="violet" active={difficulty} onChange={handleDifficultyChange} options={[
+                {id: 'leicht', label: 'Leicht'},
+                {id: 'mittel', label: 'Mittel'},
+                {id: 'schwer', label: 'Schwer'},
+                {id: 'pruefung', label: 'Prüfungsaufgaben'}
+            ]} />
 
             <main className="space-y-6 relative">
                 <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                     <div className="bg-violet-50 px-6 py-3 border-b border-violet-200 flex justify-between items-center">
                         <h2 className="font-semibold text-violet-900 flex items-center"><BookOpen size={18} className="mr-2"/> Sachaufgabe</h2>
-                        <span className="text-xs font-bold px-2 py-1 rounded uppercase tracking-wider bg-violet-200 text-violet-800">Baumdiagramm</span>
+                        {problem?.examLabel
+                            ? <span className="text-xs font-bold px-2 py-1 rounded uppercase tracking-wider bg-amber-200 text-amber-800">{problem.examLabel}</span>
+                            : <span className="text-xs font-bold px-2 py-1 rounded uppercase tracking-wider bg-violet-200 text-violet-800">Baumdiagramm</span>
+                        }
                     </div>
 
                     <div className="p-6 bg-white flex flex-col items-center justify-center text-center">
@@ -328,7 +563,7 @@ const WahrscheinlichkeitsTrainer = () => {
                                 </button>
                             ))}
                         </div>
-                        {step === 1 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} text="Überlege: Verändert sich die Gesamtanzahl nach dem ersten Zug? Wenn jemand etwas aufisst oder 'nicht zurücklegt', ändert sich die Gesamtzahl." />}
+                        {step === 1 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text="Überlege: Verändert sich die Gesamtanzahl nach dem ersten Zug? Wenn jemand etwas aufisst oder 'nicht zurücklegt', ändert sich die Gesamtzahl." />}
                         {step > 1 && <SuccessMark text={`Richtig! Es ist ein Versuch ${problem?.type === 'mit' ? "mit" : "ohne"} Zurücklegen.`} />}
                     </StepCard>
 
@@ -341,17 +576,44 @@ const WahrscheinlichkeitsTrainer = () => {
                             </div>
 
                             {problem?.tree && !loading && (
-                                <div className="w-full bg-slate-50 border border-slate-200 rounded-xl overflow-x-auto p-4 shadow-inner animate-fade-in mb-6">
-                                    <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-2 text-center">Interaktives Baumdiagramm</h3>
-                                    <svg viewBox="0 0 1000 420" className="w-full h-auto min-w-[800px] max-w-4xl mx-auto block overflow-visible">
-                                        {renderTree(problem.tree, 500, 20, 900, 0)}
-                                    </svg>
+                                <>
+                                    {/* Desktop / Tablet (≥ sm): SVG-Baumdiagramm mit foreignObject-Eingaben */}
+                                    <div className="hidden sm:block w-full bg-slate-50 border border-slate-200 rounded-xl overflow-x-auto p-4 shadow-inner animate-fade-in mb-6">
+                                        <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-2 text-center">Interaktives Baumdiagramm</h3>
+                                        <svg viewBox="0 0 1000 420" className="w-full h-auto min-w-[800px] max-w-4xl mx-auto block overflow-visible">
+                                            {renderTree(problem.tree, 500, 20, 900, 0)}
+                                        </svg>
+                                    </div>
+
+                                    {/* Mobile (< sm): vereinfachtes SVG zur Anzeige + große Bruch-Eingaben darunter */}
+                                    <div className="sm:hidden w-full bg-slate-50 border border-slate-200 rounded-xl p-3 shadow-inner animate-fade-in mb-4 overflow-x-auto">
+                                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 text-center">Baumdiagramm (Übersicht)</h3>
+                                        <svg viewBox="0 0 1000 420" className="w-full h-auto min-w-[600px] block overflow-visible">
+                                            {renderTree(problem.tree, 500, 20, 900, 0)}
+                                        </svg>
+                                    </div>
+                                </>
+                            )}
+
+                            {/* Mobile-Eingabe: 1. Zug — gut bedienbar mit großen Feldern */}
+                            <div className="sm:hidden bg-violet-50 border border-violet-200 rounded-xl p-4 mb-3">
+                                <h4 className="text-sm font-bold text-violet-800 mb-2">1. Zug — Bruch eintragen</h4>
+                                <div className="flex justify-center">
+                                    <FractionInputInteraktiv idTop="t1" idBot="b1" valTop={inputs.t1} valBot={inputs.b1} onChange={handleInputChange} disabled={step !== 2} statusTop={inputFeedback.t1} statusBot={inputFeedback.b1} theme="violet" />
+                                </div>
+                            </div>
+                            {step >= 3 && (
+                                <div className="sm:hidden bg-violet-50 border border-violet-200 rounded-xl p-4 mb-3">
+                                    <h4 className="text-sm font-bold text-violet-800 mb-2">2. Zug — Bruch eintragen</h4>
+                                    <div className="flex justify-center">
+                                        <FractionInputInteraktiv idTop="t2" idBot="b2" valTop={inputs.t2} valBot={inputs.b2} onChange={handleInputChange} disabled={step !== 3} statusTop={inputFeedback.t2} statusBot={inputFeedback.b2} theme="violet" />
+                                    </div>
                                 </div>
                             )}
 
-                            {step === 2 && <div className="mt-4 flex justify-between items-center"><TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} text="Zähler (oben): Wie viele passende Stücke gibt es? Nenner (unten): Wie viele Stücke sind es insgesamt am Anfang?" /><SubmitBtn onClick={checkZug1} theme="violet" disabled={!inputs.t1 || !inputs.b1} /></div>}
+                            {step === 2 && <div className="mt-4 flex flex-wrap justify-between items-center gap-2"><TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text="Zähler (oben): Wie viele passende Stücke gibt es? Nenner (unten): Wie viele Stücke sind es insgesamt am Anfang?" /><SubmitBtn onClick={checkZug1} theme="violet" disabled={!inputs.t1 || !inputs.b1} /></div>}
 
-                            {step === 3 && <div className="mt-4 flex justify-between items-end"><TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} text={problem.type === 'ohne' ? "Achtung: Es ist EIN Teil insgesamt weniger im Nenner! Und ist im Zähler auch eins weniger oder war es eine andere Farbe?" : "Da es 'mit Zurücklegen' ist, bleibt der Nenner gleich wie beim 1. Zug."} /><SubmitBtn onClick={checkZug2} theme="violet" disabled={!inputs.t2 || !inputs.b2} /></div>}
+                            {step === 3 && <div className="mt-4 flex flex-wrap justify-between items-end gap-2"><TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text={problem.type === 'ohne' ? "Achtung: Es ist EIN Teil insgesamt weniger im Nenner! Und ist im Zähler auch eins weniger oder war es eine andere Farbe?" : "Da es 'mit Zurücklegen' ist, bleibt der Nenner gleich wie beim 1. Zug."} /><SubmitBtn onClick={checkZug2} theme="violet" disabled={!inputs.t2 || !inputs.b2} /></div>}
 
                             {step > 3 && <SuccessMark text="Alle Brüche im Baumdiagramm sind korrekt eingetragen!" />}
                         </StepCard>
@@ -373,13 +635,13 @@ const WahrscheinlichkeitsTrainer = () => {
                                 {step === 4 && <SubmitBtn onClick={checkFinalResult} theme="violet" disabled={!inputs.perc} />}
                             </div>
                             {step === 4 && <div className="mt-3 flex justify-center"><CalcButton theme="violet" /></div>}
-                            {step === 4 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} text="Zähler mal Zähler, Nenner mal Nenner. Teile dann das obere Ergebnis durch das untere Ergebnis und multipliziere mit 100 für die Prozentzahl (Runde auf 2 Nachkommastellen oder auf ganze Prozent)." />}
+                            {step === 4 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text="Zähler mal Zähler, Nenner mal Nenner. Teile dann das obere Ergebnis durch das untere Ergebnis und multipliziere mit 100 für die Prozentzahl (Runde auf 2 Nachkommastellen oder auf ganze Prozent)." />}
                             {step > 4 && <SuccessMark text="Wahrscheinlichkeit korrekt berechnet!" />}
                         </StepCard>
                     )}
 
                     {step === 5 && (
-                        <SuccessBox showSolutionBtn={true} showSolution={showSolution} onToggleSolution={() => setShowSolution(!showSolution)} onNext={generateProblem} solutionText={problem.explanation} theme="violet" />
+                        <SuccessBox showSolutionBtn={true} showSolution={showSolution} onToggleSolution={() => setShowSolution(!showSolution)} onNext={generateProblem} solutionText={problem.explanation} theme="violet" nextBtnText={difficulty === 'pruefung' ? 'Nächste Prüfung' : 'Nächste Aufgabe'} />
                     )}
                 </div>
             </main>

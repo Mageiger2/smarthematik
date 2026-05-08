@@ -13,18 +13,27 @@ const formatBinoTerm = (coef, letter, isSquared = false) => {
 };
 
 // Normalisiert User-Eingaben für den Vergleich mit der Soll-Lösung.
-// Akzeptiert "x^2" als "x²", entfernt Whitespace, ignoriert Groß/Kleinschreibung,
-// behandelt "1x" wie "x" (führende 1 vor Variable).
+// Akzeptiert "x^2", "x²" und "x2" alle gleich. Entfernt Whitespace,
+// ignoriert Groß/Kleinschreibung, behandelt "1x" wie "x".
 const normalizeBino = (str) => {
     if (str === null || str === undefined) return "";
     return String(str)
         .toLowerCase()
         .replace(/\s+/g, '')
         .replace(/,/g, '.')
+        // ^N → Unicode-Hochzahl (kanonische Form)
         .replace(/\^2/g, '²')
         .replace(/\^3/g, '³')
         .replace(/\^4/g, '⁴')
+        .replace(/\^5/g, '⁵')
         .replace(/\^6/g, '⁶')
+        // Variable+Ziffer ohne ^ → kanonische Form (z.B. "x2" → "x²")
+        .replace(/([a-z])2(?!\d)/g, '$1²')
+        .replace(/([a-z])3(?!\d)/g, '$1³')
+        .replace(/([a-z])4(?!\d)/g, '$1⁴')
+        .replace(/([a-z])5(?!\d)/g, '$1⁵')
+        .replace(/([a-z])6(?!\d)/g, '$1⁶')
+        // Führende 1 vor Variable streichen ("1x" → "x")
         .replace(/^1([a-z])/i, '$1');
 };
 
@@ -148,22 +157,25 @@ const BinformelnTrainer = () => {
     const [examIdx, setExamIdx] = useState(0);
     const [errorMsg, setErrorMsg] = useState("");
     const [solved, setSolved] = useState(false);
-    const [solvedByHelp, setSolvedByHelp] = useState(false);
+    const [solutionRevealed, setSolutionRevealed] = useState(false);
     const [activeInputId, setActiveInputId] = useState(null);
     const [streak, setStreak] = useState(() => getStorage('smarth_streak_binformeln', 0));
     const [showAnim, setShowAnim] = useState(false);
+    // taskKey wird nur bei wirklichem Aufgabenwechsel hochgezählt — verhindert,
+    // dass der Auto-Focus bei jedem Tastendruck zur ersten Lücke springt.
+    const [taskKey, setTaskKey] = useState(0);
     const firstInputRef = React.useRef(null);
 
     useEffect(() => { setStorage('smarth_streak_binformeln', streak); }, [streak]);
 
     // Auto-Focus auf die erste Eingabe-Box, sobald eine neue Aufgabe geladen wird.
     useEffect(() => {
-        if (firstInputRef.current && !solved) firstInputRef.current.focus();
-    }, [problem]);
+        if (firstInputRef.current) firstInputRef.current.focus();
+    }, [taskKey]);
 
     const generateNew = (diffOverride) => {
         const diff = diffOverride || difficulty;
-        setErrorMsg(""); setSolved(false); setSolvedByHelp(false); setActiveInputId(null);
+        setErrorMsg(""); setSolved(false); setSolutionRevealed(false); setActiveInputId(null);
         if (diff === 'pruefung') {
             let pool = examShuffled;
             let idx = examIdx;
@@ -178,6 +190,7 @@ const BinformelnTrainer = () => {
             const lvlMap = { leicht: 1, mittel: 2, schwer: 3 };
             setProblem(buildDynamicTask(lvlMap[diff]));
         }
+        setTaskKey(k => k + 1);
     };
 
     const handleDifficultyChange = (newDiff) => {
@@ -195,7 +208,8 @@ const BinformelnTrainer = () => {
                 const lvlMap = { leicht: 1, mittel: 2, schwer: 3 };
                 setProblem(buildDynamicTask(lvlMap[newDiff]));
             }
-            setErrorMsg(""); setSolved(false); setSolvedByHelp(false); setActiveInputId(null);
+            setErrorMsg(""); setSolved(false); setSolutionRevealed(false); setActiveInputId(null);
+            setTaskKey(k => k + 1);
         }
     };
 
@@ -236,29 +250,28 @@ const BinformelnTrainer = () => {
         if (allCorrect) {
             setErrorMsg("");
             setSolved(true);
-            const newStreak = streak + 1;
-            setStreak(newStreak);
-            if (newStreak > 0 && newStreak % 3 === 0) triggerCelebration(setShowAnim);
+            // Wenn die Lösung sichtbar war, zählt es nicht für den Streak.
+            if (!solutionRevealed) {
+                const newStreak = streak + 1;
+                setStreak(newStreak);
+                if (newStreak > 0 && newStreak % 3 === 0) triggerCelebration(setShowAnim);
+            }
         } else {
             setErrorMsg("Noch nicht ganz richtig. Streak zurückgesetzt.");
             setStreak(0);
         }
     };
 
+    // Lösung NUR anzeigen (kein Autofill — der Schüler muss noch selbst tippen).
+    // Streak wird auf 0 gesetzt; "solved" bleibt false, damit weiter eingegeben werden kann.
     const showSolution = () => {
-        const newInputs = {};
-        Object.entries(problem.inputs).forEach(([id, inp]) => {
-            newInputs[id] = { ...inp, value: inp.answers[0], status: 'solved' };
-        });
-        setProblem(prev => ({ ...prev, inputs: newInputs }));
-        setSolved(true);
-        setSolvedByHelp(true);
+        setSolutionRevealed(true);
         setErrorMsg("");
         setStreak(0);
     };
 
     const inputClass = (status) => {
-        const base = 'text-center border-b-4 mx-1 md:mx-2 outline-none font-bold rounded-t-md transition-all py-1 font-math';
+        const base = 'text-center border-b-4 mx-1 md:mx-2 outline-none rounded-t-md transition-all py-1 font-math';
         if (status === 'correct') return `${base} border-green-500 bg-green-100 text-green-800`;
         if (status === 'incorrect') return `${base} border-red-500 bg-red-50 text-red-800 focus:bg-white`;
         if (status === 'solved') return `${base} border-amber-500 bg-amber-100 text-amber-800`;
@@ -291,7 +304,18 @@ const BinformelnTrainer = () => {
         return null;
     };
 
-    const helperKeys = ['²', '³', '⁴', 'x', 'y', 'a', 'b', 'c', 'd', 'z', '+', '-'];
+    // Für ²/³/⁴ rendern wir <sup>n</sup> in einheitlicher Größe — Unicode-Hochzahlen
+    // werden je nach Schriftart unterschiedlich groß dargestellt.
+    const helperKeys = [
+        { char: '²', display: <sup className="text-lg font-bold leading-none">2</sup> },
+        { char: '³', display: <sup className="text-lg font-bold leading-none">3</sup> },
+        { char: '⁴', display: <sup className="text-lg font-bold leading-none">4</sup> },
+        { char: 'x', display: 'x' }, { char: 'y', display: 'y' },
+        { char: 'a', display: 'a' }, { char: 'b', display: 'b' },
+        { char: 'c', display: 'c' }, { char: 'd', display: 'd' },
+        { char: 'z', display: 'z' },
+        { char: '+', display: '+' }, { char: '-', display: '−' }
+    ];
 
     return (
         <div className="page-transition max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -326,7 +350,7 @@ const BinformelnTrainer = () => {
                     </div>
 
                     <div className="p-6 md:p-10">
-                        <div className="text-2xl md:text-3xl text-slate-800 font-semibold leading-relaxed flex flex-wrap justify-center items-center gap-y-4 font-math min-h-[120px]">
+                        <div className="text-2xl md:text-3xl text-slate-800 leading-relaxed flex flex-wrap justify-center items-center gap-x-2 sm:gap-x-3 gap-y-4 font-math min-h-[120px]">
                             {problem.tokens.map(renderToken)}
                         </div>
 
@@ -336,12 +360,12 @@ const BinformelnTrainer = () => {
                             <div className="flex flex-wrap justify-center gap-2">
                                 {helperKeys.map(k => (
                                     <button
-                                        key={k}
+                                        key={k.char}
                                         type="button"
-                                        onClick={() => insertChar(k)}
+                                        onClick={() => insertChar(k.char)}
                                         disabled={solved}
-                                        className={`bg-white border border-slate-300 hover:bg-teal-50 hover:border-teal-400 text-slate-700 px-4 py-2 rounded shadow-sm font-bold transition disabled:opacity-50 disabled:cursor-not-allowed font-math`}
-                                    >{k}</button>
+                                        className="bg-white border border-slate-300 hover:bg-teal-50 hover:border-teal-400 text-slate-700 w-12 h-12 rounded shadow-sm font-bold transition disabled:opacity-50 disabled:cursor-not-allowed font-math text-xl flex items-center justify-end pr-2"
+                                    >{k.display}</button>
                                 ))}
                             </div>
                         </div>
@@ -352,21 +376,41 @@ const BinformelnTrainer = () => {
                             </div>
                         )}
 
+                        {/* Lösungs-Anzeige als Text — Schüler muss selbst eintippen */}
+                        {solutionRevealed && !solved && (
+                            <div className="mt-4 bg-rose-50 border-l-4 border-rose-500 p-4 rounded shadow-sm text-rose-900 animate-fade-in">
+                                <div className="flex items-start gap-3">
+                                    <BookOpen className="w-6 h-6 shrink-0 text-rose-600 mt-0.5" />
+                                    <div>
+                                        <strong className="block mb-1 text-rose-800">Lösung (in Reihenfolge der Lücken):</strong>
+                                        <div className="font-math text-lg flex flex-wrap gap-x-3 gap-y-1">
+                                            {Object.values(problem.inputs).map((inp, idx) => (
+                                                <span key={idx} className="bg-white/60 px-2 py-0.5 rounded border border-rose-200">{inp.answers[0]}</span>
+                                            ))}
+                                        </div>
+                                        <p className="text-xs mt-2 text-rose-700">Tippe sie nun selbst in die Felder ein.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                         {!solved && (
                             <div className="mt-6 flex flex-wrap justify-center gap-3">
                                 <button onClick={checkAnswers} className="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-8 rounded-xl shadow-md transition-colors flex items-center gap-2">
                                     <CheckCircle className="w-5 h-5" /> Prüfen
                                 </button>
-                                <button onClick={showSolution} className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 px-6 rounded-xl transition-colors flex items-center gap-2 border border-slate-200">
-                                    <BookOpen className="w-5 h-5" /> Lösung
-                                </button>
+                                {!solutionRevealed && (
+                                    <button onClick={showSolution} className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 px-6 rounded-xl transition-colors flex items-center gap-2 border border-slate-200">
+                                        <BookOpen className="w-5 h-5" /> Lösung anzeigen
+                                    </button>
+                                )}
                             </div>
                         )}
 
                         {solved && (
                             <SuccessBox
-                                text={solvedByHelp ? "Lösung angezeigt" : "Klasse gemacht! 🎉"}
-                                subtitle={solvedByHelp ? "Beim nächsten Mal klappt's ohne Hilfe!" : "Alle Lücken sind richtig ausgefüllt."}
+                                text="Klasse gemacht! 🎉"
+                                subtitle={solutionRevealed ? "Geschafft — Streak bleibt 0 weil Lösung sichtbar war." : "Alle Lücken sind richtig ausgefüllt."}
                                 onNext={() => generateNew()}
                                 nextBtnText={difficulty === 'pruefung' ? 'Nächste Prüfung' : 'Nächste Aufgabe'}
                                 theme="teal"

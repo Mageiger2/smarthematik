@@ -17,6 +17,13 @@ body { background-color: #f8fafc; }
 ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 .font-math { font-family: 'Times New Roman', Times, serif; }
+/* Variante für mathematische Variablen — kursiv (z.B. im Potenzen-Trainer für x, y, z). */
+.font-math-italic { font-family: 'Times New Roman', Times, serif; font-style: italic; }
+
+/* Number-Inputs ohne Spinner-Pfeile — saubere Eingabefelder im Taschenrechner-Stil. */
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+input[type=number] { -moz-appearance: textfield; appearance: textfield; }
 
 /* Damit foreignObject im SVG-Baumdiagramm absolute Kinder (z.B. CheckCircle) nicht clippt */
 svg foreignObject { overflow: visible; }
