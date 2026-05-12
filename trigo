@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MSA Vorbereitung: Trigonometrie & Satzgruppe des Pythagoras</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://www.geogebra.org/apps/deployggb.js"></script>
+
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6; }
+        .math-text { font-family: 'Cambria Math', 'Times New Roman', serif; font-style: italic; }
+        .step-enter { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #3b82f6; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // ==========================================
+        // 1. MATHEMATISCHES KERNMODUL
+        // ==========================================
+        const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+        const generateTriangle = () => {
+            const triples = [
+                {a: 6, b: 8, c: 10}, {a: 9, b: 12, c: 15}, {a: 5, b: 12, c: 13}, 
+                {a: 12, b: 16, c: 20}, {a: 15, b: 20, c: 25}, {a: 8, b: 15, c: 17},
+                {a: 10, b: 24, c: 26}, {a: 18, b: 24, c: 30}
+            ];
+            
+            let t = triples[getRandomInt(0, triples.length - 1)];
+            if (Math.random() > 0.5) { t = {a: t.b, b: t.a, c: t.c}; } 
+
+            const q = Number(((t.b * t.b) / t.c).toFixed(1)); 
+            const p = Number(((t.a * t.a) / t.c).toFixed(1)); 
+            const h = Number(((t.a * t.b) / t.c).toFixed(1)); 
+            
+            const alpha = Number((Math.asin(t.a / t.c) * 180 / Math.PI).toFixed(1));
+            const beta = Number((Math.asin(t.b / t.c) * 180 / Math.PI).toFixed(1));
+
+            return { ...t, p, q, h, alpha, beta };
+        };
+
+        const getViewport = (tri, mode) => {
+            let neededX, neededY;
+            if (mode === "standard") {
+                neededX = tri.b + 4;
+                neededY = tri.a + 4;
+            } else {
+                neededX = tri.c + 4;
+                neededY = tri.h + 5;
+            }
+            
+            let yMin = -3, xMin = -2;
+            let ySpan = neededY - yMin;
+            let xSpan = ySpan * (600 / 320); 
+            
+            if (neededX - xMin > xSpan) {
+                xSpan = neededX - xMin;
+                ySpan = xSpan / (600 / 320);
+            }
+            return { xMin, xMax: xMin + xSpan, yMin, yMax: yMin + ySpan };
+        };
+
+        const buildGGBBase = (tri, colorRGB = "30, 64, 175", mode = "standard") => {
+            let cmds = [];
+            if (mode === "standard") {
+                cmds = [
+                    `A=(0,0)`, `SetFixed(A,true)`,
+                    `C=(${tri.b},0)`, `SetFixed(C,true)`,
+                    `B=(${tri.b},${tri.a})`, `SetFixed(B,true)`,
+                    `Poly=Polygon(A,C,B)`, `SetFilling(Poly, 0.1)`, `SetColor(Poly, ${colorRGB})`,
+                    `sc=Segment(A,B)`, `sa=Segment(C,B)`, `sb=Segment(A,C)`,
+                    `SetLineThickness(sc, 4)`, `SetLineThickness(sa, 4)`, `SetLineThickness(sb, 4)`,
+                    `SetColor(sc, 0,0,0)`, `SetColor(sa, 0,0,0)`, `SetColor(sb, 0,0,0)`,
+                    // SetAngleStyle(..., 0) zwingt GGB zu runden Winkeln anstatt Rechtecken
+                    `ang90 = Angle(A,C,B)`, `SetFixed(ang90, true)`, `ShowLabel(ang90, false)`, `SetAngleStyle(ang90, 0)`
+                ];
+            } else {
+                cmds = [
+                    `A=(0,0)`, `SetFixed(A,true)`,
+                    `B=(${tri.c},0)`, `SetFixed(B,true)`,
+                    `C=(${tri.q},${tri.h})`, `SetFixed(C,true)`,
+                    `Poly=Polygon(A,B,C)`, `SetFilling(Poly, 0.1)`, `SetColor(Poly, ${colorRGB})`,
+                    `sc=Segment(A,B)`, `sa=Segment(B,C)`, `sb=Segment(C,A)`,
+                    `SetLineThickness(sc, 4)`, `SetLineThickness(sa, 4)`, `SetLineThickness(sb, 4)`,
+                    `SetColor(sc, 0,0,0)`, `SetColor(sa, 0,0,0)`, `SetColor(sb, 0,0,0)`,
+                    `ang90 = Angle(B,C,A)`, `SetFixed(ang90, true)`, `ShowLabel(ang90, false)`, `SetAngleStyle(ang90, 0)`,
+                    `D=(${tri.q},0)`, `SetFixed(D,true)`,
+                    `hSeg=Segment(C,D)`, `SetLineThickness(hSeg, 4)`, `SetLineStyle(hSeg, 2)`, `SetColor(hSeg, 0,0,0)`,
+                    `ang90_2 = Angle(C,D,B)`, `SetFixed(ang90_2, true)`, `ShowLabel(ang90_2, false)`, `SetAngleStyle(ang90_2, 0)`
+                ];
+            }
+            return cmds;
+        };
+
+        // ==========================================
+        // 2. AUFGABEN-GENERATOREN (Level 1 - 3)
+        // ==========================================
+
+        const generateLevel1 = () => {
+            const tri = generateTriangle();
+            const type = getRandomInt(1, 6);
+            const id = "l1_" + Date.now();
+            let title, desc, mode, ggb, steps;
+
+            switch(type) {
+                case 1: 
+                    mode = "standard"; title = "Level 1: Sinus anwenden";
+                    desc = `Gegeben ist die Hypotenuse c = ${tri.c} cm und der Winkel α = ${tri.alpha}°. Berechne die Gegenkathete a.`;
+                    ggb = buildGGBBase(tri, "30, 64, 175", mode);
+                    ggb.push(`angA=Angle(C,A,B)`, `SetCaption(angA, "${tri.alpha}°")`, `SetLabelMode(angA, 3)`, `SetAngleStyle(angA, 0)`, `Text("c = ${tri.c}", (${tri.b/2 - 1.5}, ${tri.a/2 + 0.5}))`, `Text("a = ?", (${tri.b + 0.5}, ${tri.a/2}))`);
+                    steps = [
+                        { id: 1, goal: "Wähle die Formel.", type: "formula_selection", options: ["sin(α) = GK / HYP", "cos(α) = AK / HYP", "tan(α) = GK / AK"], correctAnswer: "sin(α) = GK / HYP", feedback: "Du suchst die Gegenkathete und hast die Hypotenuse." },
+                        { id: 2, goal: "Werte einsetzen.", type: "substitution", template: "sin( [input1] °) = [input2] / [input3]", correctInputs: [tri.alpha.toString(), "a", tri.c.toString()], feedback: "Winkel, gesuchte Seite, Hypotenuse." },
+                        { id: 3, goal: "Berechne a.", type: "calculation", template: "a = [input] cm", correctAnswer: tri.a.toString(), tolerance: 0.2, feedback: `a = ${tri.c} · sin(${tri.alpha}°)` }
+                    ]; break;
+                case 2: 
+                    mode = "standard"; title = "Level 1: Cosinus anwenden";
+                    desc = `Gegeben ist die Hypotenuse c = ${tri.c} cm und der Winkel α = ${tri.alpha}°. Berechne die Ankathete b.`;
+                    ggb = buildGGBBase(tri, "21, 128, 61", mode);
+                    ggb.push(`angA=Angle(C,A,B)`, `SetCaption(angA, "${tri.alpha}°")`, `SetLabelMode(angA, 3)`, `SetAngleStyle(angA, 0)`, `Text("c = ${tri.c}", (${tri.b/2 - 1.5}, ${tri.a/2 + 0.5}))`, `Text("b = ?", (${tri.b/2}, -1))`);
+                    steps = [
+                        { id: 1, goal: "Wähle die Formel.", type: "formula_selection", options: ["sin(α) = GK / HYP", "cos(α) = AK / HYP", "tan(α) = GK / AK"], correctAnswer: "cos(α) = AK / HYP", feedback: "Du suchst die Ankathete und hast die Hypotenuse." },
+                        { id: 2, goal: "Werte einsetzen.", type: "substitution", template: "cos( [input1] °) = [input2] / [input3]", correctInputs: [tri.alpha.toString(), "b", tri.c.toString()], feedback: "Winkel, gesuchte Seite, Hypotenuse." },
+                        { id: 3, goal: "Berechne b.", type: "calculation", template: "b = [input] cm", correctAnswer: tri.b.toString(), tolerance: 0.2, feedback: `b = ${tri.c} · cos(${tri.alpha}°)` }
+                    ]; break;
+                case 3: 
+                    mode = "standard"; title = "Level 1: Tangens anwenden";
+                    desc = `Gegeben ist die Ankathete b = ${tri.b} cm und der Winkel α = ${tri.alpha}°. Berechne die Gegenkathete a.`;
+                    ggb = buildGGBBase(tri, "202, 138, 4", mode);
+                    ggb.push(`angA=Angle(C,A,B)`, `SetCaption(angA, "${tri.alpha}°")`, `SetLabelMode(angA, 3)`, `SetAngleStyle(angA, 0)`, `Text("b = ${tri.b}", (${tri.b/2}, -1))`, `Text("a = ?", (${tri.b + 0.5}, ${tri.a/2}))`);
+                    steps = [
+                        { id: 1, goal: "Wähle die Formel.", type: "formula_selection", options: ["sin(α) = GK / HYP", "cos(α) = AK / HYP", "tan(α) = GK / AK"], correctAnswer: "tan(α) = GK / AK", feedback: "Ankathete ist gegeben, Gegenkathete wird gesucht." },
+                        { id: 2, goal: "Werte einsetzen.", type: "substitution", template: "tan( [input1] °) = [input2] / [input3]", correctInputs: [tri.alpha.toString(), "a", tri.b.toString()], feedback: "Winkel, Gegenkathete (a), Ankathete (b)." },
+                        { id: 3, goal: "Berechne a.", type: "calculation", template: "a = [input] cm", correctAnswer: tri.a.toString(), tolerance: 0.2, feedback: `a = ${tri.b} · tan(${tri.alpha}°)` }
+                    ]; break;
+                case 4: 
+                    mode = "standard"; title = "Level 1: Winkel berechnen";
+                    desc = `Gegeben ist die Hypotenuse c = ${tri.c} cm und die Gegenkathete a = ${tri.a} cm. Berechne den Winkel α.`;
+                    ggb = buildGGBBase(tri, "147, 51, 234", mode);
+                    ggb.push(`angA=Angle(C,A,B)`, `SetCaption(angA, "α = ?")`, `SetLabelMode(angA, 3)`, `SetAngleStyle(angA, 0)`, `Text("c = ${tri.c}", (${tri.b/2 - 1.5}, ${tri.a/2 + 0.5}))`, `Text("a = ${tri.a}", (${tri.b + 0.5}, ${tri.a/2}))`);
+                    steps = [
+                        { id: 1, goal: "Wähle die Formel.", type: "formula_selection", options: ["sin(α) = GK / HYP", "cos(α) = AK / HYP", "tan(α) = GK / AK"], correctAnswer: "sin(α) = GK / HYP", feedback: "GK und HYP sind gegeben." },
+                        { id: 2, goal: "Werte einsetzen.", type: "substitution", template: "sin( α ) = [input1] / [input2]", correctInputs: [tri.a.toString(), tri.c.toString()], feedback: "GK oben, HYP unten." },
+                        { id: 3, goal: "Berechne α.", type: "calculation", template: "α = [input] °", correctAnswer: tri.alpha.toString(), tolerance: 0.5, feedback: `Nutze sin⁻¹(${tri.a}/${tri.c}).` }
+                    ]; break;
+                case 5: 
+                    mode = "hypo_bottom"; title = "Level 1: Höhensatz";
+                    desc = `Die Höhe h teilt die Hypotenuse in p = ${tri.p} cm und q = ${tri.q} cm. Berechne die Höhe h.`;
+                    ggb = buildGGBBase(tri, "220, 38, 38", mode);
+                    ggb.push(`Text("q = ${tri.q}", (${tri.q/2 - 0.5}, -1))`, `Text("p = ${tri.p}", (${tri.q + tri.p/2 - 0.5}, -1))`, `Text("h = ?", (${tri.q + 0.3}, ${tri.h/2}))`);
+                    steps = [
+                        { id: 1, goal: "Wähle die Formel.", type: "formula_selection", options: ["h² = p · q", "a² = c · p", "b² = c · q"], correctAnswer: "h² = p · q", feedback: "Wenn p und q gegeben sind, hilft der Höhensatz." },
+                        { id: 2, goal: "Werte einsetzen.", type: "substitution", template: "h² = [input1] · [input2]", correctInputs: [tri.q.toString(), tri.p.toString()], feedback: "Setze q und p ein." },
+                        { id: 3, goal: "Berechne h.", type: "calculation", template: "h = [input] cm", correctAnswer: tri.h.toString(), tolerance: 0.2, feedback: `Wurzel aus (${tri.p} · ${tri.q})` }
+                    ]; break;
+                case 6: 
+                    mode = "hypo_bottom"; title = "Level 1: Kathetensatz";
+                    desc = `Gegeben ist die Hypotenuse c = ${tri.c} cm und der Hypotenusenabschnitt p = ${tri.p} cm. Berechne die Kathete a.`;
+                    ggb = buildGGBBase(tri, "225, 29, 72", mode);
+                    ggb.push(`Text("c = ${tri.c}", (${tri.c/2}, -1.5))`, `Text("p = ${tri.p}", (${tri.q + tri.p/2 - 0.5}, -0.7))`, `Text("a = ?", (${tri.q + tri.p/2 + 0.5}, ${tri.h/2 + 0.5}))`);
+                    steps = [
+                        { id: 1, goal: "Wähle die Formel.", type: "formula_selection", options: ["h² = p · q", "a² = c · p", "b² = c · q"], correctAnswer: "a² = c · p", feedback: "Kathete a, Hypotenuse c und Abschnitt p -> Kathetensatz!" },
+                        { id: 2, goal: "Werte einsetzen.", type: "substitution", template: "a² = [input1] · [input2]", correctInputs: [tri.c.toString(), tri.p.toString()], feedback: "Setze c und p ein." },
+                        { id: 3, goal: "Berechne a.", type: "calculation", template: "a = [input] cm", correctAnswer: tri.a.toString(), tolerance: 0.2, feedback: `Wurzel aus (${tri.c} · ${tri.p})` }
+                    ]; break;
+            }
+            return { id, level: 1, title, description: desc, ggbCommands: ggb, viewport: getViewport(tri, mode), steps };
+        };
+
+        const generateLevel2 = () => {
+            const tri = generateTriangle();
+            const type = getRandomInt(1, 3);
+            const id = "l2_" + Date.now();
+            let title, desc, mode, ggb, steps;
+
+            switch(type) {
+                case 1:
+                    mode = "hypo_bottom"; title = "Level 2: Höhe und Kathete";
+                    desc = `Gegeben sind die Hypotenusenabschnitte p = ${tri.p} cm und q = ${tri.q} cm. Berechne erst die Höhe h und danach Kathete a.`;
+                    ggb = buildGGBBase(tri, "30, 64, 175", mode);
+                    ggb.push(`Text("q = ${tri.q}", (${tri.q/2 - 0.5}, -1))`, `Text("p = ${tri.p}", (${tri.q + tri.p/2 - 0.5}, -1))`, `Text("h = ?", (${tri.q + 0.3}, ${tri.h/2}))`, `Text("a = ?", (${tri.q + tri.p/2 + 0.5}, ${tri.h/2 + 0.5}))`);
+                    steps = [
+                        { id: 1, goal: "Schritt 1: Wähle die Formel zur Berechnung der Höhe h.", type: "formula_selection", options: ["h² = p · q", "a² = c · p"], correctAnswer: "h² = p · q", feedback: "Nutze den Höhensatz!" },
+                        { id: 2, goal: "Berechne h.", type: "calculation", template: "h = [input] cm", correctAnswer: tri.h.toString(), tolerance: 0.2, feedback: `h² = ${tri.p * tri.q}. Ziehe die Wurzel.` },
+                        { id: 3, goal: "Schritt 2: Wähle die Formel für Kathete a.", type: "formula_selection", options: ["a² = c · p", "h² = p · q"], correctAnswer: "a² = c · p", feedback: "Nutze den Kathetensatz für a!" },
+                        { id: 4, goal: `Berechne a (Hinweis: c = p+q = ${tri.c}).`, type: "calculation", template: "a = [input] cm", correctAnswer: tri.a.toString(), tolerance: 0.2, feedback: `a² = ${tri.c} · ${tri.p}. Wurzel ziehen!` }
+                    ]; break;
+                case 2: 
+                    mode = "hypo_bottom"; title = "Level 2: Kathetensatz rückwärts";
+                    desc = `Gegeben ist die Hypotenuse c = ${tri.c} cm und Kathete b = ${tri.b} cm. Berechne zuerst den Abschnitt q und danach die Höhe h.`;
+                    ggb = buildGGBBase(tri, "21, 128, 61", mode);
+                    ggb.push(`Text("c = ${tri.c}", (${tri.c/2}, -1.5))`, `Text("b = ${tri.b}", (${tri.q/2 - 1}, ${tri.h/2 + 0.5}))`, `Text("q = ?", (${tri.q/2 - 0.5}, -0.7))`, `Text("h = ?", (${tri.q + 0.3}, ${tri.h/2}))`);
+                    steps = [
+                        { id: 1, goal: "Schritt 1: Wähle die Formel, um q zu berechnen.", type: "formula_selection", options: ["b² = c · q", "h² = p · q"], correctAnswer: "b² = c · q", feedback: "Kathetensatz für b!" },
+                        { id: 2, goal: "Berechne q.", type: "calculation", template: "q = [input] cm", correctAnswer: tri.q.toString(), tolerance: 0.2, feedback: `q = b² / c = ${tri.b * tri.b} / ${tri.c}` },
+                        { id: 3, goal: `Schritt 2: Berechne den fehlenden Abschnitt p.`, type: "calculation", template: "p = [input] cm", correctAnswer: tri.p.toString(), tolerance: 0.2, feedback: `p = c - q = ${tri.c} - ${tri.q}` },
+                        { id: 4, goal: "Berechne nun die Höhe h mit dem Höhensatz.", type: "calculation", template: "h = [input] cm", correctAnswer: tri.h.toString(), tolerance: 0.2, feedback: `h = Wurzel aus (${tri.p} · ${tri.q})` }
+                    ]; break;
+                case 3: 
+                    mode = "standard"; title = "Level 2: Trigonometrie Mix";
+                    desc = `Gegeben ist die Hypotenuse c = ${tri.c} cm und die Kathete a = ${tri.a} cm. Berechne erst den Winkel α und danach den Winkel β.`;
+                    ggb = buildGGBBase(tri, "202, 138, 4", mode);
+                    ggb.push(`angA=Angle(C,A,B)`, `SetCaption(angA, "α = ?")`, `SetLabelMode(angA, 3)`, `SetAngleStyle(angA, 0)`, `angB=Angle(A,B,C)`, `SetCaption(angB, "β = ?")`, `SetLabelMode(angB, 3)`, `SetAngleStyle(angB, 0)`, `Text("c = ${tri.c}", (${tri.b/2 - 1.5}, ${tri.a/2 + 0.5}))`, `Text("a = ${tri.a}", (${tri.b + 0.5}, ${tri.a/2}))`);
+                    steps = [
+                        { id: 1, goal: "Schritt 1: Wähle die Formel für Winkel α.", type: "formula_selection", options: ["sin(α) = a / c", "cos(α) = a / c"], correctAnswer: "sin(α) = a / c", feedback: "Gegenkathete durch Hypotenuse ist Sinus." },
+                        { id: 2, goal: "Berechne α.", type: "calculation", template: "α = [input] °", correctAnswer: tri.alpha.toString(), tolerance: 0.5, feedback: `Nutze sin⁻¹(${tri.a}/${tri.c})` },
+                        { id: 3, goal: "Schritt 2: Berechne Winkel β über die Winkelsumme im Dreieck (180°).", type: "calculation", template: "β = [input] °", correctAnswer: tri.beta.toString(), tolerance: 0.5, feedback: `180° - 90° - ${tri.alpha}°` }
+                    ]; break;
+            }
+            return { id, level: 2, title, description: desc, ggbCommands: ggb, viewport: getViewport(tri, mode), steps };
+        };
+
+        const generateLevel3 = () => {
+            const tri = generateTriangle();
+            const id = "l3_" + Date.now();
+            const mode = "hypo_bottom";
+            
+            const title = "Level 3: Schwer (3 Formeln kombiniert)";
+            const desc = `In einem rechtwinkligen Dreieck kennst du die Höhe h = ${tri.h} cm und den Abschnitt p = ${tri.p} cm. Berechne schrittweise q, die Hypotenuse c und schließlich Kathete b.`;
+            const ggb = buildGGBBase(tri, "220, 38, 38", mode);
+            ggb.push(`Text("p = ${tri.p}", (${tri.q + tri.p/2 - 0.5}, -1))`, `Text("h = ${tri.h}", (${tri.q + 0.3}, ${tri.h/2}))`, `Text("q = ?", (${tri.q/2 - 0.5}, -1))`, `Text("b = ?", (${tri.q/2 - 1}, ${tri.h/2 + 0.5}))`);
+            
+            const steps = [
+                { id: 1, goal: "Schritt 1: Wähle die Formel, um q zu berechnen.", type: "formula_selection", options: ["h² = p · q", "b² = c · q"], correctAnswer: "h² = p · q", feedback: "Nutze den Höhensatz und stelle ihn nach q um." },
+                { id: 2, goal: "Berechne q.", type: "calculation", template: "q = [input] cm", correctAnswer: tri.q.toString(), tolerance: 0.2, feedback: `q = h² / p = ${tri.h * tri.h} / ${tri.p}` },
+                { id: 3, goal: "Schritt 2: Berechne die gesamte Hypotenuse c.", type: "calculation", template: "c = [input] cm", correctAnswer: tri.c.toString(), tolerance: 0.2, feedback: `c = p + q` },
+                { id: 4, goal: "Schritt 3: Wähle die Formel, um b zu berechnen.", type: "formula_selection", options: ["b² = c · q", "a² = c · p"], correctAnswer: "b² = c · q", feedback: "Kathetensatz für Seite b!" },
+                { id: 5, goal: "Berechne b.", type: "calculation", template: "b = [input] cm", correctAnswer: tri.b.toString(), tolerance: 0.2, feedback: `b² = ${tri.c} · ${tri.q}. Wurzel ziehen.` }
+            ];
+
+            return { id, level: 3, title, description: desc, ggbCommands: ggb, viewport: getViewport(tri, mode), steps };
+        };
+
+        // ==========================================
+        // 3. FESTE MSA-AUFGABEN (LEVEL 4)
+        // ==========================================
+        const msaTasks = [
+            {
+                id: "msa_2010", level: 4, title: "MSA 2010 (Verhältnis & Höhensatz)",
+                description: "Im rechtwinkligen Dreieck ABC teilt die Höhe h = 10 cm die Hypotenuse im Verhältnis AD : DB = 4 : 1. Berechne die Kathete BC (a) und den Winkel α.",
+                viewport: { xMin: -2, xMax: 29, yMin: -3, yMax: 13.5 },
+                ggbCommands: [
+                    ...buildGGBBase({c: 25, q: 20, h: 10}, "185, 28, 28", "hypo_bottom"),
+                    "t1 = Text(\"h = 10\", (20.3, 5))", "t2 = Text(\"AD (q) = 4x\", (8, -1.2))", "t3 = Text(\"DB (p) = 1x\", (21, -1.2))",
+                    "t4 = Text(\"a = ?\", (23, 5.5))", "angA=Angle(B,A,C)", "SetCaption(angA, \"α\")", "SetLabelMode(angA, 3)", "SetAngleStyle(angA, 0)"
+                ],
+                steps: [
+                    { id: 1, goal: "Teil 1: Finde den Multiplikator x (h² = p·q).", type: "substitution", template: "10² = ( [input1] x ) · ( [input2] x )", correctInputs: ["4", "1"], feedback: "q ist 4x, p ist 1x." },
+                    { id: 2, goal: "Berechne x.", type: "calculation", template: "x = [input]", correctAnswer: "5", tolerance: 0.1, feedback: "100 = 4x². Teile durch 4, dann Wurzel." },
+                    { id: 3, goal: "Wie lang ist die gesamte Strecke AB (Hypotenuse c)?", type: "calculation", template: "c = [input] cm", correctAnswer: "25", tolerance: 0.1, feedback: "x=5, also ist p=5 und q=20. c = p + q." },
+                    { id: 4, goal: "Berechne Kathete BC (Kante a).", type: "calculation", template: "a = [input] cm", correctAnswer: "11.2", tolerance: 0.2, feedback: "Kathetensatz: a² = c · p -> a² = 25 · 5 = 125." },
+                    { id: 5, goal: "Berechne Winkel α im großen Dreieck ABC.", type: "calculation", template: "α = [input] °", correctAnswer: "26.6", tolerance: 0.5, feedback: "sin(α) = Gegenkathete / Hypotenuse = a / c = 11.18 / 25." }
+                ]
+            },
+            {
+                id: "msa_2025", level: 4, title: "MSA 2025 (Thaleskreis)",
+                description: "M ist der Mittelpunkt des Thaleskreises über der Strecke AB (Hypotenuse c). Der Flächeninhalt des Kreises beträgt A = 113,04 cm². Es gilt MD : DB = 1 : 2. Berechne die Höhe h und die Kathete a.",
+                viewport: { xMin: -3, xMax: 15.75, yMin: -3, yMax: 7 },
+                ggbCommands: [
+                    ...buildGGBBase({c: 12, q: 8, h: 5.66}, "185, 28, 28", "hypo_bottom"),
+                    "M=(6,0)", "SetFixed(M,true)", "k=Semicircle(A,B)", "SetLineThickness(k, 3)", "SetColor(k, 0,0,0)",
+                    "Text(\"M\", M+(0,-0.8))", "Text(\"A = 113,04\", (1, 6.2))", "Text(\"MD:DB=1:2\", (1, 5.2))",
+                    "Text(\"h = ?\", (8.3, 2.5))", "Text(\"a = ?\", (10.5, 3.5))"
+                ],
+                steps: [
+                    { id: 1, goal: "Teil 1: Berechne Radius r aus dem Flächeninhalt (A = π · r²). Rechne mit π = 3,14.", type: "calculation", template: "r = [input] cm", correctAnswer: "6", tolerance: 0.1, feedback: "113.04 / 3.14 = 36. Wurzel aus 36 ist 6." },
+                    { id: 2, goal: "Wie lang ist die gesamte Hypotenuse c (AB)?", type: "calculation", template: "c = [input] cm", correctAnswer: "12", tolerance: 0.1, feedback: "Die Hypotenuse entspricht dem Durchmesser (2 · r)." },
+                    { id: 3, goal: "Teil 2: M ist die Mitte (MB=6). Teile MB im Verhältnis 1:2 auf. Wie lang ist p (DB)?", type: "calculation", template: "p = [input] cm", correctAnswer: "4", tolerance: 0.1, feedback: "6 geteilt durch 3 Teile = 2. MD=2, DB=4." },
+                    { id: 4, goal: "Wie lang ist q (AD)?", type: "calculation", template: "q = [input] cm", correctAnswer: "8", tolerance: 0.1, feedback: "q = c - p = 12 - 4." },
+                    { id: 5, goal: "Teil 3: Berechne nun die Höhe h mit dem Höhensatz.", type: "calculation", template: "h = [input] cm", correctAnswer: "5.7", tolerance: 0.2, feedback: "h² = p · q = 4 · 8 = 32. Wurzel!" },
+                    { id: 6, goal: "Teil 4: Berechne die Kathete a mit dem Kathetensatz.", type: "calculation", template: "a = [input] cm", correctAnswer: "6.9", tolerance: 0.2, feedback: "a² = c · p = 12 · 4 = 48. Wurzel!" }
+                ]
+            },
+            {
+                id: "msa_2011", level: 4, title: "MSA 2011 (Verhältnis ohne Maße)",
+                description: "Im rechtwinkligen Dreieck ABC (rechter Winkel bei A) stehen die Hypotenusenabschnitte p (BD) und q (DC) im Verhältnis 2 : 3. Berechne die Größe des Winkels β.",
+                viewport: { xMin: -2, xMax: 12, yMin: -2, yMax: 6.5 },
+                ggbCommands: [
+                    ...buildGGBBase({c: 10, q: 6, h: 4.899, b: 7.74, a: 6.32}, "21, 128, 61", "hypo_bottom"),
+                    "Text(\"q = 3x\", (2, -1.2))", "Text(\"p = 2x\", (7.5, -1.2))",
+                    "angB=Angle(C,B,A)", "SetCaption(angB, \"β = ?\")", "SetLabelMode(angB, 3)", "SetAngleStyle(angB, 0)"
+                ],
+                steps: [
+                    { id: 1, goal: "Schritt 1: Da nur ein Winkel gesucht ist, können wir x = 1 setzen. Welchen Wert nehmen wir für p an?", type: "calculation", template: "p = [input]", correctAnswer: "2", tolerance: 0.1, feedback: "p entspricht dem 2er Anteil des Verhältnisses." },
+                    { id: 2, goal: "Schritt 2: Welchen Wert nehmen wir demnach für q an?", type: "calculation", template: "q = [input]", correctAnswer: "3", tolerance: 0.1, feedback: "q entspricht dem 3er Anteil." },
+                    { id: 3, goal: "Schritt 3: Berechne die Höhe h mit dem Höhensatz.", type: "calculation", template: "h = [input]", correctAnswer: "2.45", tolerance: 0.1, feedback: "h = Wurzel aus (2 · 3) = Wurzel aus 6." },
+                    { id: 4, goal: "Schritt 4: Betrachte das rechte Teildreieck mit p und h. Welche Winkelfunktion hilft dir, Winkel β zu finden?", type: "formula_selection", options: ["tan(β) = h / p", "sin(β) = h / c", "cos(β) = p / h"], correctAnswer: "tan(β) = h / p", feedback: "Gegenkathete (h) und Ankathete (p) sind bekannt." },
+                    { id: 5, goal: "Schritt 5: Berechne Winkel β.", type: "calculation", template: "β = [input] °", correctAnswer: "50.8", tolerance: 0.5, feedback: "Nutze tan⁻¹(2.45 / 2)." }
+                ]
+            },
+            {
+                id: "msa_2019", level: 4, title: "MSA 2019 (Flächeninhalt)",
+                description: "In einem rechtwinkligen Dreieck teilt die Höhe h die Hypotenuse in die Abschnitte p = 3,6 cm und q = 6,4 cm. Berechne den Flächeninhalt des gesamten Dreiecks.",
+                viewport: { xMin: -2, xMax: 12, yMin: -2, yMax: 6.5 },
+                ggbCommands: [
+                    ...buildGGBBase({c: 10, q: 6.4, h: 4.8, b: 8, a: 6}, "202, 138, 4", "hypo_bottom"),
+                    "Text(\"q = 6,4\", (2.5, -1.2))", "Text(\"p = 3,6\", (7.5, -1.2))", "Text(\"h = ?\", (6.6, 2.4))"
+                ],
+                steps: [
+                    { id: 1, goal: "Schritt 1: Berechne die gesamte Hypotenuse c (Grundlinie des Dreiecks).", type: "calculation", template: "c = [input] cm", correctAnswer: "10", tolerance: 0.1, feedback: "c = p + q." },
+                    { id: 2, goal: "Schritt 2: Berechne die Höhe h mit dem Höhensatz.", type: "calculation", template: "h = [input] cm", correctAnswer: "4.8", tolerance: 0.1, feedback: "h = Wurzel aus (3.6 · 6.4)." },
+                    { id: 3, goal: "Schritt 3: Wähle die richtige Formel für den Flächeninhalt (A) eines Dreiecks.", type: "formula_selection", options: ["A = c · h", "A = 0,5 · c · h", "A = a² + b²"], correctAnswer: "A = 0,5 · c · h", feedback: "Grundlinie mal Höhe geteilt durch 2." },
+                    { id: 4, goal: "Schritt 4: Berechne den Flächeninhalt A.", type: "calculation", template: "A = [input] cm²", correctAnswer: "24", tolerance: 0.2, feedback: "A = 0.5 · 10 · 4.8." }
+                ]
+            },
+            {
+                id: "msa_2018", level: 4, title: "MSA Typ (Sachaufgabe: Leiter)",
+                description: "Eine 6,0 m lange Leiter lehnt an einer senkrechten Hauswand. Sie reicht genau 5,5 m hoch. Berechne den Neigungswinkel α der Leiter zum Boden.",
+                viewport: { xMin: -2, xMax: 4.5, yMin: -1, yMax: 7 },
+                ggbCommands: [
+                    "A=(0,0)", "SetFixed(A,true)", "B=(2.39,0)", "SetFixed(B,true)", "C=(0,5.5)", "SetFixed(C,true)",
+                    "PolyWall=Polygon((-1,0), (0,0), (0,6), (-1,6))", "SetColor(PolyWall, 150,150,150)", "SetFilling(PolyWall, 0.4)",
+                    "sc=Segment(A,B)", "SetLineThickness(sc, 5)", "SetColor(sc, 34, 139, 34)",
+                    "sa=Segment(A,C)", "SetLineThickness(sa, 3)", "SetColor(sa, 0,0,0)",
+                    "ladder=Segment(B,C)", "SetLineThickness(ladder, 6)", "SetColor(ladder, 210, 105, 30)",
+                    "ang90=Angle(B,A,C)", "SetAngleStyle(ang90, 0)", "ShowLabel(ang90, false)",
+                    "angAlpha=Angle(C,B,A)", "SetCaption(angAlpha, \"α\")", "SetLabelMode(angAlpha, 3)", "SetAngleStyle(angAlpha, 0)",
+                    "Text(\"Wand: 5,5 m\", (-1.8, 2.7))", "Text(\"Leiter: 6,0 m\", (1.4, 3.2))"
+                ],
+                steps: [
+                    { id: 1, goal: "Schritt 1: Die Leiter liegt gegenüber vom rechten Winkel. Wie nennt man diese Seite?", type: "formula_selection", options: ["Gegenkathete", "Ankathete", "Hypotenuse"], correctAnswer: "Hypotenuse", feedback: "Die längste Seite ist die Hypotenuse." },
+                    { id: 2, goal: "Schritt 2: Wähle die richtige Formel, um den Winkel α am Boden zu berechnen.", type: "formula_selection", options: ["sin(α) = GK / HYP", "cos(α) = AK / HYP", "tan(α) = GK / AK"], correctAnswer: "sin(α) = GK / HYP", feedback: "Die Höhe der Wand (5,5m) ist die Gegenkathete zum gesuchten Winkel." },
+                    { id: 3, goal: "Schritt 3: Setze die Werte ein.", type: "substitution", template: "sin( α ) = [input1] / [input2]", correctInputs: ["5.5", "6"], feedback: "Gegenkathete oben, Hypotenuse unten." },
+                    { id: 4, goal: "Schritt 4: Berechne den Neigungswinkel α.", type: "calculation", template: "α = [input] °", correctAnswer: "66.4", tolerance: 0.5, feedback: "Nutze sin⁻¹(5.5 / 6)." }
+                ]
+            },
+            {
+                id: "msa_isosceles", level: 4, title: "MSA Typ (Gleichschenkliges Dreieck)",
+                description: "Ein gleichschenkliges Dreieck hat die Basis c = 12 cm und die beiden gleich langen Schenkel a = b = 10 cm. Die Höhe h teilt das Dreieck. Berechne die Höhe h und den Basiswinkel α.",
+                viewport: { xMin: -2, xMax: 14, yMin: -2, yMax: 10 },
+                ggbCommands: [
+                    "A=(0,0)", "SetFixed(A,true)", "B=(12,0)", "SetFixed(B,true)", "C=(6,8)", "SetFixed(C,true)",
+                    "Poly=Polygon(A,B,C)", "SetColor(Poly, 30, 64, 175)", "SetFilling(Poly, 0.1)",
+                    "sc=Segment(A,B)", "sa=Segment(B,C)", "sb=Segment(C,A)",
+                    "SetLineThickness(sc, 4)", "SetLineThickness(sa, 4)", "SetLineThickness(sb, 4)",
+                    "SetColor(sc, 0,0,0)", "SetColor(sa, 0,0,0)", "SetColor(sb, 0,0,0)",
+                    "D=(6,0)", "hSeg=Segment(C,D)", "SetLineThickness(hSeg, 4)", "SetLineStyle(hSeg, 2)", "SetColor(hSeg, 0,0,0)",
+                    "ang90=Angle(C,D,B)", "SetAngleStyle(ang90, 0)", "ShowLabel(ang90, false)",
+                    "angA=Angle(B,A,C)", "SetCaption(angA, \"α\")", "SetLabelMode(angA, 3)", "SetAngleStyle(angA, 0)",
+                    "Text(\"c = 12\", (5.5, -1))", "Text(\"a = 10\", (9.5, 4))", "Text(\"b = 10\", (1.5, 4))", "Text(\"h = ?\", (6.2, 3))"
+                ],
+                steps: [
+                    { id: 1, goal: "Schritt 1: In einem gleichschenkligen Dreieck teilt die Höhe die Basis c genau in der Mitte. Wie lang ist die Hälfte der Basis (Teilstück unter α)?", type: "calculation", template: "Strecke = [input] cm", correctAnswer: "6", tolerance: 0.1, feedback: "12 / 2 = 6." },
+                    { id: 2, goal: "Schritt 2: Betrachte nur das linke, rechtwinklige Teildreieck. Welche Formel hilft dir, die Höhe h zu berechnen?", type: "formula_selection", options: ["a² + b² = c² (Pythagoras)", "h² = p · q (Höhensatz)", "sin(α) = GK / HYP"], correctAnswer: "a² + b² = c² (Pythagoras)", feedback: "Zwei Seiten (Hypotenuse b=10, Ankathete=6) sind im Teildreieck bekannt." },
+                    { id: 3, goal: "Schritt 3: Berechne h.", type: "calculation", template: "h = [input] cm", correctAnswer: "8", tolerance: 0.1, feedback: "h² = 10² - 6² = 100 - 36 = 64. Wurzel!" },
+                    { id: 4, goal: "Schritt 4: Wähle die Formel für den Basiswinkel α.", type: "formula_selection", options: ["cos(α) = AK / HYP", "tan(α) = GK / HYP"], correctAnswer: "cos(α) = AK / HYP", feedback: "Nutze die bekannte halbe Basis (Ankathete) und den Schenkel (Hypotenuse)." },
+                    { id: 5, goal: "Schritt 5: Berechne α.", type: "calculation", template: "α = [input] °", correctAnswer: "53.1", tolerance: 0.5, feedback: "cos⁻¹(6 / 10)." }
+                ]
+            }
+        ];
+
+        // ==========================================
+        // 4. GEOGEBRA COMPONENT
+        // ==========================================
+        const GeoGebraViewer = ({ commands, viewport, taskKey }) => {
+            const containerId = "ggb-container-" + taskKey;
+            const [isLoading, setIsLoading] = useState(true);
+
+            useEffect(() => {
+                setIsLoading(true);
+                const container = document.getElementById(containerId);
+                if(container) container.innerHTML = '';
+
+                const parameters = {
+                    "appName": "geometry", "width": 600, "height": 320,
+                    "showToolBar": false, "showAlgebraInput": false, "showMenuBar": false,
+                    "enableLabelDrags": false, "enableShiftDragZoom": false, "enableRightClick": false,
+                    "errorDialogsActive": false, "useBrowserForJS": false,
+                    "appletOnLoad": (api) => {
+                        api.setCoordSystem(viewport.xMin, viewport.xMax, viewport.yMin, viewport.yMax);
+                        api.evalCommand("ShowGrid(false)");
+                        api.evalCommand("ShowAxes(false)");
+                        
+                        commands.forEach(cmd => api.evalCommand(cmd));
+                        setIsLoading(false);
+                    }
+                };
+
+                const applet = new window.GGBApplet(parameters, true);
+                applet.inject(containerId);
+
+            }, [commands, viewport, taskKey]);
+
+            return (
+                <div className="flex justify-center my-4 relative w-full h-[320px] bg-white border-2 border-gray-300 rounded-lg overflow-hidden shadow-inner">
+                    {isLoading && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-gray-50 z-10">
+                            <div className="loader"></div>
+                        </div>
+                    )}
+                    <div id={containerId} className="w-full h-full pointer-events-none"></div>
+                </div>
+            );
+        };
+
+        // ==========================================
+        // 5. STEP COMPONENTS
+        // ==========================================
+        const FormulaSelection = ({ step, onCorrect, onSkip }) => {
+            const [error, setError] = useState("");
+            const handleSelect = (opt) => { if (opt === step.correctAnswer) { setError(""); onCorrect(); } else { setError(step.feedback); } };
+
+            return (
+                <div className="step-enter bg-white p-5 md:p-6 rounded-xl shadow-md border-l-4 border-blue-500 mb-4">
+                    <h3 className="font-bold text-lg mb-4">{step.goal}</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                        {step.options.map((opt, idx) => (
+                            <button key={idx} onClick={() => handleSelect(opt)} className="py-3 px-4 bg-gray-50 hover:bg-blue-100 border border-gray-300 rounded-lg font-medium transition-colors math-text text-lg shadow-sm">{opt}</button>
+                        ))}
+                    </div>
+                    <div className="flex justify-between items-center mt-2">
+                        <div className="text-red-600 text-sm font-medium">{error && `💡 ${error}`}</div>
+                        <button onClick={onSkip} className="text-sm text-gray-400 hover:text-gray-600 underline">Schritt überspringen ⏭</button>
+                    </div>
+                </div>
+            );
+        };
+
+        const SubstitutionInput = ({ step, onCorrect, onSkip }) => {
+            const [inputs, setInputs] = useState(Array(step.correctInputs.length).fill(""));
+            const [error, setError] = useState("");
+
+            const checkAnswer = () => {
+                let isCorrect = true;
+                inputs.forEach((val, idx) => { if (val.trim().toLowerCase() !== step.correctInputs[idx].toLowerCase()) isCorrect = false; });
+                if (isCorrect) { setError(""); onCorrect(); } else { setError(step.feedback); }
+            };
+
+            const renderTemplate = () => {
+                let inputIdx = 0;
+                return step.template.split(/(\[input\d+\])/).map((part, i) => {
+                    if (part.startsWith("[input")) {
+                        const idx = inputIdx++;
+                        return <input key={i} type="text" value={inputs[idx]} onChange={(e) => { const n = [...inputs]; n[idx] = e.target.value; setInputs(n); }} className="w-16 border-b-2 border-purple-500 bg-white mx-2 text-center font-bold text-xl outline-none focus:bg-purple-50 transition shadow-inner" />;
+                    }
+                    return <span key={i} className="math-text text-xl">{part}</span>;
+                });
+            };
+
+            return (
+                <div className="step-enter bg-white p-5 md:p-6 rounded-xl shadow-md border-l-4 border-purple-500 mb-4">
+                    <h3 className="font-bold text-lg mb-4">{step.goal}</h3>
+                    <div className="mb-5 py-6 bg-gray-50 rounded-lg flex flex-wrap items-center justify-center border border-gray-200">{renderTemplate()}</div>
+                    <div className="flex flex-col sm:flex-row gap-3 items-center">
+                        <button onClick={checkAnswer} className="w-full sm:w-auto flex-1 bg-purple-600 text-white font-bold py-3 rounded-lg hover:bg-purple-700 transition shadow">Werte prüfen</button>
+                        <button onClick={onSkip} className="text-sm text-gray-500 hover:text-gray-800 bg-gray-100 py-3 px-4 rounded-lg">Schritt überspringen ⏭</button>
+                    </div>
+                    {error && <div className="mt-3 text-red-600 text-sm font-medium">💡 {error}</div>}
+                </div>
+            );
+        };
+
+        const CalculationInput = ({ step, onCorrect, onSkip }) => {
+            const [val, setVal] = useState("");
+            const [error, setError] = useState("");
+
+            const checkAnswer = () => {
+                const userVal = parseFloat(val.replace(',', '.'));
+                const correct = parseFloat(step.correctAnswer);
+                if (!isNaN(userVal) && Math.abs(userVal - correct) <= step.tolerance) { setError(""); onCorrect(); } 
+                else { setError(step.feedback); }
+            };
+
+            return (
+                <div className="step-enter bg-white p-5 md:p-6 rounded-xl shadow-md border-l-4 border-green-500 mb-4">
+                    <h3 className="font-bold text-lg mb-4">{step.goal}</h3>
+                    <div className="mb-5 py-6 bg-gray-50 rounded-lg border border-gray-200 flex items-center justify-center math-text text-2xl">
+                        {step.template.split("[input]")[0]}
+                        <input type="text" value={val} onChange={(e) => setVal(e.target.value)} placeholder="..." className="w-24 border-2 border-green-500 rounded-lg mx-3 text-center font-bold outline-none focus:bg-green-50 p-2 shadow-inner" onKeyDown={(e) => e.key === 'Enter' && checkAnswer()} />
+                        {step.template.split("[input]")[1]}
+                    </div>
+                    <div className="flex flex-col sm:flex-row gap-3 items-center">
+                        <button onClick={checkAnswer} className="w-full sm:w-auto flex-1 bg-green-600 text-white font-bold py-3 rounded-lg hover:bg-green-700 transition shadow">Ergebnis prüfen</button>
+                        <button onClick={onSkip} className="text-sm text-gray-500 hover:text-gray-800 bg-gray-100 py-3 px-4 rounded-lg">Schritt überspringen ⏭</button>
+                    </div>
+                    {error && <div className="mt-3 text-red-600 text-sm font-medium">💡 {error}</div>}
+                </div>
+            );
+        };
+
+        // ==========================================
+        // 6. MAIN APP COMPONENT
+        // ==========================================
+        const App = () => {
+            const [activeLevel, setActiveLevel] = useState(1);
+            const [currentTask, setCurrentTask] = useState(null);
+            const [currentStepIndex, setCurrentStepIndex] = useState(0);
+            const [isCompleted, setIsCompleted] = useState(false);
+
+            useEffect(() => { loadTaskForLevel(activeLevel); }, [activeLevel]);
+
+            const loadTaskForLevel = (level) => {
+                let newTask;
+                if (level === 1) newTask = generateLevel1();
+                else if (level === 2) newTask = generateLevel2();
+                else if (level === 3) newTask = generateLevel3();
+                else if (level === 4) {
+                    let availableTasks = msaTasks.filter(t => !currentTask || t.id !== currentTask.id);
+                    if(availableTasks.length === 0) availableTasks = msaTasks;
+                    newTask = availableTasks[getRandomInt(0, availableTasks.length - 1)];
+                }
+                
+                setCurrentTask(newTask);
+                setCurrentStepIndex(0);
+                setIsCompleted(false);
+            };
+
+            const skipTask = () => loadTaskForLevel(activeLevel);
+            const handleStepCorrect = () => { if (currentStepIndex < currentTask.steps.length - 1) setCurrentStepIndex(prev => prev + 1); else setIsCompleted(true); };
+
+            const levels = [
+                { id: 1, name: "Level 1 (Leicht)" },
+                { id: 2, name: "Level 2 (Mittel)" },
+                { id: 3, name: "Level 3 (Schwer)" },
+                { id: 4, name: "MSA Prüfungen" }
+            ];
+
+            return (
+                <div className="min-h-screen flex flex-col">
+                    <div className="bg-blue-900 shadow-md z-20 relative">
+                        <div className="max-w-6xl mx-auto px-4 py-6">
+                            <h1 className="text-3xl font-extrabold text-white mb-4">MSA Trainer: Trigonometrie & Höhensatz</h1>
+                            <div className="flex flex-wrap gap-2">
+                                {levels.map(level => (
+                                    <button key={level.id} onClick={() => setActiveLevel(level.id)} className={`px-5 py-3 rounded-t-lg font-bold transition-all transform ${activeLevel === level.id ? 'bg-gray-100 text-blue-900 scale-105 shadow-lg border-b-0 relative top-1' : 'bg-blue-800 text-blue-200 hover:bg-blue-700'}`}>
+                                        {level.id === 4 && <span className="mr-2">🔴</span>}
+                                        {level.name}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="flex-grow bg-gray-100 p-4 md:p-6 z-10">
+                        <div className="max-w-6xl mx-auto">
+                            {currentTask && (
+                                <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+                                    <div className="lg:col-span-3">
+                                        <div className="bg-white rounded-xl shadow-md p-6 mb-6 border-t-4 border-blue-600 relative">
+                                            <button onClick={skipTask} className="absolute top-4 right-4 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-bold py-2 px-4 rounded-full flex items-center transition shadow-sm border border-gray-300">
+                                                🔄 Neue Aufgabe
+                                            </button>
+                                            <h2 className="text-2xl font-extrabold mb-3 text-gray-800 pr-36">{currentTask.title}</h2>
+                                            <p className="text-gray-700 leading-relaxed bg-blue-50 p-5 rounded-lg border border-blue-100 text-lg">
+                                                {currentTask.description}
+                                            </p>
+                                        </div>
+                                        <GeoGebraViewer commands={currentTask.ggbCommands} viewport={currentTask.viewport} taskKey={currentTask.id} />
+                                    </div>
+
+                                    <div className="lg:col-span-2">
+                                        <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-200 mb-4 flex justify-between items-center">
+                                            <span className="font-bold text-gray-600">Dein Lösungsweg:</span>
+                                            <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-bold">Schritt {currentStepIndex + 1} / {currentTask.steps.length}</span>
+                                        </div>
+
+                                        {currentTask.steps.slice(0, currentStepIndex).map((step, idx) => (
+                                            <div key={idx} className="bg-green-50 p-4 rounded-xl shadow-sm border border-green-200 mb-4 opacity-80">
+                                                <div className="flex items-center text-green-700 font-bold mb-1">
+                                                    <svg className="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path></svg>
+                                                    Schritt {idx + 1} erledigt
+                                                </div>
+                                                <p className="text-sm text-gray-700">{step.goal}</p>
+                                            </div>
+                                        ))}
+
+                                        {!isCompleted ? (
+                                            <div key={currentTask.steps[currentStepIndex].id}>
+                                                {currentTask.steps[currentStepIndex].type === "formula_selection" && <FormulaSelection step={currentTask.steps[currentStepIndex]} onCorrect={handleStepCorrect} onSkip={handleStepCorrect} />}
+                                                {currentTask.steps[currentStepIndex].type === "substitution" && <SubstitutionInput step={currentTask.steps[currentStepIndex]} onCorrect={handleStepCorrect} onSkip={handleStepCorrect} />}
+                                                {currentTask.steps[currentStepIndex].type === "calculation" && <CalculationInput step={currentTask.steps[currentStepIndex]} onCorrect={handleStepCorrect} onSkip={handleStepCorrect} />}
+                                            </div>
+                                        ) : (
+                                            <div className="step-enter bg-gradient-to-br from-green-500 to-green-600 text-white p-8 rounded-xl shadow-xl text-center">
+                                                <span className="text-6xl block mb-4 filter drop-shadow-md">🏆</span>
+                                                <h3 className="text-3xl font-extrabold mb-3">Stark gemacht!</h3>
+                                                <p className="mb-8 text-green-100 text-lg">Du hast die Aufgabe erfolgreich abgeschlossen.</p>
+                                                <button onClick={skipTask} className="bg-white text-green-700 font-bold py-3 px-8 rounded-full hover:bg-gray-100 shadow-lg transition-transform hover:scale-105">
+                                                    Nächste Aufgabe ⏭
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
