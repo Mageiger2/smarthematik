@@ -139,8 +139,26 @@ function CheckCircle({ className }) { return <IconBase className={className} pat
 function XCircle({ className }) { return <IconBase className={className} path={<><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></>} />; }
 function RefreshCw({ className }) { return <IconBase className={className} path={<><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></>} />; }
 function BookOpen({ className }) { return <IconBase className={className} path={<><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></>} />; }
-function TrendingUp({ className }) { return <IconBase className={className} path={<><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></>} />; }
-function TrendingDown({ className }) { return <IconBase className={className} path={<><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></>} />; }
+function TrendingUp({ className }) {
+    // Exponentiell steigende Kurve in einem angedeuteten Koordinatensystem.
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+            <line x1="3" y1="3" x2="3" y2="21" />
+            <line x1="3" y1="21" x2="22" y2="21" />
+            <path d="M 4 19 C 10 19, 15 16, 21 4" strokeWidth="2.2" />
+        </svg>
+    );
+}
+function TrendingDown({ className }) {
+    // Exponentiell fallende Kurve in einem angedeuteten Koordinatensystem.
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+            <line x1="3" y1="3" x2="3" y2="21" />
+            <line x1="3" y1="21" x2="22" y2="21" />
+            <path d="M 4 4 C 8 17, 14 20, 21 20" strokeWidth="2.2" />
+        </svg>
+    );
+}
 function ArrowRight({ className }) { return <IconBase className={className} path={<><line x1="5" x2="19" y1="12" y2="12"/><polyline points="12 5 19 12 12 19"/></>} />; }
 function ChevronRight({ className }) { return <IconBase className={className} path={<><polyline points="9 18 15 12 9 6"/></>} />; }
 function HomeIcon({ className }) { return <IconBase className={className} path={<><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></>} />; }
@@ -172,7 +190,16 @@ function BracketsIcon({ className }) {
         </svg>
     );
 }
-function FractionIcon({ className }) { return <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="4" x2="20" y1="12" y2="12"/><path d="M11 7 L12 5 L12 9" /><path d="M10 15 L14 19 M14 15 L10 19" /></svg>; }
+function FractionIcon({ className }) {
+    // Bruch 1 / (x − 1) — passend zu Bruchgleichungen.
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className}>
+            <line x1="3" x2="21" y1="12" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            <text x="12" y="9" textAnchor="middle" fontFamily="serif" fontStyle="italic" fontSize="9" fontWeight="600" fill="currentColor">1</text>
+            <text x="12" y="22" textAnchor="middle" fontFamily="serif" fontStyle="italic" fontSize="9" fontWeight="600" fill="currentColor">x−1</text>
+        </svg>
+    );
+}
 
 // ==========================================
 // 4. SHARED UI COMPONENTS
@@ -371,7 +398,8 @@ const ScientificCalculator = ({ onClose, theme = 'sky' }) => {
     const [cursorPos, setCursorPos] = useState(0);
     const [result, setResult] = useState(null);
     const [error, setError] = useState(null);
-    const [angleMode, setAngleMode] = useState('DEG');
+    // Winkelmodus immer DEG — Schüler tippen Werte in Grad ein, kein Toggle nötig.
+    const angleMode = 'DEG';
     const [showAsFraction, setShowAsFraction] = useState(false);
     const [ans, setAns] = useState(null);
 
@@ -480,14 +508,9 @@ const ScientificCalculator = ({ onClose, theme = 'sky' }) => {
                     <span className="font-bold text-sm sm:text-base">Wissenschaftlicher Rechner</span>
                 </div>
                 <div className="flex items-center gap-2">
-                    <button type="button" onClick={() => setAngleMode(m => m === 'DEG' ? 'RAD' : 'DEG')}
-                            className="text-xs font-bold px-2 py-1 bg-white/20 hover:bg-white/30 rounded transition-colors"
-                            title="Winkelmodus umschalten">
-                        {angleMode}
-                    </button>
                     {onClose && (
-                        <button type="button" onClick={onClose} className="hover:bg-white/20 rounded p-1 transition-colors" aria-label="Rechner schließen">
-                            <XCircle className="w-5 h-5" />
+                        <button type="button" onClick={onClose} className="hover:bg-white/20 rounded-lg p-1.5 transition-colors" aria-label="Rechner schließen" title="Rechner schließen">
+                            <XCircle className="w-7 h-7" />
                         </button>
                     )}
                 </div>
@@ -522,15 +545,17 @@ const ScientificCalculator = ({ onClose, theme = 'sky' }) => {
                 <button type="button" onClick={moveEnd} className="h-8 rounded font-bold text-xs bg-white hover:bg-slate-200 text-slate-700 border border-slate-200" title="Cursor ans Ende">⏭</button>
             </div>
 
-            <div className="bg-slate-50 px-2 sm:px-3 py-1 text-[10px] sm:text-[11px] text-slate-500 text-center border-b border-slate-200">
-                log(Basis, Zahl) · sin/cos/tan in <strong>{angleMode}</strong>
+            <div className="bg-slate-50 px-2 sm:px-3 py-1.5 text-[10px] sm:text-[11px] text-slate-600 border-b border-slate-200 flex flex-wrap justify-center gap-x-3 gap-y-1">
+                <span>log<sub>b</sub>(x) = <strong>log(b,x)</strong></span>
+                <span><sup>3</sup>√27 = <strong>nrt(3,27)</strong></span>
             </div>
 
             <div className="p-2 sm:p-3 grid grid-cols-5 gap-1 sm:gap-1.5">
                 <Btn variant="func" label="sin" onClick={() => append('sin(')} />
                 <Btn variant="func" label="cos" onClick={() => append('cos(')} />
                 <Btn variant="func" label="tan" onClick={() => append('tan(')} />
-                <Btn variant="func" label="log" onClick={() => append('log(')} />
+                {/* log öffnet "log(,)" mit Cursor zwischen "(" und "," — wie nrt. */}
+                <Btn variant="func" label="log" onClick={() => append('log(,)', 4)} />
                 <Btn variant="op" label="⌫" onClick={backspace} />
 
                 <Btn variant="func" label={<span>sin<sup>−1</sup></span>} onClick={() => append('sin⁻¹(')} />
