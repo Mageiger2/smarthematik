@@ -38,21 +38,27 @@ const normalizeBino = (str) => {
 };
 
 // Hardcoded Prüfungsaufgaben (Level 4). Markup: [input:antwort|alt-antwort|…]
+// Templates orientieren sich am MSA-Aufgabenstil (Bayern, Aufgabengruppen I+II der
+// Jahrgänge 2017–2025), sind aber angepasst (Zahlen leicht variiert, Aufgaben in
+// einheitliches Lückentext-Format gebracht). Daher sourceLabel = "Angepasst".
 const binoExamTemplates = [
-    "( 2a + [input:8b] ) · ( 2a − [input:8b] ) = [input:4a²] [input:-] 64b²",
-    "( [input:6a] [input:-] 9d )² = 36a² [input:-] [input:108ad|108da] [input:+] 81d²",
-    "( 4z + [input:5x] ) · ( 4z − [input:5x] ) = [input:16z²] [input:-] 25x²",
-    "( 4x [input:-] [input:y|1y] )² = [input:16x²] [input:-] [input:8xy|8yx] + y²",
-    "( [input:3a³|3a^3] − [input:4b] )² = 9a⁶ − 24a³b [input:+] [input:16b²|16b^2]",
-    "( 7a³ + [input:10c] )² = [input:49a⁶|49a^6] [input:+] [input:140a³c|140c³a|140ac³|140ca³] + 100c²",
-    "( [input:0,5x²y|0.5x²y|0,5yx²|0.5yx²] [input:-] 3z )² = 0,25x⁴y² − [input:3x²yz|3zx²y|3x²zy|3yx²z|3yzx²|3zyx²] [input:+] [input:9z²|9z^2]",
-    "( 4ab² + [input:3c] )² = [input:16a²b⁴|16b⁴a²] [input:+] [input:24ab²c|24acb²|24b²ac|24b²ca|24cab²|24cb²a] + 9c²",
-    "( w [input:-] 4z )² = [input:w²|w^2] [input:-] [input:8wz|8zw] [input:+] 16z²",
-    "( [input:0,5z|0.5z] [input:+] [input:8] )² = 0,25z² + 8z [input:+] [input:64]"
+    { sourceLabel: "Angepasst", template: "( 2a + [input:8b] ) · ( 2a − [input:8b] ) = [input:4a²] [input:-] 64b²" },
+    { sourceLabel: "Angepasst", template: "( [input:6a] [input:-] 9d )² = 36a² [input:-] [input:108ad|108da] [input:+] 81d²" },
+    { sourceLabel: "Angepasst", template: "( 4z + [input:5x] ) · ( 4z − [input:5x] ) = [input:16z²] [input:-] 25x²" },
+    { sourceLabel: "Angepasst", template: "( 4x [input:-] [input:y|1y] )² = [input:16x²] [input:-] [input:8xy|8yx] + y²" },
+    { sourceLabel: "Angepasst", template: "( [input:3a³|3a^3] − [input:4b] )² = 9a⁶ − 24a³b [input:+] [input:16b²|16b^2]" },
+    { sourceLabel: "Angepasst", template: "( 7a³ + [input:10c] )² = [input:49a⁶|49a^6] [input:+] [input:140a³c|140c³a|140ac³|140ca³] + 100c²" },
+    { sourceLabel: "Angepasst", template: "( [input:0,5x²y|0.5x²y|0,5yx²|0.5yx²] [input:-] 3z )² = 0,25x⁴y² − [input:3x²yz|3zx²y|3x²zy|3yx²z|3yzx²|3zyx²] [input:+] [input:9z²|9z^2]" },
+    { sourceLabel: "Angepasst", template: "( 4ab² + [input:3c] )² = [input:16a²b⁴|16b⁴a²] [input:+] [input:24ab²c|24acb²|24b²ac|24b²ca|24cab²|24cb²a] + 9c²" },
+    { sourceLabel: "Angepasst", template: "( w [input:-] 4z )² = [input:w²|w^2] [input:-] [input:8wz|8zw] [input:+] 16z²" },
+    { sourceLabel: "Angepasst", template: "( [input:0,5z|0.5z] [input:+] [input:8] )² = 0,25z² + 8z [input:+] [input:64]" }
 ];
 
 // Wandelt einen Prüfungsaufgaben-Template in tokens + inputs Map.
-const parseExamTemplate = (template) => {
+// Akzeptiert sowohl reinen Template-String als auch ein Objekt { template, sourceLabel }.
+const parseExamTemplate = (entry) => {
+    const template = typeof entry === 'string' ? entry : entry.template;
+    const sourceLabel = typeof entry === 'string' ? null : entry.sourceLabel;
     const tokens = [];
     const inputs = {};
     let inputCounter = 0;
@@ -75,7 +81,7 @@ const parseExamTemplate = (template) => {
     if (lastIdx < template.length) {
         tokens.push(template.substring(lastIdx));
     }
-    return { tokens, inputs };
+    return { tokens, inputs, sourceLabel };
 };
 
 // Generator für Level 1–3: dynamische Aufgaben, alle drei binomischen Formeln.
@@ -346,7 +352,10 @@ const BinformelnTrainer = () => {
                 <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                     <div className="bg-teal-50 px-6 py-3 border-b border-teal-200 flex justify-between items-center">
                         <h2 className="font-semibold text-teal-900 flex items-center"><BookOpen size={18} className="mr-2" /> Lückenfüller</h2>
-                        <span className="text-xs font-bold px-2 py-1 rounded uppercase tracking-wider bg-teal-200 text-teal-800">Achte auf die Variablen!</span>
+                        {difficulty === 'pruefung' && problem?.sourceLabel
+                            ? <span className="text-xs font-bold px-2 py-1 rounded uppercase tracking-wider bg-amber-200 text-amber-800">{problem.sourceLabel}</span>
+                            : <span className="text-xs font-bold px-2 py-1 rounded uppercase tracking-wider bg-teal-200 text-teal-800">Achte auf die Variablen!</span>
+                        }
                     </div>
 
                     <div className="p-6 md:p-10">

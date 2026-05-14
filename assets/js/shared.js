@@ -126,7 +126,8 @@ const themeColors = {
     sky: { activeBorder: 'border-sky-400', activeBg: 'bg-sky-50', activeTitle: 'text-sky-900', badgeBg: 'bg-sky-500', shadow: 'shadow-sky-100', btnBg: 'bg-sky-500', btnHover: 'hover:bg-sky-600' },
     violet: { activeBorder: 'border-violet-500', activeBg: 'bg-violet-50', activeTitle: 'text-violet-900', badgeBg: 'bg-violet-600', shadow: 'shadow-violet-100', btnBg: 'bg-violet-600', btnHover: 'hover:bg-violet-700' },
     teal: { activeBorder: 'border-teal-500', activeBg: 'bg-teal-50', activeTitle: 'text-teal-900', badgeBg: 'bg-teal-600', shadow: 'shadow-teal-100', btnBg: 'bg-teal-600', btnHover: 'hover:bg-teal-700' },
-    cyan: { activeBorder: 'border-cyan-500', activeBg: 'bg-cyan-50', activeTitle: 'text-cyan-900', badgeBg: 'bg-cyan-600', shadow: 'shadow-cyan-100', btnBg: 'bg-cyan-600', btnHover: 'hover:bg-cyan-700' }
+    cyan: { activeBorder: 'border-cyan-500', activeBg: 'bg-cyan-50', activeTitle: 'text-cyan-900', badgeBg: 'bg-cyan-600', shadow: 'shadow-cyan-100', btnBg: 'bg-cyan-600', btnHover: 'hover:bg-cyan-700' },
+    orange: { activeBorder: 'border-orange-500', activeBg: 'bg-orange-50', activeTitle: 'text-orange-900', badgeBg: 'bg-orange-600', shadow: 'shadow-orange-100', btnBg: 'bg-orange-600', btnHover: 'hover:bg-orange-700' }
 };
 
 // ==========================================
@@ -140,22 +141,23 @@ function XCircle({ className }) { return <IconBase className={className} path={<
 function RefreshCw({ className }) { return <IconBase className={className} path={<><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></>} />; }
 function BookOpen({ className }) { return <IconBase className={className} path={<><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></>} />; }
 function TrendingUp({ className }) {
-    // Exponentiell steigende Kurve in einem angedeuteten Koordinatensystem.
+    // Exponentiell steigende Kurve im angedeuteten Koordinatensystem.
+    // Achsen dünn (1.4), Kurve dick (2.8), mit sichtbarer Mini-Lücke zu beiden Achsen.
     return (
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-            <line x1="3" y1="3" x2="3" y2="21" />
-            <line x1="3" y1="21" x2="22" y2="21" />
-            <path d="M 4 19 C 10 19, 15 16, 21 4" strokeWidth="2.2" />
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" className={className}>
+            <line x1="3" y1="3" x2="3" y2="21" strokeWidth="1.4" />
+            <line x1="3" y1="21" x2="22" y2="21" strokeWidth="1.4" />
+            <path d="M 5.5 19 C 11 19, 15.5 16, 20.5 5" strokeWidth="2.8" />
         </svg>
     );
 }
 function TrendingDown({ className }) {
-    // Exponentiell fallende Kurve in einem angedeuteten Koordinatensystem.
+    // Exponentiell fallende Kurve im angedeuteten Koordinatensystem.
     return (
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-            <line x1="3" y1="3" x2="3" y2="21" />
-            <line x1="3" y1="21" x2="22" y2="21" />
-            <path d="M 4 4 C 8 17, 14 20, 21 20" strokeWidth="2.2" />
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" className={className}>
+            <line x1="3" y1="3" x2="3" y2="21" strokeWidth="1.4" />
+            <line x1="3" y1="21" x2="22" y2="21" strokeWidth="1.4" />
+            <path d="M 5.5 5 C 9 17, 14.5 19.2, 20.5 19.2" strokeWidth="2.8" />
         </svg>
     );
 }
@@ -509,7 +511,7 @@ const ScientificCalculator = ({ onClose, theme = 'sky' }) => {
                 </div>
                 <div className="flex items-center gap-2">
                     {onClose && (
-                        <button type="button" onClick={onClose} className="hover:bg-white/20 rounded-lg p-1.5 transition-colors" aria-label="Rechner schließen" title="Rechner schließen">
+                        <button type="button" onClick={onClose} className="hover:bg-white/20 rounded-lg p-1.5 translate-x-1 transition-colors" aria-label="Rechner schließen" title="Rechner schließen">
                             <XCircle className="w-7 h-7" />
                         </button>
                     )}

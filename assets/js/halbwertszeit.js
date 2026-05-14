@@ -8,62 +8,62 @@
 // ==========================================
 const halbwertszeitsExamTasks = [
     {
-        sigKey: 'msa-2025-ii-3a', label: 'MSA 2025 II — Aufgabe 3a',
+        sigKey: 'msa-2025-ii-3a', label: 'MSA 2025 II/3a',
         text: 'Der Wirkstoff eines Medikaments hat im menschlichen Körper eine Halbwertszeit von 3 Stunden. Um 07:00 Uhr morgens nimmt ein Patient 90 mg dieses Wirkstoffs ein. Berechne die Masse des um 13:00 Uhr noch im Körper vorhandenen Wirkstoffs in Milligramm.',
         type: 'Wn', w0: 90, wn: 22.5, t: 6, thalf: 3, unit: 'mg', timeUnit: 'Stunden'
     },
     {
-        sigKey: 'msa-2025-ii-3b', label: 'MSA 2025 II — Aufgabe 3b',
+        sigKey: 'msa-2025-ii-3b', label: 'MSA 2025 II/3b',
         text: 'Eine Patientin nimmt 90 mg eines Wirkstoffs ein, der eine Halbwertszeit von 3 Stunden hat. Berechne, nach wie vielen Stunden noch 5,7 mg davon im Körper vorhanden sind.',
         type: 't', w0: 90, wn: 5.7, t: 12, thalf: 3, unit: 'mg', timeUnit: 'Stunden'
     },
     {
-        sigKey: 'msa-2025-ii-3c', label: 'MSA 2025 II — Aufgabe 3c',
+        sigKey: 'msa-2025-ii-3c', label: 'MSA 2025 II/3c',
         text: 'Eine Person nimmt um 08:00 Uhr eine bestimmte Ausgangsmasse eines Wirkstoffs (Halbwertszeit 3 Stunden) ein. Um 17:00 Uhr sind noch 21,9 mg im Körper enthalten. Berechne die Ausgangsmasse in Milligramm.',
         type: 'W0', w0: 175.2, wn: 21.9, t: 9, thalf: 3, unit: 'mg', timeUnit: 'Stunden'
     },
     {
-        sigKey: 'msa-2023-ii-3a', label: 'MSA 2023 II — Aufgabe 3a',
+        sigKey: 'msa-2023-ii-3a', label: 'MSA 2023 II/3a',
         text: 'Die Halbwertszeit für das Kohlenstoffisotop C-14 beträgt 5730 Jahre. Berechne die Masse an C-14, die bei einer Ausgangsmasse von 10,5 g nach 28 650 Jahren noch vorhanden ist.',
         type: 'Wn', w0: 10.5, wn: 0.328, t: 28650, thalf: 5730, unit: 'g', timeUnit: 'Jahren'
     },
     {
-        sigKey: 'msa-2020-i-2a', label: 'MSA 2020 I — Aufgabe 2a',
+        sigKey: 'msa-2020-i-2a', label: 'MSA 2020 I/2a',
         text: 'Das radioaktive Element Kobalt-60 hat eine Halbwertszeit von 5 Jahren. In einem Behälter befinden sich 3,675 kg Kobalt-60. Berechne, wie viele Kilogramm nach 13 Jahren noch vorhanden sind.',
         type: 'Wn', w0: 3.675, wn: 0.606, t: 13, thalf: 5, unit: 'kg', timeUnit: 'Jahren'
     },
     {
-        sigKey: 'msa-2020-i-2b', label: 'MSA 2020 I — Aufgabe 2b',
+        sigKey: 'msa-2020-i-2b', label: 'MSA 2020 I/2b',
         text: 'Das radioaktive Element Kobalt-60 hat eine Halbwertszeit von 5 Jahren. Ermittle rechnerisch, nach wie vielen Jahren von 3,675 kg Kobalt-60 nur noch 0,1 kg vorhanden sind.',
         type: 't', w0: 3.675, wn: 0.1, t: 26, thalf: 5, unit: 'kg', timeUnit: 'Jahren'
     },
     {
-        sigKey: 'msa-2017-ii-3a', label: 'MSA 2017 II — Aufgabe 3a',
+        sigKey: 'msa-2017-ii-3a', label: 'MSA 2017 II/3a',
         text: 'Bei einer Schilddrüsenuntersuchung verwendet man ein Kontrastmittel mit Iod-123 (Halbwertszeit 13 Stunden). Eine 60 kg schwere Patientin erhält 0,5 g pro kg, also 30 g Iod-123. Berechne die Menge, die nach 65 Stunden noch nicht zerfallen ist.',
         type: 'Wn', w0: 30, wn: 0.9375, t: 65, thalf: 13, unit: 'g', timeUnit: 'Stunden'
     },
     {
-        sigKey: 'msa-2016-i-4a', label: 'MSA 2016 I — Aufgabe 4a',
+        sigKey: 'msa-2016-i-4a', label: 'MSA 2016 I/4a',
         text: 'Die Halbwertszeit von Astat-210 beträgt 8 Stunden. Berechne die Masse, die nach 2 Tagen (= 48 Stunden) von ursprünglich 5 kg noch vorhanden ist.',
         type: 'Wn', w0: 5000, wn: 78.125, t: 48, thalf: 8, unit: 'g', timeUnit: 'Stunden'
     },
     {
-        sigKey: 'msa-2016-i-4b', label: 'MSA 2016 I — Aufgabe 4b',
+        sigKey: 'msa-2016-i-4b', label: 'MSA 2016 I/4b',
         text: 'Die Halbwertszeit von Astat-210 beträgt 8 Stunden. Nach 40 Stunden sind von einer bestimmten Menge noch 16,25 g übrig. Berechne die Ausgangsmenge.',
         type: 'W0', w0: 520, wn: 16.25, t: 40, thalf: 8, unit: 'g', timeUnit: 'Stunden'
     },
     {
-        sigKey: 'msa-2012-ii-3a', label: 'MSA 2012 II — Aufgabe 3a',
+        sigKey: 'msa-2012-ii-3a', label: 'MSA 2012 II/3a',
         text: 'Cäsium-137 hat eine Halbwertszeit von 30 Jahren. Berechne, wie viel Gramm bei einer Ausgangsmenge von 2,5 kg nach 60 Jahren noch vorhanden sind.',
         type: 'Wn', w0: 2500, wn: 625, t: 60, thalf: 30, unit: 'g', timeUnit: 'Jahren'
     },
     {
-        sigKey: 'msa-mp-ii-6b', label: 'MSA Musterprüfung II — Aufgabe 6b',
+        sigKey: 'msa-mp-ii-6b', label: 'MSA Muster II/6b',
         text: 'Plutonium-243 hat eine Halbwertszeit von 5 Stunden. Berechne die Masse des ursprünglich vorhandenen Plutoniums-243, wenn nach 20 Stunden noch 15 mg nachweisbar sind.',
         type: 'W0', w0: 240, wn: 15, t: 20, thalf: 5, unit: 'mg', timeUnit: 'Stunden'
     },
     {
-        sigKey: 'msa-mp-ii-6c', label: 'MSA Musterprüfung II — Aufgabe 6c',
+        sigKey: 'msa-mp-ii-6c', label: 'MSA Muster II/6c',
         text: 'Plutonium-243 hat eine Halbwertszeit von 5 Stunden. Ermittle rechnerisch, nach wie vielen Stunden von ursprünglich 400 mg noch 12,5 mg vorhanden sind.',
         type: 't', w0: 400, wn: 12.5, t: 25, thalf: 5, unit: 'mg', timeUnit: 'Stunden'
     }

@@ -44,7 +44,7 @@ const _pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 const wahrscheinlichkeitsExamTasks = [
     {
         sigKey: 'msa-2025-i-7b',
-        label: 'MSA 2025 I — Aufgabe 7b',
+        label: 'MSA 2025 I/7b',
         text: 'Bei einer Faschingsveranstaltung werden 150 äußerlich nicht unterscheidbare Krapfen verkauft. Davon sind 75 mit Aprikosenmarmelade (A), 70 mit Erdbeermarmelade (E) und 5 mit Senf (S) gefüllt. Die ersten beiden Kunden kaufen nacheinander je einen Krapfen. Berechne die Wahrscheinlichkeit, dass die beiden zuerst verkauften Krapfen mit Aprikosenmarmelade gefüllt sind.',
         type: 'ohne',
         total: 150,
@@ -57,7 +57,7 @@ const wahrscheinlichkeitsExamTasks = [
     },
     {
         sigKey: 'msa-2024-ii-5b',
-        label: 'MSA 2024 II — Aufgabe 5b',
+        label: 'MSA 2024 II/5b',
         text: 'In einer Getränkekiste befinden sich 12 Flaschen mit gleicher Form: 3 Flaschen Wasser (W), 5 Flaschen Apfelschorle (A) und 4 Flaschen Holunderschorle (H). Yannis holt sich zweimal nacheinander je eine Flasche aus der Kiste, ohne zurückzulegen. Berechne die Wahrscheinlichkeit, dass Yannis beide Male eine Flasche mit Holunderschorle entnimmt.',
         type: 'ohne',
         total: 12,
@@ -70,7 +70,7 @@ const wahrscheinlichkeitsExamTasks = [
     },
     {
         sigKey: 'msa-2024-i-9-adapt',
-        label: 'MSA 2024 I — Aufgabe 9 (adaptiert für 2 Züge)',
+        label: 'MSA 2024 I/9',
         text: 'In einem Behälter befinden sich 20 Kugeln. Auf jede Kugel ist genau eine Zahl aufgedruckt: viermal die Zahl 1, sechsmal die Zahl 2 und zehnmal die Zahl 3. Nacheinander werden zwei Kugeln gezogen ohne Zurücklegen. Berechne die Wahrscheinlichkeit, dass beide Male die Zahl 3 gezogen wird.',
         type: 'ohne',
         total: 20,
@@ -83,7 +83,7 @@ const wahrscheinlichkeitsExamTasks = [
     },
     {
         sigKey: 'msa-2017-ii-10b-adapt',
-        label: 'MSA 2017 II — Aufgabe 10b (adaptiert für 2 Kategorien)',
+        label: 'MSA 2017 II/10b',
         text: 'Bei einem Skirennen starten zwölf Läufer: 4 Deutsche, 5 Österreicher und 3 Schweizer. Die Startreihenfolge wird zufällig ausgelost. Wir unterscheiden nur zwischen "Schweizer" und "Andere" (Deutsche oder Österreicher). Berechne die Wahrscheinlichkeit, dass unter den ersten beiden Startern kein Schweizer ist.',
         type: 'ohne',
         total: 12,
@@ -95,7 +95,7 @@ const wahrscheinlichkeitsExamTasks = [
     },
     {
         sigKey: 'msa-2016-i-3b',
-        label: 'MSA 2016 I — Aufgabe 3b',
+        label: 'MSA 2016 I/3b',
         text: 'In einer Tüte befinden sich 4 rote, 2 grüne und 1 weißes Gummibärchen. Christiane nimmt ein Gummibärchen heraus und isst es. Anschließend nimmt sie ein zweites und isst es ebenfalls. Berechne die Wahrscheinlichkeit, dass beide Gummibärchen rot sind.',
         type: 'ohne',
         total: 7,
@@ -108,7 +108,7 @@ const wahrscheinlichkeitsExamTasks = [
     },
     {
         sigKey: 'msa-2014-ii-8b',
-        label: 'MSA 2014 II — Aufgabe 8b',
+        label: 'MSA 2014 II/8b',
         text: 'In einer Lostrommel auf dem Jahrmarkt befinden sich noch 1 Hauptgewinn (H), 9 Kleingewinne (K) und 40 Nieten (N). Moritz zieht zwei Lose aus der Trommel und öffnet sie nacheinander. Berechne die Wahrscheinlichkeit, dass Moritz zwei Nieten zieht.',
         type: 'ohne',
         total: 50,
@@ -121,7 +121,7 @@ const wahrscheinlichkeitsExamTasks = [
     },
     {
         sigKey: 'msa-2013-ii-3-adapt',
-        label: 'MSA 2013 II — Aufgabe 3 (adaptiert: beide gleich)',
+        label: 'MSA 2013 II/3',
         text: 'In einem Behälter befinden sich 60 Kugeln: 24 gelbe (G) und 36 blaue (B). Nacheinander werden zwei Kugeln ohne Zurücklegen gezogen. Berechne die Wahrscheinlichkeit, dass beide Kugeln gelb sind.',
         type: 'ohne',
         total: 60,

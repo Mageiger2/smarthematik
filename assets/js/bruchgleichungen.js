@@ -67,10 +67,23 @@ const generateTemplate3 = () => { // Schwer
 };
 
 const hardcodedProblems = [
-    { id: 1, diff: "Prüfung 2018 I", renderEquation: () => <div className="flex items-center text-xl font-math"><Frac top="8x + 39" bot="4x - 12" /><span className="mx-2">=</span><span>x</span></div>, steps: { def: { expected: ["3"], inputs: 1 }, hn: { expected: ["4x-12", "4(x-3)", "4*(x-3)", "(4x-12)"] }, multLeft: { expected: ["8x+39"] }, multRight: { expected: ["4x^2-12x", "x(4x-12)", "x*(4x-12)"] }, zusammen: { expected: ["x^2-5x-9.75=0", "x^2-5x-39/4=0", "0=x^2-5x-9.75"] }, pq_p: { expected: ["-5"] }, pq_q: { expected: ["-9.75", "-39/4"] }, pq_x1x2: { expected: ["6.5", "-1.5"], inputs: 2 }, lm: { expected: ["6.5", "-1.5"], inputs: 2 } } },
-    { id: 2, diff: "Prüfung 2018 II", renderEquation: () => <div className="flex items-center text-xl font-math"><Frac top="x" bot="2" /><span className="mx-2">+</span><Frac top="x" bot="x - 3" /><span className="mx-2">=</span><Frac top="3" bot="x - 3" /><span className="mx-2">- 2</span></div>, steps: { def: { expected: ["3"], inputs: 1 }, hn: { expected: ["2(x-3)", "2*(x-3)", "2x-6"] }, multLeft: { expected: ["x^2-x", "x(x-3)+2x", "x^2-3x+2x"] }, multRight: { expected: ["18-4x", "6-4(x-3)", "6-4x+12"] }, zusammen: { expected: ["x^2+3x-18=0", "0=x^2+3x-18"] }, pq_p: { expected: ["3"] }, pq_q: { expected: ["-18"] }, pq_x1x2: { expected: ["3", "-6"], inputs: 2 }, lm: { expected: ["-6"], inputs: 1 } } },
-    { id: 3, diff: "Prüfung 2017 I", renderEquation: () => <div className="flex items-center text-xl font-math"><Frac top="x - 4" bot="6" /><span className="mx-2">+</span><Frac top="4(x - 11)" bot="x - 6" /><span className="mx-2">=</span><Frac top="16 - x" bot="2" /></div>, steps: { def: { expected: ["6"], inputs: 1 }, hn: { expected: ["6(x-6)", "6*(x-6)", "6x-36"] }, multLeft: { expected: ["x^2+14x-240", "(x-4)(x-6)+24(x-11)"] }, multRight: { expected: ["-3x^2+66x-288", "3(x-6)(16-x)"] }, zusammen: { expected: ["x^2-13x+12=0", "0=x^2-13x+12", "4x^2-52x+48=0"] }, pq_p: { expected: ["-13"] }, pq_q: { expected: ["12"] }, pq_x1x2: { expected: ["12", "1"], inputs: 2 }, lm: { expected: ["12", "1"], inputs: 2 } } },
-    { id: 4, diff: "Prüfung 2016 I", renderEquation: () => <div className="flex items-center text-xl font-math"><Frac top="2(x + 2)" bot="x" /><span className="mx-2">=</span><span className="mx-2">2 -</span><Frac top="2 - x" bot="x - 2" /></div>, steps: { def: { expected: ["0", "2"], inputs: 2 }, hn: { expected: ["x(x-2)", "x*(x-2)", "x^2-2x"] }, multLeft: { expected: ["2x^2-8", "2(x+2)(x-2)", "(2x+4)(x-2)"] }, multRight: { expected: ["3x^2-6x", "2x(x-2)-x(2-x)", "2x^2-4x-2x+x^2"] }, zusammen: { expected: ["x^2-6x+8=0", "0=x^2-6x+8"] }, pq_p: { expected: ["-6"] }, pq_q: { expected: ["8"] }, pq_x1x2: { expected: ["4", "2"], inputs: 2 }, lm: { expected: ["4"], inputs: 1 } } }
+    { id: 1, diff: "MSA 2018 I/8", renderEquation: () => <div className="flex items-center text-xl font-math"><Frac top="8x + 39" bot="4x - 12" /><span className="mx-2">=</span><span>x</span></div>, steps: { def: { expected: ["3"], inputs: 1 }, hn: { expected: ["4x-12", "4(x-3)", "4*(x-3)", "(4x-12)"] }, multLeft: { expected: ["8x+39"] }, multRight: { expected: ["4x^2-12x", "x(4x-12)", "x*(4x-12)"] }, zusammen: { expected: ["x^2-5x-9.75=0", "x^2-5x-39/4=0", "0=x^2-5x-9.75"] }, pq_p: { expected: ["-5"] }, pq_q: { expected: ["-9.75", "-39/4"] }, pq_x1x2: { expected: ["6.5", "-1.5"], inputs: 2 }, lm: { expected: ["6.5", "-1.5"], inputs: 2 } } },
+    { id: 2, diff: "MSA 2018 II/8", renderEquation: () => <div className="flex items-center text-xl font-math"><Frac top="x" bot="2" /><span className="mx-2">+</span><Frac top="x" bot="x - 3" /><span className="mx-2">=</span><Frac top="3" bot="x - 3" /><span className="mx-2">- 2</span></div>, steps: { def: { expected: ["3"], inputs: 1 }, hn: { expected: ["2(x-3)", "2*(x-3)", "2x-6"] }, multLeft: { expected: ["x^2-x", "x(x-3)+2x", "x^2-3x+2x"] }, multRight: { expected: ["18-4x", "6-4(x-3)", "6-4x+12"] }, zusammen: { expected: ["x^2+3x-18=0", "0=x^2+3x-18"] }, pq_p: { expected: ["3"] }, pq_q: { expected: ["-18"] }, pq_x1x2: { expected: ["3", "-6"], inputs: 2 }, lm: { expected: ["-6"], inputs: 1 } } },
+    { id: 3, diff: "MSA 2017 I/8", renderEquation: () => <div className="flex items-center text-xl font-math"><Frac top="x - 4" bot="6" /><span className="mx-2">+</span><Frac top="4(x - 11)" bot="x - 6" /><span className="mx-2">=</span><Frac top="16 - x" bot="2" /></div>, steps: { def: { expected: ["6"], inputs: 1 }, hn: { expected: ["6(x-6)", "6*(x-6)", "6x-36"] }, multLeft: { expected: ["x^2+14x-240", "(x-4)(x-6)+24(x-11)"] }, multRight: { expected: ["-3x^2+66x-288", "3(x-6)(16-x)"] }, zusammen: { expected: ["x^2-13x+12=0", "0=x^2-13x+12", "4x^2-52x+48=0"] }, pq_p: { expected: ["-13"] }, pq_q: { expected: ["12"] }, pq_x1x2: { expected: ["12", "1"], inputs: 2 }, lm: { expected: ["12", "1"], inputs: 2 } } },
+    { id: 4, diff: "MSA 2016 I/8", renderEquation: () => <div className="flex items-center text-xl font-math"><Frac top="2(x + 2)" bot="x" /><span className="mx-2">=</span><span className="mx-2">2 -</span><Frac top="2 - x" bot="x - 2" /></div>, steps: { def: { expected: ["0", "2"], inputs: 2 }, hn: { expected: ["x(x-2)", "x*(x-2)", "x^2-2x"] }, multLeft: { expected: ["2x^2-8", "2(x+2)(x-2)", "(2x+4)(x-2)"] }, multRight: { expected: ["3x^2-6x", "2x(x-2)-x(2-x)", "2x^2-4x-2x+x^2"] }, zusammen: { expected: ["x^2-6x+8=0", "0=x^2-6x+8"] }, pq_p: { expected: ["-6"] }, pq_q: { expected: ["8"] }, pq_x1x2: { expected: ["4", "2"], inputs: 2 }, lm: { expected: ["4"], inputs: 1 } } },
+    { id: 5, diff: "MSA 2025 I/8", renderEquation: () => <div className="flex items-center text-xl font-math"><Frac top="1" bot="x - 10" /><span className="mx-2">=</span><Frac top="2x" bot="4x" /><span className="mx-2">+</span><Frac top="40" bot="4x(x - 10)" /></div>, steps: { def: { expected: ["0", "10"], inputs: 2 }, hn: { expected: ["4x(x-10)", "4x*(x-10)"] }, multLeft: { expected: ["4x"] }, multRight: { expected: ["2x(x-10)+40", "2x^2-20x+40", "2x*(x-10)+40"] }, zusammen: { expected: ["x^2-12x+20=0", "0=x^2-12x+20", "2x^2-24x+40=0", "0=2x^2-24x+40"] }, pq_p: { expected: ["-12"] }, pq_q: { expected: ["20"] }, pq_x1x2: { expected: ["10", "2"], inputs: 2 }, lm: { expected: ["2"], inputs: 1 } } },
+    { id: 6, diff: "MSA 2025 II/8", renderEquation: () => <div className="flex items-center text-xl font-math"><Frac top="x + 4" bot="2" /><span className="mx-2">+</span><Frac top="3x - 12" bot="x - 4" /><span className="mx-2">=</span><span>4,5</span></div>, steps: { def: { expected: ["4"], inputs: 1 }, hn: { expected: ["2(x-4)", "2*(x-4)", "2x-8"] }, multLeft: { expected: ["x^2+6x-40", "(x+4)(x-4)+2(3x-12)", "(x+4)(x-4)+6x-24"] }, multRight: { expected: ["9(x-4)", "9x-36", "9*(x-4)"] }, zusammen: { expected: ["x^2-3x-4=0", "0=x^2-3x-4"] }, pq_p: { expected: ["-3"] }, pq_q: { expected: ["-4"] }, pq_x1x2: { expected: ["4", "-1"], inputs: 2 }, lm: { expected: ["-1"], inputs: 1 } } },
+    { id: 7, diff: "MSA 2024 II/8", renderEquation: () => <div className="flex items-center text-xl font-math"><Frac top="28x - 12" bot="8" /><span className="mx-2">=</span><Frac top="(x + 3)²" bot="x - 1" /></div>, steps: { def: { expected: ["1"], inputs: 1 }, hn: { expected: ["8(x-1)", "8*(x-1)", "8x-8"] }, multLeft: { expected: ["28x^2-40x+12", "(28x-12)(x-1)"] }, multRight: { expected: ["8(x+3)^2", "8x^2+48x+72"] }, zusammen: { expected: ["x^2-4.4x-3=0", "0=x^2-4.4x-3", "5x^2-22x-15=0", "0=5x^2-22x-15", "20x^2-88x-60=0", "0=20x^2-88x-60"] }, pq_p: { expected: ["-4.4", "-22/5"] }, pq_q: { expected: ["-3"] }, pq_x1x2: { expected: ["5", "-0.6"], inputs: 2 }, lm: { expected: ["5", "-0.6"], inputs: 2 } } },
+    { id: 8, diff: "MSA 2023 I/8", renderEquation: () => <div className="flex items-center text-xl font-math"><Frac top="x" bot="2" /><span className="mx-2">+</span><Frac top="x + 7" bot="2x - 4" /><span className="mx-2">=</span><Frac top="6(x - 2)" bot="16" /></div>, steps: { def: { expected: ["2"], inputs: 1 }, hn: { expected: ["16(x-2)", "16*(x-2)", "16x-32"] }, multLeft: { expected: ["8x^2-8x+56", "8x(x-2)+8(x+7)"] }, multRight: { expected: ["6(x-2)^2", "6x^2-24x+24"] }, zusammen: { expected: ["x^2+8x+16=0", "0=x^2+8x+16", "2x^2+16x+32=0", "0=2x^2+16x+32"] }, pq_p: { expected: ["8"] }, pq_q: { expected: ["16"] }, pq_x1x2: { expected: ["-4"], inputs: 1 }, lm: { expected: ["-4"], inputs: 1 } } },
+    { id: 9, diff: "MSA 2023 II/8", renderEquation: () => <div className="flex items-center text-xl font-math"><Frac top="x" bot="5 + x" /><span className="mx-2">=</span><Frac top="4" bot="x + 1" /><span className="mx-2">-</span><Frac top="4x" bot="(5 + x)(x + 1)" /></div>, steps: { def: { expected: ["-5", "-1"], inputs: 2 }, hn: { expected: ["(5+x)(x+1)", "(x+5)(x+1)", "(x+1)(5+x)", "(x+1)(x+5)"] }, multLeft: { expected: ["x^2+x", "x(x+1)", "x*(x+1)"] }, multRight: { expected: ["20", "4(5+x)-4x", "4x+20-4x", "4(x+5)-4x"] }, zusammen: { expected: ["x^2+x-20=0", "0=x^2+x-20"] }, pq_p: { expected: ["1"] }, pq_q: { expected: ["-20"] }, pq_x1x2: { expected: ["4", "-5"], inputs: 2 }, lm: { expected: ["4"], inputs: 1 } } },
+    { id: 10, diff: "MSA 2022 I/8", renderEquation: () => <div className="flex items-center text-xl font-math"><Frac top="1,5x + 6" bot="x + 6,5" /><span className="mx-2">=</span><Frac top="x - 3" bot="2x - 3" /></div>, steps: { def: { expected: ["-6.5", "1.5"], inputs: 2 }, hn: { expected: ["(x+6.5)(2x-3)", "(2x-3)(x+6.5)"] }, multLeft: { expected: ["3x^2+7.5x-18", "(1.5x+6)(2x-3)"] }, multRight: { expected: ["x^2+3.5x-19.5", "(x-3)(x+6.5)"] }, zusammen: { expected: ["x^2+2x+0.75=0", "0=x^2+2x+0.75", "x^2+2x+3/4=0", "2x^2+4x+1.5=0", "0=2x^2+4x+1.5"] }, pq_p: { expected: ["2"] }, pq_q: { expected: ["0.75", "3/4"] }, pq_x1x2: { expected: ["-0.5", "-1.5"], inputs: 2 }, lm: { expected: ["-0.5", "-1.5"], inputs: 2 } } },
+    { id: 11, diff: "MSA 2021 I/8", renderEquation: () => <div className="flex items-center text-xl font-math"><Frac top="4" bot="x" /><span className="mx-2">+</span><Frac top="1" bot="3 + x" /><span className="mx-2">=</span><Frac top="7" bot="x - 2" /></div>, steps: { def: { expected: ["-3", "0", "2"], inputs: 3 }, hn: { expected: ["x(3+x)(x-2)", "x(x+3)(x-2)", "x(x-2)(x+3)", "x(x-2)(3+x)"] }, multLeft: { expected: ["5x^2+2x-24", "4(3+x)(x-2)+x(x-2)"] }, multRight: { expected: ["7x^2+21x", "7x(3+x)", "7x(x+3)"] }, zusammen: { expected: ["x^2+9.5x+12=0", "0=x^2+9.5x+12", "2x^2+19x+24=0", "0=2x^2+19x+24"] }, pq_p: { expected: ["9.5", "19/2"] }, pq_q: { expected: ["12"] }, pq_x1x2: { expected: ["-1.5", "-8"], inputs: 2 }, lm: { expected: ["-1.5", "-8"], inputs: 2 } } },
+    { id: 12, diff: "MSA 2021 II/8", renderEquation: () => <div className="flex items-center text-xl font-math"><Frac top="60" bot="x" /><span className="mx-2">-</span><Frac top="32" bot="x + 1" /><span className="mx-2">=</span><Frac top="26" bot="x - 2" /></div>, steps: { def: { expected: ["-1", "0", "2"], inputs: 3 }, hn: { expected: ["x(x+1)(x-2)", "x(x-2)(x+1)"] }, multLeft: { expected: ["28x^2+4x-120", "60(x+1)(x-2)-32x(x-2)"] }, multRight: { expected: ["26x^2+26x", "26x(x+1)"] }, zusammen: { expected: ["x^2-11x-60=0", "0=x^2-11x-60", "2x^2-22x-120=0", "0=2x^2-22x-120"] }, pq_p: { expected: ["-11"] }, pq_q: { expected: ["-60"] }, pq_x1x2: { expected: ["15", "-4"], inputs: 2 }, lm: { expected: ["15", "-4"], inputs: 2 } } },
+    { id: 13, diff: "MSA 2020 I/8", renderEquation: () => <div className="flex items-center text-xl font-math"><Frac top="-x" bot="x + 3" /><span className="mx-2">+ 2 =</span><span className="mx-2">1 -</span><Frac top="3x" bot="4(x - 2)" /></div>, steps: { def: { expected: ["-3", "2"], inputs: 2 }, hn: { expected: ["4(x+3)(x-2)", "4(x-2)(x+3)"] }, multLeft: { expected: ["4x^2+16x-48", "-4x(x-2)+8(x+3)(x-2)"] }, multRight: { expected: ["x^2-5x-24", "4(x+3)(x-2)-3x(x+3)"] }, zusammen: { expected: ["x^2+7x-8=0", "0=x^2+7x-8", "3x^2+21x-24=0", "0=3x^2+21x-24"] }, pq_p: { expected: ["7"] }, pq_q: { expected: ["-8"] }, pq_x1x2: { expected: ["1", "-8"], inputs: 2 }, lm: { expected: ["1", "-8"], inputs: 2 } } },
+    { id: 14, diff: "MSA 2020 II/8", renderEquation: () => <div className="flex items-center text-xl font-math"><Frac top="8x + 7" bot="(x + 1)(x + 2)" /><span className="mx-2">=</span><Frac top="9" bot="x + 2" /><span className="mx-2">-</span><Frac top="2x" bot="x + 1" /></div>, steps: { def: { expected: ["-2", "-1"], inputs: 2 }, hn: { expected: ["(x+1)(x+2)", "(x+2)(x+1)"] }, multLeft: { expected: ["8x+7"] }, multRight: { expected: ["-2x^2+5x+9", "9(x+1)-2x(x+2)"] }, zusammen: { expected: ["x^2+1.5x-1=0", "0=x^2+1.5x-1", "2x^2+3x-2=0", "0=2x^2+3x-2", "x^2+3/2x-1=0"] }, pq_p: { expected: ["1.5", "3/2"] }, pq_q: { expected: ["-1"] }, pq_x1x2: { expected: ["0.5", "-2"], inputs: 2 }, lm: { expected: ["0.5"], inputs: 1 } } },
+    { id: 15, diff: "MSA 2019 I/8", renderEquation: () => <div className="flex items-center text-xl font-math"><Frac top="x" bot="2x - 2" /><span className="mx-2">- 0,25 =</span><Frac top="2" bot="4x - 8" /></div>, steps: { def: { expected: ["1", "2"], inputs: 2 }, hn: { expected: ["4(x-1)(x-2)", "4(x-2)(x-1)"] }, multLeft: { expected: ["x^2-x-2", "2x(x-2)-(x-1)(x-2)"] }, multRight: { expected: ["2x-2", "2(x-1)"] }, zusammen: { expected: ["x^2-3x=0", "0=x^2-3x"] }, pq_p: { expected: ["-3"] }, pq_q: { expected: ["0"] }, pq_x1x2: { expected: ["3", "0"], inputs: 2 }, lm: { expected: ["3", "0"], inputs: 2 } } },
+    { id: 16, diff: "MSA 2019 II/8", renderEquation: () => <div className="flex items-center text-xl font-math"><Frac top="2(2 + x)" bot="6 - x" /><span className="mx-2">+ 2 =</span><Frac top="6 + x" bot="x" /></div>, steps: { def: { expected: ["0", "6"], inputs: 2 }, hn: { expected: ["x(6-x)", "(6-x)x", "x*(6-x)"] }, multLeft: { expected: ["16x", "2x(2+x)+2x(6-x)"] }, multRight: { expected: ["36-x^2", "(6+x)(6-x)"] }, zusammen: { expected: ["x^2+16x-36=0", "0=x^2+16x-36"] }, pq_p: { expected: ["16"] }, pq_q: { expected: ["-36"] }, pq_x1x2: { expected: ["2", "-18"], inputs: 2 }, lm: { expected: ["2", "-18"], inputs: 2 } } },
+    { id: 17, diff: "MSA 2017 II/8", renderEquation: () => <div className="flex items-center text-xl font-math"><Frac top="10" bot="x + 3" /><span className="mx-2">+</span><Frac top="9(x - 4)" bot="x + 1" /><span className="mx-2">=</span><Frac top="5x" bot="x + 3" /><span className="mx-2">- 6</span></div>, steps: { def: { expected: ["-3", "-1"], inputs: 2 }, hn: { expected: ["(x+3)(x+1)", "(x+1)(x+3)"] }, multLeft: { expected: ["9x^2+x-98", "10(x+1)+9(x-4)(x+3)"] }, multRight: { expected: ["-x^2-19x-18", "5x(x+1)-6(x+3)(x+1)"] }, zusammen: { expected: ["x^2+2x-8=0", "0=x^2+2x-8", "10x^2+20x-80=0", "0=10x^2+20x-80"] }, pq_p: { expected: ["2"] }, pq_q: { expected: ["-8"] }, pq_x1x2: { expected: ["2", "-4"], inputs: 2 }, lm: { expected: ["2", "-4"], inputs: 2 } } }
 ];
 
 // ==========================================
@@ -80,6 +93,10 @@ const BruchgleichungsTrainer = () => {
     const [probList, setProbList] = useState([generateTemplate1()]);
     const [currentProblemIdx, setCurrentProblemIdx] = useState(0);
     const [selectedDiff, setSelectedDiff] = useState('leicht');
+    // Prüfungs-Pool: gemischte Reihenfolge, jede Aufgabe einmal durchlaufen,
+    // dann frisch mischen.
+    const [examShuffled, setExamShuffled] = useState([]);
+    const [examIdx, setExamIdx] = useState(0);
 
     const [currentStep, setCurrentStep] = useState(1);
     const [errors, setErrors] = useState(0);
@@ -88,14 +105,28 @@ const BruchgleichungsTrainer = () => {
     const [showAnim, setShowAnim] = useState(false);
     const [streak, setStreak] = useState(() => getStorage('smarth_streak_brueche', 0));
 
-    const [defInputs, setDefInputs] = useState(["", ""]); const [hnInput, setHnInput] = useState(""); const [multLeft, setMultLeft] = useState(""); const [multRight, setMultRight] = useState(""); const [zusInput, setZusInput] = useState(""); const [pqP, setPqP] = useState(""); const [pqQ, setPqQ] = useState(""); const [einsetzenP1, setEinsetzenP1] = useState(""); const [einsetzenP2, setEinsetzenP2] = useState(""); const [einsetzenQ, setEinsetzenQ] = useState(""); const [pqX, setPqX] = useState(["", ""]); const [lmInputs, setLmInputs] = useState(["", ""]);
+    const [defInputs, setDefInputs] = useState(["", "", ""]); const [hnInput, setHnInput] = useState(""); const [multLeft, setMultLeft] = useState(""); const [multRight, setMultRight] = useState(""); const [zusInput, setZusInput] = useState(""); const [pqP, setPqP] = useState(""); const [pqQ, setPqQ] = useState(""); const [einsetzenP1, setEinsetzenP1] = useState(""); const [einsetzenP2, setEinsetzenP2] = useState(""); const [einsetzenQ, setEinsetzenQ] = useState(""); const [pqX, setPqX] = useState(["", ""]); const [lmInputs, setLmInputs] = useState(["", ""]);
 
     useEffect(() => { setStorage('smarth_streak_brueche', streak); }, [streak]);
     const prob = probList[currentProblemIdx];
 
     const clearForm = () => {
         setCurrentStep(1); setErrors(0); setErrorMsg(""); setTipRevealed(false);
-        setDefInputs(["", ""]); setHnInput(""); setMultLeft(""); setMultRight(""); setZusInput(""); setPqP(""); setPqQ(""); setEinsetzenP1(""); setEinsetzenP2(""); setEinsetzenQ(""); setPqX(["", ""]); setLmInputs(["", ""]);
+        setDefInputs(["", "", ""]); setHnInput(""); setMultLeft(""); setMultRight(""); setZusInput(""); setPqP(""); setPqQ(""); setEinsetzenP1(""); setEinsetzenP2(""); setEinsetzenQ(""); setPqX(["", ""]); setLmInputs(["", ""]);
+    };
+
+    // Holt die nächste Prüfungsaufgabe aus dem gemischten Pool. Reshuffle, wenn alle dran waren.
+    const drawNextExam = () => {
+        let pool = examShuffled;
+        let idx = examIdx;
+        if (pool.length === 0 || idx >= pool.length) {
+            pool = shuffleArray(hardcodedProblems);
+            setExamShuffled(pool);
+            idx = 0;
+        }
+        setProbList([pool[idx]]);
+        setCurrentProblemIdx(0);
+        setExamIdx(idx + 1);
     };
 
     const changeDifficulty = (diff) => {
@@ -105,16 +136,20 @@ const BruchgleichungsTrainer = () => {
         else if (diff === 'schwer') setProbList([generateTemplate3()]);
         else if (diff === 'pruefung') {
             if (selectedDiff === 'pruefung') {
-                setCurrentProblemIdx((prev) => (prev + 1) % hardcodedProblems.length);
+                drawNextExam();
                 return;
             } else {
-                setProbList(hardcodedProblems); setCurrentProblemIdx(0);
+                // Beim Wechsel ZU Prüfungsaufgaben Pool zurücksetzen.
+                const pool = shuffleArray(hardcodedProblems);
+                setExamShuffled(pool); setExamIdx(1);
+                setProbList([pool[0]]); setCurrentProblemIdx(0);
+                return;
             }
         }
         if(diff !== 'pruefung') setCurrentProblemIdx(0);
     };
 
-    const handleNextPruefung = () => { setCurrentProblemIdx((prev) => (prev + 1) % hardcodedProblems.length); clearForm(); };
+    const handleNextPruefung = () => { drawNextExam(); clearForm(); };
     const handleError = (msg) => { setErrorMsg(msg); setErrors(prev => prev + 1); setStreak(0); };
     const advanceStep = () => {
         const nextStep = currentStep + 1;
@@ -178,7 +213,7 @@ const BruchgleichungsTrainer = () => {
                 <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                     <div className="bg-amber-50 px-6 py-3 border-b border-amber-200 flex justify-between items-center">
                         <h2 className="font-semibold text-amber-900 flex items-center"><BookOpen size={18} className="mr-2"/> Gegebene Gleichung</h2>
-                        <span className="text-xs font-bold px-2 py-1 rounded uppercase tracking-wider bg-amber-200 text-amber-800">{prob.diff}</span>
+                        {selectedDiff === 'pruefung' && <span className="text-xs font-bold px-2 py-1 rounded uppercase tracking-wider bg-amber-200 text-amber-800">{prob.diff}</span>}
                     </div>
                     <div className="p-8 flex justify-center bg-white overflow-x-auto min-h-[120px] items-center">{prob.renderEquation()}</div>
                 </div>
@@ -187,8 +222,9 @@ const BruchgleichungsTrainer = () => {
                     <StepCard title="1. Definitionsmenge bestimmen" stepNum={1} currentStep={currentStep} theme="amber">
                         <div className="flex items-center space-x-3 mb-2">
                             <span className="font-semibold text-lg">D = ℝ \ {'{'}</span>
-                            <input type="text" value={defInputs[0]} onChange={e => setDefInputs([e.target.value, defInputs[1]])} className={inputStyle(1)} disabled={currentStep !== 1} />
-                            {prob.steps.def.inputs === 2 && (<><span className="font-semibold">;</span><input type="text" value={defInputs[1]} onChange={e => setDefInputs([defInputs[0], e.target.value])} className={inputStyle(1)} disabled={currentStep !== 1} /></>)}
+                            <input type="text" value={defInputs[0]} onChange={e => { const nd = [...defInputs]; nd[0] = e.target.value; setDefInputs(nd); }} className={inputStyle(1)} disabled={currentStep !== 1} />
+                            {prob.steps.def.inputs >= 2 && (<><span className="font-semibold">;</span><input type="text" value={defInputs[1]} onChange={e => { const nd = [...defInputs]; nd[1] = e.target.value; setDefInputs(nd); }} className={inputStyle(1)} disabled={currentStep !== 1} /></>)}
+                            {prob.steps.def.inputs >= 3 && (<><span className="font-semibold">;</span><input type="text" value={defInputs[2]} onChange={e => { const nd = [...defInputs]; nd[2] = e.target.value; setDefInputs(nd); }} className={inputStyle(1)} disabled={currentStep !== 1} /></>)}
                             <span className="font-semibold text-lg">{'}'}</span>
                             {currentStep === 1 && <SubmitBtn onClick={validateStep1} theme="amber" />}
                         </div>

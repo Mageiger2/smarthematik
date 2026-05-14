@@ -9,9 +9,48 @@ const preventArrows = (e) => {
 };
 
 // ==========================================
+// PRÜFUNGSAUFGABEN-POOL (MSA Bayern)
+// ==========================================
+const potenzenExamTasks = [
+    {
+        sourceLabel: "MSA 2025 I/6",
+        vars: ['x', 'y', 'z'],
+        raw: {
+            num: <span>18<span className="font-math-italic">x</span><sup>6</sup><span className="font-math-italic">z</span><sup>2</sup> · 24<span className="font-math-italic">y</span><sup>3</sup> · 10<span className="font-math-italic">x</span><sup>3</sup> · <span className="font-math-italic">z</span></span>,
+            denom: <span>12<span className="font-math-italic">x</span><sup>4</sup> · 6<span className="font-math-italic">y</span><sup>3</sup><span className="font-math-italic">z</span> · 12<span className="font-math-italic">x</span></span>
+        },
+        s1: { num: 4320, den: 864 },
+        s2: { numExp: { x: 9, y: 3, z: 3 }, denExp: { x: 5, y: 3, z: 1 } },
+        s3: { coefNum: 5, coefDen: 1, exp: { x: 4, y: 0, z: 2 } }
+    },
+    {
+        sourceLabel: "MSA 2024 I/3",
+        vars: ['x', 'y', 'z'],
+        raw: {
+            num: <span>9<span className="font-math-italic">x</span><sup>-2</sup><span className="font-math-italic">y</span> · 4<span className="font-math-italic">y</span><sup>2</sup><span className="font-math-italic">z</span><sup>-3</sup> · 5<span className="font-math-italic">x</span><sup>7</sup></span>,
+            denom: <span><span className="font-math-italic">y</span><sup>-1</sup><span className="font-math-italic">z</span><sup>2</sup> · 3<span className="font-math-italic">x</span><sup>-2</sup><span className="font-math-italic">y</span><sup>-1</sup> · 2<span className="font-math-italic">x</span><sup>1</sup><span className="font-math-italic">z</span><sup>-2</sup></span>
+        },
+        s1: { num: 180, den: 6 },
+        s2: { numExp: { x: 5, y: 3, z: -3 }, denExp: { x: -1, y: -2, z: 0 } },
+        s3: { coefNum: 30, coefDen: 1, exp: { x: 6, y: 5, z: -3 } }
+    },
+    {
+        sourceLabel: "MSA 2019 II/7a",
+        vars: ['a', 'b'],
+        raw: {
+            num: <span>3<span className="font-math-italic">a</span><sup>3</sup> · 4<span className="font-math-italic">b</span><sup>-7</sup> · 3<span className="font-math-italic">a</span><sup>-1</sup> · 3<span className="font-math-italic">b</span><sup>8</sup></span>,
+            denom: <span>9<span className="font-math-italic">a</span><sup>-2</sup> · 15<span className="font-math-italic">b</span></span>
+        },
+        s1: { num: 108, den: 135 },
+        s2: { numExp: { a: 2, b: 1 }, denExp: { a: -2, b: 1 } },
+        s3: { coefNum: 4, coefDen: 5, exp: { a: 4, b: 0 } }
+    }
+];
+
+// ==========================================
 // GENERATORS
 // ==========================================
-const generatePotenzenProblem = (diff) => {
+const generatePotenzenProblem = (diff, examIdxFromPool) => {
     let problem = {};
 
     if (diff === 'leicht') {
@@ -81,40 +120,9 @@ const generatePotenzenProblem = (diff) => {
         };
     }
     else {
-        // Prüfungsaufgaben (MSA Bayern)
-        const prf = [
-            {   // MSA 2025 I/6
-                vars: ['x', 'y', 'z'],
-                raw: {
-                    num: <span>18<span className="font-math-italic">x</span><sup>6</sup><span className="font-math-italic">z</span><sup>2</sup> · 24<span className="font-math-italic">y</span><sup>3</sup> · 10<span className="font-math-italic">x</span><sup>3</sup> · <span className="font-math-italic">z</span></span>,
-                    denom: <span>12<span className="font-math-italic">x</span><sup>4</sup> · 6<span className="font-math-italic">y</span><sup>3</sup><span className="font-math-italic">z</span> · 12<span className="font-math-italic">x</span></span>
-                },
-                s1: { num: 4320, den: 864 },
-                s2: { numExp: { x: 9, y: 3, z: 3 }, denExp: { x: 5, y: 3, z: 1 } },
-                s3: { coefNum: 5, coefDen: 1, exp: { x: 4, y: 0, z: 2 } }
-            },
-            {   // MSA 2024 I/3
-                vars: ['x', 'y', 'z'],
-                raw: {
-                    num: <span>9<span className="font-math-italic">x</span><sup>-2</sup><span className="font-math-italic">y</span> · 4<span className="font-math-italic">y</span><sup>2</sup><span className="font-math-italic">z</span><sup>-3</sup> · 5<span className="font-math-italic">x</span><sup>7</sup></span>,
-                    denom: <span><span className="font-math-italic">y</span><sup>-1</sup><span className="font-math-italic">z</span><sup>2</sup> · 3<span className="font-math-italic">x</span><sup>-2</sup><span className="font-math-italic">y</span><sup>-1</sup> · 2<span className="font-math-italic">x</span><sup>1</sup><span className="font-math-italic">z</span><sup>-2</sup></span>
-                },
-                s1: { num: 180, den: 6 },
-                s2: { numExp: { x: 5, y: 3, z: -3 }, denExp: { x: -1, y: -2, z: 0 } },
-                s3: { coefNum: 30, coefDen: 1, exp: { x: 6, y: 5, z: -3 } }
-            },
-            {   // MSA 2019 II/7a
-                vars: ['a', 'b'],
-                raw: {
-                    num: <span>3<span className="font-math-italic">a</span><sup>3</sup> · 4<span className="font-math-italic">b</span><sup>-7</sup> · 3<span className="font-math-italic">a</span><sup>-1</sup> · 3<span className="font-math-italic">b</span><sup>8</sup></span>,
-                    denom: <span>9<span className="font-math-italic">a</span><sup>-2</sup> · 15<span className="font-math-italic">b</span></span>
-                },
-                s1: { num: 108, den: 135 },
-                s2: { numExp: { a: 2, b: 1 }, denExp: { a: -2, b: 1 } },
-                s3: { coefNum: 4, coefDen: 5, exp: { a: 4, b: 0 } }
-            }
-        ];
-        problem = prf[Math.floor(Math.random() * prf.length)];
+        // Prüfungsaufgaben: Index wird vom Trainer aus dem gemischten Pool gezogen.
+        const i = (typeof examIdxFromPool === 'number') ? examIdxFromPool : Math.floor(Math.random() * potenzenExamTasks.length);
+        problem = { ...potenzenExamTasks[i] };
         problem.diff = 'pruefung';
     }
 
@@ -177,6 +185,10 @@ const PotenzenTrainer = () => {
     const [step4HintMsg, setStep4HintMsg] = useState(null);
     const [showAnim, setShowAnim] = useState(false);
 
+    // Prüfungs-Pool (gemischt, jede Aufgabe einmal durchlaufen, dann frisch mischen).
+    const [examShuffled, setExamShuffled] = useState([]);
+    const [examIdx, setExamIdx] = useState(0);
+
     const isHard = difficulty === 'schwer' || difficulty === 'pruefung';
 
     useEffect(() => { setStorage('smarth_streak_potenzen', streak); }, [streak]);
@@ -194,17 +206,42 @@ const PotenzenTrainer = () => {
         setFeedback(prev => ({ ...prev, [key]: null }));
     };
 
-    const generateProblem = () => {
+    // diffOverride wird beim Wechsel der Schwierigkeit übergeben, damit der erste Pool-Draw
+    // den frischen Pool benutzt (nicht den stalen state).
+    const generateProblem = (diffOverride, freshPool, freshIdx) => {
         setLoading(true); setStep(1);
         setInputs({}); setFeedback({});
         setErrors(0); setTipRevealed(false);
         setStep4HintMsg(null);
-        const newProb = generatePotenzenProblem(difficulty);
+        const d = diffOverride || difficulty;
+        let newProb;
+        if (d === 'pruefung') {
+            let pool = freshPool || examShuffled;
+            let idx = (freshIdx !== undefined) ? freshIdx : examIdx;
+            if (pool.length === 0 || idx >= pool.length) {
+                pool = shuffleArray(Array.from({ length: potenzenExamTasks.length }, (_, i) => i));
+                setExamShuffled(pool); idx = 0;
+            }
+            newProb = generatePotenzenProblem(d, pool[idx]);
+            setExamIdx(idx + 1);
+        } else {
+            newProb = generatePotenzenProblem(d);
+        }
         setProblem(newProb);
         setLoading(false);
     };
 
-    useEffect(() => { generateProblem(); }, [difficulty]);
+    useEffect(() => {
+        // Beim Wechsel ZU Prüfungsaufgaben Pool frisch mischen.
+        if (difficulty === 'pruefung') {
+            const pool = shuffleArray(Array.from({ length: potenzenExamTasks.length }, (_, i) => i));
+            setExamShuffled(pool);
+            generateProblem('pruefung', pool, 0);
+        } else {
+            generateProblem();
+        }
+        // eslint-disable-next-line
+    }, [difficulty]);
 
     // Liefert den Lösungstext für den aktuellen Schritt — TipBox blendet ihn nach
     // 3 Fehleingaben + Klick auf "Lösung anzeigen" als Text ein. Kein Autofill.
@@ -365,7 +402,7 @@ const PotenzenTrainer = () => {
                 <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                     <div className="bg-cyan-50 px-6 py-3 border-b border-cyan-200 flex justify-between items-center">
                         <h2 className="font-semibold text-cyan-900 flex items-center"><Hash className="mr-2 w-5 h-5"/> Ausgangsterm</h2>
-                        {difficulty === 'pruefung' && <span className="text-xs font-bold px-2 py-1 rounded uppercase tracking-wider bg-amber-200 text-amber-800">MSA Niveau</span>}
+                        {difficulty === 'pruefung' && problem?.sourceLabel && <span className="text-xs font-bold px-2 py-1 rounded uppercase tracking-wider bg-amber-200 text-amber-800">{problem.sourceLabel}</span>}
                     </div>
                     <div className="p-8 bg-white flex flex-col items-center justify-center text-center overflow-x-auto">
                         {loading || !problem ? <RefreshCw className="w-8 h-8 animate-spin text-cyan-400"/> :

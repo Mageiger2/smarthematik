@@ -10,77 +10,77 @@
 // ==========================================
 const wachstumsExamTasks = [
     {
-        sigKey: 'msa-2025-i-5b', label: 'MSA 2025 I — Aufgabe 5b',
+        sigKey: 'msa-2025-i-5b', label: 'MSA 2025 I/5b',
         text: 'Ein Hauskäufer erhofft sich ab dem Kaufpreis von 170 000 € eine jährliche prozentuale Wertsteigerung von 3,1 %. Berechne, nach wie vielen Jahren das Haus auf diese Weise 525 000 € wert wäre.',
         type: 'n', isGrowth: true, w0: 170000, wn: 525000, rate: 3.1, n: 37, unit: '€', timeUnit: 'Jahren'
     },
     {
-        sigKey: 'msa-2025-i-5c', label: 'MSA 2025 I — Aufgabe 5c',
+        sigKey: 'msa-2025-i-5c', label: 'MSA 2025 I/5c',
         text: 'Nach dem Kauf für 170 000 € sinkt der Wert eines Hauses 11 Jahre lang um durchschnittlich 0,5 % pro Jahr. Ermittle den Wert des Hauses nach diesen 11 Jahren.',
         type: 'Wn', isGrowth: false, w0: 170000, wn: 160854, rate: 0.5, n: 11, unit: '€', timeUnit: 'Jahren'
     },
     {
-        sigKey: 'msa-2024-i-5a', label: 'MSA 2024 I — Aufgabe 5a',
+        sigKey: 'msa-2024-i-5a', label: 'MSA 2024 I/5a',
         text: 'In einer Urlaubsregion gab es 2010 insgesamt 88 Millionen Übernachtungen. In den folgenden neun Jahren ist die Zahl exponentiell auf 101 Millionen im Jahr 2019 gestiegen. Berechne den jährlichen Zuwachs in Prozent.',
         type: 'rate', isGrowth: true, w0: 88, wn: 101, rate: 1.55, n: 9, unit: 'Mio.', timeUnit: 'Jahren'
     },
     {
-        sigKey: 'msa-2023-i-7a', label: 'MSA 2023 I — Aufgabe 7a',
+        sigKey: 'msa-2023-i-7a', label: 'MSA 2023 I/7a',
         text: 'Frau Müller legt 1000 € an und erhält einen jährlichen Zinssatz von 4,9 %. Berechne die Höhe des Kapitals nach einem Anlagezeitraum von vier Jahren.',
         type: 'Wn', isGrowth: true, w0: 1000, wn: 1211.29, rate: 4.9, n: 4, unit: '€', timeUnit: 'Jahren'
     },
     {
-        sigKey: 'msa-2023-i-7b', label: 'MSA 2023 I — Aufgabe 7b',
+        sigKey: 'msa-2023-i-7b', label: 'MSA 2023 I/7b',
         text: 'Frau Müller legt 1000 € zu einem jährlichen Zinssatz von 4,9 % an. Ermittle rechnerisch, nach wie vielen Jahren sich das Kapital verdreifacht.',
         type: 'n', isGrowth: true, w0: 1000, wn: 3000, rate: 4.9, n: 23, unit: '€', timeUnit: 'Jahren'
     },
     {
-        sigKey: 'msa-2022-i-2a', label: 'MSA 2022 I — Aufgabe 2a',
+        sigKey: 'msa-2022-i-2a', label: 'MSA 2022 I/2a',
         text: 'Der Neupreis eines Autos beträgt 37 450 €. Berechne, in wie vielen Jahren sich der Wert auf 25 000 € verringert, wenn man von einem jährlich gleichbleibenden prozentualen Wertverlust von 12,7 % ausgeht.',
         type: 'n', isGrowth: false, w0: 37450, wn: 25000, rate: 12.7, n: 3, unit: '€', timeUnit: 'Jahren'
     },
     {
-        sigKey: 'msa-2022-ii-9a', label: 'MSA 2022 II — Aufgabe 9a',
+        sigKey: 'msa-2022-ii-9a', label: 'MSA 2022 II/9a',
         text: 'Am 1. Januar 2010 wohnten in einer Stadt 460 725 Einwohner. Diese Einwohnerzahl stieg in neun Jahren um insgesamt 30 800 (also auf 491 525). Berechne das durchschnittliche jährliche Bevölkerungswachstum dieser Stadt in Prozent.',
         type: 'rate', isGrowth: true, w0: 460725, wn: 491525, rate: 0.72, n: 9, unit: 'Einwohner', timeUnit: 'Jahren'
     },
     {
-        sigKey: 'msa-2021-i-2c', label: 'MSA 2021 I — Aufgabe 2c',
+        sigKey: 'msa-2021-i-2c', label: 'MSA 2021 I/2c',
         text: 'Berechne, nach wie vielen Jahren sich die Bevölkerung einer Stadt verdoppeln würde, wenn man von einem durchschnittlichen jährlichen Zuwachs von 3,75 % ausgeht. Runde das Ergebnis auf volle Jahre.',
         type: 'n', isGrowth: true, w0: 100, wn: 200, rate: 3.75, n: 19, unit: 'Einwohner', timeUnit: 'Jahren'
     },
     {
-        sigKey: 'msa-2019-i-8b', label: 'MSA 2019 I — Aufgabe 8b',
+        sigKey: 'msa-2019-i-8b', label: 'MSA 2019 I/8b',
         text: 'Im Jahr 2006 waren 1931 Elektroautos zugelassen. In den folgenden 12 Jahren stieg die Zahl auf 34 022. Ermittle die durchschnittliche jährliche Zunahme in Prozent.',
         type: 'rate', isGrowth: true, w0: 1931, wn: 34022, rate: 26.78, n: 12, unit: 'Autos', timeUnit: 'Jahren'
     },
     {
-        sigKey: 'msa-2019-ii-2b', label: 'MSA 2019 II — Aufgabe 2b',
+        sigKey: 'msa-2019-ii-2b', label: 'MSA 2019 II/2b',
         text: 'Ein Brauer produziert 5000 Hektoliter Bier pro Jahr und geht von einem durchschnittlichen jährlichen Anstieg von 6 % aus. Berechne, nach wie vielen Jahren er die Jahresmenge verdoppeln kann.',
         type: 'n', isGrowth: true, w0: 5000, wn: 10000, rate: 6, n: 12, unit: 'hl', timeUnit: 'Jahren'
     },
     {
-        sigKey: 'msa-2018-i-8a', label: 'MSA 2018 I — Aufgabe 8a',
+        sigKey: 'msa-2018-i-8a', label: 'MSA 2018 I/8a',
         text: 'Am 31. Dezember 2007 hatte eine Stadt 133 539 Einwohner. Am letzten Tag des Jahres 2016 waren es nur noch 124 698 Einwohner. Berechne den durchschnittlichen jährlichen Bevölkerungsrückgang in Prozent.',
         type: 'rate', isGrowth: false, w0: 133539, wn: 124698, rate: 0.76, n: 9, unit: 'Einwohner', timeUnit: 'Jahren'
     },
     {
-        sigKey: 'msa-2014-ii-7a', label: 'MSA 2014 II — Aufgabe 7a',
+        sigKey: 'msa-2014-ii-7a', label: 'MSA 2014 II/7a',
         text: 'Alexandras Oma legt bei der Geburt 850 € zu einem jährlichen Zinssatz von 3,57 % an. Die Zinsen werden jedes Jahr dem Kapital gutgeschrieben. Ermittle den Betrag, auf den das Kapital bis zum 17. Geburtstag angewachsen ist.',
         type: 'Wn', isGrowth: true, w0: 850, wn: 1546.80, rate: 3.57, n: 17, unit: '€', timeUnit: 'Jahren'
     },
     {
-        sigKey: 'msa-2013-ii-6a', label: 'MSA 2013 II — Aufgabe 6a',
+        sigKey: 'msa-2013-ii-6a', label: 'MSA 2013 II/6a',
         text: 'Herr Badenberg kaufte einen Neuwagen zum Preis von 27 500 €. Nach 3 Jahren verkaufte er den Wagen für 13 750 €. Berechne den durchschnittlichen jährlichen Wertverlust in Prozent.',
         type: 'rate', isGrowth: false, w0: 27500, wn: 13750, rate: 20.63, n: 3, unit: '€', timeUnit: 'Jahren'
     },
     {
-        sigKey: 'msa-2012-i-3b', label: 'MSA 2012 I — Aufgabe 3b',
+        sigKey: 'msa-2012-i-3b', label: 'MSA 2012 I/3b',
         text: 'Ein Auto kostete neu 48 000 €. Ermittle, nach wie vielen Jahren das Auto noch 10 000 € wert wäre, wenn der durchschnittliche jährliche Wertverlust gleichbleibend 18 % des jeweiligen Restwertes beträgt.',
         type: 'n', isGrowth: false, w0: 48000, wn: 10000, rate: 18, n: 8, unit: '€', timeUnit: 'Jahren'
     },
     {
-        sigKey: 'msa-2010-i-1a', label: 'MSA 2010 I — Aufgabe 1a',
+        sigKey: 'msa-2010-i-1a', label: 'MSA 2010 I/1a',
         text: 'Berechne, bei welchem festen Zinssatz sich ein Kapital in einem Zeitraum von 21 Jahren nur durch Zins und Zinseszins verdreifacht. Runde den Zinssatz auf eine Dezimalstelle.',
         type: 'rate', isGrowth: true, w0: 100, wn: 300, rate: 5.4, n: 21, unit: '€', timeUnit: 'Jahren'
     }
