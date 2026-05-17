@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Beratung digitale Bildung — sMArTHEMATIK</title>
+    <!-- Cache-Hygiene: HTML immer revalidieren (Assets werden über ?v=... versioniert). -->
+    <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <title>sMArTHEMATIK</title>
     <meta name="description" content="Interaktive Mathetrainer und digitale Lerntools für die 10. Klasse Mittelschule Bayern: Wachstum &amp; Zerfall, Halbwertszeit, Bruchgleichungen, Bin. Formeln, Potenzen, Trigonometrie, Wahrscheinlichkeit und Kopfrechnen für den MSA.">
 
     <link rel="canonical" href="https://www.smarthematik.de/index.html">
@@ -13,8 +16,9 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://www.smarthematik.de/index.html">
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="assets/css/main.css">
+    <!-- Self-hosted Tailwind (kein Cross-Origin zu US-Servern) -->
+    <script src="assets/vendor/tailwindcss.js?v=202605171011"></script>
+    <link rel="stylesheet" href="assets/css/main.css?v=202605171011">
 </head>
 <body class="text-slate-800 font-sans antialiased flex flex-col min-h-screen">
 
@@ -40,7 +44,7 @@
                 <img src="cropped-BdB_Logo-1.png" alt="Beratung digitale Bildung Logo" class="h-6 sm:h-10 md:h-12 w-auto object-contain">
             </div>
         </div>
-        <nav id="nav-menu" class="hidden absolute right-2 sm:right-6 top-full mt-2 w-72 max-w-[calc(100vw-1rem)] bg-white border border-slate-200 rounded-xl shadow-xl p-2 flex flex-col" role="navigation" aria-label="Hauptnavigation"><a href="index.html" class="flex items-center gap-2 px-4 py-3 rounded-lg font-semibold bg-indigo-50 text-indigo-700" aria-current="page">Startseite</a><a href="wachstum.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Wachstum & Zerfall</a><a href="halbwertszeit.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Halbwertszeit</a><a href="bruchgleichungen.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Bruchgleichungen</a><a href="binformeln.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Bin. Formeln</a><a href="potenzen.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Potenzen</a><a href="trigonometrie.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Trigonometrie</a><a href="wahrscheinlichkeit.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Wahrscheinlichkeit</a><a href="kopfrechnen.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Kopfrechnen</a><div class="border-t border-slate-200 my-2"></div><a href="impressum.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-500 hover:bg-slate-50 hover:text-indigo-700 text-sm transition-colors">Impressum</a><a href="datenschutz.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-500 hover:bg-slate-50 hover:text-indigo-700 text-sm transition-colors">Datenschutz</a></nav>
+        <nav id="nav-menu" class="hidden absolute right-2 sm:right-6 top-full mt-2 w-72 max-w-[calc(100vw-1rem)] bg-white border border-slate-200 rounded-xl shadow-xl p-2 flex flex-col" role="navigation" aria-label="Hauptnavigation"><a href="index.html" class="flex items-center gap-2 px-4 py-3 rounded-lg font-semibold bg-indigo-50 text-indigo-700" aria-current="page">Startseite</a><a href="kopfrechnen.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Kopfrechnen</a><a href="binformeln.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Bin. Formeln</a><a href="bruchgleichungen.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Bruchgleichungen</a><a href="halbwertszeit.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Halbwertszeit</a><a href="potenzen.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Potenzen</a><a href="trigonometrie.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Trigonometrie</a><a href="wachstum.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Wachstum & Zerfall</a><a href="wahrscheinlichkeit.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Wahrscheinlichkeit</a><div class="border-t border-slate-200 my-2"></div><a href="impressum.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-500 hover:bg-slate-50 hover:text-indigo-700 text-sm transition-colors">Impressum</a><a href="datenschutz.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-500 hover:bg-slate-50 hover:text-indigo-700 text-sm transition-colors">Datenschutz</a></nav>
     </header>
 
     <main class="flex-grow">
@@ -62,29 +66,13 @@
             <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
                 <div class="text-center mb-12"><h3 class="text-2xl font-bold text-slate-800">Verfügbare Mathetrainer</h3></div>
                 <div class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    <a href="wachstum.html" class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl transition-all hover:-translate-y-1 flex flex-col items-center text-center group cursor-pointer no-underline">
-                        <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="3" x2="3" y2="21" stroke-width="1.4"/><line x1="3" y1="21" x2="22" y2="21" stroke-width="1.4"/><path d="M 5.5 19 C 11 19, 15.5 16, 20.5 5" stroke-width="2.8"/></svg>
+                    <a href="kopfrechnen.html" class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl transition-all hover:-translate-y-1 flex flex-col items-center text-center group cursor-pointer no-underline">
+                        <div class="w-16 h-16 bg-sky-100 text-sky-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/><line x1="2" y1="2" x2="22" y2="22"/></svg>
                         </div>
-                        <h4 class="text-xl font-bold text-slate-800 mb-3">Wachstum &amp; Zerfall</h4>
-                        <p class="text-slate-600 mb-8 flex-grow text-sm">Zinseszins, Bevölkerung und Wertverlust (q &gt; 0) berechnen.</p>
-                        <span class="w-full inline-flex items-center justify-center px-4 py-2 border border-emerald-200 font-medium rounded-lg text-emerald-700 bg-emerald-50 group-hover:bg-emerald-600 group-hover:text-white shadow-sm transition-all">Zum Trainer</span>
-                    </a>
-                    <a href="halbwertszeit.html" class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl transition-all hover:-translate-y-1 flex flex-col items-center text-center group cursor-pointer no-underline">
-                        <div class="w-16 h-16 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="3" x2="3" y2="21" stroke-width="1.4"/><line x1="3" y1="21" x2="22" y2="21" stroke-width="1.4"/><path d="M 5.5 5 C 9 17, 14.5 19.2, 20.5 19.2" stroke-width="2.8"/></svg>
-                        </div>
-                        <h4 class="text-xl font-bold text-slate-800 mb-3">Halbwertszeit</h4>
-                        <p class="text-slate-600 mb-8 flex-grow text-sm">Radioaktivität und Medikamente abbauen (q = 0,5).</p>
-                        <span class="w-full inline-flex items-center justify-center px-4 py-2 border border-rose-200 font-medium rounded-lg text-rose-700 bg-rose-50 group-hover:bg-rose-600 group-hover:text-white shadow-sm transition-all">Zum Trainer</span>
-                    </a>
-                    <a href="bruchgleichungen.html" class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl transition-all hover:-translate-y-1 flex flex-col items-center text-center group cursor-pointer no-underline">
-                        <div class="w-16 h-16 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><line x1="3" x2="21" y1="12" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><text x="12" y="9" text-anchor="middle" font-family="serif" font-style="italic" font-size="9" font-weight="600" fill="currentColor">1</text><text x="12" y="22" text-anchor="middle" font-family="serif" font-style="italic" font-size="9" font-weight="600" fill="currentColor">x−1</text></svg>
-                        </div>
-                        <h4 class="text-xl font-bold text-slate-800 mb-3">Bruchgleichungen</h4>
-                        <p class="text-slate-600 mb-8 flex-grow text-sm">Training zur Lösung komplexer Bruchgleichungen mit pq-Formel.</p>
-                        <span class="w-full inline-flex items-center justify-center px-4 py-2 border border-amber-200 font-medium rounded-lg text-amber-700 bg-amber-50 group-hover:bg-amber-600 group-hover:text-white shadow-sm transition-all">Zum Trainer</span>
+                        <h4 class="text-xl font-bold text-slate-800 mb-3">Kopfrechnen</h4>
+                        <p class="text-slate-600 mb-8 flex-grow text-sm">Schnelles Denken: Verschiedene Aufgabentypen für den MSA im Kopf lösen.</p>
+                        <span class="w-full inline-flex items-center justify-center px-4 py-2 border border-sky-200 font-medium rounded-lg text-sky-700 bg-sky-50 group-hover:bg-sky-500 group-hover:text-white shadow-sm transition-all">Zum Trainer</span>
                     </a>
                     <a href="binformeln.html" class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl transition-all hover:-translate-y-1 flex flex-col items-center text-center group cursor-pointer no-underline">
                         <div class="w-16 h-16 bg-teal-100 text-teal-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
@@ -94,9 +82,25 @@
                         <p class="text-slate-600 mb-8 flex-grow text-sm">Ausmultiplizieren und Lückenfüller-Aufgaben auf MSA-Niveau.</p>
                         <span class="w-full inline-flex items-center justify-center px-4 py-2 border border-teal-200 font-medium rounded-lg text-teal-700 bg-teal-50 group-hover:bg-teal-600 group-hover:text-white shadow-sm transition-all">Zum Trainer</span>
                     </a>
+                    <a href="bruchgleichungen.html" class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl transition-all hover:-translate-y-1 flex flex-col items-center text-center group cursor-pointer no-underline">
+                        <div class="w-16 h-16 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><line x1="3" x2="21" y1="12" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><text x="12" y="10" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" font-weight="700" fill="currentColor">1</text><text x="12" y="22" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" font-weight="700" fill="currentColor">x−1</text></svg>
+                        </div>
+                        <h4 class="text-xl font-bold text-slate-800 mb-3">Bruchgleichungen</h4>
+                        <p class="text-slate-600 mb-8 flex-grow text-sm">Training zur Lösung komplexer Bruchgleichungen mit pq-Formel.</p>
+                        <span class="w-full inline-flex items-center justify-center px-4 py-2 border border-amber-200 font-medium rounded-lg text-amber-700 bg-amber-50 group-hover:bg-amber-600 group-hover:text-white shadow-sm transition-all">Zum Trainer</span>
+                    </a>
+                    <a href="halbwertszeit.html" class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl transition-all hover:-translate-y-1 flex flex-col items-center text-center group cursor-pointer no-underline">
+                        <div class="w-16 h-16 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linejoin="round"><line x1="3" y1="4" x2="3" y2="21" stroke-width="1.2"/><polygon points="3,1.5 1.5,5 4.5,5" fill="currentColor" stroke="none"/><line x1="3" y1="21" x2="20" y2="21" stroke-width="1.2"/><polygon points="22.5,21 19,19.5 19,22.5" fill="currentColor" stroke="none"/><path d="M 5 5.5 C 9 17, 14 19, 19.5 19" stroke-width="1.8" stroke-linecap="butt"/></svg>
+                        </div>
+                        <h4 class="text-xl font-bold text-slate-800 mb-3">Halbwertszeit</h4>
+                        <p class="text-slate-600 mb-8 flex-grow text-sm">Radioaktivität und Medikamente abbauen (q = 0,5).</p>
+                        <span class="w-full inline-flex items-center justify-center px-4 py-2 border border-rose-200 font-medium rounded-lg text-rose-700 bg-rose-50 group-hover:bg-rose-600 group-hover:text-white shadow-sm transition-all">Zum Trainer</span>
+                    </a>
                     <a href="potenzen.html" class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl transition-all hover:-translate-y-1 flex flex-col items-center text-center group cursor-pointer no-underline">
                         <div class="w-16 h-16 bg-cyan-100 text-cyan-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><text x="4" y="18" font-family="'Times New Roman', serif" font-style="italic" font-size="18" fill="currentColor">x</text><text x="13" y="10" font-family="sans-serif" font-weight="bold" font-size="13" fill="currentColor">2</text></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><text x="5" y="18" font-family="system-ui, sans-serif" font-weight="700" font-size="14" fill="currentColor">x</text><text x="14" y="11" font-family="system-ui, sans-serif" font-weight="700" font-size="10" fill="currentColor">2</text></svg>
                         </div>
                         <h4 class="text-xl font-bold text-slate-800 mb-3">Potenzen</h4>
                         <p class="text-slate-600 mb-8 flex-grow text-sm">Potenzterme vereinfachen — inkl. MSA-Prüfungsaufgaben.</p>
@@ -110,6 +114,14 @@
                         <p class="text-slate-600 mb-8 flex-grow text-sm">Trigonometrie und Satzgruppe des Pythagoras im rechtwinkligen Dreieck.</p>
                         <span class="w-full inline-flex items-center justify-center px-4 py-2 border border-orange-200 font-medium rounded-lg text-orange-700 bg-orange-50 group-hover:bg-orange-600 group-hover:text-white shadow-sm transition-all">Zum Trainer</span>
                     </a>
+                    <a href="wachstum.html" class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl transition-all hover:-translate-y-1 flex flex-col items-center text-center group cursor-pointer no-underline">
+                        <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linejoin="round"><line x1="3" y1="4" x2="3" y2="21" stroke-width="1.2"/><polygon points="3,1.5 1.5,5 4.5,5" fill="currentColor" stroke="none"/><line x1="3" y1="21" x2="20" y2="21" stroke-width="1.2"/><polygon points="22.5,21 19,19.5 19,22.5" fill="currentColor" stroke="none"/><path d="M 5 19 C 11 19, 15 16, 19.5 5.5" stroke-width="1.8" stroke-linecap="butt"/></svg>
+                        </div>
+                        <h4 class="text-xl font-bold text-slate-800 mb-3">Wachstum &amp; Zerfall</h4>
+                        <p class="text-slate-600 mb-8 flex-grow text-sm">Zinseszins, Bevölkerung und Wertverlust (q &gt; 0) berechnen.</p>
+                        <span class="w-full inline-flex items-center justify-center px-4 py-2 border border-emerald-200 font-medium rounded-lg text-emerald-700 bg-emerald-50 group-hover:bg-emerald-600 group-hover:text-white shadow-sm transition-all">Zum Trainer</span>
+                    </a>
                     <a href="wahrscheinlichkeit.html" class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl transition-all hover:-translate-y-1 flex flex-col items-center text-center group cursor-pointer no-underline">
                         <div class="w-16 h-16 bg-violet-100 text-violet-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="12" height="12" x="2" y="10" rx="2" ry="2"/><path d="M17.92 14H20a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2h-8a2 2 0 0 0-2 2v2"/><circle cx="6" cy="14" r="1"/><circle cx="10" cy="18" r="1"/><circle cx="16" cy="8" r="1"/></svg>
@@ -117,14 +129,6 @@
                         <h4 class="text-xl font-bold text-slate-800 mb-3">Wahrscheinlichkeit</h4>
                         <p class="text-slate-600 mb-8 flex-grow text-sm">Baumdiagramme mit/ohne Zurücklegen und Pfadregel anwenden.</p>
                         <span class="w-full inline-flex items-center justify-center px-4 py-2 border border-violet-200 font-medium rounded-lg text-violet-700 bg-violet-50 group-hover:bg-violet-600 group-hover:text-white shadow-sm transition-all">Zum Trainer</span>
-                    </a>
-                    <a href="kopfrechnen.html" class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl transition-all hover:-translate-y-1 flex flex-col items-center text-center group cursor-pointer no-underline">
-                        <div class="w-16 h-16 bg-sky-100 text-sky-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/><line x1="2" y1="2" x2="22" y2="22"/></svg>
-                        </div>
-                        <h4 class="text-xl font-bold text-slate-800 mb-3">Kopfrechnen</h4>
-                        <p class="text-slate-600 mb-8 flex-grow text-sm">Schnelles Denken: Verschiedene Aufgabentypen für den MSA im Kopf lösen.</p>
-                        <span class="w-full inline-flex items-center justify-center px-4 py-2 border border-sky-200 font-medium rounded-lg text-sky-700 bg-sky-50 group-hover:bg-sky-500 group-hover:text-white shadow-sm transition-all">Zum Trainer</span>
                     </a>
                 </div>
             </section>

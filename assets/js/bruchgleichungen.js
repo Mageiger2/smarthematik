@@ -104,6 +104,8 @@ const BruchgleichungsTrainer = () => {
     const [tipRevealed, setTipRevealed] = useState(false);
     const [showAnim, setShowAnim] = useState(false);
     const [streak, setStreak] = useState(() => getStorage('smarth_streak_brueche', 0));
+    // Adaptive Schwierigkeit + Lernzielkontrolle.
+    const adaptive = useAdaptive('bruchgleichungen', selectedDiff);
 
     const [defInputs, setDefInputs] = useState(["", "", ""]); const [hnInput, setHnInput] = useState(""); const [multLeft, setMultLeft] = useState(""); const [multRight, setMultRight] = useState(""); const [zusInput, setZusInput] = useState(""); const [pqP, setPqP] = useState(""); const [pqQ, setPqQ] = useState(""); const [einsetzenP1, setEinsetzenP1] = useState(""); const [einsetzenP2, setEinsetzenP2] = useState(""); const [einsetzenQ, setEinsetzenQ] = useState(""); const [pqX, setPqX] = useState(["", ""]); const [lmInputs, setLmInputs] = useState(["", ""]);
 
@@ -150,11 +152,11 @@ const BruchgleichungsTrainer = () => {
     };
 
     const handleNextPruefung = () => { drawNextExam(); clearForm(); };
-    const handleError = (msg) => { setErrorMsg(msg); setErrors(prev => prev + 1); setStreak(0); };
+    const handleError = (msg) => { setErrorMsg(msg); setErrors(prev => prev + 1); setStreak(0); adaptive.recordWrong(); };
     const advanceStep = () => {
         const nextStep = currentStep + 1;
         setCurrentStep(nextStep); setErrors(0); setErrorMsg(""); setTipRevealed(false);
-        if (nextStep > 8) { setStreak(s => s + 1); triggerCelebration(setShowAnim); }
+        if (nextStep > 8) { setStreak(s => s + 1); triggerCelebration(setShowAnim); adaptive.recordCorrect(); }
     };
 
     const validateStep1 = () => { const inputs = defInputs.slice(0, prob.steps.def.inputs); if (checkMultiInput(inputs, prob.steps.def.expected)) advanceStep(); else handleError("Die Definitionsmenge ist nicht ganz richtig."); };
@@ -192,15 +194,7 @@ const BruchgleichungsTrainer = () => {
     return (
         <div className="page-transition max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             {showAnim && <CelebrationOverlay />}
-            <header className="bg-amber-500 text-amber-950 shadow-md p-6 rounded-xl mb-6">
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div className="flex items-center space-x-3">
-                        <FractionIcon className="w-8 h-8" />
-                        <h1 className="text-2xl font-bold tracking-tight">Bruchgleichungen <span className="hidden sm:inline text-amber-800 text-lg font-normal border-l-2 border-amber-600 pl-2 ml-2">10. Klasse</span></h1>
-                    </div>
-                    <div className="bg-amber-100 px-4 py-1.5 rounded-full text-sm font-bold shadow-sm">Streak: {streak}</div>
-                </div>
-            </header>
+            <TrainerHeader theme="amber" icon={FractionIcon} title="Bruchgleichungen" streakIcon={Target} streak={streak} />
 
             <DifficultyMenu theme="amber" active={selectedDiff} onChange={changeDifficulty}
                 options={[
@@ -208,6 +202,12 @@ const BruchgleichungsTrainer = () => {
                     {id: 'schwer', label: 'Schwer'}, {id: 'pruefung', label: 'Prüfungsaufgaben'}
                 ]}
             />
+
+            {/* Lernzielkontrolle + adaptive Schwierigkeits-Empfehlung */}
+            {adaptive.stats.mastered.length > 0 && (
+                <div className="mb-4 flex justify-center"><MasteryBadge mastered={adaptive.stats.mastered} theme="amber" /></div>
+            )}
+            <AdaptiveSuggestion suggestion={adaptive.suggestion} onAccept={(d) => changeDifficulty(d)} theme="amber" />
 
             <main className="space-y-6 relative">
                 <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
@@ -220,13 +220,13 @@ const BruchgleichungsTrainer = () => {
 
                 <div className="space-y-4">
                     <StepCard title="1. Definitionsmenge bestimmen" stepNum={1} currentStep={currentStep} theme="amber">
-                        <div className="flex items-center space-x-3 mb-2">
+                        <div className="flex items-center space-x-3 mb-2" onKeyDown={enterToSubmit(validateStep1)}>
                             <span className="font-semibold text-lg">D = ℝ \ {'{'}</span>
                             <input type="text" value={defInputs[0]} onChange={e => { const nd = [...defInputs]; nd[0] = e.target.value; setDefInputs(nd); }} className={inputStyle(1)} disabled={currentStep !== 1} />
                             {prob.steps.def.inputs >= 2 && (<><span className="font-semibold">;</span><input type="text" value={defInputs[1]} onChange={e => { const nd = [...defInputs]; nd[1] = e.target.value; setDefInputs(nd); }} className={inputStyle(1)} disabled={currentStep !== 1} /></>)}
                             {prob.steps.def.inputs >= 3 && (<><span className="font-semibold">;</span><input type="text" value={defInputs[2]} onChange={e => { const nd = [...defInputs]; nd[2] = e.target.value; setDefInputs(nd); }} className={inputStyle(1)} disabled={currentStep !== 1} /></>)}
                             <span className="font-semibold text-lg">{'}'}</span>
-                            {currentStep === 1 && <SubmitBtn onClick={validateStep1} theme="amber" />}
+                            {currentStep === 1 && <SubmitBtn onClick={validateStep1} theme="amber" disabled={!defInputs.some(v => (v || '').trim().length > 0)} />}
                         </div>
                         {currentStep === 1 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text={`Setze die Nenner gleich 0. Lösung: ${prob.steps.def.expected.map(formatDe).join(' und ')}`} />}
                         {currentStep > 1 && <SuccessMark text={`D = ℝ \\ { ${prob.steps.def.expected.map(formatDe).join('; ')} }`} />}
@@ -234,10 +234,10 @@ const BruchgleichungsTrainer = () => {
 
                     {currentStep >= 2 && (
                         <StepCard title="2. Hauptnenner (HN) finden" stepNum={2} currentStep={currentStep} theme="amber">
-                            <div className="flex items-center space-x-3 mb-2">
+                            <div className="flex items-center space-x-3 mb-2" onKeyDown={enterToSubmit(validateStep2)}>
                                 <span className="font-semibold">HN =</span>
                                 <input type="text" value={hnInput} onChange={e => setHnInput(e.target.value)} placeholder="z.B. x(x-3)" className={inputStyle(2, "w-64")} disabled={currentStep !== 2} />
-                                {currentStep === 2 && <SubmitBtn onClick={validateStep2} theme="amber" />}
+                                {currentStep === 2 && <SubmitBtn onClick={validateStep2} theme="amber" disabled={!(hnInput || '').trim()} />}
                             </div>
                             {currentStep === 2 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text={`Suche den kleinsten gemeinsamen Nenner. Lösung: ${formatDe(prob.steps.hn.expected[0])}`} />}
                             {currentStep > 2 && <SuccessMark text={`HN = ${formatDe(prob.steps.hn.expected[0])}`} />}
@@ -246,11 +246,11 @@ const BruchgleichungsTrainer = () => {
 
                     {currentStep >= 3 && (
                         <StepCard title="3. Mit dem Hauptnenner durchmultiplizieren" stepNum={3} currentStep={currentStep} theme="amber">
-                            <div className="flex flex-wrap items-center gap-3 mb-2">
+                            <div className="flex flex-wrap items-center gap-3 mb-2" onKeyDown={enterToSubmit(validateStep3)}>
                                 <input type="text" value={multLeft} onChange={e => setMultLeft(e.target.value)} placeholder="Linke Seite" className={inputStyle(3, "w-64")} disabled={currentStep !== 3} />
                                 <span className="font-bold text-xl">=</span>
                                 <input type="text" value={multRight} onChange={e => setMultRight(e.target.value)} placeholder="Rechte Seite" className={inputStyle(3, "w-64")} disabled={currentStep !== 3} />
-                                {currentStep === 3 && <SubmitBtn onClick={validateStep3} theme="amber" />}
+                                {currentStep === 3 && <SubmitBtn onClick={validateStep3} theme="amber" disabled={!(multLeft || '').trim() && !(multRight || '').trim()} />}
                             </div>
                             {currentStep === 3 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text={`Multipliziere jeden Bruch mit dem HN (Kürzen!). Lösung: ${formatDe(prob.steps.multLeft.expected[0])} = ${formatDe(prob.steps.multRight.expected[0])}`} />}
                             {currentStep > 3 && <SuccessMark text={`${formatDe(prob.steps.multLeft.expected[0])} = ${formatDe(prob.steps.multRight.expected[0])}`} />}
@@ -259,9 +259,9 @@ const BruchgleichungsTrainer = () => {
 
                     {currentStep >= 4 && (
                         <StepCard title="4. Zusammenfassen (Normalform)" stepNum={4} currentStep={currentStep} theme="amber">
-                            <div className="flex items-center space-x-3 mb-2">
+                            <div className="flex items-center space-x-3 mb-2" onKeyDown={enterToSubmit(validateStep4)}>
                                 <input type="text" value={zusInput} onChange={e => setZusInput(e.target.value)} placeholder="z.B. x^2+x-12=0" className={inputStyle(4, "w-64 font-mono")} disabled={currentStep !== 4} />
-                                {currentStep === 4 && <SubmitBtn onClick={validateStep4} theme="amber" />}
+                                {currentStep === 4 && <SubmitBtn onClick={validateStep4} theme="amber" disabled={!(zusInput || '').trim()} />}
                             </div>
                             {currentStep === 4 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text={`Bringe alles auf eine Seite und teile, falls nötig, bis x² alleine steht. Lösung: ${formatDe(prob.steps.zusammen.expected[0])}`} />}
                             {currentStep > 4 && <SuccessMark text={formatDe(prob.steps.zusammen.expected[0])} />}
@@ -270,10 +270,10 @@ const BruchgleichungsTrainer = () => {
 
                     {currentStep >= 5 && (
                         <StepCard title="5. Werte für die pq-Formel ablesen" stepNum={5} currentStep={currentStep} theme="amber">
-                            <div className="flex items-center space-x-6 mb-2">
+                            <div className="flex items-center space-x-6 mb-2" onKeyDown={enterToSubmit(validateStep5)}>
                                 <div className="flex items-center space-x-2"><span className="font-semibold text-lg italic">p =</span><input type="text" value={pqP} onChange={e => setPqP(e.target.value)} className={inputStyle(5, "w-20")} disabled={currentStep !== 5} /></div>
                                 <div className="flex items-center space-x-2"><span className="font-semibold text-lg italic">q =</span><input type="text" value={pqQ} onChange={e => setPqQ(e.target.value)} className={inputStyle(5, "w-20")} disabled={currentStep !== 5} /></div>
-                                {currentStep === 5 && <SubmitBtn onClick={validateStep5} theme="amber" />}
+                                {currentStep === 5 && <SubmitBtn onClick={validateStep5} theme="amber" disabled={!(pqP || '').trim() && !(pqQ || '').trim()} />}
                             </div>
                             {currentStep === 5 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text={`p ist die Zahl vor dem x, q ist die Zahl ohne x. Vorzeichen mitnehmen! Lösung: p=${formatDe(prob.steps.pq_p.expected[0])}, q=${formatDe(prob.steps.pq_q.expected[0])}`} />}
                             {currentStep > 5 && <SuccessMark text={`p = ${formatDe(prob.steps.pq_p.expected[0])}, q = ${formatDe(prob.steps.pq_q.expected[0])}`} />}
@@ -282,7 +282,7 @@ const BruchgleichungsTrainer = () => {
 
                     {currentStep >= 6 && (
                         <StepCard title="6. Werte in die pq-Formel einsetzen" stepNum={6} currentStep={currentStep} theme="amber">
-                            <div className="flex flex-wrap items-center space-x-2 text-xl font-math bg-slate-50 p-4 border border-slate-200 rounded-lg overflow-x-auto mb-2">
+                            <div className="flex flex-wrap items-center space-x-2 text-xl font-math bg-slate-50 p-4 border border-slate-200 rounded-lg overflow-x-auto mb-2" onKeyDown={enterToSubmit(validateStep6)}>
                                 <span>x₁,₂ = -</span>
                                 <Frac top={<input type="text" value={einsetzenP1} onChange={e=>setEinsetzenP1(e.target.value)} className={inputStyle(6, "w-16")} disabled={currentStep !== 6} placeholder="p" />} bot="2" />
                                 <span className="mx-2">±</span>
@@ -293,7 +293,7 @@ const BruchgleichungsTrainer = () => {
                                     <span>)² - </span>
                                     <input type="text" value={einsetzenQ} onChange={e=>setEinsetzenQ(e.target.value)} className={inputStyle(6, "w-20")} disabled={currentStep !== 6} placeholder="q" />
                                 </div>
-                                {currentStep === 6 && <div className="ml-4"><SubmitBtn onClick={validateStep6} theme="amber" /></div>}
+                                {currentStep === 6 && <div className="ml-4"><SubmitBtn onClick={validateStep6} theme="amber" disabled={!(einsetzenP1 || '').trim() && !(einsetzenP2 || '').trim() && !(einsetzenQ || '').trim()} /></div>}
                             </div>
                             {currentStep === 6 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text="Setze p und q exakt so ein, wie du sie oben abgelesen hast (inklusive Minuszeichen!)." />}
                             {currentStep > 6 && <SuccessMark text="Richtig eingesetzt!" />}
@@ -302,12 +302,12 @@ const BruchgleichungsTrainer = () => {
 
                     {currentStep >= 7 && (
                         <StepCard title="7. pq-Formel auflösen" stepNum={7} currentStep={currentStep} theme="amber">
-                            <div className="flex items-center space-x-6 mb-2">
+                            <div className="flex items-center space-x-6 mb-2" onKeyDown={enterToSubmit(validateStep7)}>
                                 <div className="flex items-center space-x-2"><span className="font-semibold text-lg">x₁ =</span><input type="text" value={pqX[0]} onChange={e => setPqX([e.target.value, pqX[1]])} className={inputStyle(7, "w-20")} disabled={currentStep !== 7} /></div>
                                 {prob.steps.pq_x1x2.inputs === 2 && (
                                     <div className="flex items-center space-x-2"><span className="font-semibold text-lg">x₂ =</span><input type="text" value={pqX[1]} onChange={e => setPqX([pqX[0], e.target.value])} className={inputStyle(7, "w-20")} disabled={currentStep !== 7} /></div>
                                 )}
-                                {currentStep === 7 && <SubmitBtn onClick={validateStep7} theme="amber" />}
+                                {currentStep === 7 && <SubmitBtn onClick={validateStep7} theme="amber" disabled={!(pqX[0] || '').trim() && !(pqX[1] || '').trim()} />}
                             </div>
                             {currentStep === 7 && <div className="mt-3"><CalcButton theme="amber" /></div>}
                             {currentStep === 7 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text={`Tippe es vorsichtig in den Rechner ein. Lösung: ${prob.steps.pq_x1x2.expected.map(formatDe).join(' und ')}`} />}
@@ -318,12 +318,12 @@ const BruchgleichungsTrainer = () => {
                     {currentStep >= 8 && (
                         <StepCard title="8. Lösungsmenge angeben" stepNum={8} currentStep={currentStep} theme="amber">
                             {prob.steps.lm.inputs < prob.steps.pq_x1x2.inputs && <strong className="text-red-600 block mb-2">Achtung: Eine Lösung ist laut Definitionsmenge ungültig!</strong>}
-                            <div className="flex items-center space-x-3 mb-2">
+                            <div className="flex items-center space-x-3 mb-2" onKeyDown={enterToSubmit(validateStep8)}>
                                 <span className="font-semibold text-lg">L = {'{'}</span>
                                 <input type="text" value={lmInputs[0]} onChange={e => setLmInputs([e.target.value, lmInputs[1]])} className={inputStyle(8, "w-16")} disabled={currentStep !== 8} />
                                 {prob.steps.lm.inputs === 2 && (<><span className="font-semibold">;</span><input type="text" value={lmInputs[1]} onChange={e => setLmInputs([lmInputs[0], e.target.value])} className={inputStyle(8, "w-16")} disabled={currentStep !== 8} /></>)}
                                 <span className="font-semibold text-lg">{'}'}</span>
-                                {currentStep === 8 && <SubmitBtn onClick={validateStep8} theme="amber" />}
+                                {currentStep === 8 && <SubmitBtn onClick={validateStep8} theme="amber" disabled={!(lmInputs[0] || '').trim() && !(lmInputs[1] || '').trim()} />}
                             </div>
                             {currentStep === 8 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text={`Lösung: L = { ${prob.steps.lm.expected.map(formatDe).join('; ')} }`} />}
                             {currentStep > 8 && <SuccessMark text={`L = { ${prob.steps.lm.expected.map(formatDe).join('; ')} }`} />}

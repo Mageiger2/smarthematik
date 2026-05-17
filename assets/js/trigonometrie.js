@@ -802,11 +802,16 @@ const msaTasks = [
 // Calculator NUR bei type === 'calculation' (also nicht bei Formelauswahl oder reinem Einsetzen).
 const needsCalculator = (step) => step && step.type === 'calculation';
 
-const FormulaSelection = ({ step, onCorrect, onSkip }) => {
+const FormulaSelection = ({ step, onCorrect, onTipShown }) => {
     const [error, setError] = useState("");
-    const handleSelect = (opt) => {
-        if (opt === step.correctAnswer) { setError(""); onCorrect(step.id, opt); }
-        else setError(step.feedback);
+    const [errors, setErrors] = useState(0);
+    const [tipRevealed, setTipRevealed] = useState(false);
+    // Auswahl nur markieren (kein Auto-Confirm) — Bestätigung über SubmitBtn-Pfeil.
+    const [selected, setSelected] = useState(null);
+    const confirmSelection = () => {
+        if (!selected) return;
+        if (selected === step.correctAnswer) { setError(""); onCorrect(step.id, selected); }
+        else { setError(step.feedback); setErrors(e => e + 1); }
     };
 
     return (
@@ -817,20 +822,23 @@ const FormulaSelection = ({ step, onCorrect, onSkip }) => {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
                 {step.options.map((opt, idx) => (
-                    <button key={idx} onClick={() => handleSelect(opt)} className="py-3 px-4 bg-orange-50 hover:bg-orange-100 border border-orange-200 rounded-lg font-medium transition-colors text-lg shadow-sm text-slate-800">{opt}</button>
+                    <button key={idx} onClick={() => setSelected(opt)} className={`py-3 px-4 border rounded-lg font-medium transition-colors text-lg shadow-sm text-slate-800 ${selected === opt ? 'bg-orange-500 border-orange-600 text-white font-bold' : 'bg-orange-50 hover:bg-orange-100 border-orange-200'}`}>{opt}</button>
                 ))}
             </div>
-            <div className="flex justify-between items-center mt-2">
-                <div className="text-rose-600 text-sm font-medium">{error && <span className="inline-flex items-center"><HelpCircle className="w-4 h-4 mr-1" /> {error}</span>}</div>
-                <button onClick={onSkip} className="text-sm text-slate-400 hover:text-slate-700 inline-flex items-center"><FastForward className="w-4 h-4 mr-1" /> Schritt überspringen</button>
+            <div className="flex justify-between items-center gap-3 mt-2">
+                <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} text={step.feedback || step.tip || 'Überlege, welche Seiten zum Winkel gehören.'} solutionText={step.correctAnswer} onSolutionShown={onTipShown} />
+                <SubmitBtn onClick={confirmSelection} theme="orange" disabled={!selected} />
             </div>
+            {error && <div className="text-rose-600 text-sm font-medium inline-flex items-center mt-2"><XCircle className="w-4 h-4 mr-1" /> Noch nicht richtig — schau dir die Optionen noch einmal an.</div>}
         </div>
     );
 };
 
-const SubstitutionInput = ({ step, onCorrect, onSkip }) => {
+const SubstitutionInput = ({ step, onCorrect, onTipShown }) => {
     const [inputs, setInputs] = useState(Array(step.correctInputs.length).fill(""));
     const [error, setError] = useState("");
+    const [errors, setErrors] = useState(0);
+    const [tipRevealed, setTipRevealed] = useState(false);
 
     const isMatch = (expected, actual) => {
         const a = normalizeString(actual);
@@ -849,7 +857,7 @@ const SubstitutionInput = ({ step, onCorrect, onSkip }) => {
             }
         }
         if (matched) { setError(""); onCorrect(step.id, inputs); }
-        else setError(step.feedback);
+        else { setError(step.feedback); setErrors(e => e + 1); }
     };
 
     const renderTemplate = () => {
@@ -857,7 +865,7 @@ const SubstitutionInput = ({ step, onCorrect, onSkip }) => {
         return step.template.split(/(\[input\d*\])/).map((part, i) => {
             if (part.startsWith("[input")) {
                 const idx = inputIdx++;
-                return <input key={i} type="text" value={inputs[idx]} onChange={(e) => { const n = [...inputs]; n[idx] = e.target.value; setInputs(n); }} className="w-16 border-b-2 border-orange-500 bg-white mx-2 text-center font-bold text-xl outline-none focus:bg-orange-50 transition shadow-inner text-slate-900" />;
+                return <input key={i} type="text" value={inputs[idx]} onChange={(e) => { const n = [...inputs]; n[idx] = e.target.value; setInputs(n); }} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); checkAnswer(); } }} className="w-16 border-b-2 border-orange-500 bg-white mx-2 text-center font-bold text-xl outline-none focus:bg-orange-50 transition shadow-inner text-slate-900" />;
             }
             return <span key={i} className="text-xl text-slate-800" style={{ fontFamily: "'Cambria Math', 'Times New Roman', serif", fontStyle: 'italic' }}>{part}</span>;
         });
@@ -869,30 +877,34 @@ const SubstitutionInput = ({ step, onCorrect, onSkip }) => {
                 <ArrowRight className="w-5 h-5 text-orange-600 mr-2 shrink-0" />
                 <h3 className="font-bold text-lg text-slate-800">{step.goal}</h3>
             </div>
-            <div className="mb-5 py-6 bg-orange-50 rounded-lg flex flex-wrap items-center justify-center border border-orange-200">{renderTemplate()}</div>
-            <div className="flex flex-col sm:flex-row gap-3 items-center">
-                <button onClick={checkAnswer} className="w-full sm:w-auto flex-1 bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 rounded-lg transition shadow">Werte prüfen</button>
-                <button onClick={onSkip} className="text-sm text-slate-500 hover:text-slate-800 bg-slate-100 py-3 px-4 rounded-lg inline-flex items-center"><FastForward className="w-4 h-4 mr-1" /> Überspringen</button>
+            <div className="mb-5 py-6 bg-white rounded-lg flex flex-wrap items-center justify-center border border-slate-200 shadow-inner">{renderTemplate()}</div>
+            {/* Einheitlicher SubmitBtn (Pfeil rechts in Trainer-Farbe) — wie in den anderen Trainern.
+                Enter im Eingabefeld löst die gleiche Prüfung aus. */}
+            <div className="flex justify-between items-center gap-3">
+                <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} text={step.feedback || step.tip || 'Schau dir an, welche Zahl Gegenkathete (gegenüber dem Winkel) und welche Ankathete (am Winkel) ist.'} solutionText={(step.correctInputs || []).join('   ;   ')} onSolutionShown={onTipShown} />
+                <SubmitBtn onClick={checkAnswer} theme="orange" disabled={!inputs.some(v => (v || '').trim().length > 0)} />
             </div>
-            {error && <div className="mt-3 text-rose-600 text-sm font-medium inline-flex items-center"><HelpCircle className="w-4 h-4 mr-1" /> {error}</div>}
+            {error && <div className="mt-3 text-rose-600 text-sm font-medium inline-flex items-center"><XCircle className="w-4 h-4 mr-1" /> Da stimmt noch was nicht — schau dir die Zuordnung der Seiten genau an.</div>}
         </div>
     );
 };
 
-const CalculationInput = ({ step, onCorrect, onSkip }) => {
+const CalculationInput = ({ step, onCorrect, onTipShown }) => {
     const [val, setVal] = useState("");
     const [error, setError] = useState("");
+    const [errors, setErrors] = useState(0);
+    const [tipRevealed, setTipRevealed] = useState(false);
 
     const checkAnswer = () => {
         const userVal = parseFloat(val.replace(',', '.'));
         const correct = parseFloat(step.correctAnswer.replace(',', '.'));
-        if (isNaN(userVal)) { setError(step.feedback); return; }
+        if (isNaN(userVal)) { setError(step.feedback); setErrors(e => e + 1); return; }
         const tol = step.tolerance || 0.6;
         const isStrict = Math.abs(userVal - correct) <= tol;
         const isRounded = Math.round(userVal) === Math.round(correct);
         const isOneDecimal = userVal.toFixed(1) === correct.toFixed(1);
         if (isStrict || isRounded || isOneDecimal) { setError(""); onCorrect(step.id, val); }
-        else setError(step.feedback);
+        else { setError(step.feedback); setErrors(e => e + 1); }
     };
 
     return (
@@ -901,16 +913,17 @@ const CalculationInput = ({ step, onCorrect, onSkip }) => {
                 <CheckCircle className="w-5 h-5 text-orange-600 mr-2 shrink-0" />
                 <h3 className="font-bold text-lg text-slate-800">{step.goal}</h3>
             </div>
-            <div className="mb-5 py-6 bg-orange-50 rounded-lg border border-orange-200 flex items-center justify-center text-2xl text-slate-800" style={{ fontFamily: "'Cambria Math', 'Times New Roman', serif", fontStyle: 'italic' }}>
+            <div className="mb-5 py-6 bg-white rounded-lg border border-slate-200 shadow-inner flex items-center justify-center text-2xl text-slate-800" style={{ fontFamily: "'Cambria Math', 'Times New Roman', serif", fontStyle: 'italic' }}>
                 {step.template.split("[input]")[0]}
-                <input type="text" value={val} onChange={(e) => setVal(e.target.value)} placeholder="…" className="w-24 border-2 border-orange-500 rounded-lg mx-3 text-center font-bold outline-none focus:bg-orange-50 p-2 shadow-inner text-slate-900" style={{ fontStyle: 'normal' }} onKeyDown={(e) => e.key === 'Enter' && checkAnswer()} />
+                <input type="text" value={val} onChange={(e) => setVal(e.target.value)} placeholder="…" className="w-24 border-2 border-orange-500 rounded-lg mx-3 text-center font-bold outline-none focus:bg-orange-50 p-2 shadow-inner text-slate-900" style={{ fontStyle: 'normal' }} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); checkAnswer(); } }} />
                 {step.template.split("[input]")[1]}
             </div>
-            <div className="flex flex-col sm:flex-row gap-3 items-center">
-                <button onClick={checkAnswer} className="w-full sm:w-auto flex-1 bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 rounded-lg transition shadow">Ergebnis prüfen</button>
-                <button onClick={onSkip} className="text-sm text-slate-500 hover:text-slate-800 bg-slate-100 py-3 px-4 rounded-lg inline-flex items-center"><FastForward className="w-4 h-4 mr-1" /> Überspringen</button>
+            {/* Einheitlicher SubmitBtn (Pfeil rechts in Trainer-Farbe). Enter im Eingabefeld löst dieselbe Prüfung aus. */}
+            <div className="flex justify-between items-center gap-3">
+                <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} text={step.feedback || step.tip || 'Tippe den Ausdruck genau so in den Rechner — Achtung beim Modus DEG.'} solutionText={`${step.correctAnswer}`} onSolutionShown={onTipShown} />
+                <SubmitBtn onClick={checkAnswer} theme="orange" disabled={!(val || '').trim()} />
             </div>
-            {error && <div className="mt-3 text-rose-600 text-sm font-medium inline-flex items-center"><HelpCircle className="w-4 h-4 mr-1" /> {error}</div>}
+            {error && <div className="mt-3 text-rose-600 text-sm font-medium inline-flex items-center"><XCircle className="w-4 h-4 mr-1" /> Nicht ganz — nutze den Rechner unten und prüfe noch einmal.</div>}
             <div className="mt-4 pt-4 border-t border-slate-100">
                 <CalcButton theme="orange" />
             </div>
@@ -930,6 +943,8 @@ const TrigonometrieTrainer = () => {
     const [streak, setStreak] = useState(() => getStorage('smarth_streak_trigonometrie', 0));
     const [showAnim, setShowAnim] = useState(false);
     const [taskKey, setTaskKey] = useState(0);
+    // Adaptive Schwierigkeit + Lernzielkontrolle.
+    const adaptive = useAdaptive('trigonometrie', difficulty);
 
     // Tracking für maximale Abwechslung pro Level + Anti-Repeat-Pool für MSA.
     const historyRef = React.useRef({ l1: 0, l2: 0, l3: 0 });
@@ -984,6 +999,19 @@ const TrigonometrieTrainer = () => {
 
     const skipTask = () => loadTaskForDiff(difficulty);
 
+    // Klick im DifficultyMenu: bei gleichem Schwierigkeitsgrad neue Aufgabe ziehen,
+    // sonst regulär die Schwierigkeit wechseln (useEffect lädt dann eine neue Aufgabe).
+    const handleDifficultyChange = (newDiff) => {
+        if (newDiff === difficulty) loadTaskForDiff(newDiff);
+        else setDifficulty(newDiff);
+    };
+
+    // Wenn der Schüler einen Tipp oder die Lösung sieht, zählt der Schritt nicht
+    // mehr für den Streak — wir setzen ihn proaktiv auf 0 (analog zu den anderen
+    // Trainern, die TipBox.onSolutionShown verwenden) und vermerken einen Fehler
+    // in der adaptiven Statistik.
+    const handleTipShown = () => { setStreak(0); adaptive.recordWrong(); };
+
     const handleStepCorrect = (stepId, answer) => {
         setUserAnswers(prev => ({ ...prev, [stepId]: answer }));
         if (currentStepIndex < currentTask.steps.length - 1) {
@@ -993,11 +1021,13 @@ const TrigonometrieTrainer = () => {
             const newStreak = streak + 1;
             setStreak(newStreak);
             if (newStreak > 0 && newStreak % 3 === 0) triggerCelebration(setShowAnim);
+            adaptive.recordCorrect();
         }
     };
     const handleStepSkip = () => {
         // Skip zählt nicht als richtig (Streak wird zurückgesetzt).
         setStreak(0);
+        adaptive.recordWrong();
         const cur = currentTask.steps[currentStepIndex];
         setUserAnswers(prev => ({ ...prev, [cur.id]: "(übersprungen)" }));
         if (currentStepIndex < currentTask.steps.length - 1) {
@@ -1044,29 +1074,27 @@ const TrigonometrieTrainer = () => {
         <div className="page-transition max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             {showAnim && <CelebrationOverlay />}
 
-            <header className="bg-orange-600 text-orange-50 shadow-md p-6 rounded-xl mb-6">
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div className="flex items-center space-x-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8">
-                            <polygon points="3 20 21 20 21 5" />
-                            <polyline points="18 20 18 17 21 17" />
-                            <path d="M 9 20 A 6 6 0 0 0 7.4 16.0" />
-                        </svg>
-                        <div><h1 className="text-2xl font-bold tracking-tight text-white flex items-center">Trigonometrie & Satzgruppe <span className="hidden sm:inline text-orange-200 text-lg font-normal border-l-2 border-orange-400 pl-2 ml-2">10. Klasse</span></h1></div>
-                    </div>
-                    <div className="bg-orange-700 px-4 py-1.5 rounded-full text-sm font-bold shadow-sm flex items-center">
-                        <Target className="w-4 h-4 mr-2 text-orange-300" /> Streak: {streak}
-                    </div>
-                </div>
-            </header>
+            <TrainerHeader theme="orange" icon={({className}) => (
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                    <polygon points="3 20 21 20 21 5" />
+                    <polyline points="18 20 18 17 21 17" />
+                    <path d="M 9 20 A 6 6 0 0 0 7.4 16.0" />
+                </svg>
+            )} title="Trigonometrie & Satzgruppe" streakIcon={Target} streak={streak} />
 
-            <DifficultyMenu theme="orange" active={difficulty} onChange={setDifficulty}
+            <DifficultyMenu theme="orange" active={difficulty} onChange={handleDifficultyChange}
                 options={[
                     { id: 'leicht', label: 'Leicht' },
                     { id: 'mittel', label: 'Mittel' },
                     { id: 'schwer', label: 'Schwer' },
                     { id: 'pruefung', label: 'Prüfungsaufgaben' }
                 ]} />
+
+            {/* Lernzielkontrolle + adaptive Schwierigkeits-Empfehlung */}
+            {adaptive.stats.mastered.length > 0 && (
+                <div className="mb-4 flex justify-center"><MasteryBadge mastered={adaptive.stats.mastered} theme="orange" /></div>
+            )}
+            <AdaptiveSuggestion suggestion={adaptive.suggestion} onAccept={(d) => handleDifficultyChange(d)} theme="orange" />
 
             <main className="space-y-6 relative">
                 {currentTask && (
@@ -1083,10 +1111,7 @@ const TrigonometrieTrainer = () => {
                                     )}
                                 </div>
                                 <div className="p-5">
-                                    <p className="text-slate-700 leading-relaxed text-base md:text-lg mb-4">{currentTask.description}</p>
-                                    <button onClick={skipTask} className="inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold py-2 px-4 rounded-lg shadow-sm border border-slate-200 transition">
-                                        <RefreshCw className="w-4 h-4" /> Neue Aufgabe
-                                    </button>
+                                    <p className="text-slate-700 leading-relaxed text-base md:text-lg">{currentTask.description}</p>
                                 </div>
                             </div>
 
@@ -1105,9 +1130,9 @@ const TrigonometrieTrainer = () => {
 
                             {!isCompleted ? (
                                 <div key={currentTask.steps[currentStepIndex].id}>
-                                    {currentTask.steps[currentStepIndex].type === "formula_selection" && <FormulaSelection step={currentTask.steps[currentStepIndex]} onCorrect={handleStepCorrect} onSkip={handleStepSkip} />}
-                                    {currentTask.steps[currentStepIndex].type === "substitution" && <SubstitutionInput step={currentTask.steps[currentStepIndex]} onCorrect={handleStepCorrect} onSkip={handleStepSkip} />}
-                                    {currentTask.steps[currentStepIndex].type === "calculation" && <CalculationInput step={currentTask.steps[currentStepIndex]} onCorrect={handleStepCorrect} onSkip={handleStepSkip} />}
+                                    {currentTask.steps[currentStepIndex].type === "formula_selection" && <FormulaSelection step={currentTask.steps[currentStepIndex]} onCorrect={handleStepCorrect} onTipShown={handleTipShown} />}
+                                    {currentTask.steps[currentStepIndex].type === "substitution" && <SubstitutionInput step={currentTask.steps[currentStepIndex]} onCorrect={handleStepCorrect} onTipShown={handleTipShown} />}
+                                    {currentTask.steps[currentStepIndex].type === "calculation" && <CalculationInput step={currentTask.steps[currentStepIndex]} onCorrect={handleStepCorrect} onTipShown={handleTipShown} />}
                                 </div>
                             ) : (
                                 <SuccessBox theme="orange" onNext={skipTask} nextBtnText="Nächste Aufgabe" text={isExam ? "Prüfungsreif! 🚀" : "Stark gemacht! 🎉"} subtitle="Du hast die Aufgabe erfolgreich abgeschlossen." />

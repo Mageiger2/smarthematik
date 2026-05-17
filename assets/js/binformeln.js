@@ -38,27 +38,69 @@ const normalizeBino = (str) => {
 };
 
 // Hardcoded Prüfungsaufgaben (Level 4). Markup: [input:antwort|alt-antwort|…]
-// Templates orientieren sich am MSA-Aufgabenstil (Bayern, Aufgabengruppen I+II der
-// Jahrgänge 2017–2025), sind aber angepasst (Zahlen leicht variiert, Aufgaben in
-// einheitliches Lückentext-Format gebracht). Daher sourceLabel = "Angepasst".
+// Templates orientieren sich an Original-MSA-Aufgaben (Bayern, Aufgabengruppen I+II
+// der Jahrgänge 2011–2022). Sie wurden in ein einheitliches Lückentext-Format
+// gebracht — Quelle steht im sourceLabel. tip = didaktischer Hinweis, der nach
+// zweimal falsch eintippen erscheint (vgl. TipBox in shared.js).
 const binoExamTemplates = [
-    { sourceLabel: "Angepasst", template: "( 2a + [input:8b] ) · ( 2a − [input:8b] ) = [input:4a²] [input:-] 64b²" },
-    { sourceLabel: "Angepasst", template: "( [input:6a] [input:-] 9d )² = 36a² [input:-] [input:108ad|108da] [input:+] 81d²" },
-    { sourceLabel: "Angepasst", template: "( 4z + [input:5x] ) · ( 4z − [input:5x] ) = [input:16z²] [input:-] 25x²" },
-    { sourceLabel: "Angepasst", template: "( 4x [input:-] [input:y|1y] )² = [input:16x²] [input:-] [input:8xy|8yx] + y²" },
-    { sourceLabel: "Angepasst", template: "( [input:3a³|3a^3] − [input:4b] )² = 9a⁶ − 24a³b [input:+] [input:16b²|16b^2]" },
-    { sourceLabel: "Angepasst", template: "( 7a³ + [input:10c] )² = [input:49a⁶|49a^6] [input:+] [input:140a³c|140c³a|140ac³|140ca³] + 100c²" },
-    { sourceLabel: "Angepasst", template: "( [input:0,5x²y|0.5x²y|0,5yx²|0.5yx²] [input:-] 3z )² = 0,25x⁴y² − [input:3x²yz|3zx²y|3x²zy|3yx²z|3yzx²|3zyx²] [input:+] [input:9z²|9z^2]" },
-    { sourceLabel: "Angepasst", template: "( 4ab² + [input:3c] )² = [input:16a²b⁴|16b⁴a²] [input:+] [input:24ab²c|24acb²|24b²ac|24b²ca|24cab²|24cb²a] + 9c²" },
-    { sourceLabel: "Angepasst", template: "( w [input:-] 4z )² = [input:w²|w^2] [input:-] [input:8wz|8zw] [input:+] 16z²" },
-    { sourceLabel: "Angepasst", template: "( [input:0,5z|0.5z] [input:+] [input:8] )² = 0,25z² + 8z [input:+] [input:64]" }
+    {
+        sourceLabel: "MSA 2021 I/9a",
+        template: "( 2a + [input:8b] ) · ( 2a − [input:8b] ) = [input:4a²] [input:-] 64b²",
+        tip: "3. Binomische Formel: (a + b) · (a − b) = a² − b². Hier ist a = 2a und b = ?. Aus 64b² folgt b = 8b (Wurzel aus 64b² = 8b). (2a)² = 4a²."
+    },
+    {
+        sourceLabel: "MSA 2019 II/5a",
+        template: "( [input:6a] [input:-] 9d )² = 36a² [input:-] [input:108ad|108da] [input:+] 81d²",
+        tip: "2. Binomische Formel: (a − b)² = a² − 2·a·b + b². Aus 36a² folgt a = 6a (Wurzel aus 36a² = 6a). Mittleres Glied: 2 · 6a · 9d = 108ad."
+    },
+    {
+        sourceLabel: "MSA 2017 I/6b",
+        template: "( 4z + [input:5x] ) · ( 4z − [input:5x] ) = [input:16z²] [input:-] 25x²",
+        tip: "3. Binomische Formel: (a + b) · (a − b) = a² − b². Aus 25x² folgt b = 5x. (4z)² = 16z²."
+    },
+    {
+        sourceLabel: "MSA 2016 I/9a",
+        template: "( 4x [input:-] [input:y|1y] )² = [input:16x²] [input:-] [input:8xy|8yx] + y²",
+        tip: "2. Binomische Formel: (a − b)² = a² − 2·a·b + b². Hier a = 4x, b = y. (4x)² = 16x²; Mittleres Glied: 2 · 4x · y = 8xy."
+    },
+    {
+        sourceLabel: "Angepasst",
+        template: "( [input:3a³|3a^3] − [input:4b] )² = 9a⁶ − 24a³b [input:+] [input:16b²|16b^2]",
+        tip: "2. Binomische Formel: (a − b)² = a² − 2·a·b + b². Aus 9a⁶ folgt a = 3a³ (Wurzel aus 9a⁶ = 3a³). Aus 24a³b = 2 · 3a³ · b folgt b = 4b. Dann b² = 16b²."
+    },
+    {
+        sourceLabel: "MSA 2022 I/9a",
+        template: "( 7a³ + [input:10c] )² = [input:49a⁶|49a^6] [input:+] [input:140a³c|140c³a|140ac³|140ca³] + 100c²",
+        tip: "1. Binomische Formel: (a + b)² = a² + 2·a·b + b². a = 7a³, b = ? — aus 100c² folgt b = 10c. a² = (7a³)² = 49a⁶; Mittleres Glied: 2 · 7a³ · 10c = 140a³c."
+    },
+    {
+        sourceLabel: "MSA 2017 I/6a",
+        template: "( [input:0,5x²y|0.5x²y|0,5yx²|0.5yx²] [input:-] 3z )² = 0,25x⁴y² − [input:3x²yz|3zx²y|3x²zy|3yx²z|3yzx²|3zyx²] [input:+] [input:9z²|9z^2]",
+        tip: "2. Binomische Formel: (a − b)² = a² − 2·a·b + b². Aus 0,25x⁴y² folgt a = 0,5x²y (Wurzel ziehen!). Mittleres Glied: 2 · 0,5x²y · 3z = 3x²yz. Letztes Glied: (3z)² = 9z²."
+    },
+    {
+        sourceLabel: "MSA 2014 I/8a",
+        template: "( 4ab² + [input:3c] )² = [input:16a²b⁴|16b⁴a²] [input:+] [input:24ab²c|24acb²|24b²ac|24b²ca|24cab²|24cb²a] + 9c²",
+        tip: "1. Binomische Formel: (a + b)² = a² + 2·a·b + b². a = 4ab², b = ? — aus 9c² folgt b = 3c. a² = (4ab²)² = 16a²b⁴; Mittleres Glied: 2 · 4ab² · 3c = 24ab²c."
+    },
+    {
+        sourceLabel: "MSA 2011 I/6b",
+        template: "( w [input:-] 4z )² = [input:w²|w^2] [input:-] [input:8wz|8zw] [input:+] 16z²",
+        tip: "2. Binomische Formel: (a − b)² = a² − 2·a·b + b². Hier a = w, b = 4z. a² = w²; Mittleres Glied: 2 · w · 4z = 8wz."
+    },
+    {
+        sourceLabel: "MSA 2016 I/9b",
+        template: "( [input:0,5z|0.5z] [input:+] [input:8] )² = 0,25z² + 8z [input:+] [input:64]",
+        tip: "1. Binomische Formel: (a + b)² = a² + 2·a·b + b². Aus 0,25z² folgt a = 0,5z. Aus 8z = 2 · 0,5z · b folgt b = 8. Dann b² = 64."
+    }
 ];
 
 // Wandelt einen Prüfungsaufgaben-Template in tokens + inputs Map.
-// Akzeptiert sowohl reinen Template-String als auch ein Objekt { template, sourceLabel }.
+// Akzeptiert sowohl reinen Template-String als auch ein Objekt { template, sourceLabel, tip }.
 const parseExamTemplate = (entry) => {
     const template = typeof entry === 'string' ? entry : entry.template;
     const sourceLabel = typeof entry === 'string' ? null : entry.sourceLabel;
+    const tip = typeof entry === 'string' ? null : (entry.tip || null);
     const tokens = [];
     const inputs = {};
     let inputCounter = 0;
@@ -81,7 +123,7 @@ const parseExamTemplate = (entry) => {
     if (lastIdx < template.length) {
         tokens.push(template.substring(lastIdx));
     }
-    return { tokens, inputs, sourceLabel };
+    return { tokens, inputs, sourceLabel, tip };
 };
 
 // Generator für Level 1–3: dynamische Aufgaben, alle drei binomischen Formeln.
@@ -150,7 +192,18 @@ const buildDynamicTask = (level) => {
         return { type: 'input', inputId };
     });
 
-    return { tokens, inputs };
+    // Didaktischer Tipp passend zur ausgewählten Binomischen Formel + zur konkreten
+    // Aufgabe (mit ausformulierten Termen, damit der Schüler die Brücke zur Aufgabe sieht).
+    let tip;
+    if (formel === 1) {
+        tip = `1. Binomische Formel: (a + b)² = a² + 2·a·b + b². Hier: a = ${tA}, b = ${tB}. Dann ist a² = ${tA2}, das mittlere Glied 2·${tA}·${tB} = ${tMidAlts[0]} und b² = ${tB2}.`;
+    } else if (formel === 2) {
+        tip = `2. Binomische Formel: (a − b)² = a² − 2·a·b + b². Hier: a = ${tA}, b = ${tB}. Dann ist a² = ${tA2}, das mittlere Glied 2·${tA}·${tB} = ${tMidAlts[0]} (mit Minus!) und b² = ${tB2}.`;
+    } else {
+        tip = `3. Binomische Formel: (a + b)·(a − b) = a² − b². KEIN mittleres Glied! Hier: a = ${tA}, b = ${tB}. Dann ist a² = ${tA2} und b² = ${tB2}.`;
+    }
+
+    return { tokens, inputs, tip };
 };
 
 // ==========================================
@@ -167,6 +220,13 @@ const BinformelnTrainer = () => {
     const [activeInputId, setActiveInputId] = useState(null);
     const [streak, setStreak] = useState(() => getStorage('smarth_streak_binformeln', 0));
     const [showAnim, setShowAnim] = useState(false);
+    // Tipp- und Lösungs-Mechanik (analog zu den anderen Trainern):
+    // - errors: Anzahl falscher "Prüfen"-Klicks → TipBox erscheint ab 2.
+    // - tipRevealed: ob der Tipp-Button bereits angeklickt wurde.
+    const [errors, setErrors] = useState(0);
+    const [tipRevealed, setTipRevealed] = useState(false);
+    // Adaptive Schwierigkeit + Lernzielkontrolle (siehe useAdaptive in shared.js).
+    const adaptive = useAdaptive('binformeln', difficulty);
     // taskKey wird nur bei wirklichem Aufgabenwechsel hochgezählt — verhindert,
     // dass der Auto-Focus bei jedem Tastendruck zur ersten Lücke springt.
     const [taskKey, setTaskKey] = useState(0);
@@ -182,6 +242,7 @@ const BinformelnTrainer = () => {
     const generateNew = (diffOverride) => {
         const diff = diffOverride || difficulty;
         setErrorMsg(""); setSolved(false); setSolutionRevealed(false); setActiveInputId(null);
+        setErrors(0); setTipRevealed(false);
         if (diff === 'pruefung') {
             let pool = examShuffled;
             let idx = examIdx;
@@ -215,6 +276,7 @@ const BinformelnTrainer = () => {
                 setProblem(buildDynamicTask(lvlMap[newDiff]));
             }
             setErrorMsg(""); setSolved(false); setSolutionRevealed(false); setActiveInputId(null);
+            setErrors(0); setTipRevealed(false);
             setTaskKey(k => k + 1);
         }
     };
@@ -261,16 +323,20 @@ const BinformelnTrainer = () => {
                 const newStreak = streak + 1;
                 setStreak(newStreak);
                 if (newStreak > 0 && newStreak % 3 === 0) triggerCelebration(setShowAnim);
+                adaptive.recordCorrect();
             }
         } else {
             setErrorMsg("Noch nicht ganz richtig. Streak zurückgesetzt.");
             setStreak(0);
+            setErrors(e => e + 1);
+            adaptive.recordWrong();
         }
     };
 
-    // Lösung NUR anzeigen (kein Autofill — der Schüler muss noch selbst tippen).
-    // Streak wird auf 0 gesetzt; "solved" bleibt false, damit weiter eingegeben werden kann.
-    const showSolution = () => {
+    // Callback für die TipBox: wenn der Schüler "Lösung anzeigen" klickt, wird
+    // solutionRevealed gesetzt (damit der Streak später nicht hochzählt) und der
+    // aktuelle Streak ist sowieso schon 0 (Fehler wurden ja gezählt).
+    const handleSolutionShown = () => {
         setSolutionRevealed(true);
         setErrorMsg("");
         setStreak(0);
@@ -326,19 +392,7 @@ const BinformelnTrainer = () => {
     return (
         <div className="page-transition max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             {showAnim && <CelebrationOverlay />}
-            <header className="bg-teal-600 text-teal-50 shadow-md p-6 rounded-xl mb-6">
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div className="flex items-center space-x-3">
-                        <BracketsIcon className="w-8 h-8" />
-                        <div>
-                            <h1 className="text-2xl font-bold tracking-tight text-white flex items-center">Binomische Formeln <span className="hidden sm:inline text-teal-200 text-lg font-normal border-l-2 border-teal-400 pl-2 ml-2">10. Klasse</span></h1>
-                        </div>
-                    </div>
-                    <div className="bg-teal-700 px-4 py-1.5 rounded-full text-sm font-bold shadow-sm flex items-center">
-                        <Target className="w-4 h-4 mr-2 text-teal-300" /> Streak: {streak}
-                    </div>
-                </div>
-            </header>
+            <TrainerHeader theme="teal" icon={BracketsIcon} title="Binomische Formeln" streakIcon={Target} streak={streak} />
 
             <DifficultyMenu theme="teal" active={difficulty} onChange={handleDifficultyChange}
                 options={[
@@ -347,6 +401,12 @@ const BinformelnTrainer = () => {
                     { id: 'schwer', label: 'Schwer' },
                     { id: 'pruefung', label: 'Prüfungsaufgaben' }
                 ]} />
+
+            {/* Lernzielkontrolle + adaptive Schwierigkeits-Empfehlung */}
+            {adaptive.stats.mastered.length > 0 && (
+                <div className="mb-4 flex justify-center"><MasteryBadge mastered={adaptive.stats.mastered} theme="teal" /></div>
+            )}
+            <AdaptiveSuggestion suggestion={adaptive.suggestion} onAccept={(d) => handleDifficultyChange(d)} theme="teal" />
 
             <main className="space-y-6 relative">
                 <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
@@ -385,34 +445,27 @@ const BinformelnTrainer = () => {
                             </div>
                         )}
 
-                        {/* Lösungs-Anzeige als Text — Schüler muss selbst eintippen */}
-                        {solutionRevealed && !solved && (
-                            <div className="mt-4 bg-rose-50 border-l-4 border-rose-500 p-4 rounded shadow-sm text-rose-900 animate-fade-in">
-                                <div className="flex items-start gap-3">
-                                    <BookOpen className="w-6 h-6 shrink-0 text-rose-600 mt-0.5" />
-                                    <div>
-                                        <strong className="block mb-1 text-rose-800">Lösung (in Reihenfolge der Lücken):</strong>
-                                        <div className="font-math text-lg flex flex-wrap gap-x-3 gap-y-1">
-                                            {Object.values(problem.inputs).map((inp, idx) => (
-                                                <span key={idx} className="bg-white/60 px-2 py-0.5 rounded border border-rose-200">{inp.answers[0]}</span>
-                                            ))}
-                                        </div>
-                                        <p className="text-xs mt-2 text-rose-700">Tippe sie nun selbst in die Felder ein.</p>
-                                    </div>
-                                </div>
-                            </div>
+                        {/* Tipp- und Lösungs-Box (erscheint nach 2 falschen Prüfen-Klicks). */}
+                        {!solved && (
+                            <TipBox
+                                errors={errors}
+                                revealed={tipRevealed}
+                                setRevealed={setTipRevealed}
+                                text={problem.tip || 'Schau dir die Struktur der binomischen Formel genau an: Welcher Summand wird quadriert? Wo steht das doppelte Produkt 2·a·b?'}
+                                solutionText={
+                                    <span className="font-math inline-flex flex-wrap gap-x-2 gap-y-1 align-middle">
+                                        {Object.values(problem.inputs).map((inp, idx) => (
+                                            <span key={idx} className="bg-white/70 px-2 py-0.5 rounded border border-rose-200 inline-block">{inp.answers[0]}</span>
+                                        ))}
+                                    </span>
+                                }
+                                onSolutionShown={handleSolutionShown}
+                            />
                         )}
 
                         {!solved && (
                             <div className="mt-6 flex flex-wrap justify-center gap-3">
-                                <button onClick={checkAnswers} className="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-8 rounded-xl shadow-md transition-colors flex items-center gap-2">
-                                    <CheckCircle className="w-5 h-5" /> Prüfen
-                                </button>
-                                {!solutionRevealed && (
-                                    <button onClick={showSolution} className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 px-6 rounded-xl transition-colors flex items-center gap-2 border border-slate-200">
-                                        <BookOpen className="w-5 h-5" /> Lösung anzeigen
-                                    </button>
-                                )}
+                                <SubmitBtn onClick={checkAnswers} theme="teal" disabled={!Object.values(problem.inputs).some(inp => (inp.value || '').trim().length > 0)} />
                             </div>
                         )}
 

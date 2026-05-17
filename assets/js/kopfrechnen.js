@@ -554,6 +554,8 @@ const KopfrechenTrainer = () => {
 
     const [streak, setStreak] = useState(() => getStorage('smarth_streak_kopf', 0));
     const [showAnim, setShowAnim] = useState(false);
+    // Adaptive Schwierigkeit + Lernzielkontrolle.
+    const adaptive = useAdaptive('kopfrechnen', difficulty);
 
     useEffect(() => { setStorage('smarth_streak_kopf', streak); }, [streak]);
 
@@ -586,7 +588,8 @@ const KopfrechenTrainer = () => {
             const newStreak = streak + 1;
             setStreak(newStreak);
             if (newStreak > 0 && newStreak % 6 === 0) triggerCelebration(setShowAnim);
-        } else setStreak(0);
+            adaptive.recordCorrect();
+        } else { setStreak(0); adaptive.recordWrong(); }
     };
 
     const loadNextQuestion = () => {
@@ -601,8 +604,8 @@ const KopfrechenTrainer = () => {
         setSelectedOption(null); setIsAnswerChecked(false); setTipRevealed(false);
     };
 
-    const handleSkip = () => { setStreak(0); loadNextQuestion(); };
-    const handleShowTip = () => { setTipRevealed(true); setStreak(0); };
+    const handleSkip = () => { setStreak(0); adaptive.recordWrong(); loadNextQuestion(); };
+    const handleShowTip = () => { setTipRevealed(true); setStreak(0); adaptive.recordWrong(); };
 
     const getOptionStyles = (index) => {
         if (!isAnswerChecked) return selectedOption === index ? 'border-sky-500 bg-sky-50 ring-2 ring-sky-200' : 'border-slate-200 hover:border-sky-300 hover:bg-slate-50';
@@ -614,19 +617,15 @@ const KopfrechenTrainer = () => {
     return (
         <div className="page-transition max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             {showAnim && <CelebrationOverlay />}
-            <header className="bg-sky-500 text-sky-950 shadow-md p-6 rounded-xl mb-6">
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div className="flex items-center space-x-3 text-white">
-                        <CalculatorOff className="w-8 h-8" />
-                        <div><h1 className="text-2xl font-bold tracking-tight flex items-center">Kopfrechnen <span className="hidden sm:inline text-sky-200 text-lg font-normal border-l-2 border-sky-400 pl-2 ml-2">MSA Training</span></h1></div>
-                    </div>
-                    <div className="bg-sky-600 px-4 py-1.5 rounded-full text-sm font-bold shadow-sm flex items-center text-white">
-                        <Target className="w-4 h-4 mr-2 text-sky-200" /> Streak: {streak}
-                    </div>
-                </div>
-            </header>
+            <TrainerHeader theme="sky" icon={CalculatorOff} title="Kopfrechnen" streakIcon={Target} streak={streak} />
 
             <DifficultyMenu theme="sky" active={difficulty} onChange={handleDifficultyChange} options={[{id: 'leicht', label: 'Leicht'}, {id: 'mittel', label: 'Mittel'}, {id: 'schwer', label: 'Schwer'}, {id: 'pruefung', label: 'Prüfungsaufgaben'}]} />
+
+            {/* Lernzielkontrolle + adaptive Schwierigkeits-Empfehlung */}
+            {adaptive.stats.mastered.length > 0 && (
+                <div className="mb-4 flex justify-center"><MasteryBadge mastered={adaptive.stats.mastered} theme="sky" /></div>
+            )}
+            <AdaptiveSuggestion suggestion={adaptive.suggestion} onAccept={(d) => handleDifficultyChange(d)} theme="sky" />
 
             <main className="space-y-6 relative">
                 <div className="bg-white rounded-3xl shadow-md overflow-hidden border border-slate-200">
@@ -678,16 +677,9 @@ const KopfrechenTrainer = () => {
                             </div>
                         )}
 
-                        <div className="flex justify-between items-center border-t border-slate-100 pt-6 mt-4">
+                        <div className="flex justify-end items-center border-t border-slate-100 pt-6 mt-4">
                             {!isAnswerChecked ? (
-                                <>
-                                    <button onClick={handleSkip} className="flex items-center gap-2 py-3 px-5 rounded-xl font-medium text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-all">
-                                        <FastForward className="w-5 h-5" /> <span className="hidden sm:inline">Überspringen</span>
-                                    </button>
-                                    <button onClick={handleCheckAnswer} disabled={selectedOption === null} className={`py-3 px-8 rounded-xl font-semibold transition-all flex items-center ${selectedOption !== null ? 'bg-sky-500 hover:bg-sky-600 text-white shadow-md transform hover:-translate-y-0.5' : 'bg-slate-100 text-slate-400 cursor-not-allowed'}`}>
-                                        Antwort prüfen <ArrowRight className="w-5 h-5 ml-2" />
-                                    </button>
-                                </>
+                                <SubmitBtn onClick={handleCheckAnswer} theme="sky" disabled={selectedOption === null} />
                             ) : (
                                 <button onClick={loadNextQuestion} className="w-full flex justify-center items-center gap-2 py-4 px-8 rounded-xl font-bold bg-slate-800 hover:bg-slate-900 text-white transition-all shadow-md transform hover:-translate-y-0.5 text-lg animate-fade-in">
                                     Nächste Aufgabe <ChevronRight className="w-6 h-6" />

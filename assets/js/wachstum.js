@@ -131,10 +131,12 @@ const WachstumsTrainer = () => {
     const [lastSigKey, setLastSigKey] = useState(null);
     const [examShuffled, setExamShuffled] = useState([]);
     const [examIdx, setExamIdx] = useState(0);
+    // Adaptive Schwierigkeit + Lernzielkontrolle (siehe useAdaptive in shared.js).
+    const adaptive = useAdaptive('wachstum', difficulty);
 
     useEffect(() => { setStorage('smarth_streak_wachstum', streak); }, [streak]);
     const advance = (nextStep) => { setStep(nextStep); setErrors(0); setTipRevealed(false); };
-    const triggerError = () => { setErrors(e => e + 1); setStreak(0); };
+    const triggerError = () => { setErrors(e => e + 1); setStreak(0); adaptive.recordWrong(); };
     const round = (num, decimals = 2) => Math.round(num * Math.pow(10, decimals)) / Math.pow(10, decimals);
     const handleInputChange = (id, val) => { setInputs(prev => ({ ...prev, [id]: val.replace('.', ',') })); setInputFeedback(prev => ({ ...prev, [id]: null })); };
 
@@ -271,10 +273,16 @@ const WachstumsTrainer = () => {
         else setDifficulty(newDiff);
     };
 
+    // Step 1: Auswahl nur markieren (keine Auto-Übernahme). Bestätigung erfolgt
+    // einheitlich über den SubmitBtn-Pfeil, um die Optik aller Trainer zu
+    // vereinheitlichen.
     const handleIdentify = (selected) => {
         if (step > 1 || !problem) return;
         setSelectedIdentification(selected);
-        if (selected === problem.type) { setTimeout(() => advance(2), 600); } else { triggerError(); }
+    };
+    const confirmIdentify = () => {
+        if (step > 1 || !problem || !selectedIdentification) return;
+        if (selectedIdentification === problem.type) { advance(2); } else { triggerError(); }
     };
 
     const checkFormulaInputs = () => {
@@ -289,10 +297,16 @@ const WachstumsTrainer = () => {
         if (allCorrect) advance(3); else triggerError();
     };
 
+    // Step 3: Auswahl nur markieren — Bestätigung über SubmitBtn (siehe Step 1).
     const handleOptionSelect = (opt) => {
         if (step > 3) return;
         setSelectedOptionId(opt.id);
-        if (opt.isCorrect) { setTimeout(() => advance(4), 600); } else { triggerError(); }
+    };
+    const confirmOptionSelect = () => {
+        if (step > 3 || !selectedOptionId) return;
+        const opt = options.find(o => o.id === selectedOptionId);
+        if (!opt) return;
+        if (opt.isCorrect) { advance(4); } else { triggerError(); }
     };
 
     const checkFinalResult = () => {
@@ -307,6 +321,7 @@ const WachstumsTrainer = () => {
             const newStreak = streak + 1;
             setStreak(newStreak);
             if (newStreak > 0 && newStreak % 3 === 0) triggerCelebration(setShowAnim);
+            adaptive.recordCorrect();
             setShowSolution(true); advance(5);
         } else { setFinalFeedback('incorrect'); triggerError(); }
     };
@@ -340,19 +355,7 @@ const WachstumsTrainer = () => {
     return (
         <div className="page-transition max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             {showAnim && <CelebrationOverlay />}
-            <header className="bg-emerald-700 text-emerald-50 shadow-md p-6 rounded-xl mb-6">
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div className="flex items-center space-x-3">
-                        <TrendingUp size={32} />
-                        <div>
-                            <h1 className="text-2xl font-bold tracking-tight text-white flex items-center">Wachstum & Zerfall <span className="hidden sm:inline text-emerald-200 text-lg font-normal border-l-2 border-emerald-400 pl-2 ml-2">10. Klasse</span></h1>
-                        </div>
-                    </div>
-                    <div className="bg-emerald-800 px-4 py-1.5 rounded-full text-sm font-bold shadow-sm flex items-center">
-                        <TrendingUp className="w-4 h-4 mr-2 text-emerald-300" /> Streak: {streak}
-                    </div>
-                </div>
-            </header>
+            <TrainerHeader theme="emerald" icon={TrendingUp} title="Wachstum & Zerfall" streakIcon={TrendingUp} streak={streak} />
 
             <DifficultyMenu theme="emerald" active={difficulty} onChange={handleDifficultyChange} options={[
                 {id: 'leicht', label: 'Leicht'},
@@ -360,6 +363,12 @@ const WachstumsTrainer = () => {
                 {id: 'schwer', label: 'Schwer'},
                 {id: 'pruefung', label: 'Prüfungsaufgaben'}
             ]} />
+
+            {/* Lernzielkontrolle + adaptive Schwierigkeits-Empfehlung */}
+            {adaptive.stats.mastered.length > 0 && (
+                <div className="mb-4 flex justify-center"><MasteryBadge mastered={adaptive.stats.mastered} theme="emerald" /></div>
+            )}
+            <AdaptiveSuggestion suggestion={adaptive.suggestion} onAccept={(d) => handleDifficultyChange(d)} theme="emerald" />
 
             <main className="space-y-6 relative">
                 <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
@@ -376,26 +385,26 @@ const WachstumsTrainer = () => {
                     <StepCard title="1. Was ist gesucht?" stepNum={1} currentStep={step} theme="emerald">
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                             {[{ type: 'Wn', label: <VarWn/>, desc: "Endwert" }, { type: 'W0', label: <VarW0/>, desc: "Anfangswert" }, { type: 'rate', label: <VarQ/>, desc: "Faktor" }, { type: 'n', label: <VarN/>, desc: "Laufzeit" }].map((item) => (
-                                <button key={item.type} onClick={() => handleIdentify(item.type)} disabled={step > 1} className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-1 ${selectedIdentification === item.type ? (item.type === problem?.type ? 'border-green-500 bg-green-50 text-green-900 font-bold' : 'border-red-400 bg-red-50 text-red-900') : 'border-slate-200 hover:border-emerald-400 bg-white'}`}>
+                                <button key={item.type} onClick={() => handleIdentify(item.type)} disabled={step > 1} className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-1 ${selectedIdentification === item.type ? 'border-emerald-500 bg-emerald-50 text-emerald-900 font-bold' : 'border-slate-200 hover:border-emerald-400 bg-white'}`}>
                                     <span className="text-xl font-serif font-bold">{item.label}</span><span className="text-[10px] sm:text-xs uppercase font-semibold text-slate-500">{item.desc}</span>
                                 </button>
                             ))}
                         </div>
-                        {step === 1 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text="Lies genau: Frag nach dem Start (W0), dem Ende (Wn) oder der Dauer (n)?" />}
+                        {step === 1 && <div className="mt-4 flex justify-between items-center"><TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text="Lies genau: Frag nach dem Start (W0), dem Ende (Wn) oder der Dauer (n)?" /><SubmitBtn onClick={confirmIdentify} theme="emerald" disabled={!selectedIdentification} /></div>}
                         {step > 1 && <SuccessMark text="Richtig identifiziert!" />}
                     </StepCard>
 
                     {step >= 2 && (
                         <StepCard title="2. Werte in die Formel einsetzen" stepNum={2} currentStep={step} theme="emerald">
                             <div className="flex flex-wrap items-center justify-center gap-2 md:gap-4 bg-slate-50 p-4 sm:p-6 rounded-xl border border-dashed border-slate-300">
-                                <FormulaInput id="wn" label={<VarWn/>} value={inputs.wn} theme="emerald" isUnknown={problem.type === 'Wn'} status={inputFeedback.wn} disabled={step > 2 || inputFeedback.wn === 'correct'} onChange={handleInputChange} />
+                                <FormulaInput id="wn" label={<VarWn/>} value={inputs.wn} theme="emerald" isUnknown={problem.type === 'Wn'} status={inputFeedback.wn} disabled={step > 2 || inputFeedback.wn === 'correct'} onChange={handleInputChange} onSubmit={checkFormulaInputs} />
                                 <span className="text-2xl text-slate-400 font-bold mt-6">=</span>
-                                <FormulaInput id="w0" label={<VarW0/>} value={inputs.w0} theme="emerald" isUnknown={problem.type === 'W0'} status={inputFeedback.w0} disabled={step > 2 || inputFeedback.w0 === 'correct'} onChange={handleInputChange} />
+                                <FormulaInput id="w0" label={<VarW0/>} value={inputs.w0} theme="emerald" isUnknown={problem.type === 'W0'} status={inputFeedback.w0} disabled={step > 2 || inputFeedback.w0 === 'correct'} onChange={handleInputChange} onSubmit={checkFormulaInputs} />
                                 <span className="text-2xl text-slate-400 font-bold mt-6">·</span>
-                                <FormulaInput id="q" label={<VarQ/>} value={inputs.q} theme="emerald" isUnknown={problem.type === 'rate'} status={inputFeedback.q} disabled={step > 2 || inputFeedback.q === 'correct'} onChange={handleInputChange} />
-                                <div className="relative -top-6"><FormulaInput id="n" label={<span className="text-sm"><VarN/></span>} value={inputs.n} theme="emerald" isUnknown={problem.type === 'n'} status={inputFeedback.n} disabled={step > 2 || inputFeedback.n === 'correct'} onChange={handleInputChange} /></div>
+                                <FormulaInput id="q" label={<VarQ/>} value={inputs.q} theme="emerald" isUnknown={problem.type === 'rate'} status={inputFeedback.q} disabled={step > 2 || inputFeedback.q === 'correct'} onChange={handleInputChange} onSubmit={checkFormulaInputs} />
+                                <div className="relative -top-6"><FormulaInput id="n" label={<span className="text-sm"><VarN/></span>} value={inputs.n} theme="emerald" isUnknown={problem.type === 'n'} status={inputFeedback.n} disabled={step > 2 || inputFeedback.n === 'correct'} onChange={handleInputChange} onSubmit={checkFormulaInputs} /></div>
                             </div>
-                            {step === 2 && <div className="mt-4 flex justify-between items-center"><TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text={difficulty==='schwer'?"n ist die Differenz der Jahre. Bei Abnahme ist q < 1 (z.B. 1 - 0.05).":"q ist (1 + p/100) bei Zunahme und (1 - p/100) bei Abnahme."} /><SubmitBtn onClick={checkFormulaInputs} theme="emerald" /></div>}
+                            {step === 2 && <div className="mt-4 flex justify-between items-center"><TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text={difficulty==='schwer'?"n ist die Differenz der Jahre. Bei Abnahme ist q < 1 (z.B. 1 - 0.05).":"q ist (1 + p/100) bei Zunahme und (1 - p/100) bei Abnahme."} /><SubmitBtn onClick={checkFormulaInputs} theme="emerald" disabled={!(inputs.wn || inputs.w0 || inputs.q || inputs.n)} /></div>}
                             {step > 2 && <SuccessMark text="Alle Werte richtig eingesetzt!" />}
                         </StepCard>
                     )}
@@ -407,12 +416,12 @@ const WachstumsTrainer = () => {
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                 {options.map((opt) => (
-                                    <button key={opt.id} onClick={() => handleOptionSelect(opt)} disabled={step > 3} className={`p-4 rounded-xl border-2 text-sm md:text-base font-medium flex flex-col items-center justify-center gap-2 ${selectedOptionId === opt.id ? (opt.isCorrect ? 'border-green-500 bg-green-50 text-green-900 font-bold' : 'border-red-400 bg-red-50 text-red-900') : 'border-slate-200 hover:border-emerald-400'}`}>
+                                    <button key={opt.id} onClick={() => handleOptionSelect(opt)} disabled={step > 3} className={`p-4 rounded-xl border-2 text-sm md:text-base font-medium flex flex-col items-center justify-center gap-2 ${selectedOptionId === opt.id ? 'border-emerald-500 bg-emerald-50 text-emerald-900 font-bold' : 'border-slate-200 hover:border-emerald-400'}`}>
                                         {opt.label}
                                     </button>
                                 ))}
                             </div>
-                            {step === 3 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text="Um W0 freizustellen: teile durch q^n. Für n: teile durch W0 und nutze den Logarithmus." />}
+                            {step === 3 && <div className="mt-4 flex justify-between items-center"><TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text="Um W0 freizustellen: teile durch q^n. Für n: teile durch W0 und nutze den Logarithmus." /><SubmitBtn onClick={confirmOptionSelect} theme="emerald" disabled={!selectedOptionId} /></div>}
                             {step > 3 && <SuccessMark text="Richtig umgeformt!" />}
                         </StepCard>
                     )}
@@ -422,10 +431,10 @@ const WachstumsTrainer = () => {
                             <div className="flex flex-col sm:flex-row gap-4 items-center w-full">
                                 <div className="relative flex-grow max-w-sm w-full">
                                     <span className="absolute left-4 top-1/2 -translate-y-1/2 font-serif text-slate-400 italic">{problem.type === 'Wn' ? <VarWn/> : problem.type === 'W0' ? <VarW0/> : problem.type === 'rate' ? 'p' : <VarN/>} =</span>
-                                    <input type="text" value={finalAnswer} onChange={(e) => setFinalAnswer(e.target.value.replace('.', ','))} disabled={step === 5} placeholder="Rechner nutzen..." className={`pl-16 pr-12 py-3 w-full rounded-lg border-2 text-lg outline-none transition-colors shadow-sm ${finalFeedback === 'correct' ? 'border-green-500 bg-green-50 text-green-900 font-bold' : finalFeedback === 'incorrect' ? 'border-red-400 bg-red-50' : 'border-slate-300 focus:border-emerald-500'}`} />
+                                    <input type="text" value={finalAnswer} onChange={(e) => setFinalAnswer(e.target.value.replace('.', ','))} onKeyDown={enterToSubmit(checkFinalResult)} disabled={step === 5} placeholder="Rechner nutzen..." className={`pl-16 pr-12 py-3 w-full rounded-lg border-2 text-lg outline-none transition-colors shadow-sm ${finalFeedback === 'correct' ? 'border-green-500 bg-green-50 text-green-900 font-bold' : finalFeedback === 'incorrect' ? 'border-red-400 bg-red-50' : 'border-slate-300 focus:border-emerald-500'}`} />
                                     <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-medium">{problem.type === 'rate' ? '%' : problem.unit}</span>
                                 </div>
-                                {step === 4 && <SubmitBtn onClick={checkFinalResult} theme="emerald" />}
+                                {step === 4 && <SubmitBtn onClick={checkFinalResult} theme="emerald" disabled={!(finalAnswer || '').trim()} />}
                             </div>
                             {step === 4 && <div className="mt-3"><CalcButton theme="emerald" /></div>}
                             {step === 4 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text="Achte beim Taschenrechner auf Kommas und Klammern (z.B. log(Endwert/Startwert))." />}

@@ -107,10 +107,12 @@ const ZerfallsTrainer = () => {
     const [lastSigKey, setLastSigKey] = useState(null);
     const [examShuffled, setExamShuffled] = useState([]);
     const [examIdx, setExamIdx] = useState(0);
+    // Adaptive Schwierigkeit + Lernzielkontrolle.
+    const adaptive = useAdaptive('halbwertszeit', difficulty);
 
     useEffect(() => { setStorage('smarth_streak_zerfall', streak); }, [streak]);
     const advance = (nextStep) => { setStep(nextStep); setErrors(0); setTipRevealed(false); };
-    const triggerError = () => { setErrors(e => e + 1); setStreak(0); };
+    const triggerError = () => { setErrors(e => e + 1); setStreak(0); adaptive.recordWrong(); };
     const round = (num, decimals = 2) => Math.round(num * Math.pow(10, decimals)) / Math.pow(10, decimals);
     const handleInputChange = (id, val) => { setInputs(prev => ({ ...prev, [id]: val.replace('.', ',') })); setInputFeedback(prev => ({ ...prev, [id]: null })); };
 
@@ -223,10 +225,14 @@ const ZerfallsTrainer = () => {
         else setDifficulty(newDiff);
     };
 
+    // Step 1: Auswahl nur markieren, Bestätigung über SubmitBtn (siehe wachstum.js).
     const handleIdentify = (selected) => {
         if (step > 1 || !problem) return;
         setSelectedIdentification(selected);
-        if (selected === problem.type) { setTimeout(() => advance(2), 600); } else { triggerError(); }
+    };
+    const confirmIdentify = () => {
+        if (step > 1 || !problem || !selectedIdentification) return;
+        if (selectedIdentification === problem.type) { advance(2); } else { triggerError(); }
     };
 
     const checkFormulaInputs = () => {
@@ -241,10 +247,16 @@ const ZerfallsTrainer = () => {
         if (allCorrect) advance(3); else triggerError();
     };
 
+    // Step 3: Auswahl nur markieren — Bestätigung über SubmitBtn.
     const handleOptionSelect = (opt) => {
         if (step > 3) return;
         setSelectedOptionId(opt.id);
-        if (opt.isCorrect) { setTimeout(() => advance(4), 600); } else { triggerError(); }
+    };
+    const confirmOptionSelect = () => {
+        if (step > 3 || !selectedOptionId) return;
+        const opt = options.find(o => o.id === selectedOptionId);
+        if (!opt) return;
+        if (opt.isCorrect) { advance(4); } else { triggerError(); }
     };
 
     const checkFinalResult = () => {
@@ -256,6 +268,7 @@ const ZerfallsTrainer = () => {
             const newStreak = streak + 1;
             setStreak(newStreak);
             if (newStreak > 0 && newStreak % 3 === 0) triggerCelebration(setShowAnim);
+            adaptive.recordCorrect();
             setShowSolution(true); advance(5);
         } else { setFinalFeedback('incorrect'); triggerError(); }
     };
@@ -289,17 +302,7 @@ const ZerfallsTrainer = () => {
     return (
         <div className="page-transition max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             {showAnim && <CelebrationOverlay />}
-            <header className="bg-rose-600 text-rose-50 shadow-md p-6 rounded-xl mb-6">
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div className="flex items-center space-x-3">
-                        <TrendingDown size={32} />
-                        <div><h1 className="text-2xl font-bold tracking-tight text-white flex items-center">Halbwertszeit <span className="hidden sm:inline text-rose-200 text-lg font-normal border-l-2 border-rose-400 pl-2 ml-2">10. Klasse</span></h1></div>
-                    </div>
-                    <div className="bg-rose-700 px-4 py-1.5 rounded-full text-sm font-bold shadow-sm flex items-center">
-                        <TrendingDown className="w-4 h-4 mr-2 text-rose-300" /> Streak: {streak}
-                    </div>
-                </div>
-            </header>
+            <TrainerHeader theme="rose" icon={TrendingDown} title="Halbwertszeit" streakIcon={TrendingDown} streak={streak} />
 
             <DifficultyMenu theme="rose" active={difficulty} onChange={handleDifficultyChange} options={[
                 {id: 'leicht', label: 'Leicht'},
@@ -307,6 +310,12 @@ const ZerfallsTrainer = () => {
                 {id: 'schwer', label: 'Schwer'},
                 {id: 'pruefung', label: 'Prüfungsaufgaben'}
             ]} />
+
+            {/* Lernzielkontrolle + adaptive Schwierigkeits-Empfehlung */}
+            {adaptive.stats.mastered.length > 0 && (
+                <div className="mb-4 flex justify-center"><MasteryBadge mastered={adaptive.stats.mastered} theme="rose" /></div>
+            )}
+            <AdaptiveSuggestion suggestion={adaptive.suggestion} onAccept={(d) => handleDifficultyChange(d)} theme="rose" />
 
             <main className="space-y-6 relative">
                 <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
@@ -326,21 +335,21 @@ const ZerfallsTrainer = () => {
                     <StepCard title="1. Was ist gesucht?" stepNum={1} currentStep={step} theme="rose">
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             {[{ type: 'Wn', label: <VarWn/>, desc: "Endwert" }, { type: 'W0', label: <VarW0/>, desc: "Anfangswert" }, { type: 't', label: <span className="font-serif italic text-xl">t</span>, desc: "Dauer / Zeit" }].map((item) => (
-                                <button key={item.type} onClick={() => handleIdentify(item.type)} disabled={step > 1} className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-1 ${selectedIdentification === item.type ? (item.type === problem?.type ? 'border-green-500 bg-green-50 text-green-900 font-bold' : 'border-red-400 bg-red-50 text-red-900') : 'border-slate-200 hover:border-rose-300 bg-white'}`}>
+                                <button key={item.type} onClick={() => handleIdentify(item.type)} disabled={step > 1} className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-1 ${selectedIdentification === item.type ? 'border-rose-500 bg-rose-50 text-rose-900 font-bold' : 'border-slate-200 hover:border-rose-300 bg-white'}`}>
                                     <span className="text-xl font-serif font-bold">{item.label}</span><span className="text-[10px] sm:text-xs uppercase font-semibold text-slate-500">{item.desc}</span>
                                 </button>
                             ))}
                         </div>
-                        {step === 1 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text="Achte darauf, ob der Startwert, der Endwert oder die Dauer gefragt ist. q ist bei Halbwertszeit immer 0,5." />}
+                        {step === 1 && <div className="mt-4 flex justify-between items-center"><TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text="Achte darauf, ob der Startwert, der Endwert oder die Dauer gefragt ist. q ist bei Halbwertszeit immer 0,5." /><SubmitBtn onClick={confirmIdentify} theme="rose" disabled={!selectedIdentification} /></div>}
                         {step > 1 && <SuccessMark text={`Richtig! Du suchst ${problem?.type === 'Wn' ? "Wn" : problem?.type === 'W0' ? "W0" : "t (Dauer)"}.`} />}
                     </StepCard>
 
                     {step >= 2 && (
                         <StepCard title="2. Werte einsetzen (Halbwertszeit)" stepNum={2} currentStep={step} theme="rose">
                             <div className="flex flex-wrap items-center justify-center gap-2 md:gap-4 bg-slate-50 p-4 sm:p-6 rounded-xl border border-dashed border-slate-300">
-                                <FormulaInput id="wn" label={<VarWn/>} value={inputs.wn} theme="rose" isUnknown={problem.type === 'Wn'} status={inputFeedback.wn} disabled={step > 2 || inputFeedback.wn === 'correct'} onChange={handleInputChange} />
+                                <FormulaInput id="wn" label={<VarWn/>} value={inputs.wn} theme="rose" isUnknown={problem.type === 'Wn'} status={inputFeedback.wn} disabled={step > 2 || inputFeedback.wn === 'correct'} onChange={handleInputChange} onSubmit={checkFormulaInputs} />
                                 <span className="text-2xl text-slate-400 font-bold mt-6">=</span>
-                                <FormulaInput id="w0" label={<VarW0/>} value={inputs.w0} theme="rose" isUnknown={problem.type === 'W0'} status={inputFeedback.w0} disabled={step > 2 || inputFeedback.w0 === 'correct'} onChange={handleInputChange} />
+                                <FormulaInput id="w0" label={<VarW0/>} value={inputs.w0} theme="rose" isUnknown={problem.type === 'W0'} status={inputFeedback.w0} disabled={step > 2 || inputFeedback.w0 === 'correct'} onChange={handleInputChange} onSubmit={checkFormulaInputs} />
                                 <span className="text-2xl text-slate-400 font-bold mt-6">·</span>
 
                                 <div className="flex items-start mt-6">
@@ -350,18 +359,18 @@ const ZerfallsTrainer = () => {
                                     <div className="flex flex-col items-center ml-1" style={{marginTop: '-24px'}}>
                                         <div className="flex items-center gap-1">
                                             <span className="text-slate-500 italic text-sm">t</span>
-                                            <MiniFormulaInput id="t" value={inputs.t} isUnknown={problem.type === 't'} status={inputFeedback.t} disabled={step > 2 || inputFeedback.t === 'correct'} onChange={handleInputChange} />
+                                            <MiniFormulaInput id="t" value={inputs.t} isUnknown={problem.type === 't'} status={inputFeedback.t} disabled={step > 2 || inputFeedback.t === 'correct'} onChange={handleInputChange} onSubmit={checkFormulaInputs} />
                                         </div>
                                         <div className="w-full border-b-2 border-slate-400 my-1"></div>
                                         <div className="flex items-center gap-1">
                                             <span className="text-slate-500 italic text-sm">T<sub>1/2</sub></span>
-                                            <MiniFormulaInput id="thalf" value={inputs.thalf} isUnknown={false} status={inputFeedback.thalf} disabled={step > 2 || inputFeedback.thalf === 'correct'} onChange={handleInputChange} />
+                                            <MiniFormulaInput id="thalf" value={inputs.thalf} isUnknown={false} status={inputFeedback.thalf} disabled={step > 2 || inputFeedback.thalf === 'correct'} onChange={handleInputChange} onSubmit={checkFormulaInputs} />
                                         </div>
                                     </div>
                                 </div>
 
                             </div>
-                            {step === 2 && <div className="mt-4 flex justify-between items-center"><TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text="Der Exponent ist ein Bruch: Oben die gesamte Dauer (t), unten die Halbwertszeit (T1/2)." /><SubmitBtn onClick={checkFormulaInputs} theme="rose" /></div>}
+                            {step === 2 && <div className="mt-4 flex justify-between items-center"><TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text="Der Exponent ist ein Bruch: Oben die gesamte Dauer (t), unten die Halbwertszeit (T1/2)." /><SubmitBtn onClick={checkFormulaInputs} theme="rose" disabled={!(inputs.wn || inputs.w0 || inputs.t || inputs.thalf)} /></div>}
                             {step > 2 && <SuccessMark text="Alle Werte richtig eingesetzt!" />}
                         </StepCard>
                     )}
@@ -373,12 +382,12 @@ const ZerfallsTrainer = () => {
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                 {options.map((opt) => (
-                                    <button key={opt.id} onClick={() => handleOptionSelect(opt)} disabled={step > 3} className={`p-4 rounded-xl border-2 text-sm md:text-base font-medium flex flex-col items-center justify-center gap-2 ${selectedOptionId === opt.id ? (opt.isCorrect ? 'border-green-500 bg-green-50 text-green-900 font-bold' : 'border-red-400 bg-red-50 text-red-900') : 'border-slate-200 hover:border-rose-300'}`}>
+                                    <button key={opt.id} onClick={() => handleOptionSelect(opt)} disabled={step > 3} className={`p-4 rounded-xl border-2 text-sm md:text-base font-medium flex flex-col items-center justify-center gap-2 ${selectedOptionId === opt.id ? 'border-rose-500 bg-rose-50 text-rose-900 font-bold' : 'border-slate-200 hover:border-rose-300'}`}>
                                         {opt.label}
                                     </button>
                                 ))}
                             </div>
-                            {step === 3 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text="Um W0 zu erhalten, musst du durch die Potenz 0,5^(t/T1/2) teilen. Für t brauchst du den Logarithmus." />}
+                            {step === 3 && <div className="mt-4 flex justify-between items-center"><TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text="Um W0 zu erhalten, musst du durch die Potenz 0,5^(t/T1/2) teilen. Für t brauchst du den Logarithmus." /><SubmitBtn onClick={confirmOptionSelect} theme="rose" disabled={!selectedOptionId} /></div>}
                             {step > 3 && <SuccessMark text="Richtig umgeformt!" />}
                         </StepCard>
                     )}
@@ -388,10 +397,10 @@ const ZerfallsTrainer = () => {
                             <div className="flex flex-col sm:flex-row gap-4 items-center w-full">
                                 <div className="relative flex-grow max-w-sm w-full">
                                     <span className="absolute left-4 top-1/2 -translate-y-1/2 font-serif text-slate-400 italic">{problem.type === 'Wn' ? <VarWn/> : problem.type === 'W0' ? <VarW0/> : <span className="font-serif italic text-xl">t</span>} =</span>
-                                    <input type="text" value={finalAnswer} onChange={(e) => setFinalAnswer(e.target.value.replace('.', ','))} disabled={step === 5} placeholder="Rechner nutzen..." className={`pl-16 pr-12 py-3 w-full rounded-lg border-2 text-lg outline-none transition-colors shadow-sm ${finalFeedback === 'correct' ? 'border-green-500 bg-green-50 text-green-900 font-bold' : finalFeedback === 'incorrect' ? 'border-red-400 bg-red-50' : 'border-slate-300 focus:border-rose-500'}`} />
+                                    <input type="text" value={finalAnswer} onChange={(e) => setFinalAnswer(e.target.value.replace('.', ','))} onKeyDown={enterToSubmit(checkFinalResult)} disabled={step === 5} placeholder="Rechner nutzen..." className={`pl-16 pr-12 py-3 w-full rounded-lg border-2 text-lg outline-none transition-colors shadow-sm ${finalFeedback === 'correct' ? 'border-green-500 bg-green-50 text-green-900 font-bold' : finalFeedback === 'incorrect' ? 'border-red-400 bg-red-50' : 'border-slate-300 focus:border-rose-500'}`} />
                                     <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-medium">{problem.type === 't' ? '' : problem.unit}</span>
                                 </div>
-                                {step === 4 && <SubmitBtn onClick={checkFinalResult} theme="rose" />}
+                                {step === 4 && <SubmitBtn onClick={checkFinalResult} theme="rose" disabled={!(finalAnswer || '').trim()} />}
                             </div>
                             {step === 4 && <div className="mt-3"><CalcButton theme="rose" /></div>}
                             {step === 4 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text="Nutze den Rechner! Wenn t gesucht ist: log(Endwert / Startwert) geteilt durch log(0.5), dann mal die Halbwertszeit!" />}

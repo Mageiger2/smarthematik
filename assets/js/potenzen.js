@@ -189,6 +189,9 @@ const PotenzenTrainer = () => {
     const [examShuffled, setExamShuffled] = useState([]);
     const [examIdx, setExamIdx] = useState(0);
 
+    // Adaptive Schwierigkeit + Lernzielkontrolle.
+    const adaptive = useAdaptive('potenzen', difficulty);
+
     const isHard = difficulty === 'schwer' || difficulty === 'pruefung';
 
     useEffect(() => { setStorage('smarth_streak_potenzen', streak); }, [streak]);
@@ -199,7 +202,7 @@ const PotenzenTrainer = () => {
         setStep4HintMsg(null);
         setFeedback({});
     };
-    const triggerError = (fBack) => { setErrors(e => e + 1); setStreak(0); setFeedback(fBack); };
+    const triggerError = (fBack) => { setErrors(e => e + 1); setStreak(0); setFeedback(fBack); adaptive.recordWrong(); };
 
     const handleInp = (key, val) => {
         setInputs(prev => ({ ...prev, [key]: val }));
@@ -242,6 +245,23 @@ const PotenzenTrainer = () => {
         }
         // eslint-disable-next-line
     }, [difficulty]);
+
+    // Klick im DifficultyMenu: gleiche Kategorie → neue Aufgabe ziehen,
+    // andere Kategorie → setDifficulty löst den useEffect oben aus.
+    const handleDifficultyChange = (newDiff) => {
+        if (newDiff === difficulty) {
+            if (newDiff === 'pruefung') {
+                // Frischer Pool, falls man die nächste Prüfung sehen will.
+                const pool = shuffleArray(Array.from({ length: potenzenExamTasks.length }, (_, i) => i));
+                setExamShuffled(pool);
+                generateProblem('pruefung', pool, 0);
+            } else {
+                generateProblem(newDiff);
+            }
+        } else {
+            setDifficulty(newDiff);
+        }
+    };
 
     // Liefert den Lösungstext für den aktuellen Schritt — TipBox blendet ihn nach
     // 3 Fehleingaben + Klick auf "Lösung anzeigen" als Text ein. Kein Autofill.
@@ -342,6 +362,7 @@ const PotenzenTrainer = () => {
             const newStreak = streak + 1;
             setStreak(newStreak);
             if (newStreak > 0 && newStreak % 3 === 0) triggerCelebration(setShowAnim);
+            adaptive.recordCorrect();
             setTimeout(() => advance(5), 500);
         } else {
             setStep4HintMsg(null);
@@ -378,25 +399,21 @@ const PotenzenTrainer = () => {
     return (
         <div className="page-transition max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             {showAnim && <CelebrationOverlay />}
-            <header className="bg-cyan-600 text-cyan-50 shadow-md p-6 rounded-xl mb-6">
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div className="flex items-center space-x-3">
-                        <SuperscriptIcon className="w-8 h-8" />
-                        <div><h1 className="text-2xl font-bold tracking-tight text-white flex items-center">Potenzen <span className="hidden sm:inline text-cyan-200 text-lg font-normal border-l-2 border-cyan-400 pl-2 ml-2">10. Klasse</span></h1></div>
-                    </div>
-                    <div className="bg-cyan-700 px-4 py-1.5 rounded-full text-sm font-bold shadow-sm flex items-center">
-                        <Target className="w-4 h-4 mr-2 text-cyan-300" /> Streak: {streak}
-                    </div>
-                </div>
-            </header>
+            <TrainerHeader theme="cyan" icon={SuperscriptIcon} title="Potenzen" streakIcon={Target} streak={streak} />
 
-            <DifficultyMenu theme="cyan" active={difficulty} onChange={setDifficulty}
+            <DifficultyMenu theme="cyan" active={difficulty} onChange={handleDifficultyChange}
                 options={[
                     {id: 'leicht', label: 'Leicht'},
                     {id: 'mittel', label: 'Mittel'},
                     {id: 'schwer', label: 'Schwer'},
                     {id: 'pruefung', label: 'Prüfungsaufgaben'}
                 ]} />
+
+            {/* Lernzielkontrolle + adaptive Schwierigkeits-Empfehlung */}
+            {adaptive.stats.mastered.length > 0 && (
+                <div className="mb-4 flex justify-center"><MasteryBadge mastered={adaptive.stats.mastered} theme="cyan" /></div>
+            )}
+            <AdaptiveSuggestion suggestion={adaptive.suggestion} onAccept={(d) => handleDifficultyChange(d)} theme="cyan" />
 
             <main className="space-y-6 relative">
                 <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
@@ -418,7 +435,7 @@ const PotenzenTrainer = () => {
                         <div className="flex flex-col items-center">
                             <p className="text-slate-600 mb-6 text-center max-w-lg">Multipliziere zuerst alle „normalen" Zahlen (Koeffizienten){!isHard && " im Zähler (oben) und im Nenner (unten) miteinander"}.</p>
 
-                            <div className="flex items-center gap-6 flex-wrap justify-center">
+                            <div className="flex items-center gap-6 flex-wrap justify-center" onKeyDown={enterToSubmit(checkStep1)}>
                                 <div className="text-2xl font-math text-slate-400">=</div>
                                 <div className="flex flex-col items-center gap-2">
                                     <input type="number" onKeyDown={preventArrows} placeholder="Produkt Zähler" value={inputs.s1n || ''} onChange={e => handleInp('s1n', e.target.value)} disabled={step > 1} className={`w-36 text-center py-2 border-2 rounded-lg text-lg outline-none transition-colors ${getInputClass(feedback.s1n)}`} />
@@ -449,7 +466,7 @@ const PotenzenTrainer = () => {
                             <div className="flex flex-col items-center">
                                 <p className="text-slate-600 mb-6 text-center max-w-lg">Fasse die Potenzen mit <strong>gleicher Basis</strong> oben und unten zusammen{!isHard && " (Exponenten addieren!)"}.{!isHard && <><br/><span className="text-sm font-semibold text-cyan-700 mt-1 inline-block">Wichtig: Wenn eine Variable keinen Exponenten hat, ist dieser eine unsichtbare 1!</span></>}</p>
 
-                                <div className="flex items-center gap-4 overflow-x-auto py-2 px-4 w-full justify-center">
+                                <div className="flex items-center gap-4 overflow-x-auto py-2 px-4 w-full justify-center" onKeyDown={enterToSubmit(checkStep2)}>
                                     <div className="text-2xl font-math text-slate-400">=</div>
                                     <div className="flex flex-col items-center gap-3">
                                         <div className="flex items-center text-xl">
@@ -487,7 +504,7 @@ const PotenzenTrainer = () => {
                             <div className="flex flex-col items-center">
                                 <p className="text-slate-600 mb-6 text-center max-w-lg">{!isHard ? "Kürze die Vorzahlen und bringe" : "Bringe"} alle Potenzen in den Zähler (Exponenten subtrahieren: oben − unten).</p>
 
-                                <div className="flex items-center gap-4 w-full justify-center flex-wrap">
+                                <div className="flex items-center gap-4 w-full justify-center flex-wrap" onKeyDown={enterToSubmit(checkStep3)}>
                                     <div className="text-2xl font-math text-slate-400">=</div>
 
                                     <div className="flex items-center gap-2">
@@ -514,7 +531,7 @@ const PotenzenTrainer = () => {
                         <StepCard title="Schritt 4: Endergebnis" stepNum={4} currentStep={step} theme="cyan">
                             <div className="flex flex-col items-center">
                                 <p className="text-slate-600 mb-6 text-center max-w-lg">Gib das Endergebnis so stark vereinfacht wie möglich an.{!isHard && <><br/><span className="text-sm font-semibold text-cyan-700 mt-1 inline-block">(Tipp: Nutze ^ für Exponenten und / für Brüche, z.B. 4/5x^3)</span></>}</p>
-                                <div className="flex items-center gap-4 flex-wrap justify-center">
+                                <div className="flex items-center gap-4 flex-wrap justify-center" onKeyDown={enterToSubmit(checkStep4)}>
                                     <div className="text-2xl font-math text-slate-400">=</div>
                                     <input type="text" value={inputs.s4 || ''} onChange={e => handleInp('s4', e.target.value)} disabled={step > 4} className={`w-64 text-center py-3 border-2 rounded-lg text-xl outline-none transition-colors font-math shadow-sm ${getInputClass(feedback.s4)}`} placeholder="Endergebnis…" />
                                     {step === 4 && <SubmitBtn onClick={checkStep4} theme="cyan" disabled={!inputs.s4} />}

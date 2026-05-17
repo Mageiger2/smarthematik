@@ -16,9 +16,24 @@ body { background-color: #f8fafc; }
 ::-webkit-scrollbar-track { background: #f1f1f1; }
 ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-.font-math { font-family: 'Times New Roman', Times, serif; }
+/* Mathematischer Web-Font im KaTeX-/LaTeX-Stil. System-Stack: erst die OpenType
+   Math-Fonts (Latin Modern Math, STIX, Cambria Math), dann TeX-Gyre Pagella und
+   schließlich serif als Fallback. Kein externer Web-Font-Download nötig — die
+   Schriften liegen auf modernen Systemen vor (Cambria Math auf Windows, STIX in
+   Browsern, Latin Modern Math wenn LaTeX-Distribution installiert). */
+.font-math {
+    font-family: "Latin Modern Math", "STIX Two Math", "STIX", "XITS Math",
+                 "Cambria Math", "TeX Gyre Pagella", "TeX Gyre Termes", Georgia, serif;
+    font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+    font-variant-numeric: lining-nums;
+}
 /* Variante für mathematische Variablen — kursiv (z.B. im Potenzen-Trainer für x, y, z). */
-.font-math-italic { font-family: 'Times New Roman', Times, serif; font-style: italic; }
+.font-math-italic {
+    font-family: "Latin Modern Math", "STIX Two Math", "STIX", "XITS Math",
+                 "Cambria Math", "TeX Gyre Pagella", "TeX Gyre Termes", Georgia, serif;
+    font-style: italic;
+    font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+}
 
 /* Number-Inputs ohne Spinner-Pfeile — saubere Eingabefelder im Taschenrechner-Stil. */
 input[type=number]::-webkit-outer-spin-button,

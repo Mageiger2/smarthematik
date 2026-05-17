@@ -315,10 +315,12 @@ const WahrscheinlichkeitsTrainer = () => {
     // bei Bruchgleichungen: Pool wird einmal gemischt, jede Aufgabe einmal durchlaufen.
     const [examShuffled, setExamShuffled] = useState([]);
     const [examIdx, setExamIdx] = useState(0);
+    // Adaptive Schwierigkeit + Lernzielkontrolle.
+    const adaptive = useAdaptive('wahrscheinlichkeit', difficulty);
 
     useEffect(() => { setStorage('smarth_streak_wahrscheinlichkeit', streak); }, [streak]);
     const advance = (nextStep) => { setStep(nextStep); setErrors(0); setTipRevealed(false); };
-    const triggerError = () => { setErrors(e => e + 1); setStreak(0); };
+    const triggerError = () => { setErrors(e => e + 1); setStreak(0); adaptive.recordWrong(); };
     const handleInputChange = (id, val) => { setInputs(prev => ({ ...prev, [id]: val.replace('.', ',') })); setInputFeedback(prev => ({ ...prev, [id]: null })); };
 
     const generateProblem = () => {
@@ -366,10 +368,14 @@ const WahrscheinlichkeitsTrainer = () => {
         else setDifficulty(newDiff);
     };
 
+    // Step 1: Auswahl nur markieren, Bestätigung über SubmitBtn (Vereinheitlichung).
     const handleIdentify = (selected) => {
         if (step > 1 || !problem) return;
         setSelectedIdentification(selected);
-        if (selected === problem.type) { setTimeout(() => advance(2), 600); } else { triggerError(); }
+    };
+    const confirmIdentify = () => {
+        if (step > 1 || !problem || !selectedIdentification) return;
+        if (selectedIdentification === problem.type) { advance(2); } else { triggerError(); }
     };
 
     const checkZug1 = () => {
@@ -401,6 +407,7 @@ const WahrscheinlichkeitsTrainer = () => {
             const newStreak = streak + 1;
             setStreak(newStreak);
             if (newStreak > 0 && newStreak % 3 === 0) triggerCelebration(setShowAnim);
+            adaptive.recordCorrect();
             setShowSolution(true); advance(5);
         } else { setFinalFeedback('incorrect'); triggerError(); }
     };
@@ -449,7 +456,7 @@ const WahrscheinlichkeitsTrainer = () => {
                     elements.push(
                         <foreignObject key={`fo-1-${index}`} x={midX - 30} y={midY - 40} width="65" height="80">
                             <div xmlns="http://www.w3.org/1999/xhtml" className="flex justify-center h-full items-center">
-                                <MiniFractionInput idTop="t1" idBot="b1" valTop={inputs.t1} valBot={inputs.b1} onChange={handleInputChange} disabled={false} statusTop={inputFeedback.t1} statusBot={inputFeedback.b1} theme="violet" />
+                                <MiniFractionInput idTop="t1" idBot="b1" valTop={inputs.t1} valBot={inputs.b1} onChange={handleInputChange} onSubmit={checkZug1} disabled={false} statusTop={inputFeedback.t1} statusBot={inputFeedback.b1} theme="violet" />
                             </div>
                         </foreignObject>
                     );
@@ -465,7 +472,7 @@ const WahrscheinlichkeitsTrainer = () => {
                     elements.push(
                         <foreignObject key={`fo-2-${index}`} x={midX - 30} y={midY - 40} width="65" height="80">
                             <div xmlns="http://www.w3.org/1999/xhtml" className="flex justify-center h-full items-center">
-                                <MiniFractionInput idTop="t2" idBot="b2" valTop={inputs.t2} valBot={inputs.b2} onChange={handleInputChange} disabled={false} statusTop={inputFeedback.t2} statusBot={inputFeedback.b2} theme="violet" />
+                                <MiniFractionInput idTop="t2" idBot="b2" valTop={inputs.t2} valBot={inputs.b2} onChange={handleInputChange} onSubmit={checkZug2} disabled={false} statusTop={inputFeedback.t2} statusBot={inputFeedback.b2} theme="violet" />
                             </div>
                         </foreignObject>
                     );
@@ -519,17 +526,7 @@ const WahrscheinlichkeitsTrainer = () => {
     return (
         <div className="page-transition max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             {showAnim && <CelebrationOverlay />}
-            <header className="bg-violet-600 text-violet-50 shadow-md p-6 rounded-xl mb-6">
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div className="flex items-center space-x-3">
-                        <DicesIcon className="w-8 h-8" />
-                        <div><h1 className="text-2xl font-bold tracking-tight text-white flex items-center">Wahrscheinlichkeit <span className="hidden sm:inline text-violet-200 text-lg font-normal border-l-2 border-violet-400 pl-2 ml-2">10. Klasse</span></h1></div>
-                    </div>
-                    <div className="bg-violet-700 px-4 py-1.5 rounded-full text-sm font-bold shadow-sm flex items-center">
-                        <Target className="w-4 h-4 mr-2 text-violet-300" /> Streak: {streak}
-                    </div>
-                </div>
-            </header>
+            <TrainerHeader theme="violet" icon={DicesIcon} title="Wahrscheinlichkeit" streakIcon={Target} streak={streak} />
 
             <DifficultyMenu theme="violet" active={difficulty} onChange={handleDifficultyChange} options={[
                 {id: 'leicht', label: 'Leicht'},
@@ -537,6 +534,12 @@ const WahrscheinlichkeitsTrainer = () => {
                 {id: 'schwer', label: 'Schwer'},
                 {id: 'pruefung', label: 'Prüfungsaufgaben'}
             ]} />
+
+            {/* Lernzielkontrolle + adaptive Schwierigkeits-Empfehlung */}
+            {adaptive.stats.mastered.length > 0 && (
+                <div className="mb-4 flex justify-center"><MasteryBadge mastered={adaptive.stats.mastered} theme="violet" /></div>
+            )}
+            <AdaptiveSuggestion suggestion={adaptive.suggestion} onAccept={(d) => handleDifficultyChange(d)} theme="violet" />
 
             <main className="space-y-6 relative">
                 <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
@@ -557,13 +560,13 @@ const WahrscheinlichkeitsTrainer = () => {
                     <StepCard title="1. Art des Experiments" stepNum={1} activeCondition={step === 1} pastCondition={step > 1} currentStep={step} theme="violet">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl mx-auto">
                             {[{ type: 'mit', label: "Mit Zurücklegen", desc: "(Nenner bleibt gleich, z.B. Glücksrad)" }, { type: 'ohne', label: "Ohne Zurücklegen", desc: "(Nenner wird kleiner, z.B. Essen)" }].map((item) => (
-                                <button key={item.type} onClick={() => handleIdentify(item.type)} disabled={step > 1} className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${selectedIdentification === item.type ? (item.type === problem?.type ? 'border-green-500 bg-green-50 text-green-900 font-bold' : 'border-red-400 bg-red-50 text-red-900') : 'border-slate-200 hover:border-violet-400 bg-white'}`}>
+                                <button key={item.type} onClick={() => handleIdentify(item.type)} disabled={step > 1} className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${selectedIdentification === item.type ? 'border-violet-500 bg-violet-50 text-violet-900 font-bold' : 'border-slate-200 hover:border-violet-400 bg-white'}`}>
                                     <span className="text-xl font-bold">{item.label}</span>
                                     <span className="text-xs font-semibold text-slate-500 text-center">{item.desc}</span>
                                 </button>
                             ))}
                         </div>
-                        {step === 1 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text="Überlege: Verändert sich die Gesamtanzahl nach dem ersten Zug? Wenn jemand etwas aufisst oder 'nicht zurücklegt', ändert sich die Gesamtzahl." />}
+                        {step === 1 && <div className="mt-4 flex justify-between items-center"><TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text="Überlege: Verändert sich die Gesamtanzahl nach dem ersten Zug? Wenn jemand etwas aufisst oder 'nicht zurücklegt', ändert sich die Gesamtzahl." /><SubmitBtn onClick={confirmIdentify} theme="violet" disabled={!selectedIdentification} /></div>}
                         {step > 1 && <SuccessMark text={`Richtig! Es ist ein Versuch ${problem?.type === 'mit' ? "mit" : "ohne"} Zurücklegen.`} />}
                     </StepCard>
 
@@ -577,19 +580,21 @@ const WahrscheinlichkeitsTrainer = () => {
 
                             {problem?.tree && !loading && (
                                 <>
-                                    {/* Desktop / Tablet (≥ sm): SVG-Baumdiagramm mit foreignObject-Eingaben */}
+                                    {/* Desktop / Tablet (≥ sm): SVG-Baumdiagramm mit foreignObject-Eingaben.
+                                        Horizontale Stauchung: viewBox 1000 → 560, Baumbreite 900 → 480, root x=280.
+                                        Die Pfade rücken so deutlich enger zusammen, ohne dass Knoten oder Schrift kleiner werden. */}
                                     <div className="hidden sm:block w-full bg-slate-50 border border-slate-200 rounded-xl overflow-x-auto p-4 shadow-inner animate-fade-in mb-6">
                                         <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-2 text-center">Interaktives Baumdiagramm</h3>
-                                        <svg viewBox="0 0 1000 420" className="w-full h-auto min-w-[800px] max-w-4xl mx-auto block overflow-visible">
-                                            {renderTree(problem.tree, 500, 20, 900, 0)}
+                                        <svg viewBox="0 0 560 420" className="w-full h-auto min-w-[460px] max-w-2xl mx-auto block overflow-visible">
+                                            {renderTree(problem.tree, 280, 20, 480, 0)}
                                         </svg>
                                     </div>
 
                                     {/* Mobile (< sm): vereinfachtes SVG zur Anzeige + große Bruch-Eingaben darunter */}
                                     <div className="sm:hidden w-full bg-slate-50 border border-slate-200 rounded-xl p-3 shadow-inner animate-fade-in mb-4 overflow-x-auto">
                                         <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 text-center">Baumdiagramm (Übersicht)</h3>
-                                        <svg viewBox="0 0 1000 420" className="w-full h-auto min-w-[600px] block overflow-visible">
-                                            {renderTree(problem.tree, 500, 20, 900, 0)}
+                                        <svg viewBox="0 0 560 420" className="w-full h-auto min-w-[360px] block overflow-visible">
+                                            {renderTree(problem.tree, 280, 20, 480, 0)}
                                         </svg>
                                     </div>
                                 </>
@@ -599,14 +604,14 @@ const WahrscheinlichkeitsTrainer = () => {
                             <div className="sm:hidden bg-violet-50 border border-violet-200 rounded-xl p-4 mb-3">
                                 <h4 className="text-sm font-bold text-violet-800 mb-2">1. Zug — Bruch eintragen</h4>
                                 <div className="flex justify-center">
-                                    <FractionInputInteraktiv idTop="t1" idBot="b1" valTop={inputs.t1} valBot={inputs.b1} onChange={handleInputChange} disabled={step !== 2} statusTop={inputFeedback.t1} statusBot={inputFeedback.b1} theme="violet" />
+                                    <FractionInputInteraktiv idTop="t1" idBot="b1" valTop={inputs.t1} valBot={inputs.b1} onChange={handleInputChange} onSubmit={checkZug1} disabled={step !== 2} statusTop={inputFeedback.t1} statusBot={inputFeedback.b1} theme="violet" />
                                 </div>
                             </div>
                             {step >= 3 && (
                                 <div className="sm:hidden bg-violet-50 border border-violet-200 rounded-xl p-4 mb-3">
                                     <h4 className="text-sm font-bold text-violet-800 mb-2">2. Zug — Bruch eintragen</h4>
                                     <div className="flex justify-center">
-                                        <FractionInputInteraktiv idTop="t2" idBot="b2" valTop={inputs.t2} valBot={inputs.b2} onChange={handleInputChange} disabled={step !== 3} statusTop={inputFeedback.t2} statusBot={inputFeedback.b2} theme="violet" />
+                                        <FractionInputInteraktiv idTop="t2" idBot="b2" valTop={inputs.t2} valBot={inputs.b2} onChange={handleInputChange} onSubmit={checkZug2} disabled={step !== 3} statusTop={inputFeedback.t2} statusBot={inputFeedback.b2} theme="violet" />
                                     </div>
                                 </div>
                             )}
@@ -629,7 +634,7 @@ const WahrscheinlichkeitsTrainer = () => {
                                     <span>=</span>
                                 </div>
                                 <div className="relative flex-grow max-w-xs w-full">
-                                    <input type="text" value={inputs.perc} onChange={(e) => handleInputChange('perc', e.target.value)} disabled={step === 5} placeholder="Taschenrechner..." className={`pr-10 py-3 w-full text-center rounded-lg border-2 text-lg outline-none transition-colors shadow-sm ${finalFeedback === 'correct' ? 'border-green-500 bg-green-50 text-green-900 font-bold' : finalFeedback === 'incorrect' ? 'border-red-400 bg-red-50' : 'border-slate-300 focus:border-violet-500'}`} />
+                                    <input type="text" value={inputs.perc} onChange={(e) => handleInputChange('perc', e.target.value)} onKeyDown={enterToSubmit(checkFinalResult)} disabled={step === 5} placeholder="Taschenrechner..." className={`pr-10 py-3 w-full text-center rounded-lg border-2 text-lg outline-none transition-colors shadow-sm ${finalFeedback === 'correct' ? 'border-green-500 bg-green-50 text-green-900 font-bold' : finalFeedback === 'incorrect' ? 'border-red-400 bg-red-50' : 'border-slate-300 focus:border-violet-500'}`} />
                                     <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold">%</span>
                                 </div>
                                 {step === 4 && <SubmitBtn onClick={checkFinalResult} theme="violet" disabled={!inputs.perc} />}

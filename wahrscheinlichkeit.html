@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Cache-Hygiene: HTML immer revalidieren (Assets werden über ?v=... versioniert). -->
+    <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
     <title>Wahrscheinlichkeit — sMArTHEMATIK</title>
     <meta name="description" content="Wahrscheinlichkeitsrechnung mit interaktivem Baumdiagramm: Mit und ohne Zurücklegen, Pfadregel anwenden. Üben für die 10. Klasse Mittelschule Bayern.">
 
@@ -13,12 +16,13 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://www.smarthematik.de/wahrscheinlichkeit.html">
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Self-hosted Vendor-Skripte (kein Cross-Origin zu US-Servern) -->
+    <script src="assets/vendor/tailwindcss.js?v=202605171011"></script>
+    <script src="assets/vendor/react.production.min.js?v=202605171011"></script>
+    <script src="assets/vendor/react-dom.production.min.js?v=202605171011"></script>
+    <script src="assets/vendor/babel.min.js?v=202605171011"></script>
 
-    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/main.css?v=202605171011">
 </head>
 <body class="text-slate-800 font-sans antialiased flex flex-col min-h-screen">
 
@@ -44,7 +48,7 @@
                 <img src="cropped-BdB_Logo-1.png" alt="Beratung digitale Bildung Logo" class="h-6 sm:h-10 md:h-12 w-auto object-contain">
             </div>
         </div>
-        <nav id="nav-menu" class="hidden absolute right-2 sm:right-6 top-full mt-2 w-72 max-w-[calc(100vw-1rem)] bg-white border border-slate-200 rounded-xl shadow-xl p-2 flex flex-col" role="navigation" aria-label="Hauptnavigation"><a href="index.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Startseite</a><a href="wachstum.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Wachstum & Zerfall</a><a href="halbwertszeit.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Halbwertszeit</a><a href="bruchgleichungen.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Bruchgleichungen</a><a href="binformeln.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Bin. Formeln</a><a href="potenzen.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Potenzen</a><a href="trigonometrie.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Trigonometrie</a><a href="wahrscheinlichkeit.html" class="flex items-center gap-2 px-4 py-3 rounded-lg font-semibold bg-indigo-50 text-indigo-700" aria-current="page">Wahrscheinlichkeit</a><a href="kopfrechnen.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Kopfrechnen</a><div class="border-t border-slate-200 my-2"></div><a href="impressum.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-500 hover:bg-slate-50 hover:text-indigo-700 text-sm transition-colors">Impressum</a><a href="datenschutz.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-500 hover:bg-slate-50 hover:text-indigo-700 text-sm transition-colors">Datenschutz</a></nav>
+        <nav id="nav-menu" class="hidden absolute right-2 sm:right-6 top-full mt-2 w-72 max-w-[calc(100vw-1rem)] bg-white border border-slate-200 rounded-xl shadow-xl p-2 flex flex-col" role="navigation" aria-label="Hauptnavigation"><a href="index.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Startseite</a><a href="kopfrechnen.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Kopfrechnen</a><a href="binformeln.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Bin. Formeln</a><a href="bruchgleichungen.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Bruchgleichungen</a><a href="halbwertszeit.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Halbwertszeit</a><a href="potenzen.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Potenzen</a><a href="trigonometrie.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Trigonometrie</a><a href="wachstum.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Wachstum & Zerfall</a><a href="wahrscheinlichkeit.html" class="flex items-center gap-2 px-4 py-3 rounded-lg font-semibold bg-indigo-50 text-indigo-700" aria-current="page">Wahrscheinlichkeit</a><div class="border-t border-slate-200 my-2"></div><a href="impressum.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-500 hover:bg-slate-50 hover:text-indigo-700 text-sm transition-colors">Impressum</a><a href="datenschutz.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-500 hover:bg-slate-50 hover:text-indigo-700 text-sm transition-colors">Datenschutz</a></nav>
     </header>
 
     <div id="boot-error" class="hidden bg-red-50 border-b-2 border-red-300 text-red-900 px-4 py-3 text-center text-sm">
@@ -161,6 +165,220 @@ const { useState, useEffect } = React;
 // ==========================================
 const getStorage = (key, def) => { try { return parseInt(localStorage.getItem(key)) || def; } catch(e) { return def; } };
 const setStorage = (key, val) => { try { localStorage.setItem(key, val); } catch(e) {} };
+// JSON-Variante für strukturierte Daten (Adaptive-Schwierigkeit, Lernziele, Fehler-Statistik).
+const getStorageJSON = (key, def) => { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : def; } catch(e) { return def; } };
+const setStorageJSON = (key, val) => { try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {} };
+
+// ==========================================
+// ADAPTIVE FEATURES — Lernzielkontrolle, Schwierigkeits-Empfehlungen, Fehler-Statistik
+// ==========================================
+//
+// useAdaptive(trainerKey, difficulty) — leichter Hook, der parallel zu jedem Trainer
+// per-Schwierigkeit Statistik führt. Trainer rufen recordCorrect()/recordWrong() auf,
+// und die Daten landen in localStorage unter `smarth_adaptive_<trainerKey>` als JSON.
+//
+// Speicher-Schema:
+// {
+//   perDifficulty: {
+//     leicht: { correct: 12, wrong: 3, streak: 5, bestStreak: 8 },
+//     mittel: { correct: 4, wrong: 2, streak: 2, bestStreak: 3 },
+//     schwer: { correct: 0, wrong: 0, streak: 0, bestStreak: 0 },
+//     pruefung: { correct: 0, wrong: 0, streak: 0, bestStreak: 0 }
+//   },
+//   mastered: ['leicht']  // Schwierigkeiten, bei denen bereits >= 10 in Folge gelöst
+// }
+//
+// API:
+//   adaptive.stats           — kompletter Datensatz
+//   adaptive.recordCorrect() — bei richtiger Antwort, mit aktueller Schwierigkeit
+//   adaptive.recordWrong()   — bei falscher Antwort
+//   adaptive.suggestion      — { nextDifficulty, reason } oder null
+//   adaptive.isMastered(d)   — boolean: Schwierigkeit d gemeistert?
+function useAdaptive(trainerKey, difficulty) {
+    const key = `smarth_adaptive_${trainerKey}`;
+    const emptyStats = () => ({
+        perDifficulty: {
+            leicht: { correct: 0, wrong: 0, streak: 0, bestStreak: 0 },
+            mittel: { correct: 0, wrong: 0, streak: 0, bestStreak: 0 },
+            schwer: { correct: 0, wrong: 0, streak: 0, bestStreak: 0 },
+            pruefung: { correct: 0, wrong: 0, streak: 0, bestStreak: 0 }
+        },
+        mastered: []
+    });
+    const [stats, setStats] = useState(() => {
+        const stored = getStorageJSON(key, null);
+        if (stored && stored.perDifficulty) return stored;
+        return emptyStats();
+    });
+    useEffect(() => { setStorageJSON(key, stats); }, [stats, key]);
+
+    const recordCorrect = () => {
+        setStats(prev => {
+            const d = prev.perDifficulty[difficulty] || { correct: 0, wrong: 0, streak: 0, bestStreak: 0 };
+            const newStreak = d.streak + 1;
+            const updated = {
+                ...prev,
+                perDifficulty: {
+                    ...prev.perDifficulty,
+                    [difficulty]: {
+                        correct: d.correct + 1,
+                        wrong: d.wrong,
+                        streak: newStreak,
+                        bestStreak: Math.max(d.bestStreak, newStreak)
+                    }
+                }
+            };
+            // Mastery-Logik: ab 10 in Folge gilt eine Schwierigkeit als gemeistert.
+            if (newStreak >= 10 && !updated.mastered.includes(difficulty)) {
+                updated.mastered = [...updated.mastered, difficulty];
+            }
+            return updated;
+        });
+    };
+    const recordWrong = () => {
+        setStats(prev => {
+            const d = prev.perDifficulty[difficulty] || { correct: 0, wrong: 0, streak: 0, bestStreak: 0 };
+            return {
+                ...prev,
+                perDifficulty: {
+                    ...prev.perDifficulty,
+                    [difficulty]: { ...d, wrong: d.wrong + 1, streak: 0 }
+                }
+            };
+        });
+    };
+
+    // Schwierigkeits-Empfehlung: 5x in Folge richtig → nächste Stufe vorschlagen.
+    const order = ['leicht', 'mittel', 'schwer', 'pruefung'];
+    const suggestion = (() => {
+        const idx = order.indexOf(difficulty);
+        if (idx < 0 || idx === order.length - 1) return null;
+        const cur = stats.perDifficulty[difficulty];
+        if (!cur || cur.streak < 5) return null;
+        const next = order[idx + 1];
+        return { nextDifficulty: next, reason: `Du hast ${cur.streak} ${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}-Aufgaben in Folge richtig gelöst — wage dich an ${next.charAt(0).toUpperCase() + next.slice(1)}!` };
+    })();
+
+    const isMastered = (d) => stats.mastered.includes(d);
+
+    return { stats, recordCorrect, recordWrong, suggestion, isMastered };
+}
+
+// AdaptiveSuggestion — Banner, der nach 5x in Folge eine höhere Schwierigkeit empfiehlt.
+// onAccept übernimmt die nächste Schwierigkeit. Wird einmal beim Klick eingeklappt.
+const AdaptiveSuggestion = ({ suggestion, onAccept, theme = 'emerald' }) => {
+    const [dismissed, setDismissed] = useState(false);
+    if (!suggestion || dismissed) return null;
+    const t = themeColors[theme] || themeColors.emerald;
+    return (
+        <div className={`mb-4 ${t.activeBg} border-l-4 ${t.activeBorder} p-4 rounded-r-xl shadow-sm flex items-start gap-3 animate-fade-in`}>
+            <Target className={`w-6 h-6 ${t.activeTitle} shrink-0 mt-0.5`} />
+            <div className="flex-grow">
+                <p className={`font-semibold ${t.activeTitle}`}>Du bist auf Kurs!</p>
+                <p className="text-sm text-slate-700 mt-1">{suggestion.reason}</p>
+                <div className="mt-3 flex gap-2">
+                    <button onClick={() => { onAccept(suggestion.nextDifficulty); setDismissed(true); }}
+                            className={`${t.btnBg} ${t.btnHover} text-white px-4 py-1.5 rounded-lg font-bold text-sm shadow-sm transition-colors`}>
+                        Ja, los geht's
+                    </button>
+                    <button onClick={() => setDismissed(true)}
+                            className="bg-white hover:bg-slate-50 text-slate-600 px-4 py-1.5 rounded-lg font-medium text-sm border border-slate-200 transition-colors">
+                        Nicht jetzt
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// MasteryBadge — kleines Auszeichnungs-Element, wenn die Schwierigkeit bereits
+// 10× in Folge richtig gelöst wurde. Wird im Trainer-Header oder neben dem
+// Difficulty-Button angezeigt.
+const MasteryBadge = ({ mastered, theme = 'emerald' }) => {
+    if (!mastered || mastered.length === 0) return null;
+    const t = themeColors[theme] || themeColors.emerald;
+    const labels = { leicht: 'Leicht', mittel: 'Mittel', schwer: 'Schwer', pruefung: 'Prüfung' };
+    return (
+        <div className="inline-flex items-center gap-1.5 bg-amber-100 text-amber-800 border border-amber-300 px-2 py-1 rounded-full text-xs font-bold shadow-sm" title={`Gemeistert: ${mastered.map(d => labels[d]).join(', ')}`}>
+            <span aria-hidden="true">★</span>
+            <span>{mastered.length}× gemeistert</span>
+        </div>
+    );
+};
+
+// recordError(trainerKey, errorType) — minimale Fehler-Statistik. Bei jeder
+// falschen Eingabe wird ein Fehler-Typ getrackt (vom Trainer als String
+// gewählt, z.B. 'vorzeichen', 'doppelprodukt'). Speicherung in localStorage als
+// { errorType: count, ... }. Wird über getErrorStats(trainerKey) für ein
+// Fehler-Statistik-Panel zugänglich.
+const recordError = (trainerKey, errorType) => {
+    const key = `smarth_errors_${trainerKey}`;
+    const cur = getStorageJSON(key, {});
+    cur[errorType] = (cur[errorType] || 0) + 1;
+    setStorageJSON(key, cur);
+};
+const getErrorStats = (trainerKey) => getStorageJSON(`smarth_errors_${trainerKey}`, {});
+
+// ==========================================
+// useTrainerCore — bündelt den State, der bisher in JEDEM Trainer einzeln definiert war:
+//   - streak (mit localStorage-Persistenz)
+//   - errors-Zähler (für TipBox)
+//   - tipRevealed (für TipBox)
+//   - triggerError (Streak auf 0, errors hochzählen)
+//   - advance (Schritt vor + errors/tip zurücksetzen)
+//   - showAnim (Konfetti-Animation alle 3 Streaks)
+//   - bestStreak / sessionCorrect (für Lernziel- und Fehler-Statistik)
+// Verwendung:  const tc = useTrainerCore({ storageKey: 'smarth_X' });
+// Dann: tc.streak, tc.errors, tc.tipRevealed, tc.setTipRevealed, tc.triggerError,
+//        tc.advance(setStep, nextStep), tc.onSuccessfulSolve(), tc.onSolutionShown()
+function useTrainerCore({ storageKey }) {
+    const streakKey = `smarth_streak_${storageKey}`;
+    const bestKey = `smarth_best_${storageKey}`;
+    const [streak, setStreak] = useState(() => getStorage(streakKey, 0));
+    const [bestStreak, setBestStreak] = useState(() => getStorage(bestKey, 0));
+    const [errors, setErrors] = useState(0);
+    const [tipRevealed, setTipRevealed] = useState(false);
+    const [showAnim, setShowAnim] = useState(false);
+
+    useEffect(() => { setStorage(streakKey, streak); }, [streak, streakKey]);
+    useEffect(() => { setStorage(bestKey, bestStreak); }, [bestStreak, bestKey]);
+
+    // Bei Fehleingabe: Streak auf 0, Fehler hochzählen — Tipp- bzw. Lösungs-Box
+    // erscheint dann ab 2 Fehlern (siehe TipBox).
+    const triggerError = () => { setErrors(e => e + 1); setStreak(0); };
+
+    // Nach erfolgreichem Lösen (z. B. SuccessBox-Anzeige): Streak hochzählen, Best
+    // tracken, Konfetti alle 3 Erfolge.
+    const onSuccessfulSolve = (incrementStreak = true) => {
+        if (!incrementStreak) return;
+        const newStreak = streak + 1;
+        setStreak(newStreak);
+        if (newStreak > bestStreak) setBestStreak(newStreak);
+        if (newStreak > 0 && newStreak % 3 === 0) triggerCelebration(setShowAnim);
+    };
+
+    // Wird in der TipBox aufgerufen, sobald die Lösung sichtbar gemacht wird.
+    const onSolutionShown = () => setStreak(0);
+
+    // Hilfsfunktion für StepCard-Trainer: vorrücken + Tipp-/Fehler-Zähler zurücksetzen.
+    const advanceStep = (setStep, nextStep) => {
+        setStep(nextStep);
+        setErrors(0);
+        setTipRevealed(false);
+    };
+
+    return {
+        streak, setStreak,
+        bestStreak,
+        errors, setErrors,
+        tipRevealed, setTipRevealed,
+        showAnim,
+        triggerError,
+        onSuccessfulSolve,
+        onSolutionShown,
+        advanceStep,
+    };
+}
 
 const triggerCelebration = (setShowAnim) => {
     setShowAnim(true);
@@ -292,22 +510,27 @@ function RefreshCw({ className }) { return <IconBase className={className} path=
 function BookOpen({ className }) { return <IconBase className={className} path={<><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></>} />; }
 function TrendingUp({ className }) {
     // Exponentiell steigende Kurve im angedeuteten Koordinatensystem.
-    // Achsen dünn (1.4), Kurve dick (2.8), mit sichtbarer Mini-Lücke zu beiden Achsen.
+    // Achsen dünn (1.2) mit kleinen Pfeilspitzen oben + rechts, Kurve dünn (1.8)
+    // und mit eckigen Enden (kein Linecap "round"), damit der Graph präzise wirkt.
     return (
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" className={className}>
-            <line x1="3" y1="3" x2="3" y2="21" strokeWidth="1.4" />
-            <line x1="3" y1="21" x2="22" y2="21" strokeWidth="1.4" />
-            <path d="M 5.5 19 C 11 19, 15.5 16, 20.5 5" strokeWidth="2.8" />
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinejoin="round" className={className}>
+            <line x1="3" y1="4" x2="3" y2="21" strokeWidth="1.2" />
+            <polygon points="3,1.5 1.5,5 4.5,5" fill="currentColor" stroke="none" />
+            <line x1="3" y1="21" x2="20" y2="21" strokeWidth="1.2" />
+            <polygon points="22.5,21 19,19.5 19,22.5" fill="currentColor" stroke="none" />
+            <path d="M 5 19 C 11 19, 15 16, 19.5 5.5" strokeWidth="1.8" strokeLinecap="butt" />
         </svg>
     );
 }
 function TrendingDown({ className }) {
     // Exponentiell fallende Kurve im angedeuteten Koordinatensystem.
     return (
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" className={className}>
-            <line x1="3" y1="3" x2="3" y2="21" strokeWidth="1.4" />
-            <line x1="3" y1="21" x2="22" y2="21" strokeWidth="1.4" />
-            <path d="M 5.5 5 C 9 17, 14.5 19.2, 20.5 19.2" strokeWidth="2.8" />
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinejoin="round" className={className}>
+            <line x1="3" y1="4" x2="3" y2="21" strokeWidth="1.2" />
+            <polygon points="3,1.5 1.5,5 4.5,5" fill="currentColor" stroke="none" />
+            <line x1="3" y1="21" x2="20" y2="21" strokeWidth="1.2" />
+            <polygon points="22.5,21 19,19.5 19,22.5" fill="currentColor" stroke="none" />
+            <path d="M 5 5.5 C 9 17, 14 19, 19.5 19" strokeWidth="1.8" strokeLinecap="butt" />
         </svg>
     );
 }
@@ -323,12 +546,16 @@ function FastForward({ className }) { return <IconBase className={className} pat
 function Target({ className }) { return <IconBase className={className} path={<><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></>} />; }
 function DicesIcon({ className }) { return <IconBase className={className} path={<><rect width="12" height="12" x="2" y="10" rx="2" ry="2"/><path d="M17.92 14H20a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2h-8a2 2 0 0 0-2 2v2"/><circle cx="6" cy="14" r="1"/><circle cx="10" cy="18" r="1"/><circle cx="16" cy="8" r="1"/></>} />; }
 function Hash({ className }) { return <IconBase className={className} path={<><line x1="4" x2="20" y1="9" y2="9"/><line x1="4" x2="20" y1="15" y2="15"/><line x1="10" x2="8" y1="3" y2="21"/><line x1="16" x2="14" y1="3" y2="21"/></>} />; }
+// Einheitliche Text-Optik für die drei textbasierten Logos (Potenzen, Binom-
+// Formeln, Bruchgleichungen): system-ui sans-serif, fett (700). Vorbild ist die
+// hochgestellte 2 im BracketsIcon — gleiche Schriftart, harmonische Größen.
+const LOGO_TEXT_FONT = "system-ui, sans-serif";
 function SuperscriptIcon({ className }) {
     // x mit hochgestellter 2 — eigenes SVG, weil IconBase kein <text> kann.
     return (
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" className={className}>
-            <text x="4" y="18" fontFamily="'Times New Roman', serif" fontStyle="italic" fontSize="18" fill="currentColor">x</text>
-            <text x="13" y="10" fontFamily="sans-serif" fontWeight="bold" fontSize="13" fill="currentColor">2</text>
+            <text x="5" y="18" fontFamily={LOGO_TEXT_FONT} fontWeight="700" fontSize="14" fill="currentColor">x</text>
+            <text x="14" y="11" fontFamily={LOGO_TEXT_FONT} fontWeight="700" fontSize="10" fill="currentColor">2</text>
         </svg>
     );
 }
@@ -338,7 +565,7 @@ function BracketsIcon({ className }) {
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
             <path d="M7 19s-3-2.5-3-7 3-7 3-7"/>
             <path d="M13 5s3 2.5 3 7-3 7-3 7"/>
-            <text x="20.5" y="8" fill="currentColor" stroke="none" fontSize="10" fontWeight="700" textAnchor="middle" fontFamily="system-ui, sans-serif">2</text>
+            <text x="20.5" y="8" fill="currentColor" stroke="none" fontSize="10" fontWeight="700" textAnchor="middle" fontFamily={LOGO_TEXT_FONT}>2</text>
         </svg>
     );
 }
@@ -347,8 +574,8 @@ function FractionIcon({ className }) {
     return (
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className}>
             <line x1="3" x2="21" y1="12" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-            <text x="12" y="9" textAnchor="middle" fontFamily="serif" fontStyle="italic" fontSize="9" fontWeight="600" fill="currentColor">1</text>
-            <text x="12" y="22" textAnchor="middle" fontFamily="serif" fontStyle="italic" fontSize="9" fontWeight="600" fill="currentColor">x−1</text>
+            <text x="12" y="10" textAnchor="middle" fontFamily={LOGO_TEXT_FONT} fontSize="10" fontWeight="700" fill="currentColor">1</text>
+            <text x="12" y="22" textAnchor="middle" fontFamily={LOGO_TEXT_FONT} fontSize="10" fontWeight="700" fill="currentColor">x−1</text>
         </svg>
     );
 }
@@ -364,6 +591,36 @@ const CelebrationOverlay = () => (
 );
 
 const Frac = ({ top, bot }) => <span className="inline-flex flex-col items-center align-middle mx-1 px-1"><span className="border-b-[1.5px] border-current px-1 pb-0.5 w-full text-center leading-none">{top}</span><span className="px-1 pt-0.5 text-center leading-none">{bot}</span></span>;
+
+// Einheitlicher Trainer-Header. Auf Mobile (< sm) kompakt (p-3, kleinere Schrift +
+// Icons), auf Tablet/Desktop voll. Bg-Farbe und Streak-Pille richten sich nach Theme.
+const TrainerHeader = ({ theme, icon: Icon, title, streakIcon: StreakIcon, streak }) => {
+    const headerBg = {
+        emerald: 'bg-emerald-700', rose: 'bg-rose-600', amber: 'bg-amber-500', sky: 'bg-sky-500',
+        violet: 'bg-violet-600', teal: 'bg-teal-600', cyan: 'bg-cyan-600', orange: 'bg-orange-600'
+    }[theme] || 'bg-emerald-700';
+    const pillBg = {
+        emerald: 'bg-emerald-800', rose: 'bg-rose-700', amber: 'bg-amber-600', sky: 'bg-sky-600',
+        violet: 'bg-violet-700', teal: 'bg-teal-700', cyan: 'bg-cyan-700', orange: 'bg-orange-700'
+    }[theme] || 'bg-emerald-800';
+    return (
+        <header className={`${headerBg} shadow-md p-3 sm:p-6 rounded-xl mb-3 sm:mb-6`}>
+            <div className="flex flex-row items-center justify-between gap-2 sm:gap-4">
+                <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
+                    {Icon && <Icon className="w-6 h-6 sm:w-8 sm:h-8 shrink-0 text-white" />}
+                    <h1 className="text-base sm:text-2xl font-bold tracking-tight text-white truncate">
+                        {title}
+                        <span className="hidden sm:inline text-white/70 text-lg font-normal border-l-2 border-white/30 pl-2 ml-2">10. Klasse</span>
+                    </h1>
+                </div>
+                <div className={`${pillBg} px-2.5 py-1 sm:px-4 sm:py-1.5 rounded-full text-xs sm:text-sm font-bold shadow-sm flex items-center shrink-0 text-white`}>
+                    {StreakIcon && <StreakIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2 text-white/80" />}
+                    Streak: {streak}
+                </div>
+            </div>
+        </header>
+    );
+};
 
 const StepCard = ({ title, stepNum, currentStep, activeCondition, pastCondition, theme = 'amber', children }) => {
     const isActive = activeCondition !== undefined ? activeCondition : currentStep === stepNum;
@@ -390,7 +647,7 @@ const SuccessMark = ({ text, className = "mt-4" }) => (
     <div className={`${className} text-green-700 font-medium flex items-center bg-green-50 px-3 py-2 rounded-lg border border-green-100 inline-flex`}><CheckCircle className="w-5 h-5 mr-2 text-green-600 shrink-0" /> {text}</div>
 );
 
-// Erscheint nach 3 Fehleingaben. Bietet einen Tipp-Button und (wenn solutionText
+// Erscheint nach 2 Fehleingaben. Bietet einen Tipp-Button und (wenn solutionText
 // gegeben) zusätzlich einen "Lösung anzeigen"-Button. Der Lösungs-Button füllt
 // nichts automatisch aus, sondern blendet die Lösung als Text ein — der Schüler
 // muss sie selbst eintippen. onSolutionShown wird genau einmal beim ersten Klick
@@ -400,7 +657,7 @@ const TipBox = ({ errors, revealed, setRevealed, text, solutionText, onSolutionS
     // Bei Schritt-Wechsel (errors === 0) zurücksetzen — Lösung gehört zur aktuellen Eingabe.
     useEffect(() => { if (errors === 0) setSolRevealed(false); }, [errors]);
 
-    if (errors < 3) return null;
+    if (errors < 2) return null;
 
     const handleShowSolution = () => {
         setSolRevealed(true);
@@ -445,7 +702,11 @@ const TipBox = ({ errors, revealed, setRevealed, text, solutionText, onSolutionS
     );
 };
 
-const FormulaInput = ({ id, label, value, isUnknown, status, disabled, onChange, theme = "emerald" }) => {
+// onSubmit (optional): wird bei Drücken von Enter im Eingabefeld aufgerufen — so
+// können Schüler:innen über die Tastatur prüfen, ohne den SubmitBtn anzuklicken.
+const enterToSubmit = (onSubmit) => (e) => { if (e.key === 'Enter' && onSubmit) { e.preventDefault(); onSubmit(); } };
+
+const FormulaInput = ({ id, label, value, isUnknown, status, disabled, onChange, onSubmit, theme = "emerald" }) => {
     const isRose = theme === 'rose'; const isEmerald = theme === 'emerald';
     return (
         <div className="flex flex-col items-center">
@@ -454,7 +715,7 @@ const FormulaInput = ({ id, label, value, isUnknown, status, disabled, onChange,
                 <div className={`w-20 md:w-24 h-12 rounded-lg border-2 flex items-center justify-center font-bold select-none shadow-sm ${isRose ? 'border-rose-300 bg-rose-50 text-rose-400' : isEmerald ? 'border-emerald-300 bg-emerald-50 text-emerald-400' : 'border-amber-300 bg-amber-50 text-amber-400'}`}>?</div>
             ) : (
                 <div className="relative">
-                    <input type="text" value={value} disabled={disabled} onChange={(e) => onChange(id, e.target.value)} className={`w-20 md:w-24 h-12 text-center rounded-lg border-2 text-lg outline-none transition-colors shadow-sm ${status === 'correct' ? 'border-green-500 bg-green-50 text-green-900 font-bold' : status === 'incorrect' ? 'border-red-400 bg-red-50' : `border-slate-300 focus:border-${theme}-500 focus:ring-2 focus:ring-${theme}-200`}`} placeholder="..." />
+                    <input type="text" value={value} disabled={disabled} onChange={(e) => onChange(id, e.target.value)} onKeyDown={enterToSubmit(onSubmit)} className={`w-20 md:w-24 h-12 text-center rounded-lg border-2 text-lg outline-none transition-colors shadow-sm ${status === 'correct' ? 'border-green-500 bg-green-50 text-green-900 font-bold' : status === 'incorrect' ? 'border-red-400 bg-red-50' : `border-slate-300 focus:border-${theme}-500 focus:ring-2 focus:ring-${theme}-200`}`} placeholder="..." />
                     {status === 'correct' && <CheckCircle className="w-5 h-5 text-green-600 absolute -top-2 -right-2 bg-white rounded-full shadow-sm" />}
                 </div>
             )}
@@ -462,17 +723,17 @@ const FormulaInput = ({ id, label, value, isUnknown, status, disabled, onChange,
     );
 };
 
-const MiniFormulaInput = ({ id, value, isUnknown, status, disabled, onChange }) => {
+const MiniFormulaInput = ({ id, value, isUnknown, status, disabled, onChange, onSubmit }) => {
     if (isUnknown) return <div className="w-12 h-8 rounded border-2 flex items-center justify-center font-bold select-none border-rose-300 bg-rose-50 text-rose-400 text-sm">?</div>;
     return (
         <div className="relative">
-            <input type="text" value={value} disabled={disabled} onChange={(e) => onChange(id, e.target.value)} className={`w-12 h-8 text-center rounded border-2 text-sm outline-none transition-colors shadow-sm ${status === 'correct' ? 'border-green-500 bg-green-50 text-green-900 font-bold' : status === 'incorrect' ? 'border-red-400 bg-red-50' : `border-slate-300 focus:border-rose-500`}`} placeholder="..." />
+            <input type="text" value={value} disabled={disabled} onChange={(e) => onChange(id, e.target.value)} onKeyDown={enterToSubmit(onSubmit)} className={`w-12 h-8 text-center rounded border-2 text-sm outline-none transition-colors shadow-sm ${status === 'correct' ? 'border-green-500 bg-green-50 text-green-900 font-bold' : status === 'incorrect' ? 'border-red-400 bg-red-50' : `border-slate-300 focus:border-rose-500`}`} placeholder="..." />
             {status === 'correct' && <CheckCircle className="w-3 h-3 text-green-600 absolute -top-1 -right-1 bg-white rounded-full" />}
         </div>
     );
 };
 
-const FractionInputInteraktiv = ({ idTop, idBot, valTop, valBot, onChange, disabled, statusTop, statusBot, theme }) => {
+const FractionInputInteraktiv = ({ idTop, idBot, valTop, valBot, onChange, onSubmit, disabled, statusTop, statusBot, theme }) => {
     const getBorderClass = (status) => {
         if (status === 'correct') return 'border-green-500 bg-green-50 text-green-900 font-bold';
         if (status === 'incorrect') return 'border-red-400 bg-red-50 text-red-900';
@@ -480,16 +741,16 @@ const FractionInputInteraktiv = ({ idTop, idBot, valTop, valBot, onChange, disab
     };
     return (
         <div className="flex flex-col items-center justify-center w-16 relative">
-            <input type="text" className={`w-14 h-10 text-center text-lg transition-colors border-2 rounded-t outline-none ${getBorderClass(statusTop)}`} value={valTop} onChange={e => onChange(idTop, e.target.value)} disabled={disabled} />
+            <input type="text" className={`w-14 h-10 text-center text-lg transition-colors border-2 rounded-t outline-none ${getBorderClass(statusTop)}`} value={valTop} onChange={e => onChange(idTop, e.target.value)} onKeyDown={enterToSubmit(onSubmit)} disabled={disabled} />
             <div className="w-16 h-0.5 bg-slate-800 my-1"></div>
-            <input type="text" className={`w-14 h-10 text-center text-lg transition-colors border-2 rounded-b outline-none ${getBorderClass(statusBot)}`} value={valBot} onChange={e => onChange(idBot, e.target.value)} disabled={disabled} />
+            <input type="text" className={`w-14 h-10 text-center text-lg transition-colors border-2 rounded-b outline-none ${getBorderClass(statusBot)}`} value={valBot} onChange={e => onChange(idBot, e.target.value)} onKeyDown={enterToSubmit(onSubmit)} disabled={disabled} />
             {statusTop === 'correct' && statusBot === 'correct' && <CheckCircle className="w-5 h-5 text-green-600 absolute -right-6 top-1/2 -translate-y-1/2" />}
         </div>
     );
 };
 
 // Kompakte Variante für das interaktive Baumdiagramm (Wahrscheinlichkeits-Trainer).
-const MiniFractionInput = ({ idTop, idBot, valTop, valBot, onChange, disabled, statusTop, statusBot, theme }) => {
+const MiniFractionInput = ({ idTop, idBot, valTop, valBot, onChange, onSubmit, disabled, statusTop, statusBot, theme }) => {
     const getBorderClass = (status) => {
         if (status === 'correct') return 'border-green-500 bg-green-50 text-green-900 font-bold';
         if (status === 'incorrect') return 'border-red-400 bg-red-50 text-red-900';
@@ -497,9 +758,9 @@ const MiniFractionInput = ({ idTop, idBot, valTop, valBot, onChange, disabled, s
     };
     return (
         <div className="flex flex-col items-center justify-center w-12 relative bg-white/95 backdrop-blur-sm rounded-lg shadow-md p-1 border border-slate-200">
-            <input type="text" className={`w-10 h-7 text-center text-sm transition-colors border-2 rounded-t outline-none ${getBorderClass(statusTop)}`} value={valTop} onChange={e => onChange(idTop, e.target.value)} disabled={disabled} />
+            <input type="text" className={`w-10 h-7 text-center text-sm transition-colors border-2 rounded-t outline-none ${getBorderClass(statusTop)}`} value={valTop} onChange={e => onChange(idTop, e.target.value)} onKeyDown={enterToSubmit(onSubmit)} disabled={disabled} />
             <div className="w-10 h-0.5 bg-slate-800 my-0.5"></div>
-            <input type="text" className={`w-10 h-7 text-center text-sm transition-colors border-2 rounded-b outline-none ${getBorderClass(statusBot)}`} value={valBot} onChange={e => onChange(idBot, e.target.value)} disabled={disabled} />
+            <input type="text" className={`w-10 h-7 text-center text-sm transition-colors border-2 rounded-b outline-none ${getBorderClass(statusBot)}`} value={valBot} onChange={e => onChange(idBot, e.target.value)} onKeyDown={enterToSubmit(onSubmit)} disabled={disabled} />
             {statusTop === 'correct' && statusBot === 'correct' && <CheckCircle className="w-4 h-4 text-green-600 absolute -right-3 top-1/2 -translate-y-1/2 bg-white rounded-full shadow-sm z-10" />}
         </div>
     );
@@ -509,10 +770,14 @@ const DifficultyMenu = ({ options, active, onChange, theme = 'emerald' }) => {
     const t = themeColors[theme] || themeColors.emerald;
     return (
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6 bg-white p-3 rounded-xl shadow-sm border border-slate-200">
-            <span className="font-bold text-slate-700">Neue Aufgabe generieren:</span>
+            <span className="font-bold text-slate-700 inline-flex items-center gap-2">
+                Neue Aufgabe generieren
+                <ArrowRight className={`w-5 h-5 ${t.activeTitle}`} />
+            </span>
             <div className="flex gap-2 flex-wrap justify-center">
                 {options.map(opt => (
                     <button key={opt.id} onClick={() => onChange(opt.id)}
+                        title={active === opt.id ? 'Neue Aufgabe in dieser Kategorie' : `Auf ${opt.label} wechseln`}
                         className={`px-4 py-2 font-bold rounded-lg shadow-sm transition-colors ${active === opt.id ? `${t.btnBg} text-white` : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'}`}>
                         {opt.label}
                     </button>
@@ -583,6 +848,41 @@ const ScientificCalculator = ({ onClose, theme = 'sky' }) => {
     const moveStart = () => setCursorPos(0);
     const moveEnd = () => setCursorPos(expr.length);
 
+    // PC-Tastatur-Steuerung: Ziffern, Operatoren, Cursor und Enter direkt mappen.
+    // Greift NICHT, wenn der Schüler gerade in einer anderen Eingabe (z.B. Lückenfüller-
+    // Box) tippt — sonst würden Ziffern doppelt landen.
+    useEffect(() => {
+        const handler = (e) => {
+            const ae = document.activeElement;
+            const tag = ae ? ae.tagName : '';
+            if (tag === 'INPUT' || tag === 'TEXTAREA' || (ae && ae.isContentEditable)) return;
+            // Modifier-Tasten (Strg/Alt/Cmd) durchreichen — z.B. Strg+C / Strg+R.
+            if (e.ctrlKey || e.altKey || e.metaKey) return;
+            const k = e.key;
+            // Ziffern
+            if (/^[0-9]$/.test(k)) { e.preventDefault(); append(k); return; }
+            // Operatoren — auf die hübschen Unicode-Varianten mappen, damit die Anzeige konsistent bleibt.
+            if (k === '+') { e.preventDefault(); append('+'); return; }
+            if (k === '-') { e.preventDefault(); append('−'); return; }
+            if (k === '*') { e.preventDefault(); append('×'); return; }
+            if (k === '/') { e.preventDefault(); append('÷'); return; }
+            if (k === '^') { e.preventDefault(); append('^()', 2); return; }
+            if (k === '(' || k === ')') { e.preventDefault(); append(k); return; }
+            if (k === '.' || k === ',') { e.preventDefault(); append(k); return; }
+            // Steuerung
+            if (k === 'Enter' || k === '=') { e.preventDefault(); calc(); return; }
+            if (k === 'Backspace') { e.preventDefault(); backspace(); return; }
+            if (k === 'Delete') { e.preventDefault(); clearAll(); return; }
+            if (k === 'Escape') { e.preventDefault(); clearAll(); return; }
+            if (k === 'ArrowLeft')  { e.preventDefault(); moveLeft(); return; }
+            if (k === 'ArrowRight') { e.preventDefault(); moveRight(); return; }
+            if (k === 'Home')       { e.preventDefault(); moveStart(); return; }
+            if (k === 'End')        { e.preventDefault(); moveEnd(); return; }
+        };
+        document.addEventListener('keydown', handler);
+        return () => document.removeEventListener('keydown', handler);
+    }, [expr, cursorPos]);
+
     const calc = () => {
         if (!expr.trim()) return;
         try {
@@ -604,8 +904,9 @@ const ScientificCalculator = ({ onClose, theme = 'sky' }) => {
                 // n. Wurzel: nrt(n, x) → x^(1/n). `**` statt Math.pow, sonst sprengt
                 // der spätere ,→. Ersatz die Math.pow-Argumente.
                 .replace(/nrt\(([^,()]+),\s*([^()]+)\)/g, '(($2)**(1/($1)))')
-                .replace(/ln\(/g, 'Math.log(')
                 .replace(/√\(/g, 'Math.sqrt(')
+                // ² (Unicode-Hoch-2) als Quadrat-Operator behandeln, z.B. 3² oder (1+2)²
+                .replace(/²/g, '**2')
                 .replace(/\^/g, '**')
                 // Verbliebene Kommas sind Dezimaltrenner aus deutscher Eingabe.
                 .replace(/,/g, '.');
@@ -689,12 +990,33 @@ const ScientificCalculator = ({ onClose, theme = 'sky' }) => {
                 </div>
             </div>
 
-            {/* Edit-Toolbar: Cursor-Steuerung — funktioniert auch nach "=" weiter, sodass der Ausdruck editierbar bleibt. */}
+            {/* Edit-Toolbar: Cursor-Steuerung — funktioniert auch nach "=" weiter, sodass der Ausdruck editierbar bleibt.
+                SVG-Pfeile (statt Unicode-Glyphen) — sonst rendern manche Browser/Plattformen die Dreiecke als bunte
+                Emoji. Die äußeren Tasten haben einen senkrechten Strich am jeweiligen Rand (Symbol für "ganz an den
+                Anfang" bzw. "ganz ans Ende des Eingabefeldes"). */}
             <div className="bg-slate-100 px-2 sm:px-3 py-1.5 grid grid-cols-4 gap-1 sm:gap-1.5 border-y border-slate-200">
-                <button type="button" onClick={moveStart} className="h-8 rounded font-bold text-xs bg-white hover:bg-slate-200 text-slate-700 border border-slate-200" title="Cursor an den Anfang">⏮</button>
-                <button type="button" onClick={moveLeft} className="h-8 rounded font-bold text-xs bg-white hover:bg-slate-200 text-slate-700 border border-slate-200" title="Cursor nach links">◀</button>
-                <button type="button" onClick={moveRight} className="h-8 rounded font-bold text-xs bg-white hover:bg-slate-200 text-slate-700 border border-slate-200" title="Cursor nach rechts">▶</button>
-                <button type="button" onClick={moveEnd} className="h-8 rounded font-bold text-xs bg-white hover:bg-slate-200 text-slate-700 border border-slate-200" title="Cursor ans Ende">⏭</button>
+                <button type="button" onClick={moveStart} className="h-8 rounded bg-white hover:bg-slate-200 border border-slate-200 flex items-center justify-center" title="Cursor an den Anfang">
+                    <svg width="18" height="14" viewBox="0 0 24 18" fill="#0f172a" aria-hidden="true">
+                        <rect x="2" y="3" width="2.4" height="12" />
+                        <polygon points="20 3, 6.5 9, 20 15" />
+                    </svg>
+                </button>
+                <button type="button" onClick={moveLeft} className="h-8 rounded bg-white hover:bg-slate-200 border border-slate-200 flex items-center justify-center" title="Cursor nach links">
+                    <svg width="14" height="14" viewBox="0 0 18 18" fill="#0f172a" aria-hidden="true">
+                        <polygon points="14 3, 3 9, 14 15" />
+                    </svg>
+                </button>
+                <button type="button" onClick={moveRight} className="h-8 rounded bg-white hover:bg-slate-200 border border-slate-200 flex items-center justify-center" title="Cursor nach rechts">
+                    <svg width="14" height="14" viewBox="0 0 18 18" fill="#0f172a" aria-hidden="true">
+                        <polygon points="4 3, 15 9, 4 15" />
+                    </svg>
+                </button>
+                <button type="button" onClick={moveEnd} className="h-8 rounded bg-white hover:bg-slate-200 border border-slate-200 flex items-center justify-center" title="Cursor ans Ende">
+                    <svg width="18" height="14" viewBox="0 0 24 18" fill="#0f172a" aria-hidden="true">
+                        <polygon points="4 3, 17.5 9, 4 15" />
+                        <rect x="19.6" y="3" width="2.4" height="12" />
+                    </svg>
+                </button>
             </div>
 
             <div className="bg-slate-50 px-2 sm:px-3 py-1.5 text-[10px] sm:text-[11px] text-slate-600 border-b border-slate-200 flex flex-wrap justify-center gap-x-3 gap-y-1">
@@ -713,7 +1035,7 @@ const ScientificCalculator = ({ onClose, theme = 'sky' }) => {
                 <Btn variant="func" label={<span>sin<sup>−1</sup></span>} onClick={() => append('sin⁻¹(')} />
                 <Btn variant="func" label={<span>cos<sup>−1</sup></span>} onClick={() => append('cos⁻¹(')} />
                 <Btn variant="func" label={<span>tan<sup>−1</sup></span>} onClick={() => append('tan⁻¹(')} />
-                <Btn variant="func" label="ln" onClick={() => append('ln(')} />
+                <Btn variant="func" label={<span>x<sup>2</sup></span>} onClick={() => append('²')} />
                 <Btn variant="danger" label="AC" onClick={clearAll} />
 
                 <Btn variant="op" label="(" onClick={() => append('(')} />
@@ -1114,10 +1436,12 @@ const WahrscheinlichkeitsTrainer = () => {
     // bei Bruchgleichungen: Pool wird einmal gemischt, jede Aufgabe einmal durchlaufen.
     const [examShuffled, setExamShuffled] = useState([]);
     const [examIdx, setExamIdx] = useState(0);
+    // Adaptive Schwierigkeit + Lernzielkontrolle.
+    const adaptive = useAdaptive('wahrscheinlichkeit', difficulty);
 
     useEffect(() => { setStorage('smarth_streak_wahrscheinlichkeit', streak); }, [streak]);
     const advance = (nextStep) => { setStep(nextStep); setErrors(0); setTipRevealed(false); };
-    const triggerError = () => { setErrors(e => e + 1); setStreak(0); };
+    const triggerError = () => { setErrors(e => e + 1); setStreak(0); adaptive.recordWrong(); };
     const handleInputChange = (id, val) => { setInputs(prev => ({ ...prev, [id]: val.replace('.', ',') })); setInputFeedback(prev => ({ ...prev, [id]: null })); };
 
     const generateProblem = () => {
@@ -1165,10 +1489,14 @@ const WahrscheinlichkeitsTrainer = () => {
         else setDifficulty(newDiff);
     };
 
+    // Step 1: Auswahl nur markieren, Bestätigung über SubmitBtn (Vereinheitlichung).
     const handleIdentify = (selected) => {
         if (step > 1 || !problem) return;
         setSelectedIdentification(selected);
-        if (selected === problem.type) { setTimeout(() => advance(2), 600); } else { triggerError(); }
+    };
+    const confirmIdentify = () => {
+        if (step > 1 || !problem || !selectedIdentification) return;
+        if (selectedIdentification === problem.type) { advance(2); } else { triggerError(); }
     };
 
     const checkZug1 = () => {
@@ -1200,6 +1528,7 @@ const WahrscheinlichkeitsTrainer = () => {
             const newStreak = streak + 1;
             setStreak(newStreak);
             if (newStreak > 0 && newStreak % 3 === 0) triggerCelebration(setShowAnim);
+            adaptive.recordCorrect();
             setShowSolution(true); advance(5);
         } else { setFinalFeedback('incorrect'); triggerError(); }
     };
@@ -1248,7 +1577,7 @@ const WahrscheinlichkeitsTrainer = () => {
                     elements.push(
                         <foreignObject key={`fo-1-${index}`} x={midX - 30} y={midY - 40} width="65" height="80">
                             <div xmlns="http://www.w3.org/1999/xhtml" className="flex justify-center h-full items-center">
-                                <MiniFractionInput idTop="t1" idBot="b1" valTop={inputs.t1} valBot={inputs.b1} onChange={handleInputChange} disabled={false} statusTop={inputFeedback.t1} statusBot={inputFeedback.b1} theme="violet" />
+                                <MiniFractionInput idTop="t1" idBot="b1" valTop={inputs.t1} valBot={inputs.b1} onChange={handleInputChange} onSubmit={checkZug1} disabled={false} statusTop={inputFeedback.t1} statusBot={inputFeedback.b1} theme="violet" />
                             </div>
                         </foreignObject>
                     );
@@ -1264,7 +1593,7 @@ const WahrscheinlichkeitsTrainer = () => {
                     elements.push(
                         <foreignObject key={`fo-2-${index}`} x={midX - 30} y={midY - 40} width="65" height="80">
                             <div xmlns="http://www.w3.org/1999/xhtml" className="flex justify-center h-full items-center">
-                                <MiniFractionInput idTop="t2" idBot="b2" valTop={inputs.t2} valBot={inputs.b2} onChange={handleInputChange} disabled={false} statusTop={inputFeedback.t2} statusBot={inputFeedback.b2} theme="violet" />
+                                <MiniFractionInput idTop="t2" idBot="b2" valTop={inputs.t2} valBot={inputs.b2} onChange={handleInputChange} onSubmit={checkZug2} disabled={false} statusTop={inputFeedback.t2} statusBot={inputFeedback.b2} theme="violet" />
                             </div>
                         </foreignObject>
                     );
@@ -1318,17 +1647,7 @@ const WahrscheinlichkeitsTrainer = () => {
     return (
         <div className="page-transition max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             {showAnim && <CelebrationOverlay />}
-            <header className="bg-violet-600 text-violet-50 shadow-md p-6 rounded-xl mb-6">
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div className="flex items-center space-x-3">
-                        <DicesIcon className="w-8 h-8" />
-                        <div><h1 className="text-2xl font-bold tracking-tight text-white flex items-center">Wahrscheinlichkeit <span className="hidden sm:inline text-violet-200 text-lg font-normal border-l-2 border-violet-400 pl-2 ml-2">10. Klasse</span></h1></div>
-                    </div>
-                    <div className="bg-violet-700 px-4 py-1.5 rounded-full text-sm font-bold shadow-sm flex items-center">
-                        <Target className="w-4 h-4 mr-2 text-violet-300" /> Streak: {streak}
-                    </div>
-                </div>
-            </header>
+            <TrainerHeader theme="violet" icon={DicesIcon} title="Wahrscheinlichkeit" streakIcon={Target} streak={streak} />
 
             <DifficultyMenu theme="violet" active={difficulty} onChange={handleDifficultyChange} options={[
                 {id: 'leicht', label: 'Leicht'},
@@ -1336,6 +1655,12 @@ const WahrscheinlichkeitsTrainer = () => {
                 {id: 'schwer', label: 'Schwer'},
                 {id: 'pruefung', label: 'Prüfungsaufgaben'}
             ]} />
+
+            {/* Lernzielkontrolle + adaptive Schwierigkeits-Empfehlung */}
+            {adaptive.stats.mastered.length > 0 && (
+                <div className="mb-4 flex justify-center"><MasteryBadge mastered={adaptive.stats.mastered} theme="violet" /></div>
+            )}
+            <AdaptiveSuggestion suggestion={adaptive.suggestion} onAccept={(d) => handleDifficultyChange(d)} theme="violet" />
 
             <main className="space-y-6 relative">
                 <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
@@ -1356,13 +1681,13 @@ const WahrscheinlichkeitsTrainer = () => {
                     <StepCard title="1. Art des Experiments" stepNum={1} activeCondition={step === 1} pastCondition={step > 1} currentStep={step} theme="violet">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl mx-auto">
                             {[{ type: 'mit', label: "Mit Zurücklegen", desc: "(Nenner bleibt gleich, z.B. Glücksrad)" }, { type: 'ohne', label: "Ohne Zurücklegen", desc: "(Nenner wird kleiner, z.B. Essen)" }].map((item) => (
-                                <button key={item.type} onClick={() => handleIdentify(item.type)} disabled={step > 1} className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${selectedIdentification === item.type ? (item.type === problem?.type ? 'border-green-500 bg-green-50 text-green-900 font-bold' : 'border-red-400 bg-red-50 text-red-900') : 'border-slate-200 hover:border-violet-400 bg-white'}`}>
+                                <button key={item.type} onClick={() => handleIdentify(item.type)} disabled={step > 1} className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${selectedIdentification === item.type ? 'border-violet-500 bg-violet-50 text-violet-900 font-bold' : 'border-slate-200 hover:border-violet-400 bg-white'}`}>
                                     <span className="text-xl font-bold">{item.label}</span>
                                     <span className="text-xs font-semibold text-slate-500 text-center">{item.desc}</span>
                                 </button>
                             ))}
                         </div>
-                        {step === 1 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text="Überlege: Verändert sich die Gesamtanzahl nach dem ersten Zug? Wenn jemand etwas aufisst oder 'nicht zurücklegt', ändert sich die Gesamtzahl." />}
+                        {step === 1 && <div className="mt-4 flex justify-between items-center"><TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text="Überlege: Verändert sich die Gesamtanzahl nach dem ersten Zug? Wenn jemand etwas aufisst oder 'nicht zurücklegt', ändert sich die Gesamtzahl." /><SubmitBtn onClick={confirmIdentify} theme="violet" disabled={!selectedIdentification} /></div>}
                         {step > 1 && <SuccessMark text={`Richtig! Es ist ein Versuch ${problem?.type === 'mit' ? "mit" : "ohne"} Zurücklegen.`} />}
                     </StepCard>
 
@@ -1376,19 +1701,21 @@ const WahrscheinlichkeitsTrainer = () => {
 
                             {problem?.tree && !loading && (
                                 <>
-                                    {/* Desktop / Tablet (≥ sm): SVG-Baumdiagramm mit foreignObject-Eingaben */}
+                                    {/* Desktop / Tablet (≥ sm): SVG-Baumdiagramm mit foreignObject-Eingaben.
+                                        Horizontale Stauchung: viewBox 1000 → 560, Baumbreite 900 → 480, root x=280.
+                                        Die Pfade rücken so deutlich enger zusammen, ohne dass Knoten oder Schrift kleiner werden. */}
                                     <div className="hidden sm:block w-full bg-slate-50 border border-slate-200 rounded-xl overflow-x-auto p-4 shadow-inner animate-fade-in mb-6">
                                         <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-2 text-center">Interaktives Baumdiagramm</h3>
-                                        <svg viewBox="0 0 1000 420" className="w-full h-auto min-w-[800px] max-w-4xl mx-auto block overflow-visible">
-                                            {renderTree(problem.tree, 500, 20, 900, 0)}
+                                        <svg viewBox="0 0 560 420" className="w-full h-auto min-w-[460px] max-w-2xl mx-auto block overflow-visible">
+                                            {renderTree(problem.tree, 280, 20, 480, 0)}
                                         </svg>
                                     </div>
 
                                     {/* Mobile (< sm): vereinfachtes SVG zur Anzeige + große Bruch-Eingaben darunter */}
                                     <div className="sm:hidden w-full bg-slate-50 border border-slate-200 rounded-xl p-3 shadow-inner animate-fade-in mb-4 overflow-x-auto">
                                         <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 text-center">Baumdiagramm (Übersicht)</h3>
-                                        <svg viewBox="0 0 1000 420" className="w-full h-auto min-w-[600px] block overflow-visible">
-                                            {renderTree(problem.tree, 500, 20, 900, 0)}
+                                        <svg viewBox="0 0 560 420" className="w-full h-auto min-w-[360px] block overflow-visible">
+                                            {renderTree(problem.tree, 280, 20, 480, 0)}
                                         </svg>
                                     </div>
                                 </>
@@ -1398,14 +1725,14 @@ const WahrscheinlichkeitsTrainer = () => {
                             <div className="sm:hidden bg-violet-50 border border-violet-200 rounded-xl p-4 mb-3">
                                 <h4 className="text-sm font-bold text-violet-800 mb-2">1. Zug — Bruch eintragen</h4>
                                 <div className="flex justify-center">
-                                    <FractionInputInteraktiv idTop="t1" idBot="b1" valTop={inputs.t1} valBot={inputs.b1} onChange={handleInputChange} disabled={step !== 2} statusTop={inputFeedback.t1} statusBot={inputFeedback.b1} theme="violet" />
+                                    <FractionInputInteraktiv idTop="t1" idBot="b1" valTop={inputs.t1} valBot={inputs.b1} onChange={handleInputChange} onSubmit={checkZug1} disabled={step !== 2} statusTop={inputFeedback.t1} statusBot={inputFeedback.b1} theme="violet" />
                                 </div>
                             </div>
                             {step >= 3 && (
                                 <div className="sm:hidden bg-violet-50 border border-violet-200 rounded-xl p-4 mb-3">
                                     <h4 className="text-sm font-bold text-violet-800 mb-2">2. Zug — Bruch eintragen</h4>
                                     <div className="flex justify-center">
-                                        <FractionInputInteraktiv idTop="t2" idBot="b2" valTop={inputs.t2} valBot={inputs.b2} onChange={handleInputChange} disabled={step !== 3} statusTop={inputFeedback.t2} statusBot={inputFeedback.b2} theme="violet" />
+                                        <FractionInputInteraktiv idTop="t2" idBot="b2" valTop={inputs.t2} valBot={inputs.b2} onChange={handleInputChange} onSubmit={checkZug2} disabled={step !== 3} statusTop={inputFeedback.t2} statusBot={inputFeedback.b2} theme="violet" />
                                     </div>
                                 </div>
                             )}
@@ -1428,7 +1755,7 @@ const WahrscheinlichkeitsTrainer = () => {
                                     <span>=</span>
                                 </div>
                                 <div className="relative flex-grow max-w-xs w-full">
-                                    <input type="text" value={inputs.perc} onChange={(e) => handleInputChange('perc', e.target.value)} disabled={step === 5} placeholder="Taschenrechner..." className={`pr-10 py-3 w-full text-center rounded-lg border-2 text-lg outline-none transition-colors shadow-sm ${finalFeedback === 'correct' ? 'border-green-500 bg-green-50 text-green-900 font-bold' : finalFeedback === 'incorrect' ? 'border-red-400 bg-red-50' : 'border-slate-300 focus:border-violet-500'}`} />
+                                    <input type="text" value={inputs.perc} onChange={(e) => handleInputChange('perc', e.target.value)} onKeyDown={enterToSubmit(checkFinalResult)} disabled={step === 5} placeholder="Taschenrechner..." className={`pr-10 py-3 w-full text-center rounded-lg border-2 text-lg outline-none transition-colors shadow-sm ${finalFeedback === 'correct' ? 'border-green-500 bg-green-50 text-green-900 font-bold' : finalFeedback === 'incorrect' ? 'border-red-400 bg-red-50' : 'border-slate-300 focus:border-violet-500'}`} />
                                     <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold">%</span>
                                 </div>
                                 {step === 4 && <SubmitBtn onClick={checkFinalResult} theme="violet" disabled={!inputs.perc} />}

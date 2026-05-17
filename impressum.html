@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Cache-Hygiene: HTML immer revalidieren (Assets werden über ?v=... versioniert). -->
+    <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
     <title>Impressum — sMArTHEMATIK</title>
     <meta name="description" content="Impressum der Übungsseite sMArTHEMATIK — Anbieterkennzeichnung gemäß § 5 TMG.">
 
@@ -13,8 +16,9 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://www.smarthematik.de/impressum.html">
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="assets/css/main.css">
+    <!-- Self-hosted Tailwind (kein Cross-Origin zu US-Servern) -->
+    <script src="assets/vendor/tailwindcss.js?v=202605171011"></script>
+    <link rel="stylesheet" href="assets/css/main.css?v=202605171011">
 </head>
 <body class="text-slate-800 font-sans antialiased flex flex-col min-h-screen">
 
@@ -40,7 +44,7 @@
                 <img src="cropped-BdB_Logo-1.png" alt="Beratung digitale Bildung Logo" class="h-6 sm:h-10 md:h-12 w-auto object-contain">
             </div>
         </div>
-        <nav id="nav-menu" class="hidden absolute right-2 sm:right-6 top-full mt-2 w-72 max-w-[calc(100vw-1rem)] bg-white border border-slate-200 rounded-xl shadow-xl p-2 flex flex-col" role="navigation" aria-label="Hauptnavigation"><a href="index.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Startseite</a><a href="wachstum.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Wachstum & Zerfall</a><a href="halbwertszeit.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Halbwertszeit</a><a href="bruchgleichungen.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Bruchgleichungen</a><a href="binformeln.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Bin. Formeln</a><a href="potenzen.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Potenzen</a><a href="trigonometrie.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Trigonometrie</a><a href="wahrscheinlichkeit.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Wahrscheinlichkeit</a><a href="kopfrechnen.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Kopfrechnen</a><div class="border-t border-slate-200 my-2"></div><a href="impressum.html" class="flex items-center gap-2 px-4 py-3 rounded-lg font-semibold bg-indigo-50 text-indigo-700 text-sm" aria-current="page">Impressum</a><a href="datenschutz.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-500 hover:bg-slate-50 hover:text-indigo-700 text-sm transition-colors">Datenschutz</a></nav>
+        <nav id="nav-menu" class="hidden absolute right-2 sm:right-6 top-full mt-2 w-72 max-w-[calc(100vw-1rem)] bg-white border border-slate-200 rounded-xl shadow-xl p-2 flex flex-col" role="navigation" aria-label="Hauptnavigation"><a href="index.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Startseite</a><a href="kopfrechnen.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Kopfrechnen</a><a href="binformeln.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Bin. Formeln</a><a href="bruchgleichungen.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Bruchgleichungen</a><a href="halbwertszeit.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Halbwertszeit</a><a href="potenzen.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Potenzen</a><a href="trigonometrie.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Trigonometrie</a><a href="wachstum.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Wachstum & Zerfall</a><a href="wahrscheinlichkeit.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Wahrscheinlichkeit</a><div class="border-t border-slate-200 my-2"></div><a href="impressum.html" class="flex items-center gap-2 px-4 py-3 rounded-lg font-semibold bg-indigo-50 text-indigo-700 text-sm" aria-current="page">Impressum</a><a href="datenschutz.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-500 hover:bg-slate-50 hover:text-indigo-700 text-sm transition-colors">Datenschutz</a></nav>
     </header>
 
     <main class="flex-grow">
@@ -56,11 +60,28 @@
                 </div>
                 <div>
                     <h2 class="text-xl font-bold mb-2">Kontakt</h2>
-                    <p>Telefon: 08131/741799<br>E-Mail: martin.geiger@ms-dachau-sued.de</p>
+                    <p>Telefon: 08131/741799<br>E-Mail: <a href="mailto:martin.geiger@ms-dachau-sued.de" class="text-indigo-600 hover:underline">martin.geiger@ms-dachau-sued.de</a></p>
                 </div>
                 <div>
                     <h2 class="text-xl font-bold mb-2">Redaktionell verantwortlich</h2>
                     <p>Martin Geiger<br>Eduard-Ziegler-Str. 3<br>85221 Dachau</p>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold mb-2">Streitschlichtung</h2>
+                    <p>Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit: <a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener noreferrer" class="text-indigo-600 hover:underline">https://ec.europa.eu/consumers/odr/</a>. Unsere E-Mail-Adresse findest du oben.</p>
+                    <p class="mt-3">Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.</p>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold mb-2">Haftung für Inhalte</h2>
+                    <p>Die Inhalte dieser Seite wurden mit größter Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität der dargestellten mathematischen Aufgaben, generierten Werte und Erklärungen kann jedoch keine Gewähr übernommen werden. Als Diensteanbieter sind wir gemäß § 7 Abs. 1 TMG für eigene Inhalte auf dieser Seite verantwortlich.</p>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold mb-2">Haftung für Links</h2>
+                    <p>Diese Seite enthält Links zu externen Websites Dritter (z. B. zum Prüfungsarchiv des Bayerischen Staatsministeriums für Unterricht und Kultus), auf deren Inhalte wir keinen Einfluss haben. Für diese fremden Inhalte können wir keine Gewähr übernehmen. Bei Bekanntwerden von Rechtsverletzungen werden wir derartige Links umgehend entfernen.</p>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold mb-2">Urheberrecht</h2>
+                    <p>Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Die MSA-Prüfungsaufgaben stammen aus dem öffentlich zugänglichen Prüfungsarchiv des Bayerischen Staatsministeriums für Unterricht und Kultus. Eine Vervielfältigung, Bearbeitung oder Verbreitung außerhalb der Grenzen des Urheberrechts bedarf der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers.</p>
                 </div>
             </div>
             <div class="mt-12 flex justify-center">
