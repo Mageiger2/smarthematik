@@ -425,7 +425,19 @@ const WahrscheinlichkeitsTrainer = () => {
     const onSolutionShown = () => setStreak(0);
 
     // INTERAKTIVES SVG-BAUMDIAGRAMM MIT FOREIGN-OBJECT EINGABEN
-    const renderTree = (node, x, y, width, level) => {
+    // mobileMode = true: Inputs im Baum sind deaktiviert (read-only). Ein Klick auf
+    // einen Bruch im Baum springt stattdessen zum großen Mobile-Eingabefeld unten
+    // (Fokus + scrollIntoView). So tippen Schüler:innen am Handy nur einmal — im
+    // großen Feld — und sehen die Eingaben im Baum als Vorschau gespiegelt.
+    const focusMobileInput = (zug) => {
+        // Wir fokussieren das obere der beiden Felder (Zähler) und scrollen es ins Bild.
+        const target = document.getElementById(`mobile-w-t${zug}`);
+        if (target) {
+            target.focus();
+            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    };
+    const renderTree = (node, x, y, width, level, mobileMode = false) => {
         if (!node) return null;
         const isLeaf = !node.children || node.children.length === 0;
         const nodeRadius = 16;
@@ -452,12 +464,30 @@ const WahrscheinlichkeitsTrainer = () => {
                 const isTarget1 = child.inputLevel === 1;
                 const isTarget2 = child.inputLevel === 2;
 
+                // Hilfs-Wrapper: Im Mobile-Modus den MiniFractionInput deaktivieren
+                // und einen onClick auf den foreignObject-Div hängen, der das große
+                // Eingabefeld unten fokussiert. Auf Desktop bleibt alles editierbar.
+                const renderMobileTreeInput = (zug, valTop, valBot, statusTop, statusBot) => (
+                    <div xmlns="http://www.w3.org/1999/xhtml"
+                         className="flex justify-center h-full items-center cursor-pointer"
+                         onClick={() => focusMobileInput(zug)}>
+                        <div style={{pointerEvents: 'none'}}>
+                            <MiniFractionInput idTop={`t${zug}`} idBot={`b${zug}`}
+                                valTop={valTop} valBot={valBot}
+                                onChange={()=>{}} disabled={true}
+                                statusTop={statusTop} statusBot={statusBot} theme="violet" />
+                        </div>
+                    </div>
+                );
+
                 if (isTarget1 && step === 2) {
                     elements.push(
                         <foreignObject key={`fo-1-${index}`} x={midX - 30} y={midY - 40} width="65" height="80">
-                            <div xmlns="http://www.w3.org/1999/xhtml" className="flex justify-center h-full items-center">
-                                <MiniFractionInput idTop="t1" idBot="b1" valTop={inputs.t1} valBot={inputs.b1} onChange={handleInputChange} onSubmit={checkZug1} disabled={false} statusTop={inputFeedback.t1} statusBot={inputFeedback.b1} theme="violet" />
-                            </div>
+                            {mobileMode ? renderMobileTreeInput(1, inputs.t1, inputs.b1, inputFeedback.t1, inputFeedback.b1) : (
+                                <div xmlns="http://www.w3.org/1999/xhtml" className="flex justify-center h-full items-center">
+                                    <MiniFractionInput idTop="t1" idBot="b1" valTop={inputs.t1} valBot={inputs.b1} onChange={handleInputChange} onSubmit={checkZug1} disabled={false} statusTop={inputFeedback.t1} statusBot={inputFeedback.b1} theme="violet" />
+                                </div>
+                            )}
                         </foreignObject>
                     );
                 } else if (isTarget1 && step > 2) {
@@ -471,9 +501,11 @@ const WahrscheinlichkeitsTrainer = () => {
                 } else if (isTarget2 && step === 3) {
                     elements.push(
                         <foreignObject key={`fo-2-${index}`} x={midX - 30} y={midY - 40} width="65" height="80">
-                            <div xmlns="http://www.w3.org/1999/xhtml" className="flex justify-center h-full items-center">
-                                <MiniFractionInput idTop="t2" idBot="b2" valTop={inputs.t2} valBot={inputs.b2} onChange={handleInputChange} onSubmit={checkZug2} disabled={false} statusTop={inputFeedback.t2} statusBot={inputFeedback.b2} theme="violet" />
-                            </div>
+                            {mobileMode ? renderMobileTreeInput(2, inputs.t2, inputs.b2, inputFeedback.t2, inputFeedback.b2) : (
+                                <div xmlns="http://www.w3.org/1999/xhtml" className="flex justify-center h-full items-center">
+                                    <MiniFractionInput idTop="t2" idBot="b2" valTop={inputs.t2} valBot={inputs.b2} onChange={handleInputChange} onSubmit={checkZug2} disabled={false} statusTop={inputFeedback.t2} statusBot={inputFeedback.b2} theme="violet" />
+                                </div>
+                            )}
                         </foreignObject>
                     );
                 } else if (isTarget2 && step > 3) {
@@ -504,7 +536,7 @@ const WahrscheinlichkeitsTrainer = () => {
                     );
                 }
 
-                elements.push(...renderTree(child, childX, childY, childWidth, level + 1));
+                elements.push(...renderTree(child, childX, childY, childWidth, level + 1, mobileMode));
             });
         }
 
@@ -590,11 +622,13 @@ const WahrscheinlichkeitsTrainer = () => {
                                         </svg>
                                     </div>
 
-                                    {/* Mobile (< sm): vereinfachtes SVG zur Anzeige + große Bruch-Eingaben darunter */}
+                                    {/* Mobile (< sm): vereinfachtes SVG zur Anzeige + große Bruch-Eingaben darunter.
+                                        mobileMode=true: Inputs im Baum sind read-only, ein Tap springt zu den großen
+                                        Eingabefeldern unten (sm:hidden bg-violet-50). */}
                                     <div className="sm:hidden w-full bg-slate-50 border border-slate-200 rounded-xl p-3 shadow-inner animate-fade-in mb-4 overflow-x-auto">
                                         <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 text-center">Baumdiagramm (Übersicht)</h3>
                                         <svg viewBox="0 0 560 420" className="w-full h-auto min-w-[360px] block overflow-visible">
-                                            {renderTree(problem.tree, 280, 20, 480, 0)}
+                                            {renderTree(problem.tree, 280, 20, 480, 0, true)}
                                         </svg>
                                     </div>
                                 </>
@@ -604,14 +638,14 @@ const WahrscheinlichkeitsTrainer = () => {
                             <div className="sm:hidden bg-violet-50 border border-violet-200 rounded-xl p-4 mb-3">
                                 <h4 className="text-sm font-bold text-violet-800 mb-2">1. Zug — Bruch eintragen</h4>
                                 <div className="flex justify-center">
-                                    <FractionInputInteraktiv idTop="t1" idBot="b1" valTop={inputs.t1} valBot={inputs.b1} onChange={handleInputChange} onSubmit={checkZug1} disabled={step !== 2} statusTop={inputFeedback.t1} statusBot={inputFeedback.b1} theme="violet" />
+                                    <FractionInputInteraktiv htmlIdPrefix="mobile-w" idTop="t1" idBot="b1" valTop={inputs.t1} valBot={inputs.b1} onChange={handleInputChange} onSubmit={checkZug1} disabled={step !== 2} statusTop={inputFeedback.t1} statusBot={inputFeedback.b1} theme="violet" />
                                 </div>
                             </div>
                             {step >= 3 && (
                                 <div className="sm:hidden bg-violet-50 border border-violet-200 rounded-xl p-4 mb-3">
                                     <h4 className="text-sm font-bold text-violet-800 mb-2">2. Zug — Bruch eintragen</h4>
                                     <div className="flex justify-center">
-                                        <FractionInputInteraktiv idTop="t2" idBot="b2" valTop={inputs.t2} valBot={inputs.b2} onChange={handleInputChange} onSubmit={checkZug2} disabled={step !== 3} statusTop={inputFeedback.t2} statusBot={inputFeedback.b2} theme="violet" />
+                                        <FractionInputInteraktiv htmlIdPrefix="mobile-w" idTop="t2" idBot="b2" valTop={inputs.t2} valBot={inputs.b2} onChange={handleInputChange} onSubmit={checkZug2} disabled={step !== 3} statusTop={inputFeedback.t2} statusBot={inputFeedback.b2} theme="violet" />
                                     </div>
                                 </div>
                             )}
