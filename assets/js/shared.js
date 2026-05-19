@@ -257,6 +257,15 @@ const normalizeString = (str) => {
 const formatDe = (numStr) => numStr.toString().replace(/\./g, ',');
 const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
+// Quellen-Badge für Prüfungsaufgaben: "MSA 2025 II/9" → "Angelehnt an MSA 2025 II/9".
+// Aufgaben, die mit "Angepasst" beginnen, bleiben unverändert. Urheberrechtlich relevant —
+// die Original-MSA-Aufgaben werden nicht 1:1 wiedergegeben, sondern dienen als Vorlage.
+const formatExamLabel = (label) => {
+    if (!label) return label;
+    if (label.startsWith('Angepasst')) return label;
+    return `Angelehnt an ${label}`;
+};
+
 const shuffleArray = (array) => {
     const newArr = [...array];
     for (let i = newArr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [newArr[i], newArr[j]] = [newArr[j], newArr[i]]; }

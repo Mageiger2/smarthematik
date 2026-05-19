@@ -578,7 +578,7 @@ const WahrscheinlichkeitsTrainer = () => {
                     <div className="bg-violet-50 px-6 py-3 border-b border-violet-200 flex justify-between items-center">
                         <h2 className="font-semibold text-violet-900 flex items-center"><BookOpen size={18} className="mr-2"/> Sachaufgabe</h2>
                         {problem?.examLabel
-                            ? <span className="text-xs font-bold px-2 py-1 rounded uppercase tracking-wider bg-amber-200 text-amber-800">{problem.examLabel}</span>
+                            ? <span className="text-xs font-bold px-2 py-1 rounded uppercase tracking-wider bg-amber-200 text-amber-800">{formatExamLabel(problem.examLabel)}</span>
                             : <span className="text-xs font-bold px-2 py-1 rounded uppercase tracking-wider bg-violet-200 text-violet-800">Baumdiagramm</span>
                         }
                     </div>

@@ -374,7 +374,7 @@ const WachstumsTrainer = () => {
                 <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                     <div className="bg-emerald-50 px-6 py-3 border-b border-emerald-200 flex justify-between items-center">
                         <h2 className="font-semibold text-emerald-900 flex items-center"><BookOpen size={18} className="mr-2"/> Sachaufgabe</h2>
-                        {problem?.examLabel && <span className="text-xs font-bold px-2 py-1 rounded uppercase tracking-wider bg-amber-200 text-amber-800">{problem.examLabel}</span>}
+                        {problem?.examLabel && <span className="text-xs font-bold px-2 py-1 rounded uppercase tracking-wider bg-amber-200 text-amber-800">{formatExamLabel(problem.examLabel)}</span>}
                     </div>
                     <div className="p-6 bg-white min-h-[100px] flex items-center justify-center text-center">
                         {loading ? <RefreshCw className="w-8 h-8 animate-spin text-emerald-500"/> : <p className="text-xl font-medium leading-relaxed">{problem?.text}</p>}

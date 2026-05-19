@@ -632,7 +632,7 @@ const KopfrechenTrainer = () => {
                     <div className="bg-sky-50 px-6 py-4 border-b border-sky-200 flex justify-between items-center relative overflow-hidden gap-3 flex-wrap">
                         <div className="relative z-10 flex items-center text-sky-900 font-bold text-lg"><BookOpen className="w-5 h-5 mr-2 text-sky-600" /> {currentQuestion.category}</div>
                         {currentQuestion.sourceLabel && (
-                            <span className="relative z-10 bg-amber-200 text-amber-800 px-2 py-1 rounded text-xs font-bold shadow-sm uppercase tracking-wider">{currentQuestion.sourceLabel}</span>
+                            <span className="relative z-10 bg-amber-200 text-amber-800 px-2 py-1 rounded text-xs font-bold shadow-sm uppercase tracking-wider">{formatExamLabel(currentQuestion.sourceLabel)}</span>
                         )}
                         <div className="absolute -right-4 -top-4 opacity-10"><CalculatorOff className="w-24 h-24" /></div>
                     </div>

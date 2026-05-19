@@ -413,7 +413,7 @@ const BinformelnTrainer = () => {
                     <div className="bg-teal-50 px-6 py-3 border-b border-teal-200 flex justify-between items-center">
                         <h2 className="font-semibold text-teal-900 flex items-center"><BookOpen size={18} className="mr-2" /> Lückenfüller</h2>
                         {difficulty === 'pruefung' && problem?.sourceLabel
-                            ? <span className="text-xs font-bold px-2 py-1 rounded uppercase tracking-wider bg-amber-200 text-amber-800">{problem.sourceLabel}</span>
+                            ? <span className="text-xs font-bold px-2 py-1 rounded uppercase tracking-wider bg-amber-200 text-amber-800">{formatExamLabel(problem.sourceLabel)}</span>
                             : <span className="text-xs font-bold px-2 py-1 rounded uppercase tracking-wider bg-teal-200 text-teal-800">Achte auf die Variablen!</span>
                         }
                     </div>

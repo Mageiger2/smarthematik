@@ -1107,7 +1107,7 @@ const TrigonometrieTrainer = () => {
                                         <span className="truncate">{currentTask.title}</span>
                                     </h2>
                                     {isExam && currentTask.sourceLabel && (
-                                        <span className="text-xs font-bold px-2 py-1 rounded uppercase tracking-wider bg-amber-200 text-amber-800 shrink-0">{currentTask.sourceLabel}</span>
+                                        <span className="text-xs font-bold px-2 py-1 rounded uppercase tracking-wider bg-amber-200 text-amber-800 shrink-0">{formatExamLabel(currentTask.sourceLabel)}</span>
                                     )}
                                 </div>
                                 <div className="p-5">

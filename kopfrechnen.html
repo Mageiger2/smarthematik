@@ -17,12 +17,12 @@
     <meta property="og:url" content="https://www.smarthematik.de/kopfrechnen.html">
 
     <!-- Self-hosted Vendor-Skripte (kein Cross-Origin zu US-Servern) -->
-    <script src="assets/vendor/tailwindcss.js?v=202605180945"></script>
-    <script src="assets/vendor/react.production.min.js?v=202605180945"></script>
-    <script src="assets/vendor/react-dom.production.min.js?v=202605180945"></script>
-    <script src="assets/vendor/babel.min.js?v=202605180945"></script>
+    <script src="assets/vendor/tailwindcss.js?v=202605182228"></script>
+    <script src="assets/vendor/react.production.min.js?v=202605182228"></script>
+    <script src="assets/vendor/react-dom.production.min.js?v=202605182228"></script>
+    <script src="assets/vendor/babel.min.js?v=202605182228"></script>
 
-    <link rel="stylesheet" href="assets/css/main.css?v=202605180945">
+    <link rel="stylesheet" href="assets/css/main.css?v=202605182228">
 </head>
 <body class="text-slate-800 font-sans antialiased flex flex-col min-h-screen">
 
@@ -410,6 +410,15 @@ const normalizeString = (str) => {
 };
 const formatDe = (numStr) => numStr.toString().replace(/\./g, ',');
 const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+// Quellen-Badge für Prüfungsaufgaben: "MSA 2025 II/9" → "Angelehnt an MSA 2025 II/9".
+// Aufgaben, die mit "Angepasst" beginnen, bleiben unverändert. Urheberrechtlich relevant —
+// die Original-MSA-Aufgaben werden nicht 1:1 wiedergegeben, sondern dienen als Vorlage.
+const formatExamLabel = (label) => {
+    if (!label) return label;
+    if (label.startsWith('Angepasst')) return label;
+    return `Angelehnt an ${label}`;
+};
 
 const shuffleArray = (array) => {
     const newArr = [...array];
@@ -1758,7 +1767,7 @@ const KopfrechenTrainer = () => {
                     <div className="bg-sky-50 px-6 py-4 border-b border-sky-200 flex justify-between items-center relative overflow-hidden gap-3 flex-wrap">
                         <div className="relative z-10 flex items-center text-sky-900 font-bold text-lg"><BookOpen className="w-5 h-5 mr-2 text-sky-600" /> {currentQuestion.category}</div>
                         {currentQuestion.sourceLabel && (
-                            <span className="relative z-10 bg-amber-200 text-amber-800 px-2 py-1 rounded text-xs font-bold shadow-sm uppercase tracking-wider">{currentQuestion.sourceLabel}</span>
+                            <span className="relative z-10 bg-amber-200 text-amber-800 px-2 py-1 rounded text-xs font-bold shadow-sm uppercase tracking-wider">{formatExamLabel(currentQuestion.sourceLabel)}</span>
                         )}
                         <div className="absolute -right-4 -top-4 opacity-10"><CalculatorOff className="w-24 h-24" /></div>
                     </div>

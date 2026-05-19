@@ -419,7 +419,7 @@ const PotenzenTrainer = () => {
                 <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                     <div className="bg-cyan-50 px-6 py-3 border-b border-cyan-200 flex justify-between items-center">
                         <h2 className="font-semibold text-cyan-900 flex items-center"><Hash className="mr-2 w-5 h-5"/> Ausgangsterm</h2>
-                        {difficulty === 'pruefung' && problem?.sourceLabel && <span className="text-xs font-bold px-2 py-1 rounded uppercase tracking-wider bg-amber-200 text-amber-800">{problem.sourceLabel}</span>}
+                        {difficulty === 'pruefung' && problem?.sourceLabel && <span className="text-xs font-bold px-2 py-1 rounded uppercase tracking-wider bg-amber-200 text-amber-800">{formatExamLabel(problem.sourceLabel)}</span>}
                     </div>
                     <div className="p-8 bg-white flex flex-col items-center justify-center text-center overflow-x-auto">
                         {loading || !problem ? <RefreshCw className="w-8 h-8 animate-spin text-cyan-400"/> :

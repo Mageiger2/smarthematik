@@ -213,7 +213,7 @@ const BruchgleichungsTrainer = () => {
                 <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                     <div className="bg-amber-50 px-6 py-3 border-b border-amber-200 flex justify-between items-center">
                         <h2 className="font-semibold text-amber-900 flex items-center"><BookOpen size={18} className="mr-2"/> Gegebene Gleichung</h2>
-                        {selectedDiff === 'pruefung' && <span className="text-xs font-bold px-2 py-1 rounded uppercase tracking-wider bg-amber-200 text-amber-800">{prob.diff}</span>}
+                        {selectedDiff === 'pruefung' && <span className="text-xs font-bold px-2 py-1 rounded uppercase tracking-wider bg-amber-200 text-amber-800">{formatExamLabel(prob.diff)}</span>}
                     </div>
                     <div className="p-8 flex justify-center bg-white overflow-x-auto min-h-[120px] items-center">{prob.renderEquation()}</div>
                 </div>

@@ -17,12 +17,12 @@
     <meta property="og:url" content="https://www.smarthematik.de/trigonometrie.html">
 
     <!-- Self-hosted Vendor-Skripte (kein Cross-Origin zu US-Servern) -->
-    <script src="assets/vendor/tailwindcss.js?v=202605180945"></script>
-    <script src="assets/vendor/react.production.min.js?v=202605180945"></script>
-    <script src="assets/vendor/react-dom.production.min.js?v=202605180945"></script>
-    <script src="assets/vendor/babel.min.js?v=202605180945"></script>
+    <script src="assets/vendor/tailwindcss.js?v=202605182228"></script>
+    <script src="assets/vendor/react.production.min.js?v=202605182228"></script>
+    <script src="assets/vendor/react-dom.production.min.js?v=202605182228"></script>
+    <script src="assets/vendor/babel.min.js?v=202605182228"></script>
 
-    <link rel="stylesheet" href="assets/css/main.css?v=202605180945">
+    <link rel="stylesheet" href="assets/css/main.css?v=202605182228">
 </head>
 <body class="text-slate-800 font-sans antialiased flex flex-col min-h-screen">
 
@@ -410,6 +410,15 @@ const normalizeString = (str) => {
 };
 const formatDe = (numStr) => numStr.toString().replace(/\./g, ',');
 const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+// Quellen-Badge für Prüfungsaufgaben: "MSA 2025 II/9" → "Angelehnt an MSA 2025 II/9".
+// Aufgaben, die mit "Angepasst" beginnen, bleiben unverändert. Urheberrechtlich relevant —
+// die Original-MSA-Aufgaben werden nicht 1:1 wiedergegeben, sondern dienen als Vorlage.
+const formatExamLabel = (label) => {
+    if (!label) return label;
+    if (label.startsWith('Angepasst')) return label;
+    return `Angelehnt an ${label}`;
+};
 
 const shuffleArray = (array) => {
     const newArr = [...array];
@@ -2233,7 +2242,7 @@ const TrigonometrieTrainer = () => {
                                         <span className="truncate">{currentTask.title}</span>
                                     </h2>
                                     {isExam && currentTask.sourceLabel && (
-                                        <span className="text-xs font-bold px-2 py-1 rounded uppercase tracking-wider bg-amber-200 text-amber-800 shrink-0">{currentTask.sourceLabel}</span>
+                                        <span className="text-xs font-bold px-2 py-1 rounded uppercase tracking-wider bg-amber-200 text-amber-800 shrink-0">{formatExamLabel(currentTask.sourceLabel)}</span>
                                     )}
                                 </div>
                                 <div className="p-5">

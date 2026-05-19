@@ -17,12 +17,12 @@
     <meta property="og:url" content="https://www.smarthematik.de/halbwertszeit.html">
 
     <!-- Self-hosted Vendor-Skripte (kein Cross-Origin zu US-Servern) -->
-    <script src="assets/vendor/tailwindcss.js?v=202605180945"></script>
-    <script src="assets/vendor/react.production.min.js?v=202605180945"></script>
-    <script src="assets/vendor/react-dom.production.min.js?v=202605180945"></script>
-    <script src="assets/vendor/babel.min.js?v=202605180945"></script>
+    <script src="assets/vendor/tailwindcss.js?v=202605182228"></script>
+    <script src="assets/vendor/react.production.min.js?v=202605182228"></script>
+    <script src="assets/vendor/react-dom.production.min.js?v=202605182228"></script>
+    <script src="assets/vendor/babel.min.js?v=202605182228"></script>
 
-    <link rel="stylesheet" href="assets/css/main.css?v=202605180945">
+    <link rel="stylesheet" href="assets/css/main.css?v=202605182228">
 </head>
 <body class="text-slate-800 font-sans antialiased flex flex-col min-h-screen">
 
@@ -410,6 +410,15 @@ const normalizeString = (str) => {
 };
 const formatDe = (numStr) => numStr.toString().replace(/\./g, ',');
 const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+// Quellen-Badge für Prüfungsaufgaben: "MSA 2025 II/9" → "Angelehnt an MSA 2025 II/9".
+// Aufgaben, die mit "Angepasst" beginnen, bleiben unverändert. Urheberrechtlich relevant —
+// die Original-MSA-Aufgaben werden nicht 1:1 wiedergegeben, sondern dienen als Vorlage.
+const formatExamLabel = (label) => {
+    if (!label) return label;
+    if (label.startsWith('Angepasst')) return label;
+    return `Angelehnt an ${label}`;
+};
 
 const shuffleArray = (array) => {
     const newArr = [...array];
@@ -1448,7 +1457,7 @@ const ZerfallsTrainer = () => {
                     <div className="bg-rose-50 px-6 py-3 border-b border-rose-200 flex justify-between items-center">
                         <h2 className="font-semibold text-rose-900 flex items-center"><BookOpen size={18} className="mr-2"/> Sachaufgabe</h2>
                         {problem?.examLabel
-                            ? <span className="text-xs font-bold px-2 py-1 rounded uppercase tracking-wider bg-amber-200 text-amber-800">{problem.examLabel}</span>
+                            ? <span className="text-xs font-bold px-2 py-1 rounded uppercase tracking-wider bg-amber-200 text-amber-800">{formatExamLabel(problem.examLabel)}</span>
                             : <span className="text-xs font-bold px-2 py-1 rounded uppercase tracking-wider bg-rose-200 text-rose-800">Halbwertszeit</span>
                         }
                     </div>
