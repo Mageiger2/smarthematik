@@ -924,22 +924,10 @@ const WahrscheinlichkeitsTrainer = () => {
         const bg = [];
         const fg = [];
 
-        // Hilfs-Wrapper: Im Mobile-Modus den MiniFractionInput deaktivieren und einen
-        // onClick auf den foreignObject-Div hängen, der das große Eingabefeld unten
-        // fokussiert. Der `active`-Prop (Glow) wird durchgereicht, damit der gerade
-        // aktive Bruch auch in der Mobile-Übersicht gelb pulsiert.
-        const renderMobileTreeInput = (binding, valTop, valBot, statusTop, statusBot, isActive) => (
-            <div xmlns="http://www.w3.org/1999/xhtml"
-                 className="flex justify-center h-full items-center cursor-pointer"
-                 onClick={(e) => { e.stopPropagation(); focusMobileInput(binding.topKey); }}>
-                <div style={{pointerEvents: 'none'}}>
-                    <MiniFractionInput idTop={binding.topKey} idBot={binding.botKey}
-                        valTop={valTop} valBot={valBot}
-                        onChange={()=>{}} disabled={true}
-                        statusTop={statusTop} statusBot={statusBot} theme="violet" active={isActive} />
-                </div>
-            </div>
-        );
+        // (Der frühere renderMobileTreeInput-Wrapper ist entfallen — der Mobile-Baum
+        // rendert den Bruch jetzt als reines SVG, ohne foreignObject. Damit ist der
+        // iOS-Safari-Positions-Bug umgangen, und die Klicks gehen direkt an den
+        // Container-onClick weiter, der zum aktiven Eingabefeld unten springt.)
 
         const walk = (node, x, y, width, level) => {
             const isLeaf = !node.children || node.children.length === 0;
@@ -973,19 +961,46 @@ const WahrscheinlichkeitsTrainer = () => {
                         const stTop = inputFeedback[topKey];
                         const stBot = inputFeedback[botKey];
 
-                        if (step === activeStep) {
-                            // Aktive Eingabe — leuchtender Glow.
+                        if (mobileMode) {
+                            // Im Mobile-Modus rendern wir den Bruch als REINES SVG (kein
+                            // foreignObject). Zwei Gründe:
+                            //  1. iOS Safari hat einen Positions-Bug mit foreignObject auf
+                            //     kleinen Viewports — Bruch landete dann am falschen Pfad.
+                            //     Reines SVG umgeht das vollständig.
+                            //  2. Auf Mobile ist der Bruch ohnehin nur ein visueller Anker;
+                            //     die eigentliche Eingabe passiert in der großen Bruch-Box unten.
+                            // Größe deutlich kleiner: 26 × 32 SVG-Einheiten (vorher 52 × 80).
+                            const w = 26, h = 32;
+                            const x0 = midX - w / 2;
+                            const y0 = midY - h / 2;
+                            const keyBase = `a-${pth}${lvl}-${index}`;
+                            if (step < activeStep) {
+                                // Noch nicht dran — graues Rechteck mit "?".
+                                fg.push(<rect key={`${keyBase}-bg`} x={x0} y={y0} width={w} height={h} rx="3" fill="white" stroke="#cbd5e1" strokeWidth="1" />);
+                                fg.push(<text key={`${keyBase}-q`} x={midX} y={midY + 4} textAnchor="middle" fontSize="14" fontWeight="bold" fill="#cbd5e1">?</text>);
+                            } else {
+                                const isActive = step === activeStep;
+                                const strokeCol = isActive ? '#fbbf24' : '#22c55e';    // aktiv: amber-pulsierend, fertig: grün
+                                const fillCol = isActive ? 'white' : '#ecfdf5';
+                                const txtCol = isActive ? '#475569' : '#15803d';
+                                fg.push(<rect key={`${keyBase}-bg`} x={x0} y={y0} width={w} height={h} rx="3"
+                                    fill={fillCol} stroke={strokeCol} strokeWidth="1.6"
+                                    className={isActive ? 'svg-pulse-amber' : ''} />);
+                                fg.push(<text key={`${keyBase}-t`} x={midX} y={midY - 5} textAnchor="middle" fontSize="11" fontWeight="bold" fill={txtCol}>{valTop || ''}</text>);
+                                fg.push(<line key={`${keyBase}-l`} x1={midX - 9} y1={midY + 1} x2={midX + 9} y2={midY + 1} stroke={txtCol} strokeWidth="1" />);
+                                fg.push(<text key={`${keyBase}-b`} x={midX} y={midY + 11} textAnchor="middle" fontSize="11" fontWeight="bold" fill={txtCol}>{valBot || ''}</text>);
+                            }
+                        } else if (step === activeStep) {
+                            // Desktop, aktive Eingabe — leuchtender Glow.
                             fg.push(
                                 <foreignObject key={`fo-${pth}${lvl}-${index}`} x={midX - 26} y={midY - 40} width="52" height="80">
-                                    {mobileMode ? renderMobileTreeInput(binding, valTop, valBot, stTop, stBot, true) : (
-                                        <div xmlns="http://www.w3.org/1999/xhtml" className="flex justify-center h-full items-center">
-                                            <MiniFractionInput idTop={topKey} idBot={botKey} valTop={valTop} valBot={valBot} onChange={handleInputChange} onSubmit={onSubmit} disabled={false} statusTop={stTop} statusBot={stBot} theme="violet" active={true} />
-                                        </div>
-                                    )}
+                                    <div xmlns="http://www.w3.org/1999/xhtml" className="flex justify-center h-full items-center">
+                                        <MiniFractionInput idTop={topKey} idBot={botKey} valTop={valTop} valBot={valBot} onChange={handleInputChange} onSubmit={onSubmit} disabled={false} statusTop={stTop} statusBot={stBot} theme="violet" active={true} />
+                                    </div>
                                 </foreignObject>
                             );
                         } else if (step > activeStep) {
-                            // Bereits abgehakt — read-only, Häkchen.
+                            // Desktop, bereits abgehakt — read-only, Häkchen.
                             fg.push(
                                 <foreignObject key={`fo-${pth}${lvl}-${index}`} x={midX - 26} y={midY - 40} width="52" height="80">
                                     <div xmlns="http://www.w3.org/1999/xhtml" className="flex justify-center h-full items-center">
@@ -994,8 +1009,7 @@ const WahrscheinlichkeitsTrainer = () => {
                                 </foreignObject>
                             );
                         } else {
-                            // Noch nicht dran — Fragezeichen-Platzhalter, damit Schüler:in sieht,
-                            // dass hier später noch ein Bruch hin muss.
+                            // Desktop, noch nicht dran — Fragezeichen-Platzhalter.
                             fg.push(<rect key={`rect-q-${pth}${lvl}-${index}`} x={midX - 18} y={midY - 12} width="36" height="24" fill="white" rx="4" />);
                             fg.push(<text key={`prob-q-${pth}${lvl}-${index}`} x={midX} y={midY + 4} textAnchor="middle" fontSize="16" fontWeight="bold" fill="#cbd5e1">?</text>);
                         }

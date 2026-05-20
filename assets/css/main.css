@@ -67,3 +67,12 @@ svg foreignObject { overflow: visible; }
     }
 }
 .animate-glow-amber-subtle { animation: glowAmberSubtle 2.4s ease-in-out infinite; border-radius: 0.5rem; }
+
+/* SVG-Variante des Glows — wird auf reine <rect>-Elemente angewendet (z.B. auf den
+   Bruch-Anker im Mobile-Baumdiagramm). box-shadow funktioniert auf SVG-Elementen
+   nicht zuverlässig — daher animieren wir hier stroke + stroke-width. */
+@keyframes svgPulseAmber {
+    0%, 100% { stroke: #fbbf24; stroke-width: 1.6; }
+    50% { stroke: #f97316; stroke-width: 2.6; }
+}
+.svg-pulse-amber { animation: svgPulseAmber 2.4s ease-in-out infinite; }
