@@ -285,6 +285,18 @@ const checkValue = (input, expected) => {
     return ni === ne || isNumericMatch(ni, ne);
 };
 
+// Prüft, ob ein eingegebener Bruch t/b äquivalent zu einem Sollbruch top/bot ist.
+// Akzeptiert alle Kürzungen: 4/12 ≡ 2/6 ≡ 1/3. Sanity-Checks: b > 0, t/b im [0, 1]-Bereich.
+const isFractionEquivalent = (t, b, targetTop, targetBot) => {
+    const tNum = parseInt(t, 10);
+    const bNum = parseInt(b, 10);
+    if (!Number.isFinite(tNum) || !Number.isFinite(bNum)) return false;
+    if (bNum <= 0) return false;
+    if (tNum < 0) return false;
+    // Kreuzmultiplikation vermeidet Float-Ungenauigkeit komplett.
+    return tNum * targetBot === targetTop * bNum;
+};
+
 const checkMultiInput = (inputs, expectedArr) => {
     const normInputs = inputs.map(normalizeString).filter(s => s !== "");
     const normExpected = expectedArr.map(normalizeString);
@@ -477,18 +489,24 @@ const TrainerHeader = ({ theme, icon: Icon, title, streakIcon: StreakIcon, strea
     );
 };
 
-const StepCard = ({ title, stepNum, currentStep, activeCondition, pastCondition, theme = 'amber', children }) => {
+const StepCard = ({ title, stepNum, currentStep, activeCondition, pastCondition, pastSummary, theme = 'amber', children }) => {
     const isActive = activeCondition !== undefined ? activeCondition : currentStep === stepNum;
     const isPast = pastCondition !== undefined ? pastCondition : currentStep > stepNum;
     const t = themeColors[theme];
+    // Wenn pastSummary gesetzt ist und die Karte abgeschlossen ist, wird der Inhalt
+    // ausgeblendet und die Zusammenfassung direkt hinter dem Titel angezeigt — Karte
+    // schrumpft auf nur die Titelzeile. Spart Scrollweg, gerade in mehrstufigen Trainern.
+    const collapsedToTitle = isPast && pastSummary;
 
     return (
         <div className={`bg-white rounded-xl shadow-sm border-2 overflow-hidden transition-all duration-300 ${isActive ? `${t.activeBorder} ${t.shadow}` : isPast ? 'border-green-200' : 'border-slate-200 opacity-50'}`}>
-            <div className={`px-5 py-3 border-b flex items-center ${isActive ? `${t.activeBg} border-opacity-50` : isPast ? 'bg-green-50 border-green-100' : 'bg-slate-50 border-slate-200'}`}>
+            <div className={`px-5 py-3 border-b flex items-center flex-wrap gap-x-2 ${isActive ? `${t.activeBg} border-opacity-50` : isPast ? 'bg-green-50 border-green-100' : 'bg-slate-50 border-slate-200'}`}>
                 {isPast ? <CheckCircle className="text-green-500 mr-3 w-6 h-6 shrink-0" /> : <div className={`w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold mr-3 shrink-0 ${isActive ? `${t.badgeBg} text-white` : 'bg-slate-300 text-slate-500'}`}>{stepNum}</div>}
-                <h3 className={`font-bold text-lg ${isActive ? t.activeTitle : isPast ? 'text-green-900' : 'text-slate-500'}`}>{title}</h3>
+                <h3 className={`font-bold text-lg ${isActive ? t.activeTitle : isPast ? 'text-green-900' : 'text-slate-500'}`}>
+                    {title}{collapsedToTitle && <span>: <span className="font-bold">{pastSummary}</span></span>}
+                </h3>
             </div>
-            <div className={`p-5 ${!isActive && !isPast ? 'hidden' : ''}`}>{children}</div>
+            <div className={`p-5 ${(!isActive && !isPast) || collapsedToTitle ? 'hidden' : ''}`}>{children}</div>
         </div>
     );
 };
@@ -588,7 +606,7 @@ const MiniFormulaInput = ({ id, value, isUnknown, status, disabled, onChange, on
     );
 };
 
-const FractionInputInteraktiv = ({ idTop, idBot, valTop, valBot, onChange, onSubmit, disabled, statusTop, statusBot, theme, htmlIdPrefix }) => {
+const FractionInputInteraktiv = ({ idTop, idBot, valTop, valBot, onChange, onSubmit, disabled, statusTop, statusBot, theme, htmlIdPrefix, active }) => {
     const getBorderClass = (status) => {
         if (status === 'correct') return 'border-green-500 bg-green-50 text-green-900 font-bold';
         if (status === 'incorrect') return 'border-red-400 bg-red-50 text-red-900';
@@ -599,8 +617,12 @@ const FractionInputInteraktiv = ({ idTop, idBot, valTop, valBot, onChange, onSub
     // Cursor stattdessen in das große Mobile-Eingabefeld unten springen soll).
     const topId = htmlIdPrefix ? `${htmlIdPrefix}-${idTop}` : undefined;
     const botId = htmlIdPrefix ? `${htmlIdPrefix}-${idBot}` : undefined;
+    // active=true → pulsierende gelb-orange Umrandung um den ganzen Bruch.
+    // Damit der Glow nicht durch das w-16 ausgeschnitten wird, sitzt er auf einem
+    // Padding-Wrapper, der ein bisschen mehr Platz hat.
+    const wrapperClass = `flex flex-col items-center justify-center w-16 relative ${active ? 'animate-glow-amber p-1' : ''}`;
     return (
-        <div className="flex flex-col items-center justify-center w-16 relative">
+        <div className={wrapperClass}>
             <input id={topId} type="text" className={`w-14 h-10 text-center text-lg transition-colors border-2 rounded-t outline-none ${getBorderClass(statusTop)}`} value={valTop} onChange={e => onChange(idTop, e.target.value)} onKeyDown={enterToSubmit(onSubmit)} disabled={disabled} />
             <div className="w-16 h-0.5 bg-slate-800 my-1"></div>
             <input id={botId} type="text" className={`w-14 h-10 text-center text-lg transition-colors border-2 rounded-b outline-none ${getBorderClass(statusBot)}`} value={valBot} onChange={e => onChange(idBot, e.target.value)} onKeyDown={enterToSubmit(onSubmit)} disabled={disabled} />
@@ -610,17 +632,21 @@ const FractionInputInteraktiv = ({ idTop, idBot, valTop, valBot, onChange, onSub
 };
 
 // Kompakte Variante für das interaktive Baumdiagramm (Wahrscheinlichkeits-Trainer).
-const MiniFractionInput = ({ idTop, idBot, valTop, valBot, onChange, onSubmit, disabled, statusTop, statusBot, theme }) => {
+// Schmäler als das normale FractionInput, damit im Baumdiagramm zwischen den Pfaden
+// genug Luft bleibt: Container w-10 statt w-12, Eingaben w-9 statt w-10.
+const MiniFractionInput = ({ idTop, idBot, valTop, valBot, onChange, onSubmit, disabled, statusTop, statusBot, theme, active }) => {
     const getBorderClass = (status) => {
         if (status === 'correct') return 'border-green-500 bg-green-50 text-green-900 font-bold';
         if (status === 'incorrect') return 'border-red-400 bg-red-50 text-red-900';
         return `border-slate-300 focus:border-${theme}-500 focus:ring-1 focus:ring-${theme}-200`;
     };
+    // active=true → pulsierende gelb-orange Umrandung um den Bruch (Hinweis "hier tippen!").
+    const containerClass = `flex flex-col items-center justify-center w-10 relative bg-white/95 backdrop-blur-sm rounded-lg shadow-md p-0.5 border border-slate-200 ${active ? 'animate-glow-amber' : ''}`;
     return (
-        <div className="flex flex-col items-center justify-center w-12 relative bg-white/95 backdrop-blur-sm rounded-lg shadow-md p-1 border border-slate-200">
-            <input type="text" className={`w-10 h-7 text-center text-sm transition-colors border-2 rounded-t outline-none ${getBorderClass(statusTop)}`} value={valTop} onChange={e => onChange(idTop, e.target.value)} onKeyDown={enterToSubmit(onSubmit)} disabled={disabled} />
-            <div className="w-10 h-0.5 bg-slate-800 my-0.5"></div>
-            <input type="text" className={`w-10 h-7 text-center text-sm transition-colors border-2 rounded-b outline-none ${getBorderClass(statusBot)}`} value={valBot} onChange={e => onChange(idBot, e.target.value)} onKeyDown={enterToSubmit(onSubmit)} disabled={disabled} />
+        <div className={containerClass}>
+            <input type="text" className={`w-9 h-7 text-center text-sm transition-colors border-2 rounded-t outline-none ${getBorderClass(statusTop)}`} value={valTop} onChange={e => onChange(idTop, e.target.value)} onKeyDown={enterToSubmit(onSubmit)} disabled={disabled} />
+            <div className="w-9 h-0.5 bg-slate-800 my-0.5"></div>
+            <input type="text" className={`w-9 h-7 text-center text-sm transition-colors border-2 rounded-b outline-none ${getBorderClass(statusBot)}`} value={valBot} onChange={e => onChange(idBot, e.target.value)} onKeyDown={enterToSubmit(onSubmit)} disabled={disabled} />
             {statusTop === 'correct' && statusBot === 'correct' && <CheckCircle className="w-4 h-4 text-green-600 absolute -right-3 top-1/2 -translate-y-1/2 bg-white rounded-full shadow-sm z-10" />}
         </div>
     );
@@ -814,7 +840,10 @@ const ScientificCalculator = ({ onClose, theme = 'sky' }) => {
     };
 
     return (
-        <div className="bg-white rounded-2xl shadow-md border border-slate-200 max-w-md w-full overflow-hidden">
+        // Schmälere Rechner-Box: max-w-md (448px) → max-w-xs (320px), also ca. 30% schmäler.
+        // Das Grid mit 5 Tasten-Spalten skaliert automatisch mit, die Tasten werden enger
+        // ohne dass Schrift oder Mindesthöhe darunter leiden.
+        <div className="bg-white rounded-2xl shadow-md border border-slate-200 max-w-xs w-full overflow-hidden">
             <div className={`${t.btnBg} text-white px-3 sm:px-4 py-2 sm:py-3 flex justify-between items-center`}>
                 <div className="flex items-center gap-2">
                     <Calculator className="w-5 h-5" />

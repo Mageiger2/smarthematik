@@ -17,12 +17,12 @@
     <meta property="og:url" content="https://www.smarthematik.de/wahrscheinlichkeit.html">
 
     <!-- Self-hosted Vendor-Skripte (kein Cross-Origin zu US-Servern) -->
-    <script src="assets/vendor/tailwindcss.js?v=202605182228"></script>
-    <script src="assets/vendor/react.production.min.js?v=202605182228"></script>
-    <script src="assets/vendor/react-dom.production.min.js?v=202605182228"></script>
-    <script src="assets/vendor/babel.min.js?v=202605182228"></script>
+    <script src="assets/vendor/tailwindcss.js?v=202605200930"></script>
+    <script src="assets/vendor/react.production.min.js?v=202605200930"></script>
+    <script src="assets/vendor/react-dom.production.min.js?v=202605200930"></script>
+    <script src="assets/vendor/babel.min.js?v=202605200930"></script>
 
-    <link rel="stylesheet" href="assets/css/main.css?v=202605182228">
+    <link rel="stylesheet" href="assets/css/main.css?v=202605200930">
 </head>
 <body class="text-slate-800 font-sans antialiased flex flex-col min-h-screen">
 
@@ -439,6 +439,18 @@ const checkValue = (input, expected) => {
     return ni === ne || isNumericMatch(ni, ne);
 };
 
+// Prüft, ob ein eingegebener Bruch t/b äquivalent zu einem Sollbruch top/bot ist.
+// Akzeptiert alle Kürzungen: 4/12 ≡ 2/6 ≡ 1/3. Sanity-Checks: b > 0, t/b im [0, 1]-Bereich.
+const isFractionEquivalent = (t, b, targetTop, targetBot) => {
+    const tNum = parseInt(t, 10);
+    const bNum = parseInt(b, 10);
+    if (!Number.isFinite(tNum) || !Number.isFinite(bNum)) return false;
+    if (bNum <= 0) return false;
+    if (tNum < 0) return false;
+    // Kreuzmultiplikation vermeidet Float-Ungenauigkeit komplett.
+    return tNum * targetBot === targetTop * bNum;
+};
+
 const checkMultiInput = (inputs, expectedArr) => {
     const normInputs = inputs.map(normalizeString).filter(s => s !== "");
     const normExpected = expectedArr.map(normalizeString);
@@ -631,18 +643,24 @@ const TrainerHeader = ({ theme, icon: Icon, title, streakIcon: StreakIcon, strea
     );
 };
 
-const StepCard = ({ title, stepNum, currentStep, activeCondition, pastCondition, theme = 'amber', children }) => {
+const StepCard = ({ title, stepNum, currentStep, activeCondition, pastCondition, pastSummary, theme = 'amber', children }) => {
     const isActive = activeCondition !== undefined ? activeCondition : currentStep === stepNum;
     const isPast = pastCondition !== undefined ? pastCondition : currentStep > stepNum;
     const t = themeColors[theme];
+    // Wenn pastSummary gesetzt ist und die Karte abgeschlossen ist, wird der Inhalt
+    // ausgeblendet und die Zusammenfassung direkt hinter dem Titel angezeigt — Karte
+    // schrumpft auf nur die Titelzeile. Spart Scrollweg, gerade in mehrstufigen Trainern.
+    const collapsedToTitle = isPast && pastSummary;
 
     return (
         <div className={`bg-white rounded-xl shadow-sm border-2 overflow-hidden transition-all duration-300 ${isActive ? `${t.activeBorder} ${t.shadow}` : isPast ? 'border-green-200' : 'border-slate-200 opacity-50'}`}>
-            <div className={`px-5 py-3 border-b flex items-center ${isActive ? `${t.activeBg} border-opacity-50` : isPast ? 'bg-green-50 border-green-100' : 'bg-slate-50 border-slate-200'}`}>
+            <div className={`px-5 py-3 border-b flex items-center flex-wrap gap-x-2 ${isActive ? `${t.activeBg} border-opacity-50` : isPast ? 'bg-green-50 border-green-100' : 'bg-slate-50 border-slate-200'}`}>
                 {isPast ? <CheckCircle className="text-green-500 mr-3 w-6 h-6 shrink-0" /> : <div className={`w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold mr-3 shrink-0 ${isActive ? `${t.badgeBg} text-white` : 'bg-slate-300 text-slate-500'}`}>{stepNum}</div>}
-                <h3 className={`font-bold text-lg ${isActive ? t.activeTitle : isPast ? 'text-green-900' : 'text-slate-500'}`}>{title}</h3>
+                <h3 className={`font-bold text-lg ${isActive ? t.activeTitle : isPast ? 'text-green-900' : 'text-slate-500'}`}>
+                    {title}{collapsedToTitle && <span>: <span className="font-bold">{pastSummary}</span></span>}
+                </h3>
             </div>
-            <div className={`p-5 ${!isActive && !isPast ? 'hidden' : ''}`}>{children}</div>
+            <div className={`p-5 ${(!isActive && !isPast) || collapsedToTitle ? 'hidden' : ''}`}>{children}</div>
         </div>
     );
 };
@@ -742,7 +760,7 @@ const MiniFormulaInput = ({ id, value, isUnknown, status, disabled, onChange, on
     );
 };
 
-const FractionInputInteraktiv = ({ idTop, idBot, valTop, valBot, onChange, onSubmit, disabled, statusTop, statusBot, theme, htmlIdPrefix }) => {
+const FractionInputInteraktiv = ({ idTop, idBot, valTop, valBot, onChange, onSubmit, disabled, statusTop, statusBot, theme, htmlIdPrefix, active }) => {
     const getBorderClass = (status) => {
         if (status === 'correct') return 'border-green-500 bg-green-50 text-green-900 font-bold';
         if (status === 'incorrect') return 'border-red-400 bg-red-50 text-red-900';
@@ -753,8 +771,12 @@ const FractionInputInteraktiv = ({ idTop, idBot, valTop, valBot, onChange, onSub
     // Cursor stattdessen in das große Mobile-Eingabefeld unten springen soll).
     const topId = htmlIdPrefix ? `${htmlIdPrefix}-${idTop}` : undefined;
     const botId = htmlIdPrefix ? `${htmlIdPrefix}-${idBot}` : undefined;
+    // active=true → pulsierende gelb-orange Umrandung um den ganzen Bruch.
+    // Damit der Glow nicht durch das w-16 ausgeschnitten wird, sitzt er auf einem
+    // Padding-Wrapper, der ein bisschen mehr Platz hat.
+    const wrapperClass = `flex flex-col items-center justify-center w-16 relative ${active ? 'animate-glow-amber p-1' : ''}`;
     return (
-        <div className="flex flex-col items-center justify-center w-16 relative">
+        <div className={wrapperClass}>
             <input id={topId} type="text" className={`w-14 h-10 text-center text-lg transition-colors border-2 rounded-t outline-none ${getBorderClass(statusTop)}`} value={valTop} onChange={e => onChange(idTop, e.target.value)} onKeyDown={enterToSubmit(onSubmit)} disabled={disabled} />
             <div className="w-16 h-0.5 bg-slate-800 my-1"></div>
             <input id={botId} type="text" className={`w-14 h-10 text-center text-lg transition-colors border-2 rounded-b outline-none ${getBorderClass(statusBot)}`} value={valBot} onChange={e => onChange(idBot, e.target.value)} onKeyDown={enterToSubmit(onSubmit)} disabled={disabled} />
@@ -764,17 +786,21 @@ const FractionInputInteraktiv = ({ idTop, idBot, valTop, valBot, onChange, onSub
 };
 
 // Kompakte Variante für das interaktive Baumdiagramm (Wahrscheinlichkeits-Trainer).
-const MiniFractionInput = ({ idTop, idBot, valTop, valBot, onChange, onSubmit, disabled, statusTop, statusBot, theme }) => {
+// Schmäler als das normale FractionInput, damit im Baumdiagramm zwischen den Pfaden
+// genug Luft bleibt: Container w-10 statt w-12, Eingaben w-9 statt w-10.
+const MiniFractionInput = ({ idTop, idBot, valTop, valBot, onChange, onSubmit, disabled, statusTop, statusBot, theme, active }) => {
     const getBorderClass = (status) => {
         if (status === 'correct') return 'border-green-500 bg-green-50 text-green-900 font-bold';
         if (status === 'incorrect') return 'border-red-400 bg-red-50 text-red-900';
         return `border-slate-300 focus:border-${theme}-500 focus:ring-1 focus:ring-${theme}-200`;
     };
+    // active=true → pulsierende gelb-orange Umrandung um den Bruch (Hinweis "hier tippen!").
+    const containerClass = `flex flex-col items-center justify-center w-10 relative bg-white/95 backdrop-blur-sm rounded-lg shadow-md p-0.5 border border-slate-200 ${active ? 'animate-glow-amber' : ''}`;
     return (
-        <div className="flex flex-col items-center justify-center w-12 relative bg-white/95 backdrop-blur-sm rounded-lg shadow-md p-1 border border-slate-200">
-            <input type="text" className={`w-10 h-7 text-center text-sm transition-colors border-2 rounded-t outline-none ${getBorderClass(statusTop)}`} value={valTop} onChange={e => onChange(idTop, e.target.value)} onKeyDown={enterToSubmit(onSubmit)} disabled={disabled} />
-            <div className="w-10 h-0.5 bg-slate-800 my-0.5"></div>
-            <input type="text" className={`w-10 h-7 text-center text-sm transition-colors border-2 rounded-b outline-none ${getBorderClass(statusBot)}`} value={valBot} onChange={e => onChange(idBot, e.target.value)} onKeyDown={enterToSubmit(onSubmit)} disabled={disabled} />
+        <div className={containerClass}>
+            <input type="text" className={`w-9 h-7 text-center text-sm transition-colors border-2 rounded-t outline-none ${getBorderClass(statusTop)}`} value={valTop} onChange={e => onChange(idTop, e.target.value)} onKeyDown={enterToSubmit(onSubmit)} disabled={disabled} />
+            <div className="w-9 h-0.5 bg-slate-800 my-0.5"></div>
+            <input type="text" className={`w-9 h-7 text-center text-sm transition-colors border-2 rounded-b outline-none ${getBorderClass(statusBot)}`} value={valBot} onChange={e => onChange(idBot, e.target.value)} onKeyDown={enterToSubmit(onSubmit)} disabled={disabled} />
             {statusTop === 'correct' && statusBot === 'correct' && <CheckCircle className="w-4 h-4 text-green-600 absolute -right-3 top-1/2 -translate-y-1/2 bg-white rounded-full shadow-sm z-10" />}
         </div>
     );
@@ -968,7 +994,10 @@ const ScientificCalculator = ({ onClose, theme = 'sky' }) => {
     };
 
     return (
-        <div className="bg-white rounded-2xl shadow-md border border-slate-200 max-w-md w-full overflow-hidden">
+        // Schmälere Rechner-Box: max-w-md (448px) → max-w-xs (320px), also ca. 30% schmäler.
+        // Das Grid mit 5 Tasten-Spalten skaliert automatisch mit, die Tasten werden enger
+        // ohne dass Schrift oder Mindesthöhe darunter leiden.
+        <div className="bg-white rounded-2xl shadow-md border border-slate-200 max-w-xs w-full overflow-hidden">
             <div className={`${t.btnBg} text-white px-3 sm:px-4 py-2 sm:py-3 flex justify-between items-center`}>
                 <div className="flex items-center gap-2">
                     <Calculator className="w-5 h-5" />
@@ -1140,32 +1169,61 @@ const SuccessBox = ({ text = "Klasse gemacht! 🎉", subtitle, showSolutionBtn, 
 
 const colorMap = { 'rot': '#ef4444', 'blau': '#3b82f6', 'grün': '#10b981', 'gelb': '#eab308', 'Andere': '#94a3b8', 'Rest': '#94a3b8' };
 
-// Allgemeine Funktion, um das Baumdiagramm für jedes Level zu bauen
-const buildProbabilityTree = (colors, isOhne, targetPath, totalCount) => {
+// Allgemeine Funktion, um das Baumdiagramm für jedes Level zu bauen.
+// targetPaths-Parameter:
+//   - Array (legacy): ['rot', 'rot']                 → ein einzelner Pfad
+//   - Objekt mit zwei Pfaden: { A: ['rot','blau'], B: ['blau','rot'] } → für "beliebige Reihenfolge"
+// Im Knoten wird inputLevel gesetzt zu:
+//   - Number 1 oder 2 (single path)
+//   - Objekt { level: 1|2, path: 'A'|'B' } (multi path) — wir markieren beide Pfade gleichzeitig
+//
+// Voraussetzung für multi path: die ersten Züge der beiden Pfade sind UNTERSCHIEDLICH
+// (sonst landen beide Pfade auf demselben Ebene-1-Knoten und der renderTree-Code könnte
+// nicht eindeutig unterscheiden). Bei "beliebiger Reihenfolge" ist das natürlich gegeben.
+const buildProbabilityTree = (colors, isOhne, targetPaths, totalCount) => {
+    const paths = Array.isArray(targetPaths) ? { A: targetPaths } : targetPaths;
+    const isMulti = !!paths.B;
+    const wrap = (level, path) => isMulti ? { level, path } : level;
+
     return {
         label: 'Start',
         children: colors.map(c => {
-            const isTarget1 = c.id === targetPath[0];
+            // Welcher Pfad beginnt mit dieser Farbe? (Bei single path nur A relevant.)
+            let firstPath = null;
+            if (paths.A && c.id === paths.A[0]) firstPath = 'A';
+            else if (paths.B && c.id === paths.B[0]) firstPath = 'B';
+            const lvl1 = firstPath ? wrap(1, firstPath) : null;
+
             return {
                 label: c.id,
                 hex: c.hex,
                 probText: `${c.count}/${totalCount}`,
-                inputLevel: isTarget1 ? 1 : null,
+                inputLevel: lvl1,
                 children: colors.map(sc => {
                     let nextCount = sc.count;
                     if (isOhne && c.id === sc.id) nextCount--;
-                    const isTarget2 = isTarget1 && sc.id === targetPath[1];
+                    // Welcher Pfad ENDET hier? Nur prüfen, wenn auch der 1. Zug derselbe Pfad ist.
+                    let secondPath = null;
+                    if (firstPath === 'A' && sc.id === paths.A[1]) secondPath = 'A';
+                    else if (firstPath === 'B' && sc.id === paths.B[1]) secondPath = 'B';
+                    const lvl2 = secondPath ? wrap(2, secondPath) : null;
+
                     return {
                         label: sc.id,
                         hex: sc.hex,
                         probText: `${nextCount}/${totalCount - (isOhne ? 1 : 0)}`,
-                        inputLevel: isTarget2 ? 2 : null
+                        inputLevel: lvl2
                     };
                 })
             };
         })
     };
 };
+
+// Helper: extrahiert die Ebene (1 oder 2) aus inputLevel, egal ob Number oder Objekt.
+const _ilLevel = (il) => (typeof il === 'object' && il !== null) ? il.level : il;
+// Helper: extrahiert den Pfad-Buchstaben ('A' oder 'B') — Default 'A' bei Number-Form.
+const _ilPath = (il) => (typeof il === 'object' && il !== null) ? il.path : 'A';
 
 // Hilfs: zufälliges Element aus Array.
 const _pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
@@ -1265,164 +1323,558 @@ const wahrscheinlichkeitsExamTasks = [
             { id: 'B', count: 36, hex: '#3b82f6' }
         ],
         targetPath: ['G', 'G']
+    },
+    // ----- Reihenfolge-Aufgaben (Phase 2): zwei Pfade müssen addiert werden -----
+    {
+        sigKey: 'msa-2025-i-7b-reihenfolge',
+        label: 'MSA 2025 I/7b',
+        text: 'Bei einer Faschingsveranstaltung werden 150 äußerlich nicht unterscheidbare Krapfen verkauft: 75 mit Aprikosenmarmelade (A), 70 mit Erdbeermarmelade (E) und 5 mit Senf (S). Die ersten beiden Kunden kaufen nacheinander je einen Krapfen. Berechne die Wahrscheinlichkeit, dass die ersten beiden Kunden einen Krapfen mit Aprikosenmarmelade UND einen Krapfen mit Erdbeermarmelade bekommen (Reihenfolge egal).',
+        type: 'ohne',
+        taskType: 'reihenfolge',
+        total: 150,
+        treeColors: [
+            { id: 'A', count: 75, hex: '#f59e0b' },
+            { id: 'E', count: 70, hex: '#ef4444' },
+            { id: 'S', count: 5, hex: '#94a3b8' }
+        ],
+        targetPaths: { A: ['A', 'E'], B: ['E', 'A'] }
+    },
+    {
+        sigKey: 'msa-2014-ii-8b-reihenfolge',
+        label: 'MSA 2014 II/8b',
+        text: 'In einer Lostrommel auf dem Jahrmarkt befinden sich 1 Hauptgewinn (H), 9 Kleingewinne (K) und 40 Nieten (N). Moritz zieht nacheinander zwei Lose und öffnet sie. Berechne die Wahrscheinlichkeit, dass Moritz einen Kleingewinn UND eine Niete zieht (Reihenfolge egal).',
+        type: 'ohne',
+        taskType: 'reihenfolge',
+        total: 50,
+        treeColors: [
+            { id: 'H', count: 1, hex: '#f59e0b' },
+            { id: 'K', count: 9, hex: '#10b981' },
+            { id: 'N', count: 40, hex: '#94a3b8' }
+        ],
+        targetPaths: { A: ['K', 'N'], B: ['N', 'K'] }
+    },
+    {
+        sigKey: 'msa-2016-i-3b-reihenfolge',
+        label: 'MSA 2016 I/3b',
+        text: 'In einer Tüte befinden sich 4 rote (r), 2 grüne (g) und 1 weißes (w) Gummibärchen. Christiane nimmt nacheinander zwei Gummibärchen heraus und isst sie. Berechne die Wahrscheinlichkeit, dass sie ein rotes UND ein grünes Gummibärchen isst (Reihenfolge egal).',
+        type: 'ohne',
+        taskType: 'reihenfolge',
+        total: 7,
+        treeColors: [
+            { id: 'r', count: 4, hex: '#ef4444' },
+            { id: 'g', count: 2, hex: '#10b981' },
+            { id: 'w', count: 1, hex: '#cbd5e1' }
+        ],
+        targetPaths: { A: ['r', 'g'], B: ['g', 'r'] }
     }
 ];
 
-// Wandelt einen Prüfungsaufgaben-Eintrag in das problem-Format um.
+// Wandelt einen Prüfungsaufgaben-Eintrag in das problem-Format um. Unterstützt:
+//  - "direkt": klassische 2-Zug-Aufgabe (single targetPath) — wie bisher.
+//  - "reihenfolge": zwei Pfade A und B, deren Wahrscheinlichkeiten addiert werden
+//    ("beliebige Reihenfolge"). task.targetPaths = { A: [...], B: [...] }.
 const buildExamProblem = (task) => {
     const isOhne = task.type === 'ohne';
+    const isMulti = task.taskType === 'reihenfolge';
     const tot = task.total;
     const colorByName = Object.fromEntries(task.treeColors.map(c => [c.id, c]));
-    const t1Count = colorByName[task.targetPath[0]].count;
-    const samePath = task.targetPath[0] === task.targetPath[1];
-    const t2Count = (isOhne && samePath) ? colorByName[task.targetPath[1]].count - 1 : colorByName[task.targetPath[1]].count;
     const totalAfter = isOhne ? tot - 1 : tot;
-    const expectedPerc = (t1Count / tot) * (t2Count / totalAfter) * 100;
 
+    // Helper: für einen gegebenen Pfad [first, second] die beiden Bruch-Zähler ausrechnen.
+    const drawCounts = (path) => {
+        const first = colorByName[path[0]].count;
+        const second = (isOhne && path[0] === path[1]) ? first - 1 : colorByName[path[1]].count;
+        return [first, second];
+    };
+
+    if (!isMulti) {
+        const [t1Count, t2Count] = drawCounts(task.targetPath);
+        const expectedPerc = (t1Count / tot) * (t2Count / totalAfter) * 100;
+        return {
+            id: Math.random(), diff: 'pruefung', taskType: 'direkt',
+            examLabel: task.label,
+            text: task.text,
+            type: task.type,
+            draw1: { top: t1Count, bot: tot },
+            draw2: { top: t2Count, bot: totalAfter },
+            resultPerc: _r2(expectedPerc),
+            explanation: `${task.label}\n\n1. Zug (${task.targetPath[0]}): ${t1Count}/${tot}\n2. Zug (${task.targetPath[1]}): ${t2Count}/${totalAfter}\nPfadregel: ${t1Count}/${tot} · ${t2Count}/${totalAfter} ≈ ${_r2(expectedPerc).toString().replace('.',',')} %`,
+            tree: buildProbabilityTree(task.treeColors, isOhne, task.targetPath, tot),
+            sigKey: task.sigKey
+        };
+    }
+
+    // reihenfolge: zwei Pfade addieren
+    const [a1, a2] = drawCounts(task.targetPaths.A);
+    const [b1, b2] = drawCounts(task.targetPaths.B);
+    const pa = (a1 / tot) * (a2 / totalAfter);
+    const pb = (b1 / tot) * (b2 / totalAfter);
+    const expectedPerc = (pa + pb) * 100;
     return {
-        id: Math.random(), diff: 'pruefung',
+        id: Math.random(), diff: 'pruefung', taskType: 'reihenfolge',
         examLabel: task.label,
         text: task.text,
         type: task.type,
-        draw1: { top: t1Count, bot: tot },
-        draw2: { top: t2Count, bot: totalAfter },
-        resultPerc: Math.round(expectedPerc * 100) / 100,
-        explanation: `${task.label}\n\n1. Zug (${task.targetPath[0]}): ${t1Count}/${tot}\n2. Zug (${task.targetPath[1]}): ${t2Count}/${totalAfter}\nPfadregel: ${t1Count}/${tot} · ${t2Count}/${totalAfter} ≈ ${(Math.round(expectedPerc * 100) / 100).toString().replace('.',',')} %`,
-        tree: buildProbabilityTree(task.treeColors, isOhne, task.targetPath, tot),
+        draw1: { top: a1, bot: tot },
+        draw2: { top: a2, bot: totalAfter },
+        draw1B: { top: b1, bot: tot },
+        draw2B: { top: b2, bot: totalAfter },
+        resultPerc: _r2(expectedPerc),
+        explanation: `${task.label}\n\nPfad A (${task.targetPaths.A[0]} → ${task.targetPaths.A[1]}): ${a1}/${tot} · ${a2}/${totalAfter}\nPfad B (${task.targetPaths.B[0]} → ${task.targetPaths.B[1]}): ${b1}/${tot} · ${b2}/${totalAfter}\nSumme · 100: ≈ ${_r2(expectedPerc).toString().replace('.',',')} %`,
+        tree: buildProbabilityTree(task.treeColors, isOhne, task.targetPaths, tot),
         sigKey: task.sigKey
     };
 };
 
-const genWahrscheinlichkeitProblem = (diff) => {
-    if (diff === 'leicht') {
-        // — MIT Zurücklegen — viele Szenarien.
-        const scenarios = ['gluecksrad', 'spinner', 'lostrommel', 'wuerfelchen'];
+// Helfer: rundet auf 2 Nachkommastellen für resultPerc.
+const _r2 = (x) => Math.round(x * 100) / 100;
+const _capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+
+// Generiert eine "Leicht"-Aufgabe (MIT Zurücklegen, 2 Farben + Rest).
+// Sicherheit: rest ≥ 2, damit kein "1 haben"-Numerus-Problem entsteht.
+const _genLeicht = () => {
+    const scenarios = [
+        { sc: 'gluecksrad', text: (t, c1, n1, c2, n2, r) => `Ein Glücksrad hat ${t} gleich große Felder. Davon sind ${n1} Felder ${c1}, ${n2} Felder ${c2} und ${r} Felder haben andere Farben. Das Rad wird zweimal gedreht. Wie groß ist die Wahrscheinlichkeit, erst ${c1} und dann ${c2} zu drehen?` },
+        { sc: 'drehrad', text: (t, c1, n1, c2, n2, r) => `Auf einem Drehrad mit ${t} gleich großen Sektoren sind ${n1} Sektoren ${c1}, ${n2} Sektoren ${c2} und ${r} Sektoren in einer anderen Farbe. Das Rad wird zweimal gedreht. Wie groß ist die Wahrscheinlichkeit, dass die erste Drehung ${c1} und die zweite Drehung ${c2} zeigt?` },
+        { sc: 'lostrommel-mit', text: (t, c1, n1, c2, n2, r) => `In einer Lostrommel liegen ${t} gleich aussehende Lose: ${n1} ${c1}e Lose, ${n2} ${c2}e Lose und ${r} Lose in anderen Farben. Nach jedem Zug wird das Los wieder zurückgelegt. Wie groß ist die Wahrscheinlichkeit, beim ersten Zug ein ${c1}es und beim zweiten Zug ein ${c2}es Los zu ziehen?` },
+        { sc: 'farbwuerfel', text: (t, c1, n1, c2, n2, r) => `Ein Spielwürfel hat ${t} farbig gestaltete Seiten: ${n1} Seiten sind ${c1}, ${n2} Seiten sind ${c2} und ${r} Seiten haben andere Farben. Der Würfel wird zweimal geworfen. Wie groß ist die Wahrscheinlichkeit, dass beim ersten Wurf ${c1} und beim zweiten Wurf ${c2} oben liegt?` }
+    ];
+    const sc = _pick(scenarios);
+
+    const colors = ['rot', 'blau', 'grün', 'gelb'];
+    const c1 = _pick(colors);
+    const c2 = _pick(colors.filter(c => c !== c1));
+    const total = _pick([8, 10, 12, 15, 16, 20]);              // total ≥ 8, damit Rest ≥ 2 sicher möglich
+    const count1 = Math.floor(Math.random() * 3) + 2;          // 2..4
+    let count2 = Math.floor(Math.random() * 3) + 2;             // 2..4
+    // Sicherstellen, dass rest ≥ 2 bleibt (für saubere Pluralform "X haben andere Farben").
+    if (count1 + count2 > total - 2) count2 = Math.max(2, total - count1 - 2);
+    const rest = total - count1 - count2;
+    const expectedPerc = ((count1/total) * (count2/total)) * 100;
+    const treeColors = [
+        { id: c1, count: count1, hex: colorMap[c1] },
+        { id: c2, count: count2, hex: colorMap[c2] },
+        { id: 'Rest', count: rest, hex: colorMap['Rest'] }
+    ];
+
+    return {
+        id: Math.random(), diff: 'leicht', text: sc.text(total, c1, count1, c2, count2, rest),
+        type: 'mit',
+        draw1: { top: count1, bot: total },
+        draw2: { top: count2, bot: total },
+        resultPerc: _r2(expectedPerc),
+        explanation: `Mit Zurücklegen — der Nenner bleibt gleich.\n1. Zug (${c1}): ${count1}/${total}\n2. Zug (${c2}): ${count2}/${total}\nPfadregel: ${count1}/${total} · ${count2}/${total} = ${count1 * count2}/${total * total} ≈ ${_r2(expectedPerc).toString().replace('.',',')} %`,
+        tree: buildProbabilityTree(treeColors, false, [c1, c2], total),
+        scenarioKey: `leicht-${sc.sc}`,
+        sigKey: `leicht-${sc.sc}-${total}-${c1}-${count1}-${c2}-${count2}`
+    };
+};
+
+// Generiert eine "Mittel"-Aufgabe — Mix aus MIT (40%) und OHNE Zurücklegen (60%).
+// Target-Pfad variiert: mal a-a (zweimal dieselbe Farbe), mal a-b (verschiedene).
+// Sätze immer mit konkretem Subjekt, damit kein "klebt einen ein"-Geschwurbel entsteht.
+const _genMittel = () => {
+    const useMit = Math.random() < 0.4;
+
+    if (useMit) {
+        // MIT Zurücklegen — 2 Hauptfarben + Rest. Rest ≥ 2 für saubere Pluralform.
+        const scenarios = [
+            { sc: 'gluecksrad-m', text: (t, c1, n1, c2, n2, r) => `An einem Glücksrad sind ${t} gleich große Felder: ${n1} ${c1}e Felder, ${n2} ${c2}e Felder und ${r} Felder in anderen Farben. Das Rad wird zweimal gedreht. Wie groß ist die Wahrscheinlichkeit, dass beide Drehungen ein ${c1}es Feld zeigen?`, sameColor: true },
+            { sc: 'drehrad-m', text: (t, c1, n1, c2, n2, r) => `Ein Drehrad hat ${t} gleich große Sektoren: ${n1} ${c1}e Sektoren, ${n2} ${c2}e Sektoren und ${r} Sektoren in anderen Farben. Du drehst zweimal nacheinander. Wie groß ist die Wahrscheinlichkeit, beim ersten Mal ${c1} und beim zweiten Mal ${c2} zu treffen?`, sameColor: false },
+            { sc: 'farbwuerfel-m', text: (t, c1, n1, c2, n2, r) => `Ein Würfel hat ${t} Seiten in verschiedenen Farben: ${n1} Seiten sind ${c1}, ${n2} Seiten sind ${c2} und ${r} Seiten haben andere Farben. Der Würfel wird zweimal geworfen. Wie groß ist die Wahrscheinlichkeit, zweimal ${c1} zu werfen?`, sameColor: true },
+            { sc: 'lostrommel-m', text: (t, c1, n1, c2, n2, r) => `In einer Lostrommel liegen ${t} Lose: ${n1} ${c1}e Lose, ${n2} ${c2}e Lose und ${r} Lose in anderen Farben. Nach jedem Zug wird das Los wieder zurückgelegt. Wie groß ist die Wahrscheinlichkeit, beim ersten Zug ein ${c1}es und beim zweiten Zug ein ${c2}es Los zu ziehen?`, sameColor: false }
+        ];
         const sc = _pick(scenarios);
 
         const colors = ['rot', 'blau', 'grün', 'gelb'];
         const c1 = _pick(colors);
         const c2 = _pick(colors.filter(c => c !== c1));
-
-        const total = _pick([6, 8, 10, 12, 15, 16, 20]);
-        const count1 = Math.floor(Math.random() * 3) + 2;          // 2..4
-        let count2 = Math.floor(Math.random() * 3) + 2;             // 2..4
-        if (count1 + count2 >= total) count2 = total - count1 - 1;
+        const total = _pick([8, 10, 12, 15, 16, 20]);
+        const count1 = Math.floor(Math.random() * 3) + 3;       // 3..5
+        let count2 = Math.floor(Math.random() * 3) + 2;         // 2..4
+        if (count1 + count2 > total - 2) count2 = Math.max(2, total - count1 - 2);
         const rest = total - count1 - count2;
 
-        const expectedPerc = ((count1/total) * (count2/total)) * 100;
+        const targetIs2nd = sc.sameColor ? c1 : c2;
+        const targetCount2 = sc.sameColor ? count1 : count2;
+        const expectedPerc = ((count1/total) * (targetCount2/total)) * 100;
         const treeColors = [
             { id: c1, count: count1, hex: colorMap[c1] },
             { id: c2, count: count2, hex: colorMap[c2] },
             { id: 'Rest', count: rest, hex: colorMap['Rest'] }
         ];
 
-        let questionText;
-        if (sc === 'gluecksrad') {
-            questionText = `Ein Glücksrad hat ${total} gleich große Felder. Davon sind ${count1} ${c1}, ${count2} ${c2} und der Rest hat andere Farben. Das Rad wird zweimal gedreht. Wie groß ist die Wahrscheinlichkeit, dass erst ${c1} und dann ${c2} gedreht wird?`;
-        } else if (sc === 'spinner') {
-            questionText = `Ein Spielspinner zeigt ${total} gleichberechtigte Symbole: ${count1} ${c1}e Sterne, ${count2} ${c2}e Sterne und ${rest} Sterne in anderen Farben. Du drehst zweimal — wie groß ist die Wahrscheinlichkeit, erst ${c1} und dann ${c2} zu treffen?`;
-        } else if (sc === 'lostrommel') {
-            questionText = `In einer Lostrommel liegen ${total} gleich große Lose: ${count1} ${c1}e, ${count2} ${c2}e und ${rest} andere. Nach jedem Zug wird das Los wieder zurückgelegt. Wie groß ist die Wahrscheinlichkeit, erst ein ${c1}es und dann ein ${c2}es zu ziehen?`;
-        } else {
-            questionText = `Ein Spielwürfel ist auf jeder Seite mit einer Farbe markiert (insgesamt ${total} Seiten). ${count1} sind ${c1}, ${count2} sind ${c2} und ${rest} haben andere Farben. Du würfelst zweimal — wie groß ist die Wahrscheinlichkeit, erst ${c1} und dann ${c2} zu würfeln?`;
-        }
-
         return {
-            id: Math.random(), diff, text: questionText,
+            id: Math.random(), diff: 'mittel', text: sc.text(total, c1, count1, c2, count2, rest),
             type: 'mit',
             draw1: { top: count1, bot: total },
-            draw2: { top: count2, bot: total },
-            resultPerc: Math.round(expectedPerc * 100) / 100,
-            explanation: `Mit Zurücklegen — der Nenner bleibt gleich.\n1. Zug (${c1}): ${count1}/${total}\n2. Zug (${c2}): ${count2}/${total}\nPfadregel: ${count1}/${total} · ${count2}/${total} = ${count1 * count2}/${total * total} ≈ ${(Math.round(expectedPerc * 100) / 100).toString().replace('.',',')} %`,
-            tree: buildProbabilityTree(treeColors, false, [c1, c2], total),
-            sigKey: `leicht-${sc}-${total}-${c1}-${count1}-${c2}-${count2}`
+            draw2: { top: targetCount2, bot: total },
+            resultPerc: _r2(expectedPerc),
+            explanation: `Mit Zurücklegen — der Nenner bleibt gleich.\n1. Zug (${c1}): ${count1}/${total}\n2. Zug (${targetIs2nd}): ${targetCount2}/${total}\nPfadregel: ${count1}/${total} · ${targetCount2}/${total} ≈ ${_r2(expectedPerc).toString().replace('.',',')} %`,
+            tree: buildProbabilityTree(treeColors, false, [c1, targetIs2nd], total),
+            scenarioKey: `mittel-${sc.sc}`,
+            sigKey: `mittel-${sc.sc}-${total}-${count1}-${count2}`
         };
-    } else if (diff === 'mittel') {
-        // — OHNE Zurücklegen, 2 Farben (gleicher Zug × 2).
+    } else {
+        // OHNE Zurücklegen — 2 Sorten, 60% zweimal-gleich, 40% verschieden.
+        // Jedes Szenario bringt konkretes Subjekt (Personenname) und passendes Verb mit,
+        // damit der Aufgabentext grammatikalisch sauber wird.
         const scenarios = [
-            { sc: 'gummibaerchen', name: 'Gummibärchen', cont: 'einer Tüte', verb: 'isst eines auf', adj: 'rote' },
-            { sc: 'bonbons', name: 'Bonbons', cont: 'einer Schale', verb: 'isst eines auf', adj: 'blaue' },
-            { sc: 'karten', name: 'Karten', cont: 'einem Stapel', verb: 'legt eine zur Seite', adj: 'rote' },
-            { sc: 'kugeln', name: 'Kugeln', cont: 'einer Urne', verb: 'legt eine zur Seite', adj: 'grüne' },
-            { sc: 'lose', name: 'Lose', cont: 'einer Lostrommel', verb: 'behält eines', adj: 'gelbe' },
-            { sc: 'plaettchen', name: 'Plättchen', cont: 'einem Beutel', verb: 'legt eines zur Seite', adj: 'blaue' }
+            { sc: 'gummibaerchen', name: 'Gummibärchen', container: 'einer Tüte', subject: 'Lena', action: 'nimmt nacheinander zwei Gummibärchen heraus und isst sie', adj1: 'rote', adj2: 'gelbe', col1: 'rot', col2: 'gelb' },
+            { sc: 'bonbons', name: 'Bonbons', container: 'einer Schale', subject: 'Max', action: 'nimmt nacheinander zwei Bonbons heraus und lutscht sie', adj1: 'blaue', adj2: 'grüne', col1: 'blau', col2: 'grün' },
+            { sc: 'karten', name: 'Karten', container: 'einem Stapel', subject: 'Tim', action: 'zieht nacheinander zwei Karten und legt sie zur Seite', adj1: 'rote', adj2: 'schwarze', col1: 'rot', col2: 'Andere' },
+            { sc: 'kugeln', name: 'Kugeln', container: 'einer Urne', subject: 'Anna', action: 'nimmt nacheinander zwei Kugeln aus der Urne, ohne sie zurückzulegen', adj1: 'grüne', adj2: 'blaue', col1: 'grün', col2: 'blau' },
+            { sc: 'lose', name: 'Lose', container: 'einer Lostrommel', subject: 'Paul', action: 'zieht nacheinander zwei Lose und behält sie', adj1: 'gelbe', adj2: 'rote', col1: 'gelb', col2: 'rot' },
+            { sc: 'plaettchen', name: 'Plättchen', container: 'einem Beutel', subject: 'Mia', action: 'nimmt nacheinander zwei Plättchen aus dem Beutel, ohne sie zurückzulegen', adj1: 'blaue', adj2: 'gelbe', col1: 'blau', col2: 'gelb' },
+            { sc: 'murmeln', name: 'Murmeln', container: 'einem Säckchen', subject: 'Jonas', action: 'nimmt nacheinander zwei Murmeln aus dem Säckchen, ohne sie zurückzulegen', adj1: 'rote', adj2: 'grüne', col1: 'rot', col2: 'grün' },
+            { sc: 'aufkleber', name: 'Aufkleber', container: 'einer Tüte', subject: 'Hanna', action: 'zieht nacheinander zwei Aufkleber und klebt sie ein', adj1: 'gelbe', adj2: 'blaue', col1: 'gelb', col2: 'blau' }
         ];
         const s = _pick(scenarios);
         const total = Math.floor(Math.random() * 8) + 6;            // 6..13
         const count1 = Math.floor(Math.random() * 4) + 2;           // 2..5
-        const adjBase = s.adj.replace(/e$/, '');                    // "rote"→"rot" für colorMap
 
-        const questionText = `In ${s.cont} sind ${count1} ${s.adj} und ${total - count1} andersfarbige ${s.name} (insgesamt ${total}). Es wird ein ${s.name.replace(/n$/, '').replace(/e$/, '')} blind herausgenommen — der Schüler ${s.verb}. Anschließend wird ein zweites entnommen. Wie groß ist die Wahrscheinlichkeit, dass beide ${s.adj} sind?`;
-        const expectedPerc = ((count1/total) * ((count1-1)/(total-1))) * 100;
-        const treeColors = [
-            { id: s.adj, count: count1, hex: colorMap[adjBase] || colorMap['rot'] },
-            { id: 'Andere', count: total - count1, hex: colorMap['Andere'] }
-        ];
+        const twoSame = Math.random() < 0.6;
+        // Prädikatives Adjektiv ohne Endung: "rote" → "rot" (für "dass beide rot sind").
+        const pred1 = s.adj1.replace(/e$/, '');
+        const pred2 = s.adj2.replace(/e$/, '');
 
-        return {
-            id: Math.random(), diff, text: questionText,
-            type: 'ohne',
-            draw1: { top: count1, bot: total },
-            draw2: { top: count1 - 1, bot: total - 1 },
-            resultPerc: Math.round(expectedPerc * 100) / 100,
-            explanation: `Ohne Zurücklegen — beim 2. Zug ist eines weniger insgesamt UND eines weniger der gefragten Farbe.\n1. Zug (${s.adj}): ${count1}/${total}\n2. Zug (${s.adj}): ${count1-1}/${total-1}\nPfadregel: ${count1}/${total} · ${count1-1}/${total-1} ≈ ${(Math.round(expectedPerc * 100) / 100).toString().replace('.',',')} %`,
-            tree: buildProbabilityTree(treeColors, true, [s.adj, s.adj], total),
-            sigKey: `mittel-${s.sc}-${total}-${count1}`
-        };
-    } else if (diff === 'schwer') {
-        // — OHNE Zurücklegen, 3 Farben (verschiedene Zug × 2).
-        const colorTriples = [
-            { a: 'rot',  b: 'blau', c: 'grün' },
-            { a: 'rot',  b: 'gelb', c: 'blau' },
-            { a: 'blau', b: 'grün', c: 'gelb' },
-            { a: 'gelb', b: 'rot',  c: 'grün' }
-        ];
-        const t = _pick(colorTriples);
-
-        const containers = [
-            'In einer Urne liegen',
-            'In einem Sack befinden sich',
-            'Im Beutel sind',
-            'In der Lostrommel liegen'
-        ];
-        const cont = _pick(containers);
-
-        const total = Math.floor(Math.random() * 8) + 12;           // 12..19
-        const countA = Math.floor(Math.random() * 4) + 4;           // 4..7
-        const countB = Math.floor(Math.random() * 4) + 3;           // 3..6
-        const countC = total - countA - countB;
-        if (countC < 2) {
-            // ungeeignete Verteilung → einmal neu (Rekursion)
-            return genWahrscheinlichkeitProblem('schwer');
+        let questionText, draw2, targetPath, expectedPerc;
+        if (twoSame) {
+            if (count1 < 2) return _genMittel();
+            questionText = `In ${s.container} sind ${count1} ${s.adj1} und ${total - count1} ${s.adj2} ${s.name} (insgesamt ${total}). ${s.subject} ${s.action}. Wie groß ist die Wahrscheinlichkeit, dass beide ${pred1} sind?`;
+            draw2 = { top: count1 - 1, bot: total - 1 };
+            targetPath = [s.adj1, s.adj1];
+            expectedPerc = ((count1/total) * ((count1-1)/(total-1))) * 100;
+        } else {
+            const count2 = total - count1;
+            if (count2 < 1) return _genMittel();
+            questionText = `In ${s.container} sind ${count1} ${s.adj1} und ${count2} ${s.adj2} ${s.name} (insgesamt ${total}). ${s.subject} ${s.action}. Wie groß ist die Wahrscheinlichkeit, dass das erste ${pred1} und das zweite ${pred2} ist?`;
+            draw2 = { top: count2, bot: total - 1 };
+            targetPath = [s.adj1, s.adj2];
+            expectedPerc = ((count1/total) * (count2/(total-1))) * 100;
         }
 
-        const questionText = `${cont} ${total} Kugeln. Davon sind ${countA} ${t.a}e, ${countB} ${t.b}e und ${countC} ${t.c}e Kugeln. Du ziehst zwei Kugeln nacheinander OHNE Zurücklegen. Wie groß ist die Wahrscheinlichkeit, dass du erst eine ${t.a}e und dann eine ${t.b}e Kugel ziehst?`;
-        const expectedPerc = ((countA/total) * (countB/(total-1))) * 100;
         const treeColors = [
-            { id: t.a.charAt(0).toUpperCase()+t.a.slice(1), count: countA, hex: colorMap[t.a] },
-            { id: t.b.charAt(0).toUpperCase()+t.b.slice(1), count: countB, hex: colorMap[t.b] },
-            { id: t.c.charAt(0).toUpperCase()+t.c.slice(1), count: countC, hex: colorMap[t.c] }
+            { id: s.adj1, count: count1, hex: colorMap[s.col1] || colorMap['rot'] },
+            { id: s.adj2, count: total - count1, hex: colorMap[s.col2] || colorMap['Andere'] }
         ];
 
-        const aLabel = t.a.charAt(0).toUpperCase()+t.a.slice(1);
-        const bLabel = t.b.charAt(0).toUpperCase()+t.b.slice(1);
+        return {
+            id: Math.random(), diff: 'mittel', text: questionText,
+            type: 'ohne',
+            draw1: { top: count1, bot: total },
+            draw2,
+            resultPerc: _r2(expectedPerc),
+            explanation: `Ohne Zurücklegen — der Nenner wird um 1 kleiner.\n1. Zug: ${count1}/${total}\n2. Zug: ${draw2.top}/${draw2.bot}\nPfadregel: ${count1}/${total} · ${draw2.top}/${draw2.bot} ≈ ${_r2(expectedPerc).toString().replace('.',',')} %`,
+            tree: buildProbabilityTree(treeColors, true, targetPath, total),
+            scenarioKey: `mittel-${s.sc}-${twoSame ? 'aa' : 'ab'}`,
+            sigKey: `mittel-${s.sc}-${total}-${count1}-${twoSame ? 'aa' : 'ab'}`
+        };
+    }
+};
+
+// "Schwer"-Aufgaben — 25% MIT, 75% OHNE Zurücklegen. Sechs sehr unterschiedliche
+// Sachkontexte mit eigener Sprache (Skirennen, Lostrommel, Krapfen, Reagenzgläser,
+// Schulkantine, Kartenstapel), damit sich die Aufgaben nicht mehr "alle gleich" anhören.
+// Generiert eine "Schwer"-Aufgabe vom Typ "reihenfolge" (beliebige Reihenfolge).
+// Schüler:in muss zwei Pfade A → B und B → A markieren und ihre Wahrscheinlichkeiten
+// addieren. Sachkontexte: Krapfen, Lostrommel, Reagenzgläser etc.
+const _genSchwer_reihenfolge = () => {
+    const scenarios = [
+        {
+            sc: 'krapfen-r', build: () => {
+                const total = _pick([20, 24, 30]);
+                const a = Math.floor(Math.random() * 4) + 6;   // 6..9
+                const b = Math.floor(Math.random() * 4) + 6;   // 6..9
+                const c = total - a - b;
+                if (c < 2 || c > 8) return null;
+                const text = `Bei einer Faschingsveranstaltung werden ${total} Krapfen verkauft: ${a} mit Aprikose (A), ${b} mit Erdbeere (E) und ${c} mit Senf (S). Zwei Kunden kaufen nacheinander je einen Krapfen. Wie groß ist die Wahrscheinlichkeit, dass einer einen Aprikose- und der andere einen Erdbeer-Krapfen bekommt (Reihenfolge egal)?`;
+                return { total, a, b, c, text,
+                    treeColors: [{ id: 'A', count: a, hex: '#f59e0b' }, { id: 'E', count: b, hex: '#ef4444' }, { id: 'S', count: c, hex: '#94a3b8' }],
+                    targetPaths: { A: ['A', 'E'], B: ['E', 'A'] },
+                    pathLabels: ['Aprikose', 'Erdbeere']
+                };
+            }
+        },
+        {
+            sc: 'lose-r', build: () => {
+                const total = _pick([20, 25, 30]);
+                const h = _pick([2, 3]);                       // Hauptgewinne
+                const k = _pick([5, 6, 7, 8]);                  // Kleingewinne
+                const n = total - h - k;                        // Nieten
+                if (n < 8) return null;
+                const text = `In einer Lostrommel sind ${total} Lose: ${h} Hauptgewinne (H), ${k} Kleingewinne (K) und ${n} Nieten (N). Zwei Lose werden nacheinander gezogen, ohne sie zurückzulegen. Wie groß ist die Wahrscheinlichkeit, dass genau ein Kleingewinn und eine Niete gezogen werden (Reihenfolge egal)?`;
+                return { total, text,
+                    treeColors: [{ id: 'H', count: h, hex: '#f59e0b' }, { id: 'K', count: k, hex: '#10b981' }, { id: 'N', count: n, hex: '#94a3b8' }],
+                    targetPaths: { A: ['K', 'N'], B: ['N', 'K'] },
+                    pathLabels: ['Kleingewinn', 'Niete']
+                };
+            }
+        },
+        {
+            sc: 'reagenzglas-r', build: () => {
+                const total = _pick([12, 15, 18]);
+                const r = Math.floor(Math.random() * 3) + 4;    // 4..6
+                const b = Math.floor(Math.random() * 3) + 4;    // 4..6
+                const g = total - r - b;
+                if (g < 2) return null;
+                const text = `Im Chemielabor stehen ${total} Reagenzgläser mit verschiedenen Flüssigkeiten: ${r} rote (R), ${b} blaue (B) und ${g} grüne (G). Zwei Reagenzgläser werden nacheinander zufällig herausgenommen. Wie groß ist die Wahrscheinlichkeit, dass eines mit roter und eines mit blauer Flüssigkeit herausgenommen wird (Reihenfolge egal)?`;
+                return { total, text,
+                    treeColors: [{ id: 'R', count: r, hex: '#ef4444' }, { id: 'B', count: b, hex: '#3b82f6' }, { id: 'G', count: g, hex: '#10b981' }],
+                    targetPaths: { A: ['R', 'B'], B: ['B', 'R'] },
+                    pathLabels: ['rot', 'blau']
+                };
+            }
+        }
+    ];
+    const sc = _pick(scenarios);
+    const built = sc.build();
+    if (!built) return _genSchwer_reihenfolge();
+
+    const { total, text, treeColors, targetPaths, pathLabels } = built;
+    const colorByName = Object.fromEntries(treeColors.map(c => [c.id, c]));
+    // Pfad A: P_A = a1/total · a2/(total-1); Pfad B: P_B analog
+    const a1 = colorByName[targetPaths.A[0]].count;
+    const a2 = colorByName[targetPaths.A[1]].count;       // verschiedene Sorten → keine Verminderung
+    const b1 = colorByName[targetPaths.B[0]].count;
+    const b2 = colorByName[targetPaths.B[1]].count;
+    const expectedPerc = ((a1 / total) * (a2 / (total - 1)) + (b1 / total) * (b2 / (total - 1))) * 100;
+
+    return {
+        id: Math.random(), diff: 'schwer', taskType: 'reihenfolge', text,
+        type: 'ohne',
+        draw1: { top: a1, bot: total },
+        draw2: { top: a2, bot: total - 1 },
+        draw1B: { top: b1, bot: total },
+        draw2B: { top: b2, bot: total - 1 },
+        resultPerc: _r2(expectedPerc),
+        explanation: `Ohne Zurücklegen — zwei Pfade addieren.\nPfad A (${pathLabels[0]} → ${pathLabels[1]}): ${a1}/${total} · ${a2}/${total - 1}\nPfad B (${pathLabels[1]} → ${pathLabels[0]}): ${b1}/${total} · ${b2}/${total - 1}\nSumme · 100 ≈ ${_r2(expectedPerc).toString().replace('.',',')} %`,
+        tree: buildProbabilityTree(treeColors, true, targetPaths, total),
+        scenarioKey: `schwer-${sc.sc}`,
+        sigKey: `schwer-${sc.sc}-${total}-${a1}-${b1}`
+    };
+};
+
+const _genSchwer = () => {
+    // 15% reihenfolge-Aufgaben (zwei Pfade addieren), 20% mit-Zurücklegen, sonst ohne-direkt.
+    const r = Math.random();
+    if (r < 0.15) return _genSchwer_reihenfolge();
+    const useMit = r < 0.15 + 0.20;  // 0.15..0.35 → mit Zurücklegen (also 20% effektiv)
+
+    if (useMit) {
+        // MIT Zurücklegen, versteckt im Sachkontext. Jedes Label-Set bringt seine eigenen
+        // Hex-Farben mit, damit die Baumknoten passend gefärbt sind (statt grauem Fallback).
+        const scMit = [
+            { sc: 'gluecksrad-schwer', build: () => {
+                const total = _pick([10, 12, 15, 16, 20]);
+                const a = Math.floor(Math.random() * 4) + 3;   // 3..6
+                const b = Math.floor(Math.random() * 4) + 3;   // 3..6
+                const c = total - a - b;
+                if (c < 2) return null;
+                // Label-Sets mit eindeutigen Anfangsbuchstaben (für Baum-Anzeige).
+                const labelSet = _pick([
+                    { labels: ['Stern', 'Mond', 'Herz'], hexes: ['#f59e0b', '#6366f1', '#ef4444'] },
+                    { labels: ['rotes Feld', 'blaues Feld', 'gelbes Feld'], hexes: ['#ef4444', '#3b82f6', '#eab308'] },
+                    { labels: ['Apfel', 'Birne', 'Kirsche'], hexes: ['#10b981', '#fbbf24', '#ef4444'] }
+                ]);
+                const text = `Ein großes Glücksrad mit ${total} gleich großen Sektoren zeigt: ${a}× ${labelSet.labels[0]}, ${b}× ${labelSet.labels[1]} und ${c}× ${labelSet.labels[2]}. Es wird zweimal hintereinander gedreht. Wie groß ist die Wahrscheinlichkeit, dass erst ${labelSet.labels[0]} und dann ${labelSet.labels[1]} erscheint?`;
+                return { total, a, b, c, text, labels: labelSet.labels, hexes: labelSet.hexes, draw1: {top: a, bot: total}, draw2: {top: b, bot: total}, target: [labelSet.labels[0], labelSet.labels[1]] };
+            }},
+            { sc: 'wuerfel-3farben', build: () => {
+                const total = 12;  // Würfel mit 12 farbigen Flächen
+                const a = _pick([3, 4, 5]);
+                const b = _pick([3, 4, 5]);
+                const c = total - a - b;
+                if (c < 2) return null;
+                const labels = ['rot', 'blau', 'grün'];
+                const hexes = [colorMap.rot, colorMap.blau, colorMap.grün];
+                const text = `Ein spezieller 12-seitiger Würfel hat seine Flächen in drei Farben gefärbt: ${a}× ${labels[0]}, ${b}× ${labels[1]} und ${c}× ${labels[2]}. Du würfelst zweimal nacheinander. Wie groß ist die Wahrscheinlichkeit, beim ersten Wurf ${labels[0]} und beim zweiten Wurf ${labels[1]} zu würfeln?`;
+                return { total, a, b, c, text, labels, hexes, draw1: {top: a, bot: total}, draw2: {top: b, bot: total}, target: [_capitalize(labels[0]), _capitalize(labels[1])] };
+            }}
+        ];
+        const sc = _pick(scMit);
+        const built = sc.build();
+        if (!built) return _genSchwer();
+        const { total, a, b, c, text, hexes, draw1, draw2, target } = built;
+        const expectedPerc = (a / total) * (b / total) * 100;
+        const treeColors = [
+            { id: target[0], count: a, hex: hexes[0] },
+            { id: target[1], count: b, hex: hexes[1] },
+            { id: built.labels[2], count: c, hex: hexes[2] }
+        ];
 
         return {
-            id: Math.random(), diff, text: questionText,
-            type: 'ohne',
-            draw1: { top: countA, bot: total },
-            draw2: { top: countB, bot: total - 1 },
-            resultPerc: Math.round(expectedPerc * 100) / 100,
-            explanation: `Ohne Zurücklegen.\n1. Zug (${t.a}): ${countA}/${total}\n2. Zug (${t.b}): ${countB}/${total-1}\nPfadregel: ${countA}/${total} · ${countB}/${total-1} ≈ ${(Math.round(expectedPerc * 100) / 100).toString().replace('.',',')} %`,
-            tree: buildProbabilityTree(treeColors, true, [aLabel, bLabel], total),
-            sigKey: `schwer-${t.a}${t.b}${t.c}-${total}-${countA}-${countB}`
+            id: Math.random(), diff: 'schwer', text,
+            type: 'mit',
+            draw1, draw2,
+            resultPerc: _r2(expectedPerc),
+            explanation: `Mit Zurücklegen — Nenner bleibt gleich.\n1. Zug: ${draw1.top}/${draw1.bot}\n2. Zug: ${draw2.top}/${draw2.bot}\nPfadregel: ${draw1.top}/${draw1.bot} · ${draw2.top}/${draw2.bot} ≈ ${_r2(expectedPerc).toString().replace('.',',')} %`,
+            tree: buildProbabilityTree(treeColors, false, [target[0], target[1]], total),
+            scenarioKey: `schwer-${sc.sc}`,
+            sigKey: `schwer-${sc.sc}-${total}-${a}-${b}`
         };
-    } else {
-        // — Prüfungsaufgaben: Fallback (zufällige). Der Trainer-Code ruft normalerweise
-        //   buildExamProblem direkt mit einem konkreten Index auf.
-        const task = _pick(wahrscheinlichkeitsExamTasks);
-        return buildExamProblem(task);
     }
+
+    // OHNE Zurücklegen — sechs Sachkontexte mit eigener Sprache.
+    const scOhne = [
+        { sc: 'skirennen', build: () => {
+            const total = _pick([10, 12, 14, 15]);
+            const ch = _pick([2, 3, 4]);                       // Schweizer
+            const de = _pick([3, 4, 5]);                       // Deutsche
+            const at = total - ch - de;                         // Österreicher
+            if (at < 2) return null;
+            // Plural-Form (für "beide X") und Singular-Form (für "ein X und ein Y") sauber trennen.
+            const nationen = [
+                { plural: 'Schweizer', singular: 'Schweizer', count: ch },
+                { plural: 'Deutsche', singular: 'Deutscher', count: de },
+                { plural: 'Österreicher', singular: 'Österreicher', count: at }
+            ];
+            const names = nationen.map(n => n.plural);
+            const counts = [ch, de, at];
+            // Zufälliger Target-Pfad: gleich oder verschieden.
+            const sameType = Math.random() < 0.5;
+            let i1, i2;
+            if (sameType) { i1 = Math.floor(Math.random() * 3); i2 = i1; }
+            else { i1 = Math.floor(Math.random() * 3); do { i2 = Math.floor(Math.random() * 3); } while (i2 === i1); }
+            if (counts[i1] < (sameType ? 2 : 1)) return null;
+            const text = sameType
+                ? `Bei einem Skirennen starten ${total} Läufer: ${ch} Schweizer (CH), ${de} Deutsche (DE) und ${at} Österreicher (AT). Die Startreihenfolge wird zufällig ausgelost. Wie groß ist die Wahrscheinlichkeit, dass die ersten beiden Starter beide ${nationen[i1].plural} sind?`
+                : `Bei einem Skirennen starten ${total} Läufer: ${ch} Schweizer (CH), ${de} Deutsche (DE) und ${at} Österreicher (AT). Die Startreihenfolge wird zufällig ausgelost. Wie groß ist die Wahrscheinlichkeit, dass der erste Starter ein ${nationen[i1].singular} und der zweite Starter ein ${nationen[i2].singular} ist?`;
+            return { total, counts, names, i1, i2, sameType, text, hexes: ['#dc2626', '#1e293b', '#ef4444'] };
+        }},
+        { sc: 'lostrommel-schwer', build: () => {
+            const total = _pick([20, 25, 30, 50]);
+            const haupt = _pick([1, 2, 3]);
+            const klein = _pick([4, 5, 6, 7]);
+            const niete = total - haupt - klein;
+            if (niete < 5) return null;
+            const types = [['Hauptgewinn', 'Hauptgewinne'], ['Kleingewinn', 'Kleingewinne'], ['Niete', 'Nieten']];
+            const counts = [haupt, klein, niete];
+            // In dieser Aufgabe meistens "zwei Nieten" oder "zwei Kleingewinne"
+            const i = Math.random() < 0.7 ? 2 : 1;  // meistens Nieten (Pos 2)
+            if (counts[i] < 2) return null;
+            const text = `In einer Lostrommel sind ${total} Lose: ${haupt} ${types[0][haupt === 1 ? 0 : 1]} (H), ${klein} ${types[1][1]} (K) und ${niete} ${types[2][1]} (N). Es werden nacheinander zwei Lose gezogen, ohne ein gezogenes Los zurückzulegen. Wie groß ist die Wahrscheinlichkeit, dass beide Lose ${types[i][1]} sind?`;
+            return { total, counts, names: ['Hauptgewinn', 'Kleingewinn', 'Niete'], i1: i, i2: i, sameType: true, text, hexes: ['#f59e0b', '#10b981', '#94a3b8'] };
+        }},
+        { sc: 'krapfen', build: () => {
+            const total = _pick([15, 18, 20, 24]);
+            const apri = Math.floor(Math.random() * 4) + 5;    // 5..8
+            const erd = Math.floor(Math.random() * 4) + 5;     // 5..8
+            const senf = total - apri - erd;
+            if (senf < 2 || senf > 6) return null;
+            const counts = [apri, erd, senf];
+            const names = ['Aprikose', 'Erdbeere', 'Senf'];
+            // Zufälliger Target-Pfad
+            const r = Math.random();
+            let i1, i2, sameType;
+            if (r < 0.4) { i1 = 0; i2 = 0; sameType = true; }
+            else if (r < 0.7) { i1 = 1; i2 = 1; sameType = true; }
+            else { i1 = 0; i2 = 1; sameType = false; }
+            if (counts[i1] < (sameType ? 2 : 1)) return null;
+            const text = sameType
+                ? `Bei einer Faschingsveranstaltung werden ${total} äußerlich nicht unterscheidbare Krapfen verkauft. Davon sind ${apri} mit Aprikosenmarmelade (A), ${erd} mit Erdbeermarmelade (E) und ${senf} mit Senf (S) gefüllt. Zwei Kunden kaufen nacheinander je einen Krapfen. Berechne die Wahrscheinlichkeit, dass beide einen Krapfen mit ${names[i1]} bekommen.`
+                : `Bei einer Faschingsveranstaltung werden ${total} äußerlich nicht unterscheidbare Krapfen verkauft. Davon sind ${apri} mit Aprikosenmarmelade (A), ${erd} mit Erdbeermarmelade (E) und ${senf} mit Senf (S) gefüllt. Zwei Kunden kaufen nacheinander je einen Krapfen. Berechne die Wahrscheinlichkeit, dass der erste Kunde einen Krapfen mit ${names[i1]} und der zweite einen Krapfen mit ${names[i2]} bekommt.`;
+            return { total, counts, names, i1, i2, sameType, text, hexes: ['#f59e0b', '#ef4444', '#94a3b8'] };
+        }},
+        { sc: 'reagenzglas', build: () => {
+            const total = _pick([12, 15, 18, 20]);
+            const a = Math.floor(Math.random() * 4) + 4;       // 4..7
+            const b = Math.floor(Math.random() * 4) + 3;       // 3..6
+            const c = total - a - b;
+            if (c < 2) return null;
+            // Labels mit eindeutigen Anfangsbuchstaben (für Baum-Anzeige).
+            const labelSet = _pick([
+                { names: ['rote', 'blaue', 'grüne'], cols: ['rot', 'blau', 'grün'] },
+                { names: ['gelbe', 'lila', 'türkise'], cols: ['gelb', 'Andere', 'grün'] }
+            ]);
+            const counts = [a, b, c];
+            const sameType = Math.random() < 0.5;
+            let i1, i2;
+            if (sameType) { i1 = Math.floor(Math.random() * 2); i2 = i1; }
+            else { i1 = 0; i2 = 1; }
+            if (counts[i1] < (sameType ? 2 : 1)) return null;
+            const text = `In einem Schul-Chemielabor stehen ${total} äußerlich gleiche Reagenzgläser: ${a} enthalten eine ${labelSet.names[0]}, ${b} eine ${labelSet.names[1]} und ${c} eine ${labelSet.names[2]} Flüssigkeit. Zwei Reagenzgläser werden nacheinander zufällig herausgenommen. Wie groß ist die Wahrscheinlichkeit, ${sameType ? `dass beide ${labelSet.names[i1]} Flüssigkeit enthalten` : `dass das erste eine ${labelSet.names[i1]} und das zweite eine ${labelSet.names[i2]} enthält`}?`;
+            return { total, counts, names: labelSet.names, i1, i2, sameType, text, hexes: labelSet.cols.map(c => colorMap[c] || colorMap['Andere']) };
+        }},
+        { sc: 'kantine', build: () => {
+            const total = _pick([12, 15, 18, 20]);
+            const a = Math.floor(Math.random() * 4) + 4;
+            const b = Math.floor(Math.random() * 4) + 3;
+            const c = total - a - b;
+            if (c < 2) return null;
+            const counts = [a, b, c];
+            // Labels mit eindeutigen Anfangsbuchstaben (Nudeln N, Pizza P, Salat S).
+            const names = ['Nudeln', 'Pizza', 'Salat'];
+            const sameType = Math.random() < 0.6;
+            let i1, i2;
+            if (sameType) { i1 = _pick([0, 1]); i2 = i1; }
+            else { i1 = 0; i2 = 2; }
+            if (counts[i1] < (sameType ? 2 : 1)) return null;
+            const text = sameType
+                ? `In der Schulkantine sind heute noch ${total} Essensportionen übrig: ${a} mal Nudeln (N), ${b} mal Pizza (P) und ${c} mal Salat (S). Die nächsten zwei Schüler wählen zufällig (sie sehen nicht, was sie ziehen). Wie groß ist die Wahrscheinlichkeit, dass beide Schüler ${names[i1]} bekommen?`
+                : `In der Schulkantine sind heute noch ${total} Essensportionen übrig: ${a} mal Nudeln (N), ${b} mal Pizza (P) und ${c} mal Salat (S). Die nächsten zwei Schüler wählen zufällig (sie sehen nicht, was sie ziehen). Wie groß ist die Wahrscheinlichkeit, dass der erste Schüler ${names[i1]} und der zweite ${names[i2]} bekommt?`;
+            return { total, counts, names, i1, i2, sameType, text, hexes: ['#f59e0b', '#dc2626', '#10b981'] };
+        }},
+        { sc: 'kartenstapel', build: () => {
+            const total = _pick([12, 15, 18, 20]);
+            const a = Math.floor(Math.random() * 4) + 4;
+            const b = Math.floor(Math.random() * 4) + 3;
+            const c = total - a - b;
+            if (c < 2) return null;
+            const counts = [a, b, c];
+            // Labels mit eindeutigen Anfangsbuchstaben (Stern S, Mond M, Herz H).
+            const names = ['Stern', 'Mond', 'Herz'];
+            const sameType = Math.random() < 0.4;
+            let i1, i2;
+            if (sameType) { i1 = 0; i2 = 0; }
+            else { i1 = _pick([0, 1]); do { i2 = _pick([0, 1, 2]); } while (i2 === i1); }
+            if (counts[i1] < (sameType ? 2 : 1)) return null;
+            const text = sameType
+                ? `Ein Stapel enthält ${total} Karten: ${a} mit einem Stern (S), ${b} mit einem Mond (M) und ${c} mit einem Herz (H). Du ziehst zwei Karten nacheinander ohne Zurücklegen. Wie groß ist die Wahrscheinlichkeit, dass du zweimal einen ${names[i1]} ziehst?`
+                : `Ein Stapel enthält ${total} Karten: ${a} mit einem Stern (S), ${b} mit einem Mond (M) und ${c} mit einem Herz (H). Du ziehst zwei Karten nacheinander ohne Zurücklegen. Wie groß ist die Wahrscheinlichkeit, dass du erst einen ${names[i1]} und dann einen ${names[i2]} ziehst?`;
+            return { total, counts, names, i1, i2, sameType, text, hexes: ['#f59e0b', '#3b82f6', '#dc2626'] };
+        }}
+    ];
+
+    const sc = _pick(scOhne);
+    const built = sc.build();
+    if (!built) return _genSchwer();  // erneuter Versuch bei ungeeigneter Verteilung
+    const { total, counts, names, i1, i2, sameType, text, hexes } = built;
+
+    const count1 = counts[i1];
+    const count2After = sameType ? count1 - 1 : counts[i2];
+    const draw1 = { top: count1, bot: total };
+    const draw2 = { top: count2After, bot: total - 1 };
+    const expectedPerc = (count1 / total) * (count2After / (total - 1)) * 100;
+
+    // Baum-Markierung: target labels MÜSSEN eindeutig sein, daher fügen wir bei
+    // sameType einen Suffix für den 2. Knoten an (sonst markiert er beide Pfade).
+    const baseLabel1 = names[i1];
+    const baseLabel2 = sameType ? names[i1] : names[i2];
+    const treeColors = [
+        { id: names[0], count: counts[0], hex: hexes[0] },
+        { id: names[1], count: counts[1], hex: hexes[1] },
+        { id: names[2], count: counts[2], hex: hexes[2] }
+    ];
+
+    return {
+        id: Math.random(), diff: 'schwer', text,
+        type: 'ohne',
+        draw1, draw2,
+        resultPerc: _r2(expectedPerc),
+        explanation: `Ohne Zurücklegen.\n1. Zug (${baseLabel1}): ${count1}/${total}\n2. Zug (${baseLabel2}): ${count2After}/${total - 1}\nPfadregel: ${count1}/${total} · ${count2After}/${total - 1} ≈ ${_r2(expectedPerc).toString().replace('.',',')} %`,
+        tree: buildProbabilityTree(treeColors, true, [baseLabel1, baseLabel2], total),
+        scenarioKey: `schwer-${sc.sc}-${sameType ? 'aa' : 'ab'}`,
+        sigKey: `schwer-${sc.sc}-${total}-${i1}${i2}-${count1}`
+    };
+};
+
+const genWahrscheinlichkeitProblem = (diff) => {
+    if (diff === 'leicht') return _genLeicht();
+    if (diff === 'mittel') return _genMittel();
+    if (diff === 'schwer') return _genSchwer();
+    // Prüfungsaufgaben-Fallback (sollte nicht erreicht werden — Trainer ruft buildExamProblem direkt).
+    return buildExamProblem(_pick(wahrscheinlichkeitsExamTasks));
 };
 
 // ==========================================
@@ -1434,7 +1886,9 @@ const WahrscheinlichkeitsTrainer = () => {
     const [step, setStep] = useState(1);
     const [selectedIdentification, setSelectedIdentification] = useState(null);
 
-    const [inputs, setInputs] = useState({ t1: '', b1: '', t2: '', b2: '', perc: '' });
+    // Inputs für bis zu 4 Brüche: Pfad A (t1/b1 + t2/b2) und für reihenfolge-Aufgaben
+    // zusätzlich Pfad B (t1B/b1B + t2B/b2B). Bei "direkt"-Aufgaben werden t1B..b2B nicht genutzt.
+    const [inputs, setInputs] = useState({ t1: '', b1: '', t2: '', b2: '', t1B: '', b1B: '', t2B: '', b2B: '', perc: '' });
     const [inputFeedback, setInputFeedback] = useState({});
     const [finalFeedback, setFinalFeedback] = useState(null);
     const [showSolution, setShowSolution] = useState(false);
@@ -1444,8 +1898,11 @@ const WahrscheinlichkeitsTrainer = () => {
     const [errors, setErrors] = useState(0);
     const [tipRevealed, setTipRevealed] = useState(false);
     const [showAnim, setShowAnim] = useState(false);
-    // Letzte Aufgabe-Signatur — verhindert direkt aufeinanderfolgende identische Aufgaben.
-    const [lastSigKey, setLastSigKey] = useState(null);
+    // Letzte 2 Szenario-Keys — verhindert, dass zwei "fast identische" Aufgaben hintereinander
+    // kommen. Ein scenarioKey ist eine grobe Kategorisierung wie "schwer-skirennen-aa" oder
+    // "mittel-bonbons-ab", die NICHT die konkreten Zahlen enthält. So gilt z.B. "Bonbons mit
+    // 9 roten" und "Bonbons mit 7 roten" als äquivalent und wird blockiert.
+    const [lastScenarios, setLastScenarios] = useState([]);
     // Prüfungsaufgaben-Pool (durchgemischt) und aktueller Index — verhalten sich wie
     // bei Bruchgleichungen: Pool wird einmal gemischt, jede Aufgabe einmal durchlaufen.
     const [examShuffled, setExamShuffled] = useState([]);
@@ -1460,7 +1917,7 @@ const WahrscheinlichkeitsTrainer = () => {
 
     const generateProblem = () => {
         setLoading(true); setStep(1); setSelectedIdentification(null);
-        setInputs({ t1: '', b1: '', t2: '', b2: '', perc: '' }); setInputFeedback({});
+        setInputs({ t1: '', b1: '', t2: '', b2: '', t1B: '', b1B: '', t2B: '', b2B: '', perc: '' }); setInputFeedback({});
         setFinalFeedback(null); setShowSolution(false); setErrors(0); setTipRevealed(false);
 
         let newProb;
@@ -1477,15 +1934,20 @@ const WahrscheinlichkeitsTrainer = () => {
             newProb = buildExamProblem(pool[idx]);
             setExamIdx(idx + 1);
         } else {
-            // Generierte Aufgaben: Anti-Wiederholung über sigKey.
+            // Generierte Aufgaben: Anti-Wiederholung über scenarioKey (grobe Kategorie,
+            // ohne konkrete Zahlen). So kommen nicht zwei "fast identische" Aufgaben
+            // hintereinander, auch wenn die Zahlen leicht variieren.
             let attempts = 0;
             do {
                 newProb = genWahrscheinlichkeitProblem(difficulty);
                 attempts++;
-            } while (newProb.sigKey === lastSigKey && attempts < 8);
+            } while (lastScenarios.includes(newProb.scenarioKey) && attempts < 12);
         }
 
-        setLastSigKey(newProb.sigKey);
+        // Letzte 2 Szenarien merken (außer bei Prüfungsaufgaben, wo der Pool die Vielfalt regelt).
+        if (difficulty !== 'pruefung' && newProb.scenarioKey) {
+            setLastScenarios(prev => [newProb.scenarioKey, ...prev].slice(0, 2));
+        }
         setProblem(newProb);
         setLoading(false);
     };
@@ -1513,21 +1975,35 @@ const WahrscheinlichkeitsTrainer = () => {
         if (selectedIdentification === problem.type) { advance(2); } else { triggerError(); }
     };
 
-    const checkZug1 = () => {
-        let allCorrect = true, feedback = { ...inputFeedback };
-        if (parseInt(inputs.t1) === problem.draw1.top) feedback.t1 = 'correct'; else { feedback.t1 = 'incorrect'; allCorrect = false; }
-        if (parseInt(inputs.b1) === problem.draw1.bot) feedback.b1 = 'correct'; else { feedback.b1 = 'incorrect'; allCorrect = false; }
-        setInputFeedback(feedback);
-        if (allCorrect) advance(3); else triggerError();
+    // Step-Konstanten je nach taskType. Bei 'direkt' (Standard) hat der Trainer 5 Schritte,
+    // bei 'reihenfolge' (beliebige Reihenfolge — zwei Pfade addieren) sind es 7 Schritte.
+    const isMulti = problem?.taskType === 'reihenfolge';
+    const STEP = {
+        identify: 1,
+        zug1A: 2,
+        zug2A: 3,
+        zug1B: isMulti ? 4 : null,
+        zug2B: isMulti ? 5 : null,
+        result: isMulti ? 6 : 4,
+        done: isMulti ? 7 : 5
     };
 
-    const checkZug2 = () => {
-        let allCorrect = true, feedback = { ...inputFeedback };
-        if (parseInt(inputs.t2) === problem.draw2.top) feedback.t2 = 'correct'; else { feedback.t2 = 'incorrect'; allCorrect = false; }
-        if (parseInt(inputs.b2) === problem.draw2.bot) feedback.b2 = 'correct'; else { feedback.b2 = 'incorrect'; allCorrect = false; }
-        setInputFeedback(feedback);
-        if (allCorrect) advance(4); else triggerError();
+    // Prüft Bruch t/b gegen Sollbruch top/bot — akzeptiert alle äquivalenten Kürzungen
+    // (4/12 ≡ 2/6 ≡ 1/3). Gibt 'correct' oder 'incorrect' pro Feld zurück; bei korrektem
+    // Bruch werden BEIDE Felder als 'correct' markiert, damit der CheckCircle im
+    // MiniFractionInput erscheint.
+    const checkFracStep = (topKey, botKey, target, nextStep) => {
+        const ok = isFractionEquivalent(inputs[topKey], inputs[botKey], target.top, target.bot);
+        setInputFeedback({ ...inputFeedback, [topKey]: ok ? 'correct' : 'incorrect', [botKey]: ok ? 'correct' : 'incorrect' });
+        if (ok) advance(nextStep); else triggerError();
     };
+
+    // Pfad A:
+    const checkZug1 = () => checkFracStep('t1', 'b1', problem.draw1, STEP.zug2A);
+    const checkZug2 = () => checkFracStep('t2', 'b2', problem.draw2, isMulti ? STEP.zug1B : STEP.result);
+    // Pfad B (nur bei reihenfolge-Aufgaben):
+    const checkZug1B = () => checkFracStep('t1B', 'b1B', problem.draw1B, STEP.zug2B);
+    const checkZug2B = () => checkFracStep('t2B', 'b2B', problem.draw2B, STEP.result);
 
     const checkFinalResult = () => {
         if (!problem) return;
@@ -1543,7 +2019,7 @@ const WahrscheinlichkeitsTrainer = () => {
             setStreak(newStreak);
             if (newStreak > 0 && newStreak % 3 === 0) triggerCelebration(setShowAnim);
             adaptive.recordCorrect();
-            setShowSolution(true); advance(5);
+            setShowSolution(true); advance(STEP.done);
         } else { setFinalFeedback('incorrect'); triggerError(); }
     };
 
@@ -1551,10 +2027,12 @@ const WahrscheinlichkeitsTrainer = () => {
     // füllt aber nichts automatisch aus.
     const getSolutionText = () => {
         if (!problem) return null;
-        if (step === 1) return `Versuch ${problem.type === 'mit' ? 'mit' : 'ohne'} Zurücklegen.`;
-        if (step === 2) return `1. Zug: ${problem.draw1.top} / ${problem.draw1.bot}`;
-        if (step === 3) return `2. Zug: ${problem.draw2.top} / ${problem.draw2.bot}`;
-        if (step === 4) return `${formatNum(problem.resultPerc)} %`;
+        if (step === STEP.identify) return `Versuch ${problem.type === 'mit' ? 'mit' : 'ohne'} Zurücklegen.`;
+        if (step === STEP.zug1A) return `1. Zug: ${problem.draw1.top} / ${problem.draw1.bot}`;
+        if (step === STEP.zug2A) return `2. Zug: ${problem.draw2.top} / ${problem.draw2.bot}`;
+        if (isMulti && step === STEP.zug1B) return `Pfad B, 1. Zug: ${problem.draw1B.top} / ${problem.draw1B.bot}`;
+        if (isMulti && step === STEP.zug2B) return `Pfad B, 2. Zug: ${problem.draw2B.top} / ${problem.draw2B.bot}`;
+        if (step === STEP.result) return `${formatNum(problem.resultPerc)} %`;
         return null;
     };
     const onSolutionShown = () => setStreak(0);
@@ -1564,134 +2042,140 @@ const WahrscheinlichkeitsTrainer = () => {
     // einen Bruch im Baum springt stattdessen zum großen Mobile-Eingabefeld unten
     // (Fokus + scrollIntoView). So tippen Schüler:innen am Handy nur einmal — im
     // großen Feld — und sehen die Eingaben im Baum als Vorschau gespiegelt.
-    const focusMobileInput = (zug) => {
+    const focusMobileInput = (inputKey) => {
         // Wir fokussieren das obere der beiden Felder (Zähler) und scrollen es ins Bild.
-        const target = document.getElementById(`mobile-w-t${zug}`);
+        const target = document.getElementById(`mobile-w-${inputKey}`);
         if (target) {
             target.focus();
             target.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     };
-    const renderTree = (node, x, y, width, level, mobileMode = false) => {
-        if (!node) return null;
-        const isLeaf = !node.children || node.children.length === 0;
+
+    // Mapping zwischen Baum-Knoten (level 1|2, path 'A'|'B') und den entsprechenden
+    // State-Keys / Check-Funktionen / Steps. Eine einzige Quelle der Wahrheit, statt
+    // 4× ähnlichen Code zu kopieren.
+    const fracBindings = {
+        'A1': { topKey: 't1', botKey: 'b1', onSubmit: checkZug1, activeStep: STEP.zug1A },
+        'A2': { topKey: 't2', botKey: 'b2', onSubmit: checkZug2, activeStep: STEP.zug2A },
+        'B1': { topKey: 't1B', botKey: 'b1B', onSubmit: checkZug1B, activeStep: STEP.zug1B },
+        'B2': { topKey: 't2B', botKey: 'b2B', onSubmit: checkZug2B, activeStep: STEP.zug2B }
+    };
+    const renderTree = (rootNode, rootX, rootY, rootWidth, rootLevel, mobileMode = false) => {
+        if (!rootNode) return null;
         const nodeRadius = 16;
-        const verticalSpacing = level === 0 ? 130 : 160;
+        // Kompakteres Layout: Pfade deutlich kürzer als zuvor (130/160 → 90/110),
+        // damit das Baumdiagramm weniger Vertikalplatz beansprucht.
+        const getVSpacing = (level) => level === 0 ? 90 : 110;
 
-        let elements = [];
+        // Zwei Layer: bg = Linien + Knoten-Circles + Knoten-Labels (Hintergrund),
+        // fg = Brüche, "?"-Platzhalter und aktive Eingabefelder (Vordergrund).
+        // Dadurch werden Brüche IMMER über allen Linien/Knoten gezeichnet — keine
+        // Verdeckung mehr durch andere Pfade.
+        const bg = [];
+        const fg = [];
 
-        if (!isLeaf) {
-            const childCount = node.children.length;
-            const childWidth = width / childCount;
-            const startX = x - width / 2 + childWidth / 2;
-
-            node.children.forEach((child, index) => {
-                const childX = startX + index * childWidth;
-                const childY = y + verticalSpacing;
-
-                elements.push(
-                    <line key={`line-${level}-${index}-${x}`} x1={x} y1={y + nodeRadius} x2={childX} y2={childY - nodeRadius} stroke="#cbd5e1" strokeWidth="2" />
-                );
-
-                const midX = (x + childX) / 2;
-                const midY = (y + nodeRadius + childY - nodeRadius) / 2;
-
-                const isTarget1 = child.inputLevel === 1;
-                const isTarget2 = child.inputLevel === 2;
-
-                // Hilfs-Wrapper: Im Mobile-Modus den MiniFractionInput deaktivieren
-                // und einen onClick auf den foreignObject-Div hängen, der das große
-                // Eingabefeld unten fokussiert. Auf Desktop bleibt alles editierbar.
-                const renderMobileTreeInput = (zug, valTop, valBot, statusTop, statusBot) => (
-                    <div xmlns="http://www.w3.org/1999/xhtml"
-                         className="flex justify-center h-full items-center cursor-pointer"
-                         onClick={() => focusMobileInput(zug)}>
-                        <div style={{pointerEvents: 'none'}}>
-                            <MiniFractionInput idTop={`t${zug}`} idBot={`b${zug}`}
-                                valTop={valTop} valBot={valBot}
-                                onChange={()=>{}} disabled={true}
-                                statusTop={statusTop} statusBot={statusBot} theme="violet" />
-                        </div>
-                    </div>
-                );
-
-                if (isTarget1 && step === 2) {
-                    elements.push(
-                        <foreignObject key={`fo-1-${index}`} x={midX - 30} y={midY - 40} width="65" height="80">
-                            {mobileMode ? renderMobileTreeInput(1, inputs.t1, inputs.b1, inputFeedback.t1, inputFeedback.b1) : (
-                                <div xmlns="http://www.w3.org/1999/xhtml" className="flex justify-center h-full items-center">
-                                    <MiniFractionInput idTop="t1" idBot="b1" valTop={inputs.t1} valBot={inputs.b1} onChange={handleInputChange} onSubmit={checkZug1} disabled={false} statusTop={inputFeedback.t1} statusBot={inputFeedback.b1} theme="violet" />
-                                </div>
-                            )}
-                        </foreignObject>
-                    );
-                } else if (isTarget1 && step > 2) {
-                    elements.push(
-                        <foreignObject key={`fo-1-${index}`} x={midX - 30} y={midY - 40} width="65" height="80">
-                            <div xmlns="http://www.w3.org/1999/xhtml" className="flex justify-center h-full items-center">
-                                <MiniFractionInput idTop="t1" idBot="b1" valTop={inputs.t1} valBot={inputs.b1} onChange={()=>{}} disabled={true} statusTop={'correct'} statusBot={'correct'} theme="violet" />
-                            </div>
-                        </foreignObject>
-                    );
-                } else if (isTarget2 && step === 3) {
-                    elements.push(
-                        <foreignObject key={`fo-2-${index}`} x={midX - 30} y={midY - 40} width="65" height="80">
-                            {mobileMode ? renderMobileTreeInput(2, inputs.t2, inputs.b2, inputFeedback.t2, inputFeedback.b2) : (
-                                <div xmlns="http://www.w3.org/1999/xhtml" className="flex justify-center h-full items-center">
-                                    <MiniFractionInput idTop="t2" idBot="b2" valTop={inputs.t2} valBot={inputs.b2} onChange={handleInputChange} onSubmit={checkZug2} disabled={false} statusTop={inputFeedback.t2} statusBot={inputFeedback.b2} theme="violet" />
-                                </div>
-                            )}
-                        </foreignObject>
-                    );
-                } else if (isTarget2 && step > 3) {
-                    elements.push(
-                        <foreignObject key={`fo-2-${index}`} x={midX - 30} y={midY - 40} width="65" height="80">
-                            <div xmlns="http://www.w3.org/1999/xhtml" className="flex justify-center h-full items-center">
-                                <MiniFractionInput idTop="t2" idBot="b2" valTop={inputs.t2} valBot={inputs.b2} onChange={()=>{}} disabled={true} statusTop={'correct'} statusBot={'correct'} theme="violet" />
-                            </div>
-                        </foreignObject>
-                    );
-                } else if (isTarget2 && step < 3) {
-                    elements.push(
-                        <rect key={`rect-q-${level}-${index}-${x}`} x={midX - 18} y={midY - 12} width="36" height="24" fill="white" rx="4" />
-                    );
-                    elements.push(
-                        <text key={`prob-q-${level}-${index}-${x}`} x={midX} y={midY + 4} textAnchor="middle" fontSize="16" fontWeight="bold" fill="#cbd5e1">?</text>
-                    );
-                } else if (problem?.diff === 'leicht') {
-                    // Im "Leicht"-Modus zeigen wir die Brüche der nicht-abgefragten Pfade als Hilfestellung.
-                    // In "Mittel" und "Schwer" bleiben sie leer, damit der Schüler den Bruch selbst erschließen muss.
-                    elements.push(
-                        <rect key={`rect-${level}-${index}-${x}`} x={midX - 20} y={midY - 12} width="40" height="24" fill="white" rx="4" />
-                    );
-                    elements.push(
-                        <text key={`prob-${level}-${index}-${x}`} x={midX} y={midY + 4} textAnchor="middle" fontSize="13" fontWeight="bold" fill="#64748b">
-                            {child.probText}
-                        </text>
-                    );
-                }
-
-                elements.push(...renderTree(child, childX, childY, childWidth, level + 1, mobileMode));
-            });
-        }
-
-        let fillColor = node.hex || '#e2e8f0';
-        let textColor = node.hex ? 'white' : '#1e293b';
-
-        elements.push(
-            <circle key={`circle-${level}-${x}-${y}`} cx={x} cy={y} r={nodeRadius} fill={fillColor} stroke="#94a3b8" strokeWidth="2" />
-        );
-        elements.push(
-            <text key={`text-${level}-${x}-${y}`} x={x} y={y + 5} textAnchor="middle" fontSize="12" fontWeight="bold" fill={textColor}>
-                {node.label === 'Start' ? 'S' : node.label.charAt(0).toUpperCase()}
-            </text>
+        // Hilfs-Wrapper: Im Mobile-Modus den MiniFractionInput deaktivieren und einen
+        // onClick auf den foreignObject-Div hängen, der das große Eingabefeld unten
+        // fokussiert. Auf Desktop bleibt alles editierbar.
+        const renderMobileTreeInput = (binding, valTop, valBot, statusTop, statusBot) => (
+            <div xmlns="http://www.w3.org/1999/xhtml"
+                 className="flex justify-center h-full items-center cursor-pointer"
+                 onClick={() => focusMobileInput(binding.topKey)}>
+                <div style={{pointerEvents: 'none'}}>
+                    <MiniFractionInput idTop={binding.topKey} idBot={binding.botKey}
+                        valTop={valTop} valBot={valBot}
+                        onChange={()=>{}} disabled={true}
+                        statusTop={statusTop} statusBot={statusBot} theme="violet" />
+                </div>
+            </div>
         );
 
-        return elements;
+        const walk = (node, x, y, width, level) => {
+            const isLeaf = !node.children || node.children.length === 0;
+            if (!isLeaf) {
+                const childCount = node.children.length;
+                const childWidth = width / childCount;
+                const startX = x - width / 2 + childWidth / 2;
+                const verticalSpacing = getVSpacing(level);
+
+                node.children.forEach((child, index) => {
+                    const childX = startX + index * childWidth;
+                    const childY = y + verticalSpacing;
+
+                    bg.push(
+                        <line key={`line-${level}-${index}-${x}`} x1={x} y1={y + nodeRadius} x2={childX} y2={childY - nodeRadius} stroke="#cbd5e1" strokeWidth="2" />
+                    );
+
+                    const midX = (x + childX) / 2;
+                    const midY = (y + nodeRadius + childY - nodeRadius) / 2;
+
+                    // Ist dieser Knoten ein Target? Wenn ja, welcher Pfad + Ebene?
+                    const il = child.inputLevel;
+                    const lvl = _ilLevel(il);
+                    const pth = _ilPath(il);
+                    if (lvl) {
+                        // Eindeutiges Mapping zur richtigen State-Schlüssel + Check-Funktion.
+                        const binding = fracBindings[`${pth}${lvl}`];
+                        const { topKey, botKey, onSubmit, activeStep } = binding;
+                        const valTop = inputs[topKey];
+                        const valBot = inputs[botKey];
+                        const stTop = inputFeedback[topKey];
+                        const stBot = inputFeedback[botKey];
+
+                        if (step === activeStep) {
+                            // Aktive Eingabe — leuchtender Glow.
+                            fg.push(
+                                <foreignObject key={`fo-${pth}${lvl}-${index}`} x={midX - 26} y={midY - 40} width="52" height="80">
+                                    {mobileMode ? renderMobileTreeInput(binding, valTop, valBot, stTop, stBot) : (
+                                        <div xmlns="http://www.w3.org/1999/xhtml" className="flex justify-center h-full items-center">
+                                            <MiniFractionInput idTop={topKey} idBot={botKey} valTop={valTop} valBot={valBot} onChange={handleInputChange} onSubmit={onSubmit} disabled={false} statusTop={stTop} statusBot={stBot} theme="violet" active={true} />
+                                        </div>
+                                    )}
+                                </foreignObject>
+                            );
+                        } else if (step > activeStep) {
+                            // Bereits abgehakt — read-only, Häkchen.
+                            fg.push(
+                                <foreignObject key={`fo-${pth}${lvl}-${index}`} x={midX - 26} y={midY - 40} width="52" height="80">
+                                    <div xmlns="http://www.w3.org/1999/xhtml" className="flex justify-center h-full items-center">
+                                        <MiniFractionInput idTop={topKey} idBot={botKey} valTop={valTop} valBot={valBot} onChange={()=>{}} disabled={true} statusTop={'correct'} statusBot={'correct'} theme="violet" />
+                                    </div>
+                                </foreignObject>
+                            );
+                        } else {
+                            // Noch nicht dran — Fragezeichen-Platzhalter, damit Schüler:in sieht,
+                            // dass hier später noch ein Bruch hin muss.
+                            fg.push(<rect key={`rect-q-${pth}${lvl}-${index}`} x={midX - 18} y={midY - 12} width="36" height="24" fill="white" rx="4" />);
+                            fg.push(<text key={`prob-q-${pth}${lvl}-${index}`} x={midX} y={midY + 4} textAnchor="middle" fontSize="16" fontWeight="bold" fill="#cbd5e1">?</text>);
+                        }
+                    }
+                    // Hinweis: Auf den nicht-abgefragten Pfaden werden auch im "Leicht"-Modus
+                    // keine Brüche mehr angezeigt — Schüler sollen das selbständig erschließen.
+
+                    walk(child, childX, childY, childWidth, level + 1);
+                });
+            }
+
+            const fillColor = node.hex || '#e2e8f0';
+            const textColor = node.hex ? 'white' : '#1e293b';
+
+            bg.push(
+                <circle key={`circle-${level}-${x}-${y}`} cx={x} cy={y} r={nodeRadius} fill={fillColor} stroke="#94a3b8" strokeWidth="2" />
+            );
+            bg.push(
+                <text key={`text-${level}-${x}-${y}`} x={x} y={y + 5} textAnchor="middle" fontSize="12" fontWeight="bold" fill={textColor}>
+                    {node.label === 'Start' ? 'S' : node.label.charAt(0).toUpperCase()}
+                </text>
+            );
+        };
+
+        walk(rootNode, rootX, rootY, rootWidth, rootLevel);
+        // bg zuerst (Linien, Kreise) → fg darüber (Brüche, Eingabefelder) — saubere Z-Order.
+        return [...bg, ...fg];
     };
 
     return (
-        <div className="page-transition max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="page-transition max-w-4xl lg:max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             {showAnim && <CelebrationOverlay />}
             <TrainerHeader theme="violet" icon={DicesIcon} title="Wahrscheinlichkeit" streakIcon={Target} streak={streak} />
 
@@ -1724,97 +2208,180 @@ const WahrscheinlichkeitsTrainer = () => {
                 </div>
 
                 <div className="space-y-4">
-                    <StepCard title="1. Art des Experiments" stepNum={1} activeCondition={step === 1} pastCondition={step > 1} currentStep={step} theme="violet">
+                    {/* Nach Bestätigung kollabiert die Karte auf eine einzige Titelzeile:
+                        "1. Art des Experiments: mit Zurücklegen" — spart komplett den Inhaltsbereich. */}
+                    <StepCard title="1. Art des Experiments" stepNum={1} activeCondition={step === 1} pastCondition={step > 1}
+                              pastSummary={step > 1 ? `${problem?.type === 'mit' ? 'mit' : 'ohne'} Zurücklegen` : null}
+                              currentStep={step} theme="violet">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl mx-auto">
-                            {[{ type: 'mit', label: "Mit Zurücklegen", desc: "(Nenner bleibt gleich, z.B. Glücksrad)" }, { type: 'ohne', label: "Ohne Zurücklegen", desc: "(Nenner wird kleiner, z.B. Essen)" }].map((item) => (
-                                <button key={item.type} onClick={() => handleIdentify(item.type)} disabled={step > 1} className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${selectedIdentification === item.type ? 'border-violet-500 bg-violet-50 text-violet-900 font-bold' : 'border-slate-200 hover:border-violet-400 bg-white'}`}>
+                            {[{ type: 'mit', label: "Mit Zurücklegen" }, { type: 'ohne', label: "Ohne Zurücklegen" }].map((item) => (
+                                <button key={item.type} onClick={() => handleIdentify(item.type)} disabled={step > 1} className={`p-4 rounded-xl border-2 transition-all flex items-center justify-center ${selectedIdentification === item.type ? 'border-violet-500 bg-violet-50 text-violet-900 font-bold' : 'border-slate-200 hover:border-violet-400 bg-white'}`}>
                                     <span className="text-xl font-bold">{item.label}</span>
-                                    <span className="text-xs font-semibold text-slate-500 text-center">{item.desc}</span>
                                 </button>
                             ))}
                         </div>
-                        {step === 1 && <div className="mt-4 flex justify-between items-center"><TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text="Überlege: Verändert sich die Gesamtanzahl nach dem ersten Zug? Wenn jemand etwas aufisst oder 'nicht zurücklegt', ändert sich die Gesamtzahl." /><SubmitBtn onClick={confirmIdentify} theme="violet" disabled={!selectedIdentification} /></div>}
-                        {step > 1 && <SuccessMark text={`Richtig! Es ist ein Versuch ${problem?.type === 'mit' ? "mit" : "ohne"} Zurücklegen.`} />}
+                        <div className="mt-4 flex justify-between items-center">
+                            <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text="Überlege: Verändert sich die Gesamtanzahl nach dem ersten Zug? Wenn jemand etwas aufisst oder 'nicht zurücklegt', ändert sich die Gesamtzahl." />
+                            <SubmitBtn onClick={confirmIdentify} theme="violet" disabled={!selectedIdentification} />
+                        </div>
                     </StepCard>
 
                     {step >= 2 && (
-                        <StepCard title="2. Wahrscheinlichkeiten im Baumdiagramm" stepNum={2} activeCondition={step === 2 || step === 3} pastCondition={step > 3} currentStep={step} theme="violet">
+                        <StepCard title="2. Wahrscheinlichkeiten im Baumdiagramm" stepNum={2}
+                                  activeCondition={step >= STEP.zug1A && step < STEP.result}
+                                  pastCondition={step >= STEP.result}
+                                  currentStep={step} theme="violet">
                             <div className="text-center text-slate-700 text-lg mb-4">
-                                {step === 2 && <span>Trage den Bruch für den <strong>ersten Zug</strong> direkt im Baumdiagramm ein!</span>}
-                                {step === 3 && <span>Klasse! Verfolge nun den gesuchten Pfad weiter und trage den Bruch für den <strong>zweiten Zug</strong> ein.</span>}
-                                {step > 3 && <span>Das Baumdiagramm ist vollständig beschriftet!</span>}
+                                {step === STEP.zug1A && <span>Trage den Bruch für den <strong>ersten Zug</strong>{isMulti ? ' (Pfad A — links)' : ''} im Baumdiagramm ein!</span>}
+                                {step === STEP.zug2A && <span>Klasse! Trage jetzt den Bruch für den <strong>zweiten Zug</strong>{isMulti ? ' (Pfad A)' : ''} ein.</span>}
+                                {isMulti && step === STEP.zug1B && <span>Super — jetzt der zweite Pfad! Trage den Bruch für den <strong>ersten Zug von Pfad B</strong> ein.</span>}
+                                {isMulti && step === STEP.zug2B && <span>Fast geschafft — trage den Bruch für den <strong>zweiten Zug von Pfad B</strong> ein.</span>}
+                                {step >= STEP.result && <span>Das Baumdiagramm ist vollständig beschriftet!</span>}
                             </div>
 
-                            {problem?.tree && !loading && (
-                                <>
-                                    {/* Desktop / Tablet (≥ sm): SVG-Baumdiagramm mit foreignObject-Eingaben.
-                                        Horizontale Stauchung: viewBox 1000 → 560, Baumbreite 900 → 480, root x=280.
-                                        Die Pfade rücken so deutlich enger zusammen, ohne dass Knoten oder Schrift kleiner werden. */}
-                                    <div className="hidden sm:block w-full bg-slate-50 border border-slate-200 rounded-xl overflow-x-auto p-4 shadow-inner animate-fade-in mb-6">
-                                        <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-2 text-center">Interaktives Baumdiagramm</h3>
-                                        <svg viewBox="0 0 560 420" className="w-full h-auto min-w-[460px] max-w-2xl mx-auto block overflow-visible">
-                                            {renderTree(problem.tree, 280, 20, 480, 0)}
-                                        </svg>
-                                    </div>
+                            {problem?.tree && !loading && (() => {
+                                // Dynamische Baum-Breite: bei 2 Hauptknoten enger packen, bei 3
+                                // entspannter — damit der ungenutzte Leerraum links/rechts
+                                // bei wenigen Farben nicht so groß wird. Bei 3 Farben (Schwer +
+                                // Prüfungsaufgaben) braucht der Baum spürbar mehr Breite, sonst
+                                // klebt im 2. Zug der gelbe Bruch fast am Nachbarknoten.
+                                const numKnoten = problem.tree.children?.length || 3;
+                                const treeWidth = numKnoten === 2 ? 340 : 480;
+                                const vbWidth = numKnoten === 2 ? 460 : 540;
+                                const vbHeight = 250;
+                                const treeCenter = vbWidth / 2;
+                                const vb = `0 0 ${vbWidth} ${vbHeight}`;
+                                return (
+                                    <>
+                                        {/* Desktop / Tablet (≥ sm): SVG-Baumdiagramm mit foreignObject-Eingaben.
+                                            Bei 3 Farben (Schwer + Prüfung) max-w-2xl, sonst max-w-xl —
+                                            damit der breitere Baum genug Platz zum Atmen hat.
+                                            Explizite Klassennamen statt Template-Literals, damit Tailwind
+                                            Play-CDN sie zuverlässig erkennt. */}
+                                        <div className="hidden sm:block w-full bg-slate-50 border border-slate-200 rounded-xl overflow-x-auto p-2 shadow-inner animate-fade-in mb-3">
+                                            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1 text-center">Interaktives Baumdiagramm</h3>
+                                            <svg viewBox={vb} className={numKnoten === 2
+                                                ? "w-full h-auto min-w-[340px] max-w-xl mx-auto block overflow-visible"
+                                                : "w-full h-auto min-w-[400px] max-w-2xl mx-auto block overflow-visible"}>
+                                                {renderTree(problem.tree, treeCenter, 20, treeWidth, 0)}
+                                            </svg>
+                                        </div>
 
-                                    {/* Mobile (< sm): vereinfachtes SVG zur Anzeige + große Bruch-Eingaben darunter.
-                                        mobileMode=true: Inputs im Baum sind read-only, ein Tap springt zu den großen
-                                        Eingabefeldern unten (sm:hidden bg-violet-50). */}
-                                    <div className="sm:hidden w-full bg-slate-50 border border-slate-200 rounded-xl p-3 shadow-inner animate-fade-in mb-4 overflow-x-auto">
-                                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 text-center">Baumdiagramm (Übersicht)</h3>
-                                        <svg viewBox="0 0 560 420" className="w-full h-auto min-w-[360px] block overflow-visible">
-                                            {renderTree(problem.tree, 280, 20, 480, 0, true)}
-                                        </svg>
-                                    </div>
-                                </>
-                            )}
+                                        {/* Mobile (< sm): vereinfachtes SVG zur Anzeige + große Bruch-Eingaben darunter.
+                                            mobileMode=true: Inputs im Baum sind read-only, ein Tap springt zu den großen
+                                            Eingabefeldern unten (sm:hidden bg-violet-50). */}
+                                        <div className="sm:hidden w-full bg-slate-50 border border-slate-200 rounded-xl p-2 shadow-inner animate-fade-in mb-3 overflow-x-auto">
+                                            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1 text-center">Baumdiagramm (Übersicht)</h3>
+                                            <svg viewBox={vb} className={numKnoten === 2
+                                                ? "w-full h-auto min-w-[300px] block overflow-visible"
+                                                : "w-full h-auto min-w-[360px] block overflow-visible"}>
+                                                {renderTree(problem.tree, treeCenter, 20, treeWidth, 0, true)}
+                                            </svg>
+                                        </div>
+                                    </>
+                                );
+                            })()}
 
-                            {/* Mobile-Eingabe: 1. Zug — gut bedienbar mit großen Feldern */}
+                            {/* Mobile-Eingaben: pro Zug eine Box, jeweils nur sichtbar wenn schon
+                                erreicht. Die gerade aktive Box bekommt den gelben Glow. */}
                             <div className="sm:hidden bg-violet-50 border border-violet-200 rounded-xl p-4 mb-3">
-                                <h4 className="text-sm font-bold text-violet-800 mb-2">1. Zug — Bruch eintragen</h4>
+                                <h4 className="text-sm font-bold text-violet-800 mb-2">{isMulti ? 'Pfad A — 1. Zug' : '1. Zug — Bruch eintragen'}</h4>
                                 <div className="flex justify-center">
-                                    <FractionInputInteraktiv htmlIdPrefix="mobile-w" idTop="t1" idBot="b1" valTop={inputs.t1} valBot={inputs.b1} onChange={handleInputChange} onSubmit={checkZug1} disabled={step !== 2} statusTop={inputFeedback.t1} statusBot={inputFeedback.b1} theme="violet" />
+                                    <FractionInputInteraktiv htmlIdPrefix="mobile-w" idTop="t1" idBot="b1" valTop={inputs.t1} valBot={inputs.b1} onChange={handleInputChange} onSubmit={checkZug1} disabled={step !== STEP.zug1A} statusTop={inputFeedback.t1} statusBot={inputFeedback.b1} theme="violet" active={step === STEP.zug1A} />
                                 </div>
                             </div>
-                            {step >= 3 && (
+                            {step >= STEP.zug2A && (
                                 <div className="sm:hidden bg-violet-50 border border-violet-200 rounded-xl p-4 mb-3">
-                                    <h4 className="text-sm font-bold text-violet-800 mb-2">2. Zug — Bruch eintragen</h4>
+                                    <h4 className="text-sm font-bold text-violet-800 mb-2">{isMulti ? 'Pfad A — 2. Zug' : '2. Zug — Bruch eintragen'}</h4>
                                     <div className="flex justify-center">
-                                        <FractionInputInteraktiv htmlIdPrefix="mobile-w" idTop="t2" idBot="b2" valTop={inputs.t2} valBot={inputs.b2} onChange={handleInputChange} onSubmit={checkZug2} disabled={step !== 3} statusTop={inputFeedback.t2} statusBot={inputFeedback.b2} theme="violet" />
+                                        <FractionInputInteraktiv htmlIdPrefix="mobile-w" idTop="t2" idBot="b2" valTop={inputs.t2} valBot={inputs.b2} onChange={handleInputChange} onSubmit={checkZug2} disabled={step !== STEP.zug2A} statusTop={inputFeedback.t2} statusBot={inputFeedback.b2} theme="violet" active={step === STEP.zug2A} />
+                                    </div>
+                                </div>
+                            )}
+                            {isMulti && step >= STEP.zug1B && (
+                                <div className="sm:hidden bg-violet-50 border border-violet-200 rounded-xl p-4 mb-3">
+                                    <h4 className="text-sm font-bold text-violet-800 mb-2">Pfad B — 1. Zug</h4>
+                                    <div className="flex justify-center">
+                                        <FractionInputInteraktiv htmlIdPrefix="mobile-w" idTop="t1B" idBot="b1B" valTop={inputs.t1B} valBot={inputs.b1B} onChange={handleInputChange} onSubmit={checkZug1B} disabled={step !== STEP.zug1B} statusTop={inputFeedback.t1B} statusBot={inputFeedback.b1B} theme="violet" active={step === STEP.zug1B} />
+                                    </div>
+                                </div>
+                            )}
+                            {isMulti && step >= STEP.zug2B && (
+                                <div className="sm:hidden bg-violet-50 border border-violet-200 rounded-xl p-4 mb-3">
+                                    <h4 className="text-sm font-bold text-violet-800 mb-2">Pfad B — 2. Zug</h4>
+                                    <div className="flex justify-center">
+                                        <FractionInputInteraktiv htmlIdPrefix="mobile-w" idTop="t2B" idBot="b2B" valTop={inputs.t2B} valBot={inputs.b2B} onChange={handleInputChange} onSubmit={checkZug2B} disabled={step !== STEP.zug2B} statusTop={inputFeedback.t2B} statusBot={inputFeedback.b2B} theme="violet" active={step === STEP.zug2B} />
                                     </div>
                                 </div>
                             )}
 
-                            {step === 2 && <div className="mt-4 flex flex-wrap justify-between items-center gap-2"><TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text="Zähler (oben): Wie viele passende Stücke gibt es? Nenner (unten): Wie viele Stücke sind es insgesamt am Anfang?" /><SubmitBtn onClick={checkZug1} theme="violet" disabled={!inputs.t1 || !inputs.b1} /></div>}
+                            {step === STEP.zug1A && <div className="mt-4 flex flex-wrap justify-between items-center gap-2"><TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text="Zähler (oben): Wie viele passende Stücke gibt es? Nenner (unten): Wie viele Stücke sind es insgesamt am Anfang?" /><SubmitBtn onClick={checkZug1} theme="violet" disabled={!inputs.t1 || !inputs.b1} /></div>}
 
-                            {step === 3 && <div className="mt-4 flex flex-wrap justify-between items-end gap-2"><TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text={problem.type === 'ohne' ? "Achtung: Es ist EIN Teil insgesamt weniger im Nenner! Und ist im Zähler auch eins weniger oder war es eine andere Farbe?" : "Da es 'mit Zurücklegen' ist, bleibt der Nenner gleich wie beim 1. Zug."} /><SubmitBtn onClick={checkZug2} theme="violet" disabled={!inputs.t2 || !inputs.b2} /></div>}
+                            {step === STEP.zug2A && <div className="mt-4 flex flex-wrap justify-between items-end gap-2"><TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text={problem.type === 'ohne' ? "Achtung: Es ist EIN Teil insgesamt weniger im Nenner! Und ist im Zähler auch eins weniger oder war es eine andere Farbe?" : "Da es 'mit Zurücklegen' ist, bleibt der Nenner gleich wie beim 1. Zug."} /><SubmitBtn onClick={checkZug2} theme="violet" disabled={!inputs.t2 || !inputs.b2} /></div>}
 
-                            {step > 3 && <SuccessMark text="Alle Brüche im Baumdiagramm sind korrekt eingetragen!" />}
+                            {isMulti && step === STEP.zug1B && <div className="mt-4 flex flex-wrap justify-between items-center gap-2"><TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text="Für den zweiten Pfad: erste Farbe ist jetzt anders. Zähler und Nenner für den 1. Zug von Pfad B." /><SubmitBtn onClick={checkZug1B} theme="violet" disabled={!inputs.t1B || !inputs.b1B} /></div>}
+
+                            {isMulti && step === STEP.zug2B && <div className="mt-4 flex flex-wrap justify-between items-end gap-2"><TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text={problem.type === 'ohne' ? "Letzter Bruch: Pfad B, 2. Zug — wie ist der Nenner? Wie der Zähler?" : "Mit Zurücklegen: der Nenner bleibt der gleiche wie ganz am Anfang."} /><SubmitBtn onClick={checkZug2B} theme="violet" disabled={!inputs.t2B || !inputs.b2B} /></div>}
+
+                            {step >= STEP.result && <SuccessMark text="Alle Brüche im Baumdiagramm sind korrekt eingetragen!" />}
                         </StepCard>
                     )}
 
-                    {step >= 4 && (
-                        <StepCard title="3. Pfadregel anwenden & Ergebnis" stepNum={3} activeCondition={step === 4} pastCondition={step > 4} currentStep={step} theme="violet">
-                            <div className="flex flex-col sm:flex-row gap-4 items-center justify-center w-full">
-                                <div className="flex items-center gap-4 bg-slate-100 p-4 rounded-lg font-bold text-slate-500 mb-4 sm:mb-0">
-                                    <span>{inputs.t1} / {inputs.b1}</span>
-                                    <span>·</span>
-                                    <span>{inputs.t2} / {inputs.b2}</span>
-                                    <span>=</span>
+                    {step >= STEP.result && (
+                        <StepCard title="3. Pfadregel anwenden & Ergebnis" stepNum={3}
+                                  activeCondition={step === STEP.result}
+                                  pastCondition={step > STEP.result}
+                                  currentStep={step} theme="violet">
+                            {/* Layout: bei breitem Fenster (lg+) sitzen Eingabezeile und Taschenrechner
+                                NEBEN­einander; bei schmal stehen sie UNTER­einander. CalcButton bekommt
+                                dafür einen sideBySide-Prop (siehe shared.js). */}
+                            <div className="flex flex-col lg:flex-row gap-4 lg:items-start w-full">
+                                <div className="flex-1 w-full flex flex-col sm:flex-row gap-3 items-center justify-center">
+                                    {/* Bei reihenfolge-Aufgaben: "P_A · P_A + P_B · P_B = …". Bei direkt: nur ein Pfad. */}
+                                    <div className="flex items-center gap-2 bg-slate-100 px-4 py-3 rounded-lg font-bold text-slate-700 text-lg flex-wrap justify-center">
+                                        <Frac top={inputs.t1} bot={inputs.b1} />
+                                        <span>·</span>
+                                        <Frac top={inputs.t2} bot={inputs.b2} />
+                                        {isMulti && (
+                                            <>
+                                                <span>+</span>
+                                                <Frac top={inputs.t1B} bot={inputs.b1B} />
+                                                <span>·</span>
+                                                <Frac top={inputs.t2B} bot={inputs.b2B} />
+                                            </>
+                                        )}
+                                        <span>=</span>
+                                    </div>
+                                    {/* Glow am %-Symbol als Hinweis "Antwort in Prozent eintippen":
+                                        — bei Leicht/Mittel sofort sichtbar (Lernhilfe)
+                                        — bei Schwer/Prüfung erst nach einem Fehlversuch (didaktischer Hinweis,
+                                          dass die Einheit % wichtig sein könnte).
+                                        Der Glow sitzt nur um das %-Zeichen herum, nicht um das ganze Eingabefeld. */}
+                                    {(() => {
+                                        const easyMode = difficulty === 'leicht' || difficulty === 'mittel';
+                                        const percentGlow = step === STEP.result && finalFeedback !== 'correct'
+                                            && (easyMode || finalFeedback === 'incorrect');
+                                        return (
+                                            <div className="relative flex-grow max-w-xs w-full">
+                                                <input type="text" value={inputs.perc} onChange={(e) => handleInputChange('perc', e.target.value)} onKeyDown={enterToSubmit(checkFinalResult)} disabled={step === STEP.done} placeholder="Taschenrechner..." className={`pr-10 py-3 w-full text-center rounded-lg border-2 text-lg outline-none transition-colors shadow-sm ${finalFeedback === 'correct' ? 'border-green-500 bg-green-50 text-green-900 font-bold' : finalFeedback === 'incorrect' ? 'border-red-400 bg-red-50' : 'border-slate-300 focus:border-violet-500'}`} />
+                                                <span className={`absolute right-3 top-1/2 -translate-y-1/2 text-slate-600 font-bold inline-flex items-center justify-center px-1.5 py-0.5 rounded-md ${percentGlow ? 'animate-glow-amber-subtle' : ''}`}>%</span>
+                                            </div>
+                                        );
+                                    })()}
+                                    {step === STEP.result && <SubmitBtn onClick={checkFinalResult} theme="violet" disabled={!inputs.perc} />}
                                 </div>
-                                <div className="relative flex-grow max-w-xs w-full">
-                                    <input type="text" value={inputs.perc} onChange={(e) => handleInputChange('perc', e.target.value)} onKeyDown={enterToSubmit(checkFinalResult)} disabled={step === 5} placeholder="Taschenrechner..." className={`pr-10 py-3 w-full text-center rounded-lg border-2 text-lg outline-none transition-colors shadow-sm ${finalFeedback === 'correct' ? 'border-green-500 bg-green-50 text-green-900 font-bold' : finalFeedback === 'incorrect' ? 'border-red-400 bg-red-50' : 'border-slate-300 focus:border-violet-500'}`} />
-                                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold">%</span>
-                                </div>
-                                {step === 4 && <SubmitBtn onClick={checkFinalResult} theme="violet" disabled={!inputs.perc} />}
+                                {step === STEP.result && (
+                                    <div className="w-full lg:w-auto lg:flex-shrink-0 flex justify-center lg:justify-start">
+                                        <CalcButton theme="violet" />
+                                    </div>
+                                )}
                             </div>
-                            {step === 4 && <div className="mt-3 flex justify-center"><CalcButton theme="violet" /></div>}
-                            {step === 4 && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text="Zähler mal Zähler, Nenner mal Nenner. Teile dann das obere Ergebnis durch das untere Ergebnis und multipliziere mit 100 für die Prozentzahl (Runde auf 2 Nachkommastellen oder auf ganze Prozent)." />}
-                            {step > 4 && <SuccessMark text="Wahrscheinlichkeit korrekt berechnet!" />}
+                            {step === STEP.result && <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} solutionText={getSolutionText()} onSolutionShown={onSolutionShown} text={isMulti ? "Erst Pfad A ausrechnen (Zähler·Zähler, Nenner·Nenner), dann Pfad B genauso, anschließend BEIDE Ergebnisse addieren und × 100 für die Prozentzahl." : "Zähler mal Zähler, Nenner mal Nenner. Teile dann das obere Ergebnis durch das untere Ergebnis und multipliziere mit 100 für die Prozentzahl (Runde auf 2 Nachkommastellen oder auf ganze Prozent)."} />}
+                            {step > STEP.result && <SuccessMark text="Wahrscheinlichkeit korrekt berechnet!" />}
                         </StepCard>
                     )}
 
-                    {step === 5 && (
+                    {step === STEP.done && (
                         <SuccessBox showSolutionBtn={true} showSolution={showSolution} onToggleSolution={() => setShowSolution(!showSolution)} onNext={generateProblem} solutionText={problem.explanation} theme="violet" nextBtnText={difficulty === 'pruefung' ? 'Nächste Prüfung' : 'Nächste Aufgabe'} />
                     )}
                 </div>
