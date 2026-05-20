@@ -17,12 +17,12 @@
     <meta property="og:url" content="https://www.smarthematik.de/trigonometrie.html">
 
     <!-- Self-hosted Vendor-Skripte (kein Cross-Origin zu US-Servern) -->
-    <script src="assets/vendor/tailwindcss.js?v=202605200930"></script>
-    <script src="assets/vendor/react.production.min.js?v=202605200930"></script>
-    <script src="assets/vendor/react-dom.production.min.js?v=202605200930"></script>
-    <script src="assets/vendor/babel.min.js?v=202605200930"></script>
+    <script src="assets/vendor/tailwindcss.js?v=202605201013"></script>
+    <script src="assets/vendor/react.production.min.js?v=202605201013"></script>
+    <script src="assets/vendor/react-dom.production.min.js?v=202605201013"></script>
+    <script src="assets/vendor/babel.min.js?v=202605201013"></script>
 
-    <link rel="stylesheet" href="assets/css/main.css?v=202605200930">
+    <link rel="stylesheet" href="assets/css/main.css?v=202605201013">
 </head>
 <body class="text-slate-800 font-sans antialiased flex flex-col min-h-screen">
 
@@ -1232,11 +1232,14 @@ const getAngleData = (V, P1, P2, radius) => {
     const bisector = a1 + diff / 2;
     const antiBis = bisector + Math.PI;
 
-    // Anker für Leader-Linie: MITTE des Bogen-Bereichs (nicht auf der Bogenlinie),
-    // also auf der Bisektor-Richtung bei der Hälfte des Radius.
-    const arcMid = { x: V.x + Math.cos(bisector) * (radius * 0.5), y: V.y + Math.sin(bisector) * (radius * 0.5) };
+    // Anker für Leader-Linie: nahe am Bogen (auf Bisektor-Richtung bei 0.65 × Radius).
+    // Etwas näher am Bogen-Außenrand als zuvor (0.5), damit der Leader-Strich nicht so
+    // tief ins Bogen-Innere ragt.
+    const arcMid = { x: V.x + Math.cos(bisector) * (radius * 0.65), y: V.y + Math.sin(bisector) * (radius * 0.65) };
     // Label sitzt AUSSERHALB des Dreiecks auf der Verlängerung der Bisektor-Linie.
-    const labelDist = radius * 2.4;
+    // Deutlich näher am Vertex als zuvor (2.4 → 1.4) — der Leader-Strich war zu lang
+    // und ließ das Label „weglaufen", besonders bei flachen Winkeln.
+    const labelDist = radius * 1.4;
     const labelPos = { x: V.x + Math.cos(antiBis) * labelDist, y: V.y + Math.sin(antiBis) * labelDist };
 
     return {
@@ -1405,6 +1408,10 @@ const buildSvgBase = (tri, fillCol, mode = "standard") => {
     } else {
         // hypo_bottom: Hypotenuse liegt unten, Höhe steht senkrecht.
         const A = { x: 0, y: 0 }, B = { x: tri.c, y: 0 }, C = { x: tri.q, y: tri.h }, D = { x: tri.q, y: 0 };
+        // Der rechte Winkel am Höhen-Fußpunkt D wird in das GRÖSSERE Teildreieck gelegt.
+        // Hintergrund: bei einem schmalen Teildreieck (p oder q klein) würde der Marker
+        // sonst an die schräge Kathete stoßen. p2 = A → linkes Teildreieck, p2 = B → rechtes.
+        const rightAngleSecondPt = tri.p < tri.q ? A : B;
         els = [
             { type: 'polygon', points: [A, B, C], fill: fillCol },
             { type: 'segment', p1: A, p2: B },
@@ -1412,7 +1419,7 @@ const buildSvgBase = (tri, fillCol, mode = "standard") => {
             { type: 'segment', p1: C, p2: A },
             { type: 'segment', p1: C, p2: D, dashed: true },
             { type: 'rightAngle', v: C, p1: A, p2: B, r },
-            { type: 'rightAngle', v: D, p1: C, p2: B, r }
+            { type: 'rightAngle', v: D, p1: C, p2: rightAngleSecondPt, r }
         ];
     }
     return els;
@@ -1423,9 +1430,11 @@ const buildSvgBase = (tri, fillCol, mode = "standard") => {
 // ==========================================
 const FILL_ORANGE = "rgba(249, 115, 22, 0.10)"; // sehr dezent (Tailwind orange-500 @ 10%)
 
-const generateLevel1 = (lastType) => {
-    let type;
-    do { type = getRandomInt(1, 6); } while (type === lastType);
+// lastTypes ist jetzt ein Array — die letzten 2 Typen werden blockiert, damit nicht
+// zwei "fast identische" Aufgaben hintereinander erscheinen.
+const generateLevel1 = (lastTypes = []) => {
+    let type, attempts = 0;
+    do { type = getRandomInt(1, 6); attempts++; } while (lastTypes.includes(type) && attempts < 30);
 
     const tT = getPerfectTrigTriangle();
     const tH = getPerfectHoehenTriangle();
@@ -1510,9 +1519,9 @@ const generateLevel1 = (lastType) => {
     return { id, typeId: type, level: 1, title, description: desc, elements: els, steps };
 };
 
-const generateLevel2 = (lastType) => {
-    let type;
-    do { type = getRandomInt(1, 3); } while (type === lastType);
+const generateLevel2 = (lastTypes = []) => {
+    let type, attempts = 0;
+    do { type = getRandomInt(1, 5); attempts++; } while (lastTypes.includes(type) && attempts < 30);
 
     const tH = getPerfectHoehenTriangle();
     const tT = getPerfectTrigTriangle();
@@ -1547,7 +1556,7 @@ const generateLevel2 = (lastType) => {
             { id: 5, goal: "Setze nun p und q in den Höhensatz ein.", type: "substitution", template: "h² = [input1] · [input2]", correctInputs: [tH.p.toString(), tH.q.toString()], altInputs: [[tH.q.toString(), tH.p.toString()]], feedback: "Setze p und q ein." },
             { id: 6, goal: "Berechne die Höhe h.", type: "calculation", template: "h = [input] cm", correctAnswer: tH.h.toString(), tolerance: 0.2, feedback: "Wurzel ziehen." }
         ];
-    } else {
+    } else if (type === 3) {
         const r = Math.max(tT.a, tT.b, tT.c) * 0.09;
         title = "Trigonometrie-Mix";
         desc = `Gegeben ist die Hypotenuse c = ${fmtT(tT.c)} cm und die Kathete a = ${fmtT(tT.a)} cm. Berechne zuerst den Winkel α und danach den Winkel β.`;
@@ -1561,13 +1570,50 @@ const generateLevel2 = (lastType) => {
             { id: 3, goal: "Berechne α.", type: "calculation", template: "α = [input] °", correctAnswer: tT.alpha.toString(), tolerance: 0.5, feedback: `Nutze sin⁻¹(${fmtT(tT.a)}/${fmtT(tT.c)}).` },
             { id: 4, goal: "Schritt 2: Berechne β über die Winkelsumme im Dreieck (180°).", type: "calculation", template: "β = [input] °", correctAnswer: tT.beta.toString(), tolerance: 0.5, feedback: `180° − 90° − ${fmtT(tT.alpha)}°` }
         ];
+    } else if (type === 4) {
+        // NEU: Höhensatz rückwärts — h und q sind gegeben, gesucht p und c.
+        const r = Math.max(tH.a, tH.b, tH.c) * 0.09;
+        title = "Höhensatz rückwärts";
+        desc = `Gegeben sind die Höhe h = ${fmtT(tH.h)} cm und der Hypotenusenabschnitt q = ${fmtT(tH.q)} cm. Berechne zuerst den fehlenden Abschnitt p und dann die gesamte Hypotenuse c.`;
+        els = buildSvgBase(tH, FILL_ORANGE, "hypo_bottom");
+        els.push(
+            { type: 'text', x: tH.q / 2, y: -r, text: `q = ${fmtT(tH.q)}`, baseline: 'hanging' },
+            { type: 'text', x: tH.q + tH.p / 2, y: -r, text: 'p = ?', baseline: 'hanging' },
+            { type: 'text', x: tH.q + (tH.q > tH.p ? -r * 0.6 : r * 0.6), y: tH.h * 0.32, text: `h = ${fmtT(tH.h)}`, anchor: tH.q > tH.p ? 'end' : 'start' }
+        );
+        steps = [
+            { id: 1, goal: "Schritt 1: Wähle die Formel, um p zu berechnen.", type: "formula_selection", options: ["h² = p · q", "a² = c · p"], correctAnswer: "h² = p · q", feedback: "Stelle den Höhensatz nach p um: p = h² / q." },
+            { id: 2, goal: "Werte einsetzen.", type: "substitution", template: "[input1]² = [input2] · q", correctInputs: [tH.h.toString(), "p"], altInputs: [[tH.h.toString(), "P"]], feedback: "Setze h links und p · q rechts ein." },
+            { id: 3, goal: "Berechne p.", type: "calculation", template: "p = [input] cm", correctAnswer: tH.p.toString(), tolerance: 0.2, feedback: `p = h² / q = ${fmtT(tH.h)}² / ${fmtT(tH.q)}` },
+            { id: 4, goal: "Schritt 2: Berechne die gesamte Hypotenuse c.", type: "calculation", template: "c = [input] cm", correctAnswer: tH.c.toString(), tolerance: 0.2, feedback: "c = p + q" }
+        ];
+    } else {
+        // NEU: Hypotenuse + Winkel → beide Katheten (sin und cos kombiniert).
+        const r = Math.max(tT.a, tT.b, tT.c) * 0.09;
+        title = "Hypotenuse und Winkel";
+        desc = `Gegeben sind die Hypotenuse c = ${fmtT(tT.c)} cm und der Winkel α = ${fmtT(tT.alpha)}°. Berechne nacheinander die Gegenkathete a und die Ankathete b.`;
+        els = buildSvgBase(tT, FILL_ORANGE, "standard");
+        els.push({ type: 'angle', v: { x: 0, y: 0 }, p1: { x: tT.b, y: 0 }, p2: { x: tT.b, y: tT.a }, r, label: `${fmtT(tT.alpha)}°` });
+        els.push(
+            { type: 'text', x: tT.b / 2 - tT.a / tT.c * r * 1.2, y: tT.a / 2 + tT.b / tT.c * r * 1.2, text: `c = ${fmtT(tT.c)}` },
+            { type: 'text', x: tT.b + r, y: tT.a / 2, text: 'a = ?', anchor: 'start' },
+            { type: 'text', x: tT.b / 2, y: -r, text: 'b = ?', baseline: 'hanging' }
+        );
+        steps = [
+            { id: 1, goal: "Schritt 1: Wähle die Formel für die Gegenkathete a.", type: "formula_selection", options: ["sin(α) = a / c", "cos(α) = b / c", "tan(α) = a / b"], correctAnswer: "sin(α) = a / c", feedback: "Gegenkathete und Hypotenuse → Sinus." },
+            { id: 2, goal: "Werte einsetzen.", type: "substitution", template: "sin([input1]°) = [input2] / [input3]", correctInputs: [tT.alpha.toString(), "a", tT.c.toString()], feedback: "Winkel, a, c." },
+            { id: 3, goal: "Berechne a.", type: "calculation", template: "a = [input] cm", correctAnswer: tT.a.toString(), tolerance: 0.2, feedback: `a = ${fmtT(tT.c)} · sin(${fmtT(tT.alpha)}°)` },
+            { id: 4, goal: "Schritt 2: Wähle die Formel für die Ankathete b.", type: "formula_selection", options: ["cos(α) = b / c", "sin(α) = b / c", "tan(α) = b / a"], correctAnswer: "cos(α) = b / c", feedback: "Ankathete und Hypotenuse → Cosinus." },
+            { id: 5, goal: "Werte einsetzen.", type: "substitution", template: "cos([input1]°) = [input2] / [input3]", correctInputs: [tT.alpha.toString(), "b", tT.c.toString()], feedback: "Winkel, b, c." },
+            { id: 6, goal: "Berechne b.", type: "calculation", template: "b = [input] cm", correctAnswer: tT.b.toString(), tolerance: 0.2, feedback: `b = ${fmtT(tT.c)} · cos(${fmtT(tT.alpha)}°)` }
+        ];
     }
     return { id, typeId: type, level: 2, title, description: desc, elements: els, steps };
 };
 
-const generateLevel3 = (lastType) => {
-    let type;
-    do { type = getRandomInt(1, 3); } while (type === lastType);
+const generateLevel3 = (lastTypes = []) => {
+    let type, attempts = 0;
+    do { type = getRandomInt(1, 5); attempts++; } while (lastTypes.includes(type) && attempts < 30);
 
     const tH = getPerfectHoehenTriangle();
     const id = "l3_" + Date.now();
@@ -1608,7 +1654,7 @@ const generateLevel3 = (lastType) => {
             { id: 6, goal: "Werte in die Formel einsetzen.", type: "substitution", template: "sin(α) = [input1] / [input2]", correctInputs: [tH.a.toString(), tH.c.toString()], feedback: "a / c." },
             { id: 7, goal: "Berechne den Winkel α.", type: "calculation", template: "α = [input] °", correctAnswer: tH.alpha.toString(), tolerance: 0.5, feedback: "sin⁻¹(a/c)" }
         ];
-    } else {
+    } else if (type === 3) {
         title = "Trigonometrie-Kombi B";
         desc = `Gegeben sind die Hypotenuse c = ${fmtT(tH.c)} cm und der Abschnitt p = ${fmtT(tH.p)} cm. Berechne q, dann die Höhe h und damit den Winkel β (im rechten Teildreieck).`;
         els = buildSvgBase(tH, FILL_ORANGE, "hypo_bottom");
@@ -1622,6 +1668,49 @@ const generateLevel3 = (lastType) => {
             { id: 5, goal: "Schritt 3: Wähle die Winkelfunktion für β (im rechten Teildreieck mit h und p).", type: "formula_selection", options: ["tan(β) = h / p", "sin(β) = h / p"], correctAnswer: "tan(β) = h / p", feedback: "Gegenkathete (h) durch Ankathete (p)." },
             { id: 6, goal: "Werte in die Formel einsetzen.", type: "substitution", template: "tan(β) = [input1] / [input2]", correctInputs: [tH.h.toString(), tH.p.toString()], feedback: "h oben, p unten." },
             { id: 7, goal: "Berechne den Winkel β.", type: "calculation", template: "β = [input] °", correctAnswer: tH.beta.toString(), tolerance: 0.5, feedback: "tan⁻¹(h/p)" }
+        ];
+    } else if (type === 4) {
+        // NEU: Pythagoras + Trigonometrie — zwei Katheten gegeben, c, α und β gesucht.
+        const tTri = getPerfectTrigTriangle();
+        const rT = Math.max(tTri.a, tTri.b, tTri.c) * 0.09;
+        title = "Pythagoras + Trigonometrie";
+        desc = `Im rechtwinkligen Dreieck ABC sind die beiden Katheten a = ${fmtT(tTri.a)} cm und b = ${fmtT(tTri.b)} cm gegeben. Berechne nacheinander die Hypotenuse c, den Winkel α und den Winkel β.`;
+        els = buildSvgBase(tTri, FILL_ORANGE, "standard");
+        els.push({ type: 'angle', v: { x: 0, y: 0 }, p1: { x: tTri.b, y: 0 }, p2: { x: tTri.b, y: tTri.a }, r: rT, label: 'α = ?' });
+        els.push({ type: 'angle', v: { x: tTri.b, y: tTri.a }, p1: { x: 0, y: 0 }, p2: { x: tTri.b, y: 0 }, r: rT, label: 'β = ?' });
+        els.push(
+            { type: 'text', x: tTri.b / 2, y: -rT, text: `b = ${fmtT(tTri.b)}`, baseline: 'hanging' },
+            { type: 'text', x: tTri.b + rT, y: tTri.a / 2, text: `a = ${fmtT(tTri.a)}`, anchor: 'start' },
+            { type: 'text', x: tTri.b / 2 - tTri.a / tTri.c * rT * 1.2, y: tTri.a / 2 + tTri.b / tTri.c * rT * 1.2, text: 'c = ?' }
+        );
+        steps = [
+            { id: 1, goal: "Schritt 1: Wähle die Formel für die Hypotenuse c.", type: "formula_selection", options: ["a² + b² = c² (Pythagoras)", "h² = p · q (Höhensatz)"], correctAnswer: "a² + b² = c² (Pythagoras)", feedback: "Beide Katheten sind bekannt → Pythagoras." },
+            { id: 2, goal: "Werte einsetzen (Reihenfolge egal).", type: "substitution", template: "[input1]² + [input2]² = c²", correctInputs: [tTri.a.toString(), tTri.b.toString()], altInputs: [[tTri.b.toString(), tTri.a.toString()]], feedback: "a und b in den Satz des Pythagoras einsetzen." },
+            { id: 3, goal: "Berechne c.", type: "calculation", template: "c = [input] cm", correctAnswer: tTri.c.toString(), tolerance: 0.3, feedback: `Wurzel aus (${fmtT(tTri.a)}² + ${fmtT(tTri.b)}²)` },
+            { id: 4, goal: "Schritt 2: Wähle die Formel für den Winkel α.", type: "formula_selection", options: ["tan(α) = a / b", "sin(α) = b / c", "cos(α) = a / c"], correctAnswer: "tan(α) = a / b", feedback: "Gegenkathete (a) und Ankathete (b) sind beide bekannt → Tangens." },
+            { id: 5, goal: "Werte einsetzen.", type: "substitution", template: "tan(α) = [input1] / [input2]", correctInputs: [tTri.a.toString(), tTri.b.toString()], feedback: "Gegenkathete oben, Ankathete unten." },
+            { id: 6, goal: "Berechne α.", type: "calculation", template: "α = [input] °", correctAnswer: tTri.alpha.toString(), tolerance: 0.5, feedback: `tan⁻¹(${fmtT(tTri.a)} / ${fmtT(tTri.b)})` },
+            { id: 7, goal: "Schritt 3: Berechne β über die Winkelsumme im Dreieck (180°).", type: "calculation", template: "β = [input] °", correctAnswer: tTri.beta.toString(), tolerance: 0.5, feedback: `180° − 90° − ${fmtT(tTri.alpha)}°` }
+        ];
+    } else {
+        // NEU: Kathete + Hypotenuse → Winkel α (sin⁻¹), β (Winkelsumme), zweite Kathete (Pythagoras).
+        title = "Winkel und zweite Kathete";
+        desc = `Im rechtwinkligen Dreieck ABC sind die Kathete a = ${fmtT(tH.a)} cm und die Hypotenuse c = ${fmtT(tH.c)} cm gegeben. Berechne den Winkel α, danach den Winkel β und schließlich die zweite Kathete b.`;
+        els = buildSvgBase(tH, FILL_ORANGE, "standard");
+        els.push({ type: 'angle', v: { x: 0, y: 0 }, p1: { x: tH.b, y: 0 }, p2: { x: tH.b, y: tH.a }, r, label: 'α = ?' });
+        els.push(
+            { type: 'text', x: tH.b / 2 - tH.a / tH.c * r * 1.2, y: tH.a / 2 + tH.b / tH.c * r * 1.2, text: `c = ${fmtT(tH.c)}` },
+            { type: 'text', x: tH.b + r, y: tH.a / 2, text: `a = ${fmtT(tH.a)}`, anchor: 'start' },
+            { type: 'text', x: tH.b / 2, y: -r, text: 'b = ?', baseline: 'hanging' }
+        );
+        steps = [
+            { id: 1, goal: "Schritt 1: Wähle die Formel für den Winkel α.", type: "formula_selection", options: ["sin(α) = a / c", "cos(α) = a / c", "tan(α) = a / c"], correctAnswer: "sin(α) = a / c", feedback: "Gegenkathete durch Hypotenuse → Sinus." },
+            { id: 2, goal: "Werte einsetzen.", type: "substitution", template: "sin(α) = [input1] / [input2]", correctInputs: [tH.a.toString(), tH.c.toString()], feedback: "Gegenkathete oben, Hypotenuse unten." },
+            { id: 3, goal: "Berechne α.", type: "calculation", template: "α = [input] °", correctAnswer: tH.alpha.toString(), tolerance: 0.5, feedback: `sin⁻¹(${fmtT(tH.a)} / ${fmtT(tH.c)})` },
+            { id: 4, goal: "Schritt 2: Berechne β über die Winkelsumme im Dreieck (180°).", type: "calculation", template: "β = [input] °", correctAnswer: tH.beta.toString(), tolerance: 0.5, feedback: `180° − 90° − ${fmtT(tH.alpha)}°` },
+            { id: 5, goal: "Schritt 3: Wähle die Formel für die Kathete b.", type: "formula_selection", options: ["a² + b² = c² (Pythagoras)", "sin(β) = b / c", "h² = p · q"], correctAnswer: "a² + b² = c² (Pythagoras)", feedback: "a und c sind bekannt → Pythagoras nach b auflösen." },
+            { id: 6, goal: "Werte einsetzen.", type: "substitution", template: "[input1]² + b² = [input2]²", correctInputs: [tH.a.toString(), tH.c.toString()], feedback: "a und c einsetzen." },
+            { id: 7, goal: "Berechne b.", type: "calculation", template: "b = [input] cm", correctAnswer: tH.b.toString(), tolerance: 0.3, feedback: `Wurzel aus (${fmtT(tH.c)}² − ${fmtT(tH.a)}²)` }
         ];
     }
     return { id, typeId: type, level: 3, title, description: desc, elements: els, steps };
@@ -1644,7 +1733,8 @@ const msaTasks = [
                 { type: 'segment', p1: { x: q, y: h }, p2: { x: 0, y: 0 } },
                 { type: 'segment', p1: { x: q, y: h }, p2: { x: q, y: 0 }, dashed: true },
                 { type: 'rightAngle', v: { x: q, y: h }, p1: { x: 0, y: 0 }, p2: { x: c, y: 0 }, r },
-                { type: 'rightAngle', v: { x: q, y: 0 }, p1: { x: q, y: h }, p2: { x: c, y: 0 }, r },
+                // q=8, p=2 → rechtes Teildreieck kleiner, Marker ins linke (p2=A statt B).
+                { type: 'rightAngle', v: { x: q, y: 0 }, p1: { x: q, y: h }, p2: { x: 0, y: 0 }, r },
                 { type: 'angle', v: { x: 0, y: 0 }, p1: { x: c, y: 0 }, p2: { x: q, y: h }, r: r * 2.2, label: 'α' },
                 { type: 'angle', v: { x: c, y: 0 }, p1: { x: q, y: h }, p2: { x: 0, y: 0 }, r: r * 2.2, label: 'β' },
                 { type: 'text', x: q / 2, y: -r, text: 'q = 8' },
@@ -1676,7 +1766,8 @@ const msaTasks = [
             { type: 'segment', p1: { x: 8, y: 5.66 }, p2: { x: 0, y: 0 } },
             { type: 'segment', p1: { x: 8, y: 5.66 }, p2: { x: 8, y: 0 }, dashed: true },
             { type: 'rightAngle', v: { x: 8, y: 5.66 }, p1: { x: 0, y: 0 }, p2: { x: 12, y: 0 }, r: 0.7 },
-            { type: 'rightAngle', v: { x: 8, y: 0 }, p1: { x: 8, y: 5.66 }, p2: { x: 12, y: 0 }, r: 0.7 },
+            // q=8, p=4 → rechtes Teildreieck kleiner, Marker ins linke (p2=A).
+            { type: 'rightAngle', v: { x: 8, y: 0 }, p1: { x: 8, y: 5.66 }, p2: { x: 0, y: 0 }, r: 0.7 },
             // Ecken A, B, C, M, D als Kleinbuchstaben-Marker
             { type: 'text', x: -0.3, y: -0.5, text: 'A', anchor: 'end', baseline: 'hanging' },
             { type: 'text', x: 12.3, y: -0.5, text: 'B', anchor: 'start', baseline: 'hanging' },
@@ -1713,7 +1804,8 @@ const msaTasks = [
                 { type: 'segment', p1: { x: q, y: hH }, p2: { x: 0, y: 0 } },
                 { type: 'segment', p1: { x: q, y: hH }, p2: { x: q, y: 0 }, dashed: true },
                 { type: 'rightAngle', v: { x: q, y: hH }, p1: { x: 0, y: 0 }, p2: { x: c, y: 0 }, r: 0.3 },
-                { type: 'rightAngle', v: { x: q, y: 0 }, p1: { x: q, y: hH }, p2: { x: c, y: 0 }, r: 0.3 },
+                // q=3,2, p=1,8 → rechtes Teildreieck kleiner, Marker ins linke (p2=A).
+                { type: 'rightAngle', v: { x: q, y: 0 }, p1: { x: q, y: hH }, p2: { x: 0, y: 0 }, r: 0.3 },
                 { type: 'angle', v: { x: 0, y: 0 }, p1: { x: c, y: 0 }, p2: { x: q, y: hH }, r: 0.6, label: 'α' },
                 // Eckenmarker
                 { type: 'text', x: -0.15, y: -0.25, text: 'A', anchor: 'end', baseline: 'hanging' },
@@ -1748,7 +1840,8 @@ const msaTasks = [
             { type: 'segment', p1: { x: 20, y: 10 }, p2: { x: 0, y: 0 } },
             { type: 'segment', p1: { x: 20, y: 10 }, p2: { x: 20, y: 0 }, dashed: true },
             { type: 'rightAngle', v: { x: 20, y: 10 }, p1: { x: 0, y: 0 }, p2: { x: 25, y: 0 }, r: 2 },
-            { type: 'rightAngle', v: { x: 20, y: 0 }, p1: { x: 20, y: 10 }, p2: { x: 25, y: 0 }, r: 2 },
+            // AD=20, DB=5 → rechtes Teildreieck deutlich kleiner, Marker ins linke (p2=A).
+            { type: 'rightAngle', v: { x: 20, y: 0 }, p1: { x: 20, y: 10 }, p2: { x: 0, y: 0 }, r: 2 },
             { type: 'angle', v: { x: 0, y: 0 }, p1: { x: 25, y: 0 }, p2: { x: 20, y: 10 }, r: 3, label: 'α' },
             { type: 'text', x: 19.4, y: 3.5, text: 'h = 10', anchor: 'end' },
             { type: 'text', x: 10, y: -2, text: 'AD (q) = 4x' },
@@ -1819,7 +1912,8 @@ const msaTasks = [
             { type: 'segment', p1: { x: 6.4, y: 4.8 }, p2: { x: 0, y: 0 } },
             { type: 'segment', p1: { x: 6.4, y: 4.8 }, p2: { x: 6.4, y: 0 }, dashed: true },
             { type: 'rightAngle', v: { x: 6.4, y: 4.8 }, p1: { x: 0, y: 0 }, p2: { x: 10, y: 0 }, r: 0.8 },
-            { type: 'rightAngle', v: { x: 6.4, y: 0 }, p1: { x: 6.4, y: 4.8 }, p2: { x: 10, y: 0 }, r: 0.8 },
+            // q=6,4, p=3,6 → rechtes Teildreieck kleiner, Marker ins linke (p2=A).
+            { type: 'rightAngle', v: { x: 6.4, y: 0 }, p1: { x: 6.4, y: 4.8 }, p2: { x: 0, y: 0 }, r: 0.8 },
             { type: 'text', x: 3.2, y: -0.4, text: 'q = 6,4', baseline: 'hanging' },
             { type: 'text', x: 8.2, y: -0.4, text: 'p = 3,6', baseline: 'hanging' },
             { type: 'text', x: 5.9, y: 1.5, text: 'h = ?', anchor: 'end' }
@@ -1989,8 +2083,12 @@ const FormulaSelection = ({ step, onCorrect, onTipShown }) => {
                     <button key={idx} onClick={() => setSelected(opt)} className={`py-3 px-4 border rounded-lg font-medium transition-colors text-lg shadow-sm text-slate-800 ${selected === opt ? 'bg-orange-500 border-orange-600 text-white font-bold' : 'bg-orange-50 hover:bg-orange-100 border-orange-200'}`}>{opt}</button>
                 ))}
             </div>
-            <div className="flex justify-between items-center gap-3 mt-2">
-                <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} text={step.feedback || step.tip || 'Überlege, welche Seiten zum Winkel gehören.'} solutionText={step.correctAnswer} onSolutionShown={onTipShown} />
+            {/* flex-1-Wrapper hält das Layout stabil: TipBox returnt null bei errors < 2,
+                aber der SubmitBtn bleibt immer rechts ausgerichtet (statt nach links zu rutschen). */}
+            <div className="flex items-center gap-3 mt-2">
+                <div className="flex-1">
+                    <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} text={step.feedback || step.tip || 'Überlege, welche Seiten zum Winkel gehören.'} solutionText={step.correctAnswer} onSolutionShown={onTipShown} />
+                </div>
                 <SubmitBtn onClick={confirmSelection} theme="orange" disabled={!selected} />
             </div>
             {error && <div className="text-rose-600 text-sm font-medium inline-flex items-center mt-2"><XCircle className="w-4 h-4 mr-1" /> Noch nicht richtig — schau dir die Optionen noch einmal an.</div>}
@@ -2044,8 +2142,10 @@ const SubstitutionInput = ({ step, onCorrect, onTipShown }) => {
             <div className="mb-5 py-6 bg-white rounded-lg flex flex-wrap items-center justify-center border border-slate-200 shadow-inner">{renderTemplate()}</div>
             {/* Einheitlicher SubmitBtn (Pfeil rechts in Trainer-Farbe) — wie in den anderen Trainern.
                 Enter im Eingabefeld löst die gleiche Prüfung aus. */}
-            <div className="flex justify-between items-center gap-3">
-                <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} text={step.feedback || step.tip || 'Schau dir an, welche Zahl Gegenkathete (gegenüber dem Winkel) und welche Ankathete (am Winkel) ist.'} solutionText={(step.correctInputs || []).join('   ;   ')} onSolutionShown={onTipShown} />
+            <div className="flex items-center gap-3">
+                <div className="flex-1">
+                    <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} text={step.feedback || step.tip || 'Schau dir an, welche Zahl Gegenkathete (gegenüber dem Winkel) und welche Ankathete (am Winkel) ist.'} solutionText={(step.correctInputs || []).join('   ;   ')} onSolutionShown={onTipShown} />
+                </div>
                 <SubmitBtn onClick={checkAnswer} theme="orange" disabled={!inputs.some(v => (v || '').trim().length > 0)} />
             </div>
             {error && <div className="mt-3 text-rose-600 text-sm font-medium inline-flex items-center"><XCircle className="w-4 h-4 mr-1" /> Da stimmt noch was nicht — schau dir die Zuordnung der Seiten genau an.</div>}
@@ -2083,8 +2183,10 @@ const CalculationInput = ({ step, onCorrect, onTipShown }) => {
                 {step.template.split("[input]")[1]}
             </div>
             {/* Einheitlicher SubmitBtn (Pfeil rechts in Trainer-Farbe). Enter im Eingabefeld löst dieselbe Prüfung aus. */}
-            <div className="flex justify-between items-center gap-3">
-                <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} text={step.feedback || step.tip || 'Tippe den Ausdruck genau so in den Rechner — Achtung beim Modus DEG.'} solutionText={`${step.correctAnswer}`} onSolutionShown={onTipShown} />
+            <div className="flex items-center gap-3">
+                <div className="flex-1">
+                    <TipBox errors={errors} revealed={tipRevealed} setRevealed={setTipRevealed} text={step.feedback || step.tip || 'Tippe den Ausdruck genau so in den Rechner — Achtung beim Modus DEG.'} solutionText={`${step.correctAnswer}`} onSolutionShown={onTipShown} />
+                </div>
                 <SubmitBtn onClick={checkAnswer} theme="orange" disabled={!(val || '').trim()} />
             </div>
             {error && <div className="mt-3 text-rose-600 text-sm font-medium inline-flex items-center"><XCircle className="w-4 h-4 mr-1" /> Nicht ganz — nutze den Rechner unten und prüfe noch einmal.</div>}
@@ -2111,7 +2213,9 @@ const TrigonometrieTrainer = () => {
     const adaptive = useAdaptive('trigonometrie', difficulty);
 
     // Tracking für maximale Abwechslung pro Level + Anti-Repeat-Pool für MSA.
-    const historyRef = React.useRef({ l1: 0, l2: 0, l3: 0 });
+    // historyRef hält pro Level die letzten 2 Typen — beide werden bei der nächsten
+    // Generation blockiert, damit der Schüler nicht zwei sehr ähnliche Aufgaben hintereinander sieht.
+    const historyRef = React.useRef({ l1: [], l2: [], l3: [] });
     const [examPool, setExamPool] = useState(() => shuffleArray(Array.from({ length: msaTasks.length }, (_, i) => i)));
     const examIdxRef = React.useRef(0);
     // Alternierende Dreieck-Farben: orange → grün → blau → … sehr dezent.
@@ -2122,15 +2226,19 @@ const TrigonometrieTrainer = () => {
 
     const loadTaskForDiff = (diff) => {
         let newTask;
+        // Helper: hängt den neuen Typ vorn an die History und schneidet auf max. 2 Einträge.
+        const pushHistory = (key, typeId) => {
+            historyRef.current[key] = [typeId, ...historyRef.current[key]].slice(0, 2);
+        };
         if (diff === 'leicht') {
             newTask = generateLevel1(historyRef.current.l1);
-            historyRef.current.l1 = newTask.typeId;
+            pushHistory('l1', newTask.typeId);
         } else if (diff === 'mittel') {
             newTask = generateLevel2(historyRef.current.l2);
-            historyRef.current.l2 = newTask.typeId;
+            pushHistory('l2', newTask.typeId);
         } else if (diff === 'schwer') {
             newTask = generateLevel3(historyRef.current.l3);
-            historyRef.current.l3 = newTask.typeId;
+            pushHistory('l3', newTask.typeId);
         } else { // pruefung
             let pool = examPool;
             let idx = examIdxRef.current;
@@ -2202,11 +2310,17 @@ const TrigonometrieTrainer = () => {
     };
 
     // Render der bereits erledigten Schritte als kompakter Lösungsweg.
-    const renderCompletedStep = (step) => {
+    // Gilt für alle Schwierigkeitsstufen. Format pro Schritt:
+    //   ✓  #1 Wähle die passende Formel: sin(α) = GK / HYP
+    // alles in derselben Schriftgröße (text-lg, wie bei den aktiven Step-Überschriften),
+    // damit es wie eine fortlaufende Aussage gelesen werden kann.
+    const renderCompletedStep = (step, idx) => {
         const answer = userAnswers[step.id];
-        let content = null;
+        let content = null, italic = true, contentColor = 'text-slate-800';
         if (step.type === 'formula_selection') {
-            content = <span className="text-orange-800">{answer}</span>;
+            content = answer;
+            italic = false;
+            contentColor = 'text-orange-800';
         } else if (step.type === 'substitution') {
             let text = step.template;
             if (Array.isArray(answer)) {
@@ -2214,19 +2328,21 @@ const TrigonometrieTrainer = () => {
             } else {
                 step.correctInputs.forEach(v => { text = text.replace(/\[input\d*\]/, fmtT(v)); });
             }
-            content = <span className="text-orange-800" style={{ fontFamily: "'Cambria Math', 'Times New Roman', serif", fontStyle: 'italic' }}>{text}</span>;
+            content = text;
+            contentColor = 'text-orange-800';
         } else if (step.type === 'calculation') {
-            const text = step.template.replace('[input]', fmtT(answer));
-            content = <span className="text-green-800" style={{ fontFamily: "'Cambria Math', 'Times New Roman', serif", fontStyle: 'italic' }}>{text}</span>;
+            content = step.template.replace('[input]', fmtT(answer));
+            contentColor = 'text-green-800';
         }
+        // "Schritt N: ..." Prefix entfernen und Satzzeichen am Ende ("." oder "?") strippen.
+        const shortGoal = step.goal.replace(/^Schritt \d+:\s*/, '').replace(/[.?]$/, '');
         return (
-            <div key={step.id} className="bg-white p-4 rounded-xl shadow-sm border-l-4 border-green-300 mb-3 opacity-90">
-                <div className="flex items-center text-slate-500 font-bold mb-1 text-xs uppercase tracking-wide">
-                    <CheckCircle className="w-4 h-4 mr-1 text-green-500" /> Schritt erledigt
-                </div>
-                <p className="text-sm text-slate-600 mb-2">{step.goal}</p>
-                <div className="bg-slate-50 px-3 py-1.5 rounded border border-slate-200 text-lg font-bold inline-block">
-                    {content}
+            <div key={step.id} className="flex items-start gap-2 py-2 px-3 bg-white border-l-4 border-green-300 mb-1.5 rounded shadow-sm">
+                <CheckCircle className="w-5 h-5 text-green-500 shrink-0 mt-1" />
+                <div className="flex-1 min-w-0 text-lg font-bold leading-snug">
+                    <span className="text-slate-500 mr-1.5">#{idx + 1}</span>
+                    <span className="text-slate-700">{shortGoal}:</span>
+                    <span className={`ml-2 ${contentColor}`} style={{ fontFamily: "'Cambria Math', 'Times New Roman', serif", fontStyle: italic ? 'italic' : 'normal' }}>{content}</span>
                 </div>
             </div>
         );
@@ -2289,7 +2405,7 @@ const TrigonometrieTrainer = () => {
                             </div>
 
                             <div className="flex flex-col">
-                                {currentTask.steps.slice(0, currentStepIndex).map(s => renderCompletedStep(s))}
+                                {currentTask.steps.slice(0, currentStepIndex).map((s, idx) => renderCompletedStep(s, idx))}
                             </div>
 
                             {!isCompleted ? (
