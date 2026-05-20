@@ -887,6 +887,20 @@ const WahrscheinlichkeitsTrainer = () => {
         }
     };
 
+    // Aktiver Eingabe-Schlüssel je nach aktuellem Step. Wenn der Schüler IRGENDWO
+    // ins Baumdiagramm tippt, soll der Cursor in genau dieses Feld unten springen.
+    const activeMobileInputKey = () => {
+        if (step === STEP.zug1A) return 't1';
+        if (step === STEP.zug2A) return 't2';
+        if (isMulti && step === STEP.zug1B) return 't1B';
+        if (isMulti && step === STEP.zug2B) return 't2B';
+        return null;
+    };
+    const focusActiveMobileInput = () => {
+        const key = activeMobileInputKey();
+        if (key) focusMobileInput(key);
+    };
+
     // Mapping zwischen Baum-Knoten (level 1|2, path 'A'|'B') und den entsprechenden
     // State-Keys / Check-Funktionen / Steps. Eine einzige Quelle der Wahrheit, statt
     // 4× ähnlichen Code zu kopieren.
@@ -912,16 +926,17 @@ const WahrscheinlichkeitsTrainer = () => {
 
         // Hilfs-Wrapper: Im Mobile-Modus den MiniFractionInput deaktivieren und einen
         // onClick auf den foreignObject-Div hängen, der das große Eingabefeld unten
-        // fokussiert. Auf Desktop bleibt alles editierbar.
-        const renderMobileTreeInput = (binding, valTop, valBot, statusTop, statusBot) => (
+        // fokussiert. Der `active`-Prop (Glow) wird durchgereicht, damit der gerade
+        // aktive Bruch auch in der Mobile-Übersicht gelb pulsiert.
+        const renderMobileTreeInput = (binding, valTop, valBot, statusTop, statusBot, isActive) => (
             <div xmlns="http://www.w3.org/1999/xhtml"
                  className="flex justify-center h-full items-center cursor-pointer"
-                 onClick={() => focusMobileInput(binding.topKey)}>
+                 onClick={(e) => { e.stopPropagation(); focusMobileInput(binding.topKey); }}>
                 <div style={{pointerEvents: 'none'}}>
                     <MiniFractionInput idTop={binding.topKey} idBot={binding.botKey}
                         valTop={valTop} valBot={valBot}
                         onChange={()=>{}} disabled={true}
-                        statusTop={statusTop} statusBot={statusBot} theme="violet" />
+                        statusTop={statusTop} statusBot={statusBot} theme="violet" active={isActive} />
                 </div>
             </div>
         );
@@ -962,7 +977,7 @@ const WahrscheinlichkeitsTrainer = () => {
                             // Aktive Eingabe — leuchtender Glow.
                             fg.push(
                                 <foreignObject key={`fo-${pth}${lvl}-${index}`} x={midX - 26} y={midY - 40} width="52" height="80">
-                                    {mobileMode ? renderMobileTreeInput(binding, valTop, valBot, stTop, stBot) : (
+                                    {mobileMode ? renderMobileTreeInput(binding, valTop, valBot, stTop, stBot, true) : (
                                         <div xmlns="http://www.w3.org/1999/xhtml" className="flex justify-center h-full items-center">
                                             <MiniFractionInput idTop={topKey} idBot={botKey} valTop={valTop} valBot={valBot} onChange={handleInputChange} onSubmit={onSubmit} disabled={false} statusTop={stTop} statusBot={stBot} theme="violet" active={true} />
                                         </div>
@@ -1104,9 +1119,14 @@ const WahrscheinlichkeitsTrainer = () => {
                                         </div>
 
                                         {/* Mobile (< sm): vereinfachtes SVG zur Anzeige + große Bruch-Eingaben darunter.
-                                            mobileMode=true: Inputs im Baum sind read-only, ein Tap springt zu den großen
-                                            Eingabefeldern unten (sm:hidden bg-violet-50). */}
-                                        <div className="sm:hidden w-full bg-slate-50 border border-slate-200 rounded-xl p-2 shadow-inner animate-fade-in mb-3 overflow-x-auto">
+                                            mobileMode=true: Inputs im Baum sind read-only. Klick IRGENDWO auf
+                                            den Baum-Container springt zum aktiven Eingabefeld unten —
+                                            besonders praktisch bei kleinen Screens, wo der Bruch im Baum schwer
+                                            mit dem Finger zu treffen ist. */}
+                                        <div className="sm:hidden w-full bg-slate-50 border border-slate-200 rounded-xl p-2 shadow-inner animate-fade-in mb-3 overflow-x-auto cursor-pointer"
+                                             onClick={focusActiveMobileInput}
+                                             role="button"
+                                             title="Tippe, um zum aktiven Bruch-Eingabefeld zu springen">
                                             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1 text-center">Baumdiagramm (Übersicht)</h3>
                                             <svg viewBox={vb} className={numKnoten === 2
                                                 ? "w-full h-auto min-w-[300px] block overflow-visible"
