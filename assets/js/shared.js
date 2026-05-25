@@ -362,7 +362,8 @@ const themeColors = {
     violet: { activeBorder: 'border-violet-500', activeBg: 'bg-violet-50', activeTitle: 'text-violet-900', badgeBg: 'bg-violet-600', shadow: 'shadow-violet-100', btnBg: 'bg-violet-600', btnHover: 'hover:bg-violet-700' },
     teal: { activeBorder: 'border-teal-500', activeBg: 'bg-teal-50', activeTitle: 'text-teal-900', badgeBg: 'bg-teal-600', shadow: 'shadow-teal-100', btnBg: 'bg-teal-600', btnHover: 'hover:bg-teal-700' },
     cyan: { activeBorder: 'border-cyan-500', activeBg: 'bg-cyan-50', activeTitle: 'text-cyan-900', badgeBg: 'bg-cyan-600', shadow: 'shadow-cyan-100', btnBg: 'bg-cyan-600', btnHover: 'hover:bg-cyan-700' },
-    orange: { activeBorder: 'border-orange-500', activeBg: 'bg-orange-50', activeTitle: 'text-orange-900', badgeBg: 'bg-orange-600', shadow: 'shadow-orange-100', btnBg: 'bg-orange-600', btnHover: 'hover:bg-orange-700' }
+    orange: { activeBorder: 'border-orange-500', activeBg: 'bg-orange-50', activeTitle: 'text-orange-900', badgeBg: 'bg-orange-600', shadow: 'shadow-orange-100', btnBg: 'bg-orange-600', btnHover: 'hover:bg-orange-700' },
+    indigo: { activeBorder: 'border-indigo-500', activeBg: 'bg-indigo-50', activeTitle: 'text-indigo-900', badgeBg: 'bg-indigo-600', shadow: 'shadow-indigo-100', btnBg: 'bg-indigo-600', btnHover: 'hover:bg-indigo-700' }
 };
 
 // ==========================================
@@ -436,6 +437,18 @@ function BracketsIcon({ className }) {
         </svg>
     );
 }
+function Sphere({ className }) {
+    // Kugel-Logo: Kreis mit Äquator-Ellipse (vorne durchgezogen, hinten gestrichelt).
+    // Großer Kreis (r=10.5 von viewBox 0-24) + dünne Striche, damit es kreisrund
+    // wirkt und nicht durch dicke Stroke-Linecaps "eiig" aussieht.
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="butt" strokeLinejoin="round" className={className}>
+            <circle cx="12" cy="12" r="10.5" />
+            <path d="M 1.5 12 A 10.5 2.9 0 0 0 22.5 12" strokeWidth="1.1" />
+            <path d="M 22.5 12 A 10.5 2.9 0 0 0 1.5 12" strokeDasharray="2,1.8" strokeWidth="0.9" />
+        </svg>
+    );
+}
 function FractionIcon({ className }) {
     // Bruch 1 / (x − 1) — passend zu Bruchgleichungen.
     return (
@@ -464,11 +477,13 @@ const Frac = ({ top, bot }) => <span className="inline-flex flex-col items-cente
 const TrainerHeader = ({ theme, icon: Icon, title, streakIcon: StreakIcon, streak }) => {
     const headerBg = {
         emerald: 'bg-emerald-700', rose: 'bg-rose-600', amber: 'bg-amber-500', sky: 'bg-sky-500',
-        violet: 'bg-violet-600', teal: 'bg-teal-600', cyan: 'bg-cyan-600', orange: 'bg-orange-600'
+        violet: 'bg-violet-600', teal: 'bg-teal-600', cyan: 'bg-cyan-600', orange: 'bg-orange-600',
+        indigo: 'bg-indigo-700'
     }[theme] || 'bg-emerald-700';
     const pillBg = {
         emerald: 'bg-emerald-800', rose: 'bg-rose-700', amber: 'bg-amber-600', sky: 'bg-sky-600',
-        violet: 'bg-violet-700', teal: 'bg-teal-700', cyan: 'bg-cyan-700', orange: 'bg-orange-700'
+        violet: 'bg-violet-700', teal: 'bg-teal-700', cyan: 'bg-cyan-700', orange: 'bg-orange-700',
+        indigo: 'bg-indigo-800'
     }[theme] || 'bg-emerald-800';
     return (
         <header className={`${headerBg} shadow-md p-3 sm:p-6 rounded-xl mb-3 sm:mb-6`}>
@@ -696,181 +711,549 @@ const CalcResult = ({ value, asFraction }) => {
     return <span>{s.replace('.', ',')}</span>;
 };
 
+// ==========================================
+// 4b.2 MATH-TREE — Datenmodell für strukturelle Eingabe
+// ==========================================
+// Statt einer flachen Text-Eingabe baut der Rechner einen Baum auf: Bruch, Wurzel
+// und Exponent sind echte Boxen mit eigenen Sub-Sequenzen. Der Cursor wandert per
+// Pfad durch die Hierarchie und kann mitten in den Nenner / Radikand / Index
+// springen. Damit lassen sich Ausdrücke wie ³√(3·V/(4·π)) ohne Klammer-Zwang im
+// Nenner eintippen.
+
+const MT = {
+    seq:   (kids = []) => ({ type: 'seq', kids }),
+    ch:    (c) => ({ type: 'ch', c }),
+    sym:   (s) => ({ type: 'sym', s }),
+    fn:    (name) => ({ type: 'fn', name, body: MT.seq() }),
+    log:   () => ({ type: 'log', base: MT.seq(), arg: MT.seq() }),
+    frac:  (num, den) => ({ type: 'frac', num: num || MT.seq(), den: den || MT.seq() }),
+    sqrt:  (rad, idx) => ({ type: 'sqrt', idx: idx || null, rad: rad || MT.seq() }),
+    sup:   (base) => ({ type: 'sup', base, exp: MT.seq() }),
+    paren: (body) => ({ type: 'paren', body: body || MT.seq() })
+};
+
+// Pfad-Helfer (immutable): seq an Pfad lesen / ersetzen.
+const mtGetSeq = (root, path) => {
+    let cur = root;
+    for (const seg of path) cur = (typeof seg === 'number') ? cur.kids[seg] : cur[seg];
+    return cur;
+};
+const mtReplaceSeq = (root, path, newSeq) => {
+    if (path.length === 0) return newSeq;
+    const cloneSeq = (s) => ({ ...s, kids: [...s.kids] });
+    const newRoot = cloneSeq(root);
+    let cur = newRoot;
+    for (let i = 0; i < path.length - 1; i++) {
+        const seg = path[i];
+        if (typeof seg === 'number') {
+            cur.kids[seg] = { ...cur.kids[seg] };
+            cur = cur.kids[seg];
+        } else {
+            cur[seg] = cloneSeq(cur[seg]);
+            cur = cur[seg];
+        }
+    }
+    const last = path[path.length - 1];
+    if (typeof last === 'number') cur.kids[last] = newSeq;
+    else cur[last] = newSeq;
+    return newRoot;
+};
+
+const mtInsertKid = (root, cursor, kid) => {
+    const seq = mtGetSeq(root, cursor.path);
+    const newKids = [...seq.kids];
+    newKids.splice(cursor.pos, 0, kid);
+    return {
+        root: mtReplaceSeq(root, cursor.path, { type: 'seq', kids: newKids }),
+        cursor: { path: cursor.path, pos: cursor.pos + 1 }
+    };
+};
+
+const isNumLikeCh = (n) => n && n.type === 'ch' && /^[0-9,]+$/.test(n.c);
+const isOpCh = (n) => n && n.type === 'ch' && /^[+\-×÷=]$/.test(n.c);
+
+// Zeichen einfügen — Ziffern und Komma werden an den vorherigen "Zahl-ch" gehängt,
+// sodass eine mehrstellige Zahl als EIN Knoten gespeichert wird.
+const mtInsertChar = (root, cursor, c) => {
+    const seq = mtGetSeq(root, cursor.path);
+    const isDigit = /[0-9,]/.test(c);
+    if (isDigit && cursor.pos > 0 && isNumLikeCh(seq.kids[cursor.pos - 1])) {
+        const prev = seq.kids[cursor.pos - 1];
+        const newKids = [...seq.kids];
+        newKids[cursor.pos - 1] = { type: 'ch', c: prev.c + c };
+        return { root: mtReplaceSeq(root, cursor.path, { type: 'seq', kids: newKids }), cursor };
+    }
+    return mtInsertKid(root, cursor, MT.ch(c));
+};
+
+const wrappable = (n) => n && !isOpCh(n) && ['ch','sym','paren','frac','sqrt','sup','fn','log'].includes(n.type);
+
+// a/b-Taste: vorheriges Element wird Zähler; Cursor in Nenner. Ohne Vorgänger → leerer Bruch.
+const mtInsertFrac = (root, cursor) => {
+    const seq = mtGetSeq(root, cursor.path);
+    if (cursor.pos > 0 && wrappable(seq.kids[cursor.pos - 1])) {
+        const prev = seq.kids[cursor.pos - 1];
+        const newKids = [...seq.kids];
+        newKids.splice(cursor.pos - 1, 1, MT.frac(MT.seq([prev]), MT.seq()));
+        return {
+            root: mtReplaceSeq(root, cursor.path, { type: 'seq', kids: newKids }),
+            cursor: { path: [...cursor.path, cursor.pos - 1, 'den'], pos: 0 }
+        };
+    }
+    const r = mtInsertKid(root, cursor, MT.frac());
+    return { root: r.root, cursor: { path: [...cursor.path, cursor.pos, 'num'], pos: 0 } };
+};
+
+const mtInsertSqrt = (root, cursor, withIdx = false) => {
+    const sq = MT.sqrt(MT.seq(), withIdx ? MT.seq() : null);
+    const r = mtInsertKid(root, cursor, sq);
+    return { root: r.root, cursor: { path: [...cursor.path, cursor.pos, withIdx ? 'idx' : 'rad'], pos: 0 } };
+};
+
+const mtInsertSup = (root, cursor) => {
+    const seq = mtGetSeq(root, cursor.path);
+    if (cursor.pos > 0 && wrappable(seq.kids[cursor.pos - 1])) {
+        const prev = seq.kids[cursor.pos - 1];
+        const newKids = [...seq.kids];
+        newKids.splice(cursor.pos - 1, 1, MT.sup(prev));
+        return {
+            root: mtReplaceSeq(root, cursor.path, { type: 'seq', kids: newKids }),
+            cursor: { path: [...cursor.path, cursor.pos - 1, 'exp'], pos: 0 }
+        };
+    }
+    return { root, cursor };
+};
+
+const mtInsertSquare = (root, cursor) => {
+    const r1 = mtInsertSup(root, cursor);
+    if (r1.cursor === cursor) return r1;
+    const r2 = mtInsertChar(r1.root, r1.cursor, '2');
+    return { root: r2.root, cursor: mtMoveRight(r2.root, r2.cursor) };
+};
+
+const mtInsertParen = (root, cursor) => {
+    const r = mtInsertKid(root, cursor, MT.paren());
+    return { root: r.root, cursor: { path: [...cursor.path, cursor.pos, 'body'], pos: 0 } };
+};
+
+const mtInsertFn = (root, cursor, name) => {
+    const r = mtInsertKid(root, cursor, MT.fn(name));
+    return { root: r.root, cursor: { path: [...cursor.path, cursor.pos, 'body'], pos: 0 } };
+};
+
+const mtInsertLog = (root, cursor) => {
+    const r = mtInsertKid(root, cursor, MT.log());
+    return { root: r.root, cursor: { path: [...cursor.path, cursor.pos, 'base'], pos: 0 } };
+};
+
+const mtInsertSym = (root, cursor, s) => mtInsertKid(root, cursor, MT.sym(s));
+
+const mtBackspace = (root, cursor) => {
+    if (cursor.pos > 0) {
+        const seq = mtGetSeq(root, cursor.path);
+        const prev = seq.kids[cursor.pos - 1];
+        // Multi-Char-Zahl: nur das letzte Zeichen entfernen
+        if (isNumLikeCh(prev) && prev.c.length > 1) {
+            const newKids = [...seq.kids];
+            newKids[cursor.pos - 1] = { type: 'ch', c: prev.c.slice(0, -1) };
+            return { root: mtReplaceSeq(root, cursor.path, { type: 'seq', kids: newKids }), cursor };
+        }
+        const newKids = [...seq.kids];
+        newKids.splice(cursor.pos - 1, 1);
+        return {
+            root: mtReplaceSeq(root, cursor.path, { type: 'seq', kids: newKids }),
+            cursor: { path: cursor.path, pos: cursor.pos - 1 }
+        };
+    }
+    // Cursor am Anfang einer Sub-Seq → aus der Struktur raus zur Position davor
+    if (cursor.path.length === 0) return { root, cursor };
+    const structIdx = cursor.path[cursor.path.length - 2];
+    const grandPath = cursor.path.slice(0, -2);
+    return { root, cursor: { path: grandPath, pos: structIdx } };
+};
+
+// Navigation: Bei Vorrücken in Struktur-Knoten einsteigen; bei Sub-Seq-Ende zum
+// nächsten Feld des Eltern-Strukturknotens oder ganz aus der Struktur raus.
+const mtMoveRight = (root, cursor) => {
+    const seq = mtGetSeq(root, cursor.path);
+    if (cursor.pos < seq.kids.length) {
+        const next = seq.kids[cursor.pos];
+        if (next.type === 'frac')  return { path: [...cursor.path, cursor.pos, 'num'], pos: 0 };
+        if (next.type === 'sqrt' && next.idx) return { path: [...cursor.path, cursor.pos, 'idx'], pos: 0 };
+        if (next.type === 'sqrt')  return { path: [...cursor.path, cursor.pos, 'rad'], pos: 0 };
+        if (next.type === 'paren') return { path: [...cursor.path, cursor.pos, 'body'], pos: 0 };
+        if (next.type === 'fn')    return { path: [...cursor.path, cursor.pos, 'body'], pos: 0 };
+        if (next.type === 'log')   return { path: [...cursor.path, cursor.pos, 'base'], pos: 0 };
+        if (next.type === 'sup')   return { path: [...cursor.path, cursor.pos, 'exp'], pos: 0 };
+        return { path: cursor.path, pos: cursor.pos + 1 };
+    }
+    if (cursor.path.length === 0) return cursor;
+    const field = cursor.path[cursor.path.length - 1];
+    const structIdx = cursor.path[cursor.path.length - 2];
+    const grandPath = cursor.path.slice(0, -2);
+    const struct = mtGetSeq(root, grandPath).kids[structIdx];
+    if (struct.type === 'frac' && field === 'num') return { path: [...grandPath, structIdx, 'den'], pos: 0 };
+    if (struct.type === 'sqrt' && field === 'idx') return { path: [...grandPath, structIdx, 'rad'], pos: 0 };
+    if (struct.type === 'log'  && field === 'base')return { path: [...grandPath, structIdx, 'arg'], pos: 0 };
+    return { path: grandPath, pos: structIdx + 1 };
+};
+
+const mtMoveLeft = (root, cursor) => {
+    if (cursor.pos > 0) {
+        const seq = mtGetSeq(root, cursor.path);
+        const prev = seq.kids[cursor.pos - 1];
+        if (prev.type === 'frac')  return { path: [...cursor.path, cursor.pos - 1, 'den'], pos: prev.den.kids.length };
+        if (prev.type === 'sqrt')  return { path: [...cursor.path, cursor.pos - 1, 'rad'], pos: prev.rad.kids.length };
+        if (prev.type === 'paren') return { path: [...cursor.path, cursor.pos - 1, 'body'], pos: prev.body.kids.length };
+        if (prev.type === 'fn')    return { path: [...cursor.path, cursor.pos - 1, 'body'], pos: prev.body.kids.length };
+        if (prev.type === 'log')   return { path: [...cursor.path, cursor.pos - 1, 'arg'], pos: prev.arg.kids.length };
+        if (prev.type === 'sup')   return { path: [...cursor.path, cursor.pos - 1, 'exp'], pos: prev.exp.kids.length };
+        return { path: cursor.path, pos: cursor.pos - 1 };
+    }
+    if (cursor.path.length === 0) return cursor;
+    const field = cursor.path[cursor.path.length - 1];
+    const structIdx = cursor.path[cursor.path.length - 2];
+    const grandPath = cursor.path.slice(0, -2);
+    const struct = mtGetSeq(root, grandPath).kids[structIdx];
+    if (struct.type === 'frac' && field === 'den') return { path: [...grandPath, structIdx, 'num'], pos: struct.num.kids.length };
+    if (struct.type === 'sqrt' && field === 'rad' && struct.idx) return { path: [...grandPath, structIdx, 'idx'], pos: struct.idx.kids.length };
+    if (struct.type === 'log'  && field === 'arg') return { path: [...grandPath, structIdx, 'base'], pos: struct.base.kids.length };
+    return { path: grandPath, pos: structIdx };
+};
+
+// ===== Render (Display) =====
+const mtPathsEq = (a, b) => {
+    if (a.length !== b.length) return false;
+    for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
+    return true;
+};
+const mtCursorMark = (key) => (
+    <span key={key} className="inline-block w-[2px] h-[1.05em] bg-amber-300 animate-pulse align-middle mx-[1px]" aria-hidden="true" />
+);
+const mtEmptySlot = (key) => (
+    <span key={key} className="inline-block w-[0.8em] h-[1.05em] border border-dashed border-slate-500 rounded mx-[1px] align-middle" aria-hidden="true" />
+);
+
+// Click-to-Position: jeder Kid eines seq und jede leere Sub-Seq sind klickbar.
+// onCursorMove({path, pos}) → setzt den Cursor an die geklickte Stelle.
+// Konvention: Klick auf ein Atom → Cursor RECHTS davon; Klick auf Whitespace einer
+// Sub-Seq (nicht auf ein Kid) → Cursor ans ENDE der Sub-Seq; Klick auf leeren Slot → pos 0.
+
+const MtRenderSeq = ({ seq, path, cursor, onCursorMove }) => {
+    const hasCursor = cursor && mtPathsEq(cursor.path, path);
+    const clickEnd = onCursorMove ? (e) => {
+        // Nur reagieren, wenn der Klick wirklich auf dem Wrapper landete
+        // (nicht auf einem Kid, das schon stopPropagation gemacht hat).
+        if (e.target === e.currentTarget) {
+            e.stopPropagation();
+            onCursorMove({ path, pos: seq.kids.length });
+        }
+    } : undefined;
+    if (seq.kids.length === 0) {
+        const clickEmpty = onCursorMove ? (e) => { e.stopPropagation(); onCursorMove({ path, pos: 0 }); } : undefined;
+        return (
+            <span className={onCursorMove ? 'cursor-text' : ''} onClick={clickEmpty}>
+                {hasCursor ? mtCursorMark('c') : mtEmptySlot('e')}
+            </span>
+        );
+    }
+    const parts = [];
+    seq.kids.forEach((kid, i) => {
+        if (hasCursor && cursor.pos === i) parts.push(mtCursorMark(`c${i}`));
+        const clickAfter = onCursorMove ? (e) => { e.stopPropagation(); onCursorMove({ path, pos: i + 1 }); } : undefined;
+        parts.push(
+            <span key={`k${i}`} className={onCursorMove ? 'cursor-text' : ''} onClick={clickAfter}>
+                <MtRenderNode node={kid} path={[...path, i]} cursor={cursor} onCursorMove={onCursorMove} />
+            </span>
+        );
+    });
+    if (hasCursor && cursor.pos === seq.kids.length) parts.push(mtCursorMark('cE'));
+    return (
+        <span className={`inline-flex items-center ${onCursorMove ? 'cursor-text' : ''}`} onClick={clickEnd}>
+            {parts}
+        </span>
+    );
+};
+
+const MtRenderNode = ({ node, path, cursor, onCursorMove }) => {
+    if (node.type === 'ch') {
+        const c = node.c;
+        if (/^[+\-×÷=]$/.test(c)) return <span className="mx-1">{c}</span>;
+        return <span>{c}</span>;
+    }
+    if (node.type === 'sym') return <span className="mx-[1px]">{node.s}</span>;
+    if (node.type === 'frac') {
+        return (
+            <span className="inline-flex flex-col items-center mx-1 align-middle text-[0.85em] leading-tight">
+                <span className="border-b-2 border-current px-1 pb-0.5 min-w-[1em] text-center">
+                    <MtRenderSeq seq={node.num} path={[...path, 'num']} cursor={cursor} onCursorMove={onCursorMove} />
+                </span>
+                <span className="px-1 pt-0.5 min-w-[1em] text-center">
+                    <MtRenderSeq seq={node.den} path={[...path, 'den']} cursor={cursor} onCursorMove={onCursorMove} />
+                </span>
+            </span>
+        );
+    }
+    if (node.type === 'sqrt') {
+        return (
+            <span className="inline-flex items-end mx-0.5 align-middle">
+                {node.idx && (
+                    <span className="text-[0.6em] self-start mr-[-3px] mt-[-2px]">
+                        <MtRenderSeq seq={node.idx} path={[...path, 'idx']} cursor={cursor} onCursorMove={onCursorMove} />
+                    </span>
+                )}
+                <span className="text-[1.6em] leading-none">√</span>
+                <span className="border-t-2 border-current pt-0.5 px-1 min-w-[1em] self-center">
+                    <MtRenderSeq seq={node.rad} path={[...path, 'rad']} cursor={cursor} onCursorMove={onCursorMove} />
+                </span>
+            </span>
+        );
+    }
+    if (node.type === 'sup') {
+        return (
+            <span className="inline-flex items-start">
+                <MtRenderNode node={node.base} path={[...path, 'base']} cursor={cursor} onCursorMove={onCursorMove} />
+                <sup className="text-[0.7em] ml-[1px]">
+                    <MtRenderSeq seq={node.exp} path={[...path, 'exp']} cursor={cursor} onCursorMove={onCursorMove} />
+                </sup>
+            </span>
+        );
+    }
+    if (node.type === 'paren') {
+        return (
+            <span className="inline-flex items-center mx-0.5">
+                <span>(</span>
+                <MtRenderSeq seq={node.body} path={[...path, 'body']} cursor={cursor} onCursorMove={onCursorMove} />
+                <span>)</span>
+            </span>
+        );
+    }
+    if (node.type === 'fn') {
+        return (
+            <span className="inline-flex items-center mx-0.5">
+                <span>{node.name}(</span>
+                <MtRenderSeq seq={node.body} path={[...path, 'body']} cursor={cursor} onCursorMove={onCursorMove} />
+                <span>)</span>
+            </span>
+        );
+    }
+    if (node.type === 'log') {
+        return (
+            <span className="inline-flex items-end mx-0.5">
+                <span>log</span>
+                <sub className="text-[0.7em] ml-[1px]">
+                    <MtRenderSeq seq={node.base} path={[...path, 'base']} cursor={cursor} onCursorMove={onCursorMove} />
+                </sub>
+                <span className="ml-0.5">(</span>
+                <MtRenderSeq seq={node.arg} path={[...path, 'arg']} cursor={cursor} onCursorMove={onCursorMove} />
+                <span>)</span>
+            </span>
+        );
+    }
+    return null;
+};
+
+// ===== Evaluator: Baum → JS-Ausdruck =====
+const mtToJS = (node) => {
+    if (node.type === 'seq') {
+        if (node.kids.length === 0) return '(0)';
+        return node.kids.map(mtToJS).join('');
+    }
+    if (node.type === 'ch') {
+        const c = node.c;
+        if (c === '×') return '*';
+        if (c === '÷') return '/';
+        if (c === '−') return '-';
+        // Multi-Char-Zahlen können Kommas enthalten ("17,4") — alle ersetzen, sonst
+        // interpretiert JS das Komma als sequence-operator und wirft mit dem letzten Wert weiter.
+        return c.replace(/,/g, '.');
+    }
+    if (node.type === 'sym') {
+        if (node.s === 'π') return '(Math.PI)';
+        if (node.s === 'e') return '(Math.E)';
+        return node.s;
+    }
+    if (node.type === 'frac') return `((${mtToJS(node.num)})/(${mtToJS(node.den)}))`;
+    if (node.type === 'sqrt') {
+        if (node.idx) return `(Math.pow((${mtToJS(node.rad)}),(1/(${mtToJS(node.idx)}))))`;
+        return `Math.sqrt(${mtToJS(node.rad)})`;
+    }
+    if (node.type === 'sup') return `(Math.pow((${mtToJS(node.base)}),(${mtToJS(node.exp)})))`;
+    if (node.type === 'paren') return `(${mtToJS(node.body)})`;
+    if (node.type === 'fn') {
+        const arg = mtToJS(node.body);
+        if (node.name === 'sin') return `(Math.sin((${arg})*Math.PI/180))`;
+        if (node.name === 'cos') return `(Math.cos((${arg})*Math.PI/180))`;
+        if (node.name === 'tan') return `(Math.tan((${arg})*Math.PI/180))`;
+        if (node.name === 'sin⁻¹') return `(Math.asin(${arg})*180/Math.PI)`;
+        if (node.name === 'cos⁻¹') return `(Math.acos(${arg})*180/Math.PI)`;
+        if (node.name === 'tan⁻¹') return `(Math.atan(${arg})*180/Math.PI)`;
+        return `Math.${node.name}(${arg})`;
+    }
+    if (node.type === 'log') {
+        const arg = mtToJS(node.arg);
+        const baseEmpty = node.base.kids.length === 0;
+        if (baseEmpty) return `(Math.log(${arg}))`;
+        return `(Math.log(${arg})/Math.log(${mtToJS(node.base)}))`;
+    }
+    return '';
+};
+
+// Whitelist-Schutz: nach allen Substitutionen darf nur eine eng begrenzte Zeichenmenge bleiben.
+const mtSafeEval = (jsExpr) => {
+    const stripped = jsExpr.replace(/Math\.(PI|E|sqrt|log|sin|cos|tan|asin|acos|atan|pow)/g, '');
+    if (!/^[\d\s\.\+\-\*\/\(\)\,]*$/.test(stripped)) throw new Error('Ungültige Zeichen');
+    return Function(`"use strict"; return (${jsExpr});`)();
+};
+
+// ==========================================
+// 4b.3 ScientificCalculator — UI für den Math-Tree
+// ==========================================
 const ScientificCalculator = ({ onClose, theme = 'sky' }) => {
-    const [expr, setExpr] = useState('');
-    const [cursorPos, setCursorPos] = useState(0);
+    // Root + Cursor leben gemeinsam in EINEM State-Objekt. Bei schnellen
+    // Tastendrücken (mehrere Clicks im selben Tick) hätten getrennte useStates
+    // stale-closure-Probleme — der zweite Click würde noch den alten root sehen.
+    // Mit funktionalem setState liest jeder Aufruf den frischesten Zustand.
+    const [state, setState] = useState(() => ({ root: MT.seq(), cursor: { path: [], pos: 0 } }));
     const [result, setResult] = useState(null);
     const [error, setError] = useState(null);
-    // Winkelmodus immer DEG — Schüler tippen Werte in Grad ein, kein Toggle nötig.
-    const angleMode = 'DEG';
     const [showAsFraction, setShowAsFraction] = useState(false);
     const [ans, setAns] = useState(null);
 
+    const { root, cursor } = state;
     const t = themeColors[theme] || themeColors.sky;
 
-    // Fügt eine Zeichenkette an der Cursor-Position ein und rückt den Cursor entsprechend nach.
-    // Optionaler `cursorOffset`: setzt den Cursor relativ zum Einfügungs-Beginn (statt ans Ende).
-    // Z.B. append('^()', 2) → fügt '^()' ein, Cursor zwischen den Klammern.
-    const append = (s, cursorOffset) => {
-        setExpr(prev => prev.slice(0, cursorPos) + s + prev.slice(cursorPos));
-        if (cursorOffset !== undefined) {
-            setCursorPos(p => p + cursorOffset);
-        } else {
-            setCursorPos(p => p + s.length);
-        }
+    // Hilfsfunktion: führt eine Tree-Operation aus und übernimmt das Ergebnis —
+    // immer über die funktionale Form, damit kein stale closure möglich ist.
+    const apply = (op) => {
+        setState(prev => {
+            const r = op(prev.root, prev.cursor);
+            return { root: r.root, cursor: r.cursor };
+        });
         setError(null);
     };
-    // Löscht das Zeichen LINKS vom Cursor.
-    const backspace = () => {
-        if (cursorPos === 0) return;
-        setExpr(prev => prev.slice(0, cursorPos - 1) + prev.slice(cursorPos));
-        setCursorPos(p => Math.max(0, p - 1));
-        setError(null);
-    };
-    const clearAll = () => { setExpr(''); setCursorPos(0); setResult(null); setError(null); };
-    const useAns = () => { if (ans !== null) append(`(${ans})`); };
-    const moveLeft = () => setCursorPos(p => Math.max(0, p - 1));
-    const moveRight = () => setCursorPos(p => Math.min(expr.length, p + 1));
-    const moveStart = () => setCursorPos(0);
-    const moveEnd = () => setCursorPos(expr.length);
 
-    // PC-Tastatur-Steuerung: Ziffern, Operatoren, Cursor und Enter direkt mappen.
-    // Greift NICHT, wenn der Schüler gerade in einer anderen Eingabe (z.B. Lückenfüller-
-    // Box) tippt — sonst würden Ziffern doppelt landen.
+    const insertChar   = (c)        => apply((r, cu) => mtInsertChar(r, cu, c));
+    const insertSym    = (s)        => apply((r, cu) => mtInsertSym(r, cu, s));
+    const insertFn     = (n)        => apply((r, cu) => mtInsertFn(r, cu, n));
+    const insertLog    = ()         => apply(mtInsertLog);
+    const insertFrac   = ()         => apply(mtInsertFrac);
+    const insertSqrt   = (idx=false)=> apply((r, cu) => mtInsertSqrt(r, cu, idx));
+    const insertSup    = ()         => apply(mtInsertSup);
+    const insertSquare = ()         => apply(mtInsertSquare);
+    const insertParen  = ()         => apply(mtInsertParen);
+    const backspace    = ()         => apply(mtBackspace);
+    const setCursorTo  = (c)        => setState(prev => ({ root: prev.root, cursor: c }));
+    const goLeft       = ()         => setState(prev => ({ root: prev.root, cursor: mtMoveLeft(prev.root, prev.cursor) }));
+    const goRight      = ()         => setState(prev => ({ root: prev.root, cursor: mtMoveRight(prev.root, prev.cursor) }));
+    const goStart      = ()         => setState(prev => ({ root: prev.root, cursor: { path: [], pos: 0 } }));
+    const goEnd        = ()         => setState(prev => ({ root: prev.root, cursor: { path: [], pos: prev.root.kids.length } }));
+    const clearAll     = ()         => { setState({ root: MT.seq(), cursor: { path: [], pos: 0 } }); setResult(null); setError(null); };
+
+    const useAns = () => {
+        if (ans === null) return;
+        setState(prev => {
+            let r = mtInsertParen(prev.root, prev.cursor);
+            const ansStr = String(Math.round(ans * 1e10) / 1e10);
+            for (const c of ansStr) {
+                r = mtInsertChar(r.root, r.cursor, c === '.' ? ',' : c);
+            }
+            return { root: r.root, cursor: mtMoveRight(r.root, r.cursor) };
+        });
+        setError(null);
+    };
+
+    const calc = () => {
+        // root aus dem aktuellen State lesen — Closure ist OK, weil = nicht in
+        // rapid-fire mit anderen Operationen kollidiert.
+        const currentRoot = state.root;
+        if (currentRoot.kids.length === 0) return;
+        try {
+            const expr = mtToJS(currentRoot);
+            const r = mtSafeEval(expr);
+            if (typeof r !== 'number' || !Number.isFinite(r)) {
+                setError('Mathe-Fehler'); setResult(null); return;
+            }
+            setResult(r); setAns(r);
+        } catch (e) {
+            setError('Fehler im Ausdruck'); setResult(null);
+        }
+    };
+
+    // PC-Tastatur — greift nicht, wenn der Cursor in einer anderen Eingabe steht (Trainer-Felder).
     useEffect(() => {
         const handler = (e) => {
             const ae = document.activeElement;
             const tag = ae ? ae.tagName : '';
             if (tag === 'INPUT' || tag === 'TEXTAREA' || (ae && ae.isContentEditable)) return;
-            // Modifier-Tasten (Strg/Alt/Cmd) durchreichen — z.B. Strg+C / Strg+R.
             if (e.ctrlKey || e.altKey || e.metaKey) return;
             const k = e.key;
-            // Ziffern
-            if (/^[0-9]$/.test(k)) { e.preventDefault(); append(k); return; }
-            // Operatoren — auf die hübschen Unicode-Varianten mappen, damit die Anzeige konsistent bleibt.
-            if (k === '+') { e.preventDefault(); append('+'); return; }
-            if (k === '-') { e.preventDefault(); append('−'); return; }
-            if (k === '*') { e.preventDefault(); append('×'); return; }
-            if (k === '/') { e.preventDefault(); append('÷'); return; }
-            if (k === '^') { e.preventDefault(); append('^()', 2); return; }
-            if (k === '(' || k === ')') { e.preventDefault(); append(k); return; }
-            if (k === '.' || k === ',') { e.preventDefault(); append(k); return; }
-            // Steuerung
+            if (/^[0-9]$/.test(k)) { e.preventDefault(); insertChar(k); return; }
+            if (k === '+') { e.preventDefault(); insertChar('+'); return; }
+            if (k === '-') { e.preventDefault(); insertChar('−'); return; }
+            if (k === '*') { e.preventDefault(); insertChar('×'); return; }
+            if (k === '/') { e.preventDefault(); insertChar('÷'); return; }  // Inline-Division, kein Bruch
+            if (k === '^') { e.preventDefault(); insertSup(); return; }
+            if (k === '(') { e.preventDefault(); insertParen(); return; }
+            if (k === ')') { e.preventDefault(); goRight(); return; }
+            if (k === '.' || k === ',') { e.preventDefault(); insertChar(','); return; }
             if (k === 'Enter' || k === '=') { e.preventDefault(); calc(); return; }
             if (k === 'Backspace') { e.preventDefault(); backspace(); return; }
-            if (k === 'Delete') { e.preventDefault(); clearAll(); return; }
-            if (k === 'Escape') { e.preventDefault(); clearAll(); return; }
-            if (k === 'ArrowLeft')  { e.preventDefault(); moveLeft(); return; }
-            if (k === 'ArrowRight') { e.preventDefault(); moveRight(); return; }
-            if (k === 'Home')       { e.preventDefault(); moveStart(); return; }
-            if (k === 'End')        { e.preventDefault(); moveEnd(); return; }
+            if (k === 'Delete' || k === 'Escape') { e.preventDefault(); clearAll(); return; }
+            if (k === 'ArrowLeft')  { e.preventDefault(); goLeft(); return; }
+            if (k === 'ArrowRight') { e.preventDefault(); goRight(); return; }
+            if (k === 'Home')       { e.preventDefault(); goStart(); return; }
+            if (k === 'End')        { e.preventDefault(); goEnd(); return; }
+            if (k === 'Tab')        { e.preventDefault(); goRight(); return; }
         };
         document.addEventListener('keydown', handler);
         return () => document.removeEventListener('keydown', handler);
-    }, [expr, cursorPos]);
+    }, [state, ans]);
 
-    const calc = () => {
-        if (!expr.trim()) return;
-        try {
-            // Reihenfolge ist wichtig: längere Muster zuerst.
-            let s = expr
-                .replace(/π/g, '(Math.PI)')
-                .replace(/×/g, '*')
-                .replace(/÷/g, '/')
-                .replace(/−/g, '-')
-                // Inverse Trigonometrie ZUERST, sonst matcht sin( auch sin⁻¹(.
-                .replace(/sin⁻¹\(/g, '_AS(')
-                .replace(/cos⁻¹\(/g, '_AC(')
-                .replace(/tan⁻¹\(/g, '_AT(')
-                .replace(/sin\(/g, '_S(')
-                .replace(/cos\(/g, '_C(')
-                .replace(/tan\(/g, '_T(')
-                // log(b, x) -> log_b(x). Muss vor dem '),' Komma->Punkt-Schritt passieren.
-                .replace(/log\(([^,()]+),\s*([^()]+)\)/g, '(Math.log($2)/Math.log($1))')
-                // n. Wurzel: nrt(n, x) → x^(1/n). `**` statt Math.pow, sonst sprengt
-                // der spätere ,→. Ersatz die Math.pow-Argumente.
-                .replace(/nrt\(([^,()]+),\s*([^()]+)\)/g, '(($2)**(1/($1)))')
-                .replace(/√\(/g, 'Math.sqrt(')
-                // ² (Unicode-Hoch-2) als Quadrat-Operator behandeln, z.B. 3² oder (1+2)²
-                .replace(/²/g, '**2')
-                .replace(/\^/g, '**')
-                // Verbliebene Kommas sind Dezimaltrenner aus deutscher Eingabe.
-                .replace(/,/g, '.');
-
-            // Trig-Helper basierend auf Winkelmodus.
-            const helpers = angleMode === 'DEG'
-                ? `var _S=function(x){return Math.sin(x*Math.PI/180);};var _C=function(x){return Math.cos(x*Math.PI/180);};var _T=function(x){return Math.tan(x*Math.PI/180);};var _AS=function(x){return Math.asin(x)*180/Math.PI;};var _AC=function(x){return Math.acos(x)*180/Math.PI;};var _AT=function(x){return Math.atan(x)*180/Math.PI;};`
-                : `var _S=Math.sin;var _C=Math.cos;var _T=Math.tan;var _AS=Math.asin;var _AC=Math.acos;var _AT=Math.atan;`;
-
-            // Whitelist-Schutz: nach allen Substitutionen darf nur noch eine eng begrenzte
-            // Menge an Zeichen / Tokens vorkommen. Schützt vor durchgeschleuster Code-Injection.
-            const allowed = s.replace(/Math\.(PI|sqrt|log|sin|cos|tan|asin|acos|atan)/g, '')
-                             .replace(/_(S|C|T|AS|AC|AT)/g, '');
-            if (!/^[\d\s\.\+\-\*\/\(\)]*$/.test(allowed.replace(/\*\*/g, ''))) {
-                setError('Ungültige Eingabe');
-                setResult(null);
-                return;
-            }
-
-            const r = Function(`"use strict";${helpers}return(${s});`)();
-            if (typeof r !== 'number' || !Number.isFinite(r)) {
-                setError('Mathe-Fehler');
-                setResult(null);
-                return;
-            }
-            setResult(r);
-            setAns(r);
-        } catch (e) {
-            setError('Fehler im Ausdruck');
-            setResult(null);
-        }
-    };
-
-    const Btn = ({ label, onClick, variant = 'normal' }) => {
+    const Btn = ({ label, onClick, variant = 'number' }) => {
         const base = 'h-9 sm:h-11 rounded-lg font-bold text-xs sm:text-sm transition-colors flex items-center justify-center select-none';
+        // Drei klare Stufen statt fünf Farbtöne:
+        //   number: weiß (Ziffern, Konstanten — ruhig, häufig gedrückt)
+        //   op:     hellgrau (Inline-Operatoren)
+        //   func:   soft Indigo (Trig/Struktur — semantisch "Mathe-Funktion")
+        // Plus zwei farbige Akzente (danger=AC, primary==).
         const variants = {
-            normal: 'bg-white border border-slate-200 hover:bg-slate-50 text-slate-700',
-            number: 'bg-slate-100 hover:bg-slate-200 text-slate-900',
-            op: 'bg-slate-200 hover:bg-slate-300 text-slate-900',
-            primary: `${t.btnBg} ${t.btnHover} text-white`,
-            danger: 'bg-red-100 hover:bg-red-200 text-red-700',
-            func: 'bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border border-indigo-200'
+            number:  'bg-white border border-slate-200 hover:bg-slate-50 text-slate-900',
+            op:      'bg-slate-100 border border-slate-200 hover:bg-slate-200 text-slate-700',
+            func:    'bg-indigo-50 border border-indigo-100 hover:bg-indigo-100 text-indigo-700',
+            util:    'bg-white border border-slate-200 hover:bg-slate-50 text-slate-500',
+            danger:  'bg-red-50 border border-red-200 hover:bg-red-100 text-red-700',
+            primary: `${t.btnBg} ${t.btnHover} text-white shadow-sm`
         };
-        return <button type="button" onClick={onClick} className={`${base} ${variants[variant]}`}>{label}</button>;
+        return <button type="button" onClick={onClick} className={`${base} ${variants[variant] || variants.number}`}>{label}</button>;
     };
 
     return (
-        // Schmälere Rechner-Box: max-w-md (448px) → max-w-xs (320px), also ca. 30% schmäler.
-        // Das Grid mit 5 Tasten-Spalten skaliert automatisch mit, die Tasten werden enger
-        // ohne dass Schrift oder Mindesthöhe darunter leiden.
-        <div className="bg-white rounded-2xl shadow-md border border-slate-200 max-w-xs w-full overflow-hidden">
-            <div className={`${t.btnBg} text-white px-3 sm:px-4 py-2 sm:py-3 flex justify-between items-center`}>
+        <div className="bg-white rounded-2xl shadow-md border border-slate-200 w-full overflow-hidden">
+            <div className={`${t.btnBg} text-white px-3 sm:px-4 py-1 flex justify-between items-center`}>
                 <div className="flex items-center gap-2">
-                    <Calculator className="w-5 h-5" />
-                    <span className="font-bold text-sm sm:text-base">Wissenschaftlicher Rechner</span>
+                    <Calculator className="w-4 h-4" />
+                    <span className="font-bold text-sm">M10 Taschenrechner</span>
                 </div>
-                <div className="flex items-center gap-2">
-                    {onClose && (
-                        <button type="button" onClick={onClose} className="hover:bg-white/20 rounded-lg p-1.5 translate-x-1 transition-colors" aria-label="Rechner schließen" title="Rechner schließen">
-                            <XCircle className="w-7 h-7" />
-                        </button>
-                    )}
-                </div>
+                {onClose && (
+                    <button type="button" onClick={onClose} className="hover:bg-white/20 rounded-lg p-1 transition-colors" aria-label="Rechner schließen" title="Rechner schließen">
+                        <XCircle className="w-5 h-5" />
+                    </button>
+                )}
             </div>
 
-            <div className="bg-slate-800 text-white px-3 sm:px-4 py-3 font-mono">
-                <div className="text-sm opacity-80 min-h-[20px] break-all flex justify-end items-center">
-                    {expr.length === 0
-                        ? <span className="inline-block w-px h-4 bg-amber-300 animate-pulse"></span>
-                        : (
-                            <span className="inline-flex items-center text-right flex-wrap justify-end">
-                                <span>{expr.slice(0, cursorPos)}</span>
-                                <span className="inline-block w-px h-4 bg-amber-300 animate-pulse mx-px"></span>
-                                <span>{expr.slice(cursorPos)}</span>
-                            </span>
-                        )}
+            {/* Display: gerenderter Math-Tree mit Cursor — Klick positioniert den Cursor */}
+            <div className="bg-slate-800 text-white px-3 sm:px-4 py-3 font-math">
+                <div className="text-base sm:text-lg min-h-[44px] flex justify-end items-center overflow-x-auto cursor-text"
+                     onClick={(e) => {
+                         // Klick auf den leeren rechten Bereich → Cursor ans Ende
+                         if (e.target === e.currentTarget) setCursorTo({ path: [], pos: root.kids.length });
+                     }}>
+                    {root.kids.length === 0 && mtPathsEq(cursor.path, [])
+                        ? <span className="cursor-text" onClick={() => setCursorTo({ path: [], pos: 0 })}>{mtCursorMark('cE0')}</span>
+                        : <MtRenderSeq seq={root} path={[]} cursor={cursor} onCursorMove={setCursorTo} />}
                 </div>
-                <div className="text-xl sm:text-2xl font-bold min-h-[36px] flex items-center justify-end">
+                <div className="text-2xl sm:text-3xl font-bold min-h-[36px] flex items-center justify-end mt-1">
                     {error
                         ? <span className="text-red-400 text-base">{error}</span>
                         : result !== null
@@ -879,85 +1262,80 @@ const ScientificCalculator = ({ onClose, theme = 'sky' }) => {
                 </div>
             </div>
 
-            {/* Edit-Toolbar: Cursor-Steuerung — funktioniert auch nach "=" weiter, sodass der Ausdruck editierbar bleibt.
-                SVG-Pfeile (statt Unicode-Glyphen) — sonst rendern manche Browser/Plattformen die Dreiecke als bunte
-                Emoji. Die äußeren Tasten haben einen senkrechten Strich am jeweiligen Rand (Symbol für "ganz an den
-                Anfang" bzw. "ganz ans Ende des Eingabefeldes"). */}
-            <div className="bg-slate-100 px-2 sm:px-3 py-1.5 grid grid-cols-4 gap-1 sm:gap-1.5 border-y border-slate-200">
-                <button type="button" onClick={moveStart} className="h-8 rounded bg-white hover:bg-slate-200 border border-slate-200 flex items-center justify-center" title="Cursor an den Anfang">
-                    <svg width="18" height="14" viewBox="0 0 24 18" fill="#0f172a" aria-hidden="true">
-                        <rect x="2" y="3" width="2.4" height="12" />
-                        <polygon points="20 3, 6.5 9, 20 15" />
-                    </svg>
+            {/* Cursor-Steuerung — schmal (h-6), Tab springt zusätzlich in/aus Boxen */}
+            <div className="bg-slate-100 px-2 sm:px-3 py-1 grid grid-cols-4 gap-1 sm:gap-1.5 border-y border-slate-200">
+                <button type="button" onClick={goStart} className="h-6 rounded bg-white hover:bg-slate-200 border border-slate-200 flex items-center justify-center" title="Cursor an den Anfang">
+                    <svg width="16" height="12" viewBox="0 0 24 18" fill="#0f172a" aria-hidden="true"><rect x="2" y="3" width="2.4" height="12" /><polygon points="20 3, 6.5 9, 20 15" /></svg>
                 </button>
-                <button type="button" onClick={moveLeft} className="h-8 rounded bg-white hover:bg-slate-200 border border-slate-200 flex items-center justify-center" title="Cursor nach links">
-                    <svg width="14" height="14" viewBox="0 0 18 18" fill="#0f172a" aria-hidden="true">
-                        <polygon points="14 3, 3 9, 14 15" />
-                    </svg>
+                <button type="button" onClick={goLeft} className="h-6 rounded bg-white hover:bg-slate-200 border border-slate-200 flex items-center justify-center" title="Cursor nach links">
+                    <svg width="12" height="12" viewBox="0 0 18 18" fill="#0f172a" aria-hidden="true"><polygon points="14 3, 3 9, 14 15" /></svg>
                 </button>
-                <button type="button" onClick={moveRight} className="h-8 rounded bg-white hover:bg-slate-200 border border-slate-200 flex items-center justify-center" title="Cursor nach rechts">
-                    <svg width="14" height="14" viewBox="0 0 18 18" fill="#0f172a" aria-hidden="true">
-                        <polygon points="4 3, 15 9, 4 15" />
-                    </svg>
+                <button type="button" onClick={goRight} className="h-6 rounded bg-white hover:bg-slate-200 border border-slate-200 flex items-center justify-center" title="Cursor nach rechts (Tab springt in/aus Boxen)">
+                    <svg width="12" height="12" viewBox="0 0 18 18" fill="#0f172a" aria-hidden="true"><polygon points="4 3, 15 9, 4 15" /></svg>
                 </button>
-                <button type="button" onClick={moveEnd} className="h-8 rounded bg-white hover:bg-slate-200 border border-slate-200 flex items-center justify-center" title="Cursor ans Ende">
-                    <svg width="18" height="14" viewBox="0 0 24 18" fill="#0f172a" aria-hidden="true">
-                        <polygon points="4 3, 17.5 9, 4 15" />
-                        <rect x="19.6" y="3" width="2.4" height="12" />
-                    </svg>
+                <button type="button" onClick={goEnd} className="h-6 rounded bg-white hover:bg-slate-200 border border-slate-200 flex items-center justify-center" title="Cursor ans Ende">
+                    <svg width="16" height="12" viewBox="0 0 24 18" fill="#0f172a" aria-hidden="true"><polygon points="4 3, 17.5 9, 4 15" /><rect x="19.6" y="3" width="2.4" height="12" /></svg>
                 </button>
-            </div>
-
-            <div className="bg-slate-50 px-2 sm:px-3 py-1.5 text-[10px] sm:text-[11px] text-slate-600 border-b border-slate-200 flex flex-wrap justify-center gap-x-3 gap-y-1">
-                <span>log<sub>b</sub>(x) = <strong>log(b,x)</strong></span>
-                <span><sup>3</sup>√27 = <strong>nrt(3,27)</strong></span>
             </div>
 
             <div className="p-2 sm:p-3 grid grid-cols-5 gap-1 sm:gap-1.5">
-                <Btn variant="func" label="sin" onClick={() => append('sin(')} />
-                <Btn variant="func" label="cos" onClick={() => append('cos(')} />
-                <Btn variant="func" label="tan" onClick={() => append('tan(')} />
-                {/* log öffnet "log(,)" mit Cursor zwischen "(" und "," — wie nrt. */}
-                <Btn variant="func" label="log" onClick={() => append('log(,)', 4)} />
-                <Btn variant="op" label="⌫" onClick={backspace} />
+                <Btn variant="func" label="sin"  onClick={() => insertFn('sin')} />
+                <Btn variant="func" label="cos"  onClick={() => insertFn('cos')} />
+                <Btn variant="func" label="tan"  onClick={() => insertFn('tan')} />
+                {/* log mit Basis als tiefgestelltem Kästchen und leicht höherem Argument-Kästchen */}
+                <Btn variant="func" label={(
+                    <span className="inline-flex items-baseline leading-none">
+                        <span>log</span>
+                        <sub className="ml-px text-[1px]">
+                            <span className="inline-block w-[7px] h-[7px] border border-current align-baseline" />
+                        </sub>
+                        <span className="inline-block w-[8px] h-[10px] border border-current ml-[2px] align-baseline" />
+                    </span>
+                )} onClick={insertLog} />
+                <Btn variant="op"   label="⌫"   onClick={backspace} />
 
-                <Btn variant="func" label={<span>sin<sup>−1</sup></span>} onClick={() => append('sin⁻¹(')} />
-                <Btn variant="func" label={<span>cos<sup>−1</sup></span>} onClick={() => append('cos⁻¹(')} />
-                <Btn variant="func" label={<span>tan<sup>−1</sup></span>} onClick={() => append('tan⁻¹(')} />
-                <Btn variant="func" label={<span>x<sup>2</sup></span>} onClick={() => append('²')} />
+                <Btn variant="func" label={<span>sin<sup>−1</sup></span>} onClick={() => insertFn('sin⁻¹')} />
+                <Btn variant="func" label={<span>cos<sup>−1</sup></span>} onClick={() => insertFn('cos⁻¹')} />
+                <Btn variant="func" label={<span>tan<sup>−1</sup></span>} onClick={() => insertFn('tan⁻¹')} />
+                <Btn variant="func" label={<span>x<sup>2</sup></span>}    onClick={insertSquare} />
                 <Btn variant="danger" label="AC" onClick={clearAll} />
 
-                <Btn variant="op" label="(" onClick={() => append('(')} />
-                <Btn variant="op" label=")" onClick={() => append(')')} />
-                {/* x^y öffnet "^()" mit Cursor zwischen den Klammern → erlaubt Bruch-Exponent. */}
-                <Btn variant="op" label={<span>x<sup>y</sup></span>} onClick={() => append('^()', 2)} />
-                <Btn variant="op" label="√" onClick={() => append('√()', 2)} />
-                {/* n. Wurzel: nrt(n, x) → x^(1/n). Cursor landet zwischen "nrt(" und ",". */}
-                <Btn variant="op" label={<span><sup className="text-xs">n</sup>√</span>} onClick={() => append('nrt(,)', 4)} />
+                <Btn variant="func" label="(" onClick={insertParen} />
+                <Btn variant="func" label=")" onClick={goRight} />
+                <Btn variant="func" label={<span>x<sup>y</sup></span>} onClick={insertSup} />
+                <Btn variant="func" label="√" onClick={() => insertSqrt(false)} />
+                <Btn variant="func" label={<span><sup className="text-xs">n</sup>√</span>} onClick={() => insertSqrt(true)} />
 
-                <Btn variant="number" label="7" onClick={() => append('7')} />
-                <Btn variant="number" label="8" onClick={() => append('8')} />
-                <Btn variant="number" label="9" onClick={() => append('9')} />
-                <Btn variant="op" label="÷" onClick={() => append('÷')} />
-                <Btn variant="op" label="π" onClick={() => append('π')} />
+                <Btn variant="number" label="7" onClick={() => insertChar('7')} />
+                <Btn variant="number" label="8" onClick={() => insertChar('8')} />
+                <Btn variant="number" label="9" onClick={() => insertChar('9')} />
+                <Btn variant="op"     label="÷" onClick={() => insertChar('÷')} />
+                {/* a/b-Symbol als gestapelter Bruch: zwei quadratische Kästchen mit Bruchstrich */}
+                <Btn variant="func"   label={(
+                    <span className="inline-flex flex-col items-center leading-none">
+                        <span className="inline-block w-2.5 h-2.5 border border-current" />
+                        <span className="inline-block w-3.5 h-px bg-current my-[2px]" />
+                        <span className="inline-block w-2.5 h-2.5 border border-current" />
+                    </span>
+                )} onClick={insertFrac} />
 
-                <Btn variant="number" label="4" onClick={() => append('4')} />
-                <Btn variant="number" label="5" onClick={() => append('5')} />
-                <Btn variant="number" label="6" onClick={() => append('6')} />
-                <Btn variant="op" label="×" onClick={() => append('×')} />
-                <Btn variant="func" label="a/b" onClick={() => append('/')} />
+                <Btn variant="number" label="4" onClick={() => insertChar('4')} />
+                <Btn variant="number" label="5" onClick={() => insertChar('5')} />
+                <Btn variant="number" label="6" onClick={() => insertChar('6')} />
+                <Btn variant="op"     label="×" onClick={() => insertChar('×')} />
+                <Btn variant="number" label="π" onClick={() => insertSym('π')} />
 
-                <Btn variant="number" label="1" onClick={() => append('1')} />
-                <Btn variant="number" label="2" onClick={() => append('2')} />
-                <Btn variant="number" label="3" onClick={() => append('3')} />
-                <Btn variant="op" label="−" onClick={() => append('−')} />
-                <Btn variant="func" label="S↔D" onClick={() => setShowAsFraction(f => !f)} />
+                <Btn variant="number" label="1" onClick={() => insertChar('1')} />
+                <Btn variant="number" label="2" onClick={() => insertChar('2')} />
+                <Btn variant="number" label="3" onClick={() => insertChar('3')} />
+                <Btn variant="op"     label="−" onClick={() => insertChar('−')} />
+                <Btn variant="util"   label="S↔D" onClick={() => setShowAsFraction(f => !f)} />
 
-                <Btn variant="number" label="0" onClick={() => append('0')} />
-                <Btn variant="number" label="," onClick={() => append(',')} />
-                <Btn variant="number" label="." onClick={() => append('.')} />
-                <Btn variant="op" label="+" onClick={() => append('+')} />
-                <Btn variant="primary" label="=" onClick={calc} />
+                <Btn variant="number" label="0"   onClick={() => insertChar('0')} />
+                <Btn variant="number" label=","   onClick={() => insertChar(',')} />
+                <Btn variant="number" label="Ans" onClick={useAns} />
+                <Btn variant="op"     label="+"   onClick={() => insertChar('+')} />
+                <Btn variant="primary" label="="  onClick={calc} />
             </div>
         </div>
     );
@@ -979,7 +1357,9 @@ const CalcButton = ({ theme = 'sky', label = 'Rechner' }) => {
             </button>
             {open && (
                 <div className="mt-3 animate-fade-in flex justify-center">
-                    <ScientificCalculator theme={theme} onClose={() => setOpen(false)} />
+                    <div className="w-full max-w-xs">
+                        <ScientificCalculator theme={theme} onClose={() => setOpen(false)} />
+                    </div>
                 </div>
             )}
         </div>
