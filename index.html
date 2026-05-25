@@ -17,8 +17,8 @@
     <meta property="og:url" content="https://www.smarthematik.de/index.html">
 
     <!-- Self-hosted Tailwind (kein Cross-Origin zu US-Servern) -->
-    <script src="assets/vendor/tailwindcss.js?v=202605242247"></script>
-    <link rel="stylesheet" href="assets/css/main.css?v=202605242247">
+    <script src="assets/vendor/tailwindcss.js?v=202605251133"></script>
+    <link rel="stylesheet" href="assets/css/main.css?v=202605251133">
 </head>
 <body class="text-slate-800 font-sans antialiased flex flex-col min-h-screen">
 
@@ -44,42 +44,64 @@
                 <img src="cropped-BdB_Logo-1.png" alt="Beratung digitale Bildung Logo" class="h-6 sm:h-10 md:h-12 w-auto object-contain">
             </div>
         </div>
-        <nav id="nav-menu" class="hidden absolute right-2 sm:right-6 top-full mt-2 w-72 max-w-[calc(100vw-1rem)] bg-white border border-slate-200 rounded-xl shadow-xl p-2 flex flex-col" role="navigation" aria-label="Hauptnavigation"><a href="index.html" class="flex items-center gap-2 px-4 py-3 rounded-lg font-semibold bg-indigo-50 text-indigo-700" aria-current="page">Startseite</a><a href="rechner.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">M10 Taschenrechner</a><a href="kopfrechnen.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Kopfrechnen</a><a href="binformeln.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Bin. Formeln</a><a href="bruchgleichungen.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Bruchgleichungen</a><a href="halbwertszeit.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Halbwertszeit</a><a href="kugel.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Kugel</a><a href="potenzen.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Potenzen</a><a href="trigonometrie.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Trigonometrie</a><a href="wachstum.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Wachstum & Zerfall</a><a href="wahrscheinlichkeit.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Wahrscheinlichkeit</a><div class="border-t border-slate-200 my-2"></div><a href="impressum.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-500 hover:bg-slate-50 hover:text-indigo-700 text-sm transition-colors">Impressum</a><a href="datenschutz.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-500 hover:bg-slate-50 hover:text-indigo-700 text-sm transition-colors">Datenschutz</a></nav>
+        <nav id="nav-menu" class="hidden absolute right-2 sm:right-6 top-full mt-2 w-72 max-w-[calc(100vw-1rem)] bg-white border border-slate-200 rounded-xl shadow-xl p-2 flex flex-col" role="navigation" aria-label="Hauptnavigation"><a href="index.html" class="flex items-center gap-2 px-4 py-3 rounded-lg font-semibold bg-indigo-50 text-indigo-700" aria-current="page">Startseite</a><div class="px-4 pt-3 pb-1 text-[10px] font-bold tracking-widest uppercase text-slate-400">Werkzeuge</div><a href="rechner.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">M10 Taschenrechner</a><div class="px-4 pt-3 pb-1 text-[10px] font-bold tracking-widest uppercase text-slate-400">Trainer</div><a href="kopfrechnen.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Kopfrechnen</a><a href="binformeln.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Bin. Formeln</a><a href="bruchgleichungen.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Bruchgleichungen</a><a href="halbwertszeit.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Halbwertszeit</a><a href="kugel.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Kugel</a><a href="potenzen.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Potenzen</a><a href="trigonometrie.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Trigonometrie</a><a href="wachstum.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Wachstum & Zerfall</a><a href="wahrscheinlichkeit.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Wahrscheinlichkeit</a><div class="border-t border-slate-200 my-2"></div><a href="impressum.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-500 hover:bg-slate-50 hover:text-indigo-700 text-sm transition-colors">Impressum</a><a href="datenschutz.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-500 hover:bg-slate-50 hover:text-indigo-700 text-sm transition-colors">Datenschutz</a></nav>
     </header>
 
     <main class="flex-grow">
         <div class="page-transition">
-            <section class="bg-gradient-to-b from-indigo-50 to-slate-50 py-6 sm:py-10 border-b border-slate-200">
-                <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center gap-4 md:gap-8">
+            <!-- Editorial Hero: warmer Pitch + sMArTHEMATIK im Text + dezente Math-Symbol-Textur als Hintergrund-Akzent. -->
+            <section class="relative overflow-hidden bg-gradient-to-br from-indigo-50 via-white to-slate-50 border-b border-slate-200">
+                <!-- Math-Pattern: gestreute Symbole, sehr niedrige Opazität, pointer-events-none.
+                     Funktioniert als "Wasserzeichen" und verleiht der Hero einen Schulbuch-Charakter. -->
+                <div class="absolute inset-0 pointer-events-none select-none text-indigo-900 opacity-[0.05]" aria-hidden="true">
+                    <span class="font-math-italic absolute top-4 left-[4%] text-6xl sm:text-7xl">π</span>
+                    <span class="font-math absolute top-10 right-[6%] text-5xl sm:text-6xl">√</span>
+                    <span class="font-math-italic absolute bottom-6 left-[18%] text-4xl sm:text-5xl">x²</span>
+                    <span class="font-math absolute top-[38%] right-[14%] text-3xl sm:text-4xl">∞</span>
+                    <span class="font-math absolute bottom-4 right-[28%] text-5xl sm:text-6xl">÷</span>
+                    <span class="font-math-italic absolute top-[58%] left-[32%] text-3xl sm:text-4xl">=</span>
+                    <span class="font-math absolute top-2 right-[44%] text-2xl sm:text-3xl">²</span>
+                    <span class="font-math-italic absolute bottom-12 right-[4%] text-4xl sm:text-5xl">³√</span>
+                </div>
+
+                <div class="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-7 sm:py-10 flex flex-col md:flex-row items-center gap-5 md:gap-10">
                     <div class="shrink-0 relative flex justify-center">
                         <div class="absolute inset-0 bg-indigo-200 blur-2xl opacity-30 scale-125 rounded-full"></div>
                         <img src="Logo-sMArTH.png" alt="sMArTHEMATIK Logo" class="relative w-32 sm:w-40 md:w-48 h-auto object-contain drop-shadow-sm">
                     </div>
-                    <div class="text-center md:text-left space-y-2">
-                        <h2 class="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900">Übungsseite 10. Klasse Mittelschule Bayern</h2>
-                        <p class="text-sm sm:text-base text-slate-600 max-w-2xl leading-relaxed">Interaktive Mathetrainer und digitale Lerntools für den MSA.</p>
+                    <div class="text-center md:text-left space-y-3 md:space-y-4 flex-grow">
+                        <h2 class="text-2xl sm:text-3xl md:text-[2.4rem] font-extrabold tracking-tight text-slate-900 leading-[1.15]">
+                            Mathe-Training f&uuml;r den MSA
+                            <span class="block text-sm sm:text-base md:text-lg text-indigo-700 font-semibold mt-1 sm:mt-2 tracking-normal">vier Schwierigkeitsstufen mit direktem Feedback.</span>
+                        </h2>
+                        <p class="text-sm sm:text-base text-slate-600 max-w-2xl leading-relaxed mx-auto md:mx-0">
+                            <strong class="text-slate-800">sMArTHEMATIK</strong> ist dein digitaler &Uuml;bungsplatz f&uuml;r die 10. Klasse Mittelschule in Bayern.
+                            Schritt f&uuml;r Schritt, mit echten Pr&uuml;fungsaufgaben.
+                        </p>
+                        <div class="flex flex-wrap gap-2 justify-center md:justify-start pt-1">
+                            <a href="rechner.html" class="inline-flex items-center gap-1.5 bg-white border border-indigo-300 text-indigo-800 hover:bg-indigo-50 hover:border-indigo-400 px-3 py-1.5 rounded-full text-xs font-semibold no-underline transition-colors shadow-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg>
+                                M10 Taschenrechner &ouml;ffnen &rarr;
+                            </a>
+                        </div>
                     </div>
                 </div>
             </section>
 
-            <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-2">
-                <div class="flex justify-center">
-                    <a href="rechner.html" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-indigo-200 text-indigo-800 font-semibold text-sm shadow-sm hover:bg-indigo-50 hover:border-indigo-300 transition-all no-underline">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg>
-                        M10 Taschenrechner öffnen
-                    </a>
-                </div>
-            </section>
-
-            <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-16">
-                <div class="text-center mb-12"><h3 class="text-2xl font-bold text-slate-800">Verfügbare Mathetrainer</h3></div>
+            <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-16">
+                <div class="text-center mb-10"><h3 class="text-2xl sm:text-3xl font-bold text-slate-800">W&auml;hle dein Thema</h3></div>
                 <div class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    <a href="kopfrechnen.html" class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl transition-all hover:-translate-y-1 flex flex-col items-center text-center group cursor-pointer no-underline">
+                    <!-- Kopfrechnen: TÄGLICH-Badge oben rechts signalisiert "Tagesform-Trainer". Karte selbst bleibt visuell mit den anderen auf Augenhöhe (kein Ring/Border-Spezialeffekt). -->
+                    <a href="kopfrechnen.html" class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl transition-all hover:-translate-y-1 flex flex-col items-center text-center group cursor-pointer no-underline relative">
+                        <div class="absolute top-3 right-3 inline-flex items-center gap-1 bg-sky-500 text-white text-[10px] font-extrabold tracking-wider px-2 py-1 rounded-full shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2 9 9H2l5.5 4L5 21l7-5 7 5-2.5-8L22 9h-7z"/></svg>
+                            T&Auml;GLICH
+                        </div>
                         <div class="w-16 h-16 bg-sky-100 text-sky-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/><line x1="2" y1="2" x2="22" y2="22"/></svg>
                         </div>
                         <h4 class="text-xl font-bold text-slate-800 mb-3">Kopfrechnen</h4>
-                        <p class="text-slate-600 mb-8 flex-grow text-sm">Schnelles Denken: Verschiedene Aufgabentypen für den MSA im Kopf lösen.</p>
+                        <p class="text-slate-600 mb-8 flex-grow text-sm">Schnelles Denken: Verschiedene Aufgabentypen f&uuml;r den MSA im Kopf l&ouml;sen.</p>
                         <span class="w-full inline-flex items-center justify-center px-4 py-2 border border-sky-200 font-medium rounded-lg text-sky-700 bg-sky-50 group-hover:bg-sky-500 group-hover:text-white shadow-sm transition-all">Zum Trainer</span>
                     </a>
                     <a href="binformeln.html" class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl transition-all hover:-translate-y-1 flex flex-col items-center text-center group cursor-pointer no-underline">
