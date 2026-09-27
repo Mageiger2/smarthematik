@@ -363,7 +363,8 @@ const themeColors = {
     teal: { activeBorder: 'border-teal-500', activeBg: 'bg-teal-50', activeTitle: 'text-teal-900', badgeBg: 'bg-teal-600', shadow: 'shadow-teal-100', btnBg: 'bg-teal-600', btnHover: 'hover:bg-teal-700' },
     cyan: { activeBorder: 'border-cyan-500', activeBg: 'bg-cyan-50', activeTitle: 'text-cyan-900', badgeBg: 'bg-cyan-600', shadow: 'shadow-cyan-100', btnBg: 'bg-cyan-600', btnHover: 'hover:bg-cyan-700' },
     orange: { activeBorder: 'border-orange-500', activeBg: 'bg-orange-50', activeTitle: 'text-orange-900', badgeBg: 'bg-orange-600', shadow: 'shadow-orange-100', btnBg: 'bg-orange-600', btnHover: 'hover:bg-orange-700' },
-    indigo: { activeBorder: 'border-indigo-500', activeBg: 'bg-indigo-50', activeTitle: 'text-indigo-900', badgeBg: 'bg-indigo-600', shadow: 'shadow-indigo-100', btnBg: 'bg-indigo-600', btnHover: 'hover:bg-indigo-700' }
+    indigo: { activeBorder: 'border-indigo-500', activeBg: 'bg-indigo-50', activeTitle: 'text-indigo-900', badgeBg: 'bg-indigo-600', shadow: 'shadow-indigo-100', btnBg: 'bg-indigo-600', btnHover: 'hover:bg-indigo-700' },
+    blue: { activeBorder: 'border-blue-500', activeBg: 'bg-blue-50', activeTitle: 'text-blue-900', badgeBg: 'bg-blue-600', shadow: 'shadow-blue-100', btnBg: 'bg-blue-600', btnHover: 'hover:bg-blue-700' }
 };
 
 // ==========================================
@@ -478,12 +479,12 @@ const TrainerHeader = ({ theme, icon: Icon, title, streakIcon: StreakIcon, strea
     const headerBg = {
         emerald: 'bg-emerald-700', rose: 'bg-rose-600', amber: 'bg-amber-500', sky: 'bg-sky-500',
         violet: 'bg-violet-600', teal: 'bg-teal-600', cyan: 'bg-cyan-600', orange: 'bg-orange-600',
-        indigo: 'bg-indigo-700'
+        indigo: 'bg-indigo-700', blue: 'bg-blue-700'
     }[theme] || 'bg-emerald-700';
     const pillBg = {
         emerald: 'bg-emerald-800', rose: 'bg-rose-700', amber: 'bg-amber-600', sky: 'bg-sky-600',
         violet: 'bg-violet-700', teal: 'bg-teal-700', cyan: 'bg-cyan-700', orange: 'bg-orange-700',
-        indigo: 'bg-indigo-800'
+        indigo: 'bg-indigo-800', blue: 'bg-blue-800'
     }[theme] || 'bg-emerald-800';
     return (
         <header className={`${headerBg} shadow-md p-3 sm:p-6 rounded-xl mb-3 sm:mb-6`}>
