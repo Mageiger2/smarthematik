@@ -38,6 +38,7 @@ const normalizeBino = (str) => {
 };
 
 // Hardcoded Prüfungsaufgaben (Level 4). Markup: [input:antwort|alt-antwort|…]
+// Vorzeichen sind wie in den Original-Prüfungen immer vorgegeben (keine Lücken).
 // Templates orientieren sich an Original-MSA-Aufgaben (Bayern, Aufgabengruppen I+II
 // der Jahrgänge 2011–2022). Sie wurden in ein einheitliches Lückentext-Format
 // gebracht — Quelle steht im sourceLabel. tip = didaktischer Hinweis, der nach
@@ -45,52 +46,52 @@ const normalizeBino = (str) => {
 const binoExamTemplates = [
     {
         sourceLabel: "MSA 2021 I/9a",
-        template: "( 2a + [input:8b] ) · ( 2a − [input:8b] ) = [input:4a²] [input:-] 64b²",
+        template: "( 2a + [input:8b] ) · ( 2a − [input:8b] ) = [input:4a²] − 64b²",
         tip: "3. Binomische Formel: (a + b) · (a − b) = a² − b². Hier ist a = 2a und b = ?. Aus 64b² folgt b = 8b (Wurzel aus 64b² = 8b). (2a)² = 4a²."
     },
     {
         sourceLabel: "MSA 2019 II/5a",
-        template: "( [input:6a] [input:-] 9d )² = 36a² [input:-] [input:108ad|108da] [input:+] 81d²",
+        template: "( [input:6a] − 9d )² = 36a² − [input:108ad|108da] + 81d²",
         tip: "2. Binomische Formel: (a − b)² = a² − 2·a·b + b². Aus 36a² folgt a = 6a (Wurzel aus 36a² = 6a). Mittleres Glied: 2 · 6a · 9d = 108ad."
     },
     {
         sourceLabel: "MSA 2017 I/6b",
-        template: "( 4z + [input:5x] ) · ( 4z − [input:5x] ) = [input:16z²] [input:-] 25x²",
+        template: "( 4z + [input:5x] ) · ( 4z − [input:5x] ) = [input:16z²] − 25x²",
         tip: "3. Binomische Formel: (a + b) · (a − b) = a² − b². Aus 25x² folgt b = 5x. (4z)² = 16z²."
     },
     {
         sourceLabel: "MSA 2016 I/9a",
-        template: "( 4x [input:-] [input:y|1y] )² = [input:16x²] [input:-] [input:8xy|8yx] + y²",
+        template: "( 4x − [input:y|1y] )² = [input:16x²] − [input:8xy|8yx] + y²",
         tip: "2. Binomische Formel: (a − b)² = a² − 2·a·b + b². Hier a = 4x, b = y. (4x)² = 16x²; Mittleres Glied: 2 · 4x · y = 8xy."
     },
     {
         sourceLabel: "Angepasst",
-        template: "( [input:3a³|3a^3] − [input:4b] )² = 9a⁶ − 24a³b [input:+] [input:16b²|16b^2]",
+        template: "( [input:3a³|3a^3] − [input:4b] )² = 9a⁶ − 24a³b + [input:16b²|16b^2]",
         tip: "2. Binomische Formel: (a − b)² = a² − 2·a·b + b². Aus 9a⁶ folgt a = 3a³ (Wurzel aus 9a⁶ = 3a³). Aus 24a³b = 2 · 3a³ · b folgt b = 4b. Dann b² = 16b²."
     },
     {
         sourceLabel: "MSA 2022 I/9a",
-        template: "( 7a³ + [input:10c] )² = [input:49a⁶|49a^6] [input:+] [input:140a³c|140c³a|140ac³|140ca³] + 100c²",
+        template: "( 7a³ + [input:10c] )² = [input:49a⁶|49a^6] + [input:140a³c|140ca³|140a^3c|140ca^3] + 100c²",
         tip: "1. Binomische Formel: (a + b)² = a² + 2·a·b + b². a = 7a³, b = ? — aus 100c² folgt b = 10c. a² = (7a³)² = 49a⁶; Mittleres Glied: 2 · 7a³ · 10c = 140a³c."
     },
     {
         sourceLabel: "MSA 2017 I/6a",
-        template: "( [input:0,5x²y|0.5x²y|0,5yx²|0.5yx²] [input:-] 3z )² = 0,25x⁴y² − [input:3x²yz|3zx²y|3x²zy|3yx²z|3yzx²|3zyx²] [input:+] [input:9z²|9z^2]",
+        template: "( [input:0,5x²y|0.5x²y|0,5yx²|0.5yx²] − 3z )² = 0,25x⁴y² − [input:3x²yz|3zx²y|3x²zy|3yx²z|3yzx²|3zyx²] + [input:9z²|9z^2]",
         tip: "2. Binomische Formel: (a − b)² = a² − 2·a·b + b². Aus 0,25x⁴y² folgt a = 0,5x²y (Wurzel ziehen!). Mittleres Glied: 2 · 0,5x²y · 3z = 3x²yz. Letztes Glied: (3z)² = 9z²."
     },
     {
         sourceLabel: "MSA 2014 I/8a",
-        template: "( 4ab² + [input:3c] )² = [input:16a²b⁴|16b⁴a²] [input:+] [input:24ab²c|24acb²|24b²ac|24b²ca|24cab²|24cb²a] + 9c²",
+        template: "( 4ab² + [input:3c] )² = [input:16a²b⁴|16b⁴a²] + [input:24ab²c|24acb²|24b²ac|24b²ca|24cab²|24cb²a] + 9c²",
         tip: "1. Binomische Formel: (a + b)² = a² + 2·a·b + b². a = 4ab², b = ? — aus 9c² folgt b = 3c. a² = (4ab²)² = 16a²b⁴; Mittleres Glied: 2 · 4ab² · 3c = 24ab²c."
     },
     {
         sourceLabel: "MSA 2011 I/6b",
-        template: "( w [input:-] 4z )² = [input:w²|w^2] [input:-] [input:8wz|8zw] [input:+] 16z²",
+        template: "( w − 4z )² = [input:w²|w^2] − [input:8wz|8zw] + 16z²",
         tip: "2. Binomische Formel: (a − b)² = a² − 2·a·b + b². Hier a = w, b = 4z. a² = w²; Mittleres Glied: 2 · w · 4z = 8wz."
     },
     {
         sourceLabel: "MSA 2016 I/9b",
-        template: "( [input:0,5z|0.5z] [input:+] [input:8] )² = 0,25z² + 8z [input:+] [input:64]",
+        template: "( [input:0,5z|0.5z] + [input:8] )² = 0,25z² + 8z + [input:64]",
         tip: "1. Binomische Formel: (a + b)² = a² + 2·a·b + b². Aus 0,25z² folgt a = 0,5z. Aus 8z = 2 · 0,5z · b folgt b = 8. Dann b² = 64."
     }
 ];

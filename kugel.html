@@ -2072,7 +2072,7 @@ const buildMittelTask = (forbiddenIds) => {
                   hint:<>Links das Kugelvolumen ({fmtK(Vk,1)}), rechts der Zylinderradius ({rz}).</>,
                   solution:`V = ${fmtK(Vk,1)}, r = ${rz}` },
                 { type:'calc', goal:'Schritt 4: Berechne den Wasserspiegel-Anstieg Δh.',
-                  label:<span>Δ<Vrb>h</Vrb></span>, unit:'cm', correct:dh, tolerance:0.1, decimals:2,
+                  label:<span>Δ<Vrb>h</Vrb></span>, unit:'cm', correct:dh, tolerance:0.01, decimals:2,
                   hint:<>Δ<Vrb>h</Vrb> = <Vrb>V</Vrb><sub>K</sub> ÷ (π · <Vrb>r</Vrb><sub>Zyl</sub><Pwr>2</Pwr>).</>,
                   solution:`Δh ≈ ${fmtK(dh,2)} cm` }
             ]
@@ -2317,9 +2317,9 @@ const kugelExamTasks = [
               hint:<>V_Halbk = (2 ÷ 3) · π · r³. Stelle um: r = ³√(3 · 13,5 ÷ (2·π)).</>,
               solution:'r ≈ 1,86 cm' },
             { type:'calc', goal:'Schritt 4: Berechne die sichtbare Oberfläche der Halbkugel.',
-              label:<Vrb>O</Vrb>, unit:'cm²', correct:21.73, tolerance:0.3, decimals:2,
+              label:<Vrb>O</Vrb>, unit:'cm²', correct:21.76, tolerance:0.3, decimals:2,
               hint:<>Sichtbare Schale: O = 2 · π · r².</>,
-              solution:'O ≈ 21,7 cm²' }
+              solution:'O ≈ 21,8 cm²' }
         ]
     },
     {
@@ -2393,7 +2393,7 @@ const kugelExamTasks = [
               hint:<>(4 ÷ 3) · π · 1,5<Pwr>3</Pwr>.</>, solution:'V_klein ≈ 14,14 cm³' },
             { type:'calc', goal:'Schritt 4: Wie viele vollständige Kugeln entstehen? (abrunden!)',
               label:<>Anzahl</>, unit:'Kugeln', correct:256, tolerance:0.5, decimals:0,
-              hint:<>V_H ÷ V_klein und auf die ganze Zahl abrunden.</>,
+              hint:<>V_H ÷ V_klein und auf die ganze Zahl abrunden. Rechne mit den ungerundeten Werten aus dem Taschenrechner — mit gerundeten Zwischenergebnissen landest du knapp unter der richtigen Zahl.</>,
               solution:'256 Kugeln' }
         ]
     },
@@ -2831,11 +2831,6 @@ const KugelTrainer = () => {
     return (
         <div className="page-transition max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             {tc.showAnim && <CelebrationOverlay />}
-            {/* BETA-Hinweis: dieser Trainer ist neu und noch im Feinschliff. */}
-            <div className="mb-4 flex items-center gap-3 bg-amber-50 border-2 border-amber-300 text-amber-900 px-3 py-2 rounded-lg text-sm">
-                <span className="bg-amber-500 text-white text-xs font-extrabold px-2 py-0.5 rounded shrink-0">BETA</span>
-                <span>Dieser Trainer ist noch im Aufbau. Fehler oder Verbesserungsvorschläge gerne per E-Mail melden.</span>
-            </div>
             <TrainerHeader theme="indigo" icon={Sphere} title="Die Kugel"
                            streakIcon={Sphere} streak={tc.streak} />
 

@@ -942,6 +942,8 @@ const SubstitutionInput = ({ step, onCorrect, onTipShown }) => {
         const a = normalizeString(actual);
         const e = normalizeString(expected);
         if (a === e) return true;
+        // Gesuchte Größe (Buchstabe wie a, x, DB) darf auch als „?“ eingegeben werden.
+        if (a === '?' && /^[a-zäöü]+$/.test(e)) return true;
         const aN = parseFloat(a), eN = parseFloat(e);
         if (!isNaN(aN) && !isNaN(eN) && (Math.abs(aN - eN) <= 0.6 || Math.round(aN) === Math.round(eN))) return true;
         return false;
