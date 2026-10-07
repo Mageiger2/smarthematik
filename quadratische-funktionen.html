@@ -1599,11 +1599,30 @@ const lfUseFrac = (v, frac) => {
     return f && f.d !== 1 && (frac === true || (frac !== false && !lfIsShort(v))) ? f : null;
 };
 
+// Prüft eine Zahleneingabe. Neben der Toleranz tol gilt: Ist das Ergebnis keine
+// abbrechende Dezimalzahl mit höchstens zwei Nachkommastellen (z. B. −5/3), zählt
+// auch jede gerundete oder abgeschnittene Dezimalzahl mit mindestens einer
+// Nachkommastelle — Schüler können kein Periodenzeichen tippen.
+// Beispiel −5/3 = −1,666…: −1,7 / −1,67 / −1,66 / −1,667 sind richtig, −1,8 nicht.
+const fkNumOk = (raw, v, correct, tol = 0.011) => {
+    if (isNaN(v)) return false;
+    if (Math.abs(v - correct) <= tol) return true;
+    if (lfIsShort(correct)) return false;
+    const dec = String(raw === null || raw === undefined ? '' : raw).replace(/\s+/g, '').match(/^[+\-−–]?\d*[.,](\d+)$/);
+    if (!dec) return false;
+    const f = Math.pow(10, dec[1].length);
+    const sign = correct < 0 ? -1 : 1, a = Math.abs(correct) * f;
+    const rounded = sign * Math.round(a) / f, cut = sign * Math.floor(a + 1e-9) / f;
+    return lfSame(v, rounded, 1e-9) || lfSame(v, cut, 1e-9);
+};
+
 // Zahl als Text: "−2/3", "0,25", "−1,5"
 const lfS = (v, frac) => {
+    // Bruch-Erkennung auf dem (fast) ungerundeten Wert: lfR(−5/3, 6) = −1,666667
+    // wäre sonst kein Bruch mehr und würde als „−1,6667“ angezeigt.
+    const f = lfUseFrac(lfR(v, 10), frac);
     v = lfR(v, 6);
     const sign = v < 0 ? '−' : '';
-    const f = lfUseFrac(v, frac);
     if (f) return `${sign}${Math.abs(f.n)}/${f.d}`;
     return sign + String(lfR(Math.abs(v), 4)).replace('.', ',');
 };
@@ -1664,8 +1683,8 @@ const V = ({ children }) => <span className="font-math-italic">{children}</span>
 
 // Zahl (ggf. als Bruch gestapelt)
 const Z = ({ v, frac }) => {
+    const f = lfUseFrac(lfR(v, 10), frac);
     v = lfR(v, 6);
-    const f = lfUseFrac(v, frac);
     if (!f) return <span>{lfS(v, false)}</span>;
     return <span className="whitespace-nowrap">{v < 0 ? '−' : ''}<Frac top={Math.abs(f.n)} bot={f.d} /></span>;
 };
@@ -1957,7 +1976,7 @@ const LfStepRunner = ({ task, tc, onWrong, onSolved, onSolutionShown, onNext, ne
         const primary = {};
         step.inputs.forEach(i => { primary[i.id] = i.correct; });
         const sets = [primary, ...(step.altSets || [])];
-        const fieldOk = (set, i) => !isNaN(vals[i.id]) && Math.abs(vals[i.id] - set[i.id]) <= (i.tol !== undefined ? i.tol : 0.011);
+        const fieldOk = (set, i) => fkNumOk(inputs[i.id], vals[i.id], set[i.id], i.tol);
         const match = sets.find(set => step.inputs.every(i => fieldOk(set, i)));
         if (match) {
             const st = {}; step.inputs.forEach(i => { st[i.id] = 'correct'; });
@@ -1976,8 +1995,7 @@ const LfStepRunner = ({ task, tc, onWrong, onSolved, onSolutionShown, onNext, ne
 
     const checkCalc = () => {
         const v = lfParse(calcInput);
-        const tol = step.tol !== undefined ? step.tol : 0.011;
-        if (!isNaN(v) && Math.abs(v - step.correct) <= tol) {
+        if (fkNumOk(calcInput, v, step.correct, step.tol)) {
             setCalcStatus('correct');
             setTimeout(() => advanceWith({ type: 'calc', value: calcInput, label: step.label, unit: step.unit }), 350);
         } else { setCalcStatus('incorrect'); onWrong(); }
@@ -2034,7 +2052,11 @@ const LfStepRunner = ({ task, tc, onWrong, onSolved, onSolutionShown, onNext, ne
         </div>
     );
 
-    const renderStep = (s, idx) => {
+    // Schritte mit adapt(vorherigeAntwort) passen Titel/Tipp/Lösung an den
+    // gewählten Rechenweg im vorigen Schritt an (z. B. „Teile durch 5“ statt „−5“).
+    const viewStep = (s, idx) => (s.adapt ? { ...s, ...s.adapt(answers[idx - 1]) } : s);
+    const renderStep = (s0, idx) => {
+        const s = viewStep(s0, idx);
         const isActive = idx === stepIdx && !completed;
         const isPast = idx < stepIdx || completed;
         return (
@@ -2096,7 +2118,8 @@ const LfStepRunner = ({ task, tc, onWrong, onSolved, onSolutionShown, onNext, ne
         );
     };
 
-    const solutionWay = () => task.steps.map((s, i) => {
+    const solutionWay = () => task.steps.map((s0, i) => {
+        const s = viewStep(s0, i);
         const sol = typeof s.solution === 'string' ? s.solution : '';
         return `Schritt ${i + 1}: ${s.goal}${sol ? `\n   → ${sol}` : ''}`;
     }).join('\n\n');
@@ -2723,8 +2746,8 @@ Q.mirror = (P, axis, name) => {
 };
 
 // Funktionsgleichung einer Normalparabel aus dem Graphen
-Q.readGraph = (a, xs, ys, name, toNorm = true) => [
-    Q.vertexPt(xs, ys, 'S', 'Lies den Scheitelpunkt S ab.'),
+Q.readGraph = (a, xs, ys, name, toNorm = true, sName = 'S') => [
+    Q.vertexPt(xs, ys, sName, `Lies den Scheitelpunkt ${sName} ab.`),
     Q.opening(a, name),
     ...(toNorm ? Q.normFromVertex(a, xs, ys, name) : [Q.vertForm(a, xs, ys, name)])
 ].map((s, i) => i === 0 ? { ...s, hint: 'Der Scheitelpunkt ist der tiefste (nach oben geöffnet) bzw. höchste Punkt (nach unten geöffnet) der Parabel.' } : s);
@@ -3051,7 +3074,7 @@ const QF_EXAMS = [
     { id: '2021-I', label: 'MSA 2021 I', nr: '1', parts: [
         { l: 'a', topic: 'scheitelform', text: <>Forme {pn(Pb(1, 2, -3, 'p₁'))} in die Scheitelpunktform um und gib S₁ an.</>, steps: () => Q.vertexFromNorm(Pb(1, 2, -3, 'p₁'), 'S₁') },
         { l: 'b', topic: 'wertetabelle', text: <>Überprüfe durch Rechnung, ob A(−2 | −3) und B(2 | 5) auf {pn(Pb(1, 2, -3, 'p₁'))} liegen.</>, steps: () => [...Q.probe(Pb(1, 2, -3, 'p₁'), qpt(-2, -3, 'A')), ...Q.probe(Pb(1, 2, -3, 'p₁'), qpt(2, 5, 'B'))] },
-        { l: 'c', topic: 'nullstellen', text: <>Die Normalparabel {pn(Pb(1, 2, -3, 'p₁'))} schneidet die x-Achse in P und Q. Ermittle die Koordinaten.</>, steps: () => Q.zeros(Pb(1, 2, -3, 'p₁')) },
+        { l: 'c', topic: 'nullstellen', text: <>Die Normalparabel {pn(Pb(1, 2, -3, 'p₁'))} schneidet die x-Achse in P und Q. Ermittle die x-Koordinaten von P und Q.</>, steps: () => Q.zeros(Pb(1, 2, -3, 'p₁')) },
         { l: 'd', topic: 'zweipunkte', text: <>Die nach unten geöffnete Normalparabel p₂ verläuft durch C(1 | −6) und D(−4 | −1). Bestimme rechnerisch ihre Normalform.</>, steps: () => Q.twoPoints(-1, qpt(1, -6, 'C'), qpt(-4, -1, 'D'), 'p₂') },
         { l: 'f', topic: 'gerade', text: <>Berechne die Schnittpunkte T und U von {pn(Pb(1, -2, 1, 'p₄'))} mit der Geraden {fq('g: y = 2x − 2')}.</>, ...withFg(() => Q.intersect(Pb(1, -2, 1, 'p₄'), { m: 2, t: -2, n: 'g' }), [Pb(1, -2, 1, 'p₄'), { m: 2, t: -2, n: 'g' }], [qpt(1, 0, 'T'), qpt(3, 4, 'U')]) },
         { l: 'g', topic: 'zeichnen', text: <>Zeichne {pn(Pb(1, 2, -3, 'p₁'))} und {pn(Pb(-1, -4, -1, 'p₂'))} in ein Koordinatensystem.</>, ...dq([Pb(1, 2, -3, 'p₁'), Pb(-1, -4, -1, 'p₂')], [-6, 3, -5, 4]) }
@@ -3140,9 +3163,9 @@ const QF_EXAMS = [
         { l: 'b', topic: 'scheitelform', text: <>Berechne die Scheitelpunktform von {pn(Pb(1, 3, 4.25, 'p₂'))}.</>, steps: () => Q.vertexFromNorm(Pb(1, 3, 4.25, 'p₂'), 'S₂') },
         { l: 'c', topic: 'spiegeln', text: <>Durch Spiegelung von {pv(Pb(1, 3, 4.25, 'p₂'))} an der y-Achse entsteht p₃. Ermittle die Funktionsgleichung von p₃.</>, steps: () => Q.mirror(Pb(1, 3, 4.25, 'p₂'), 'y', 'p₃') },
         { l: 'd', topic: 'parabeln', text: <>Die Parabel {pn(Pb(-1, 0, 4.25, 'p₄'))} schneidet {pn(Pb(1, 3, 4.25, 'p₂'))} in C und D. Berechne die Koordinaten.</>, ...withFg(() => Q.intersect(Pb(1, 3, 4.25, 'p₂'), Pb(-1, 0, 4.25, 'p₄')), [Pb(1, 3, 4.25, 'p₂'), Pb(-1, 0, 4.25, 'p₄')], [qpt(-1.5, 2, 'D'), qpt(0, 4.25, 'C')]) },
-        { l: 'e', topic: 'gerade', text: <>Die Abbildung zeigt die Normalparabel p₅ und die Gerade g. Bestimme die Gleichung von g (g verläuft durch P(−4 | 3) und (−5 | 5)).</>, graph: { range: [-7, 1, -1, 6], lines: [Pb(-1, -6, -5, 'p₅'), { m: -2, t: -5, n: 'g' }], points: [qpt(-4, 3, 'P'), qpt(-3, 4, 'S₅')] }, steps: () => [S.calc('Berechne die Steigung m von g.', <V>m</V>, -2, 'm = (5 − 3) : (−5 − (−4)) = 2 : (−1)', 'm = −2'), S.calc('Berechne den y-Achsenabschnitt t.', <V>t</V>, -5, '3 = −2 · (−4) + t', 't = −5')] },
+        { l: 'e', topic: 'gerade', text: <>Die Abbildung zeigt die Normalparabel p₅ und die Gerade g. Bestimme die Gleichung von g (g verläuft durch P(−4 | 3) und Q(−5 | 5)).</>, graph: { range: [-7, 1, -1, 6], lines: [Pb(-1, -6, -5, 'p₅'), { m: -2, t: -5, n: 'g' }], points: [qpt(-4, 3, 'P'), qpt(-3, 4, 'S₅')] }, steps: () => [S.calc('Berechne die Steigung m von g.', <V>m</V>, -2, 'm = (5 − 3) : (−5 − (−4)) = 2 : (−1)', 'm = −2'), S.calc('Berechne den y-Achsenabschnitt t.', <V>t</V>, -5, '3 = −2 · (−4) + t', 't = −5')] },
         { l: 'f', topic: 'gerade', text: <>Berechne den spitzen Winkel α, den {fq('g: y = −2x − 5')} mit der x-Achse einschließt.</>, steps: () => [S.calc('Berechne α (auf zwei Nachkommastellen).', <span className="font-math-italic">α</span>, 63.43, 'tan α = |m| = 2 → α = tan⁻¹(2).', 'α ≈ 63,43°', '°', 0.06)] },
-        { l: 'g', topic: 'scheitel', text: <>Ermittle rechnerisch die Normalform der Parabel p₅ (siehe Abbildung, Scheitel S₅(−3 | 4), nach unten geöffnet).</>, graph: { range: [-7, 1, -1, 6], lines: [Pb(-1, -6, -5, 'p₅')] }, steps: () => Q.readGraph(-1, -3, 4, 'p₅') }
+        { l: 'g', topic: 'scheitel', text: <>Ermittle rechnerisch die Normalform der Parabel p₅ (siehe Abbildung, Scheitel S₅(−3 | 4), nach unten geöffnet).</>, graph: { range: [-7, 1, -1, 6], lines: [Pb(-1, -6, -5, 'p₅')] }, steps: () => Q.readGraph(-1, -3, 4, 'p₅', true, 'S₅') }
     ]},
     { id: '2014-I', label: 'MSA 2014 I', nr: '5', intro: <>Auf der nach oben geöffneten Normalparabel p₁ liegen A(−1 | 19) und B(5 | 7).</>, parts: [
         { l: 'a', topic: 'zweipunkte', text: <>Berechne die Normalform von p₁.</>, steps: () => Q.twoPoints(1, qpt(-1, 19, 'A'), qpt(5, 7, 'B'), 'p₁') },

@@ -344,8 +344,8 @@ Q.mirror = (P, axis, name) => {
 };
 
 // Funktionsgleichung einer Normalparabel aus dem Graphen
-Q.readGraph = (a, xs, ys, name, toNorm = true) => [
-    Q.vertexPt(xs, ys, 'S', 'Lies den Scheitelpunkt S ab.'),
+Q.readGraph = (a, xs, ys, name, toNorm = true, sName = 'S') => [
+    Q.vertexPt(xs, ys, sName, `Lies den Scheitelpunkt ${sName} ab.`),
     Q.opening(a, name),
     ...(toNorm ? Q.normFromVertex(a, xs, ys, name) : [Q.vertForm(a, xs, ys, name)])
 ].map((s, i) => i === 0 ? { ...s, hint: 'Der Scheitelpunkt ist der tiefste (nach oben geöffnet) bzw. höchste Punkt (nach unten geöffnet) der Parabel.' } : s);
@@ -672,7 +672,7 @@ const QF_EXAMS = [
     { id: '2021-I', label: 'MSA 2021 I', nr: '1', parts: [
         { l: 'a', topic: 'scheitelform', text: <>Forme {pn(Pb(1, 2, -3, 'p₁'))} in die Scheitelpunktform um und gib S₁ an.</>, steps: () => Q.vertexFromNorm(Pb(1, 2, -3, 'p₁'), 'S₁') },
         { l: 'b', topic: 'wertetabelle', text: <>Überprüfe durch Rechnung, ob A(−2 | −3) und B(2 | 5) auf {pn(Pb(1, 2, -3, 'p₁'))} liegen.</>, steps: () => [...Q.probe(Pb(1, 2, -3, 'p₁'), qpt(-2, -3, 'A')), ...Q.probe(Pb(1, 2, -3, 'p₁'), qpt(2, 5, 'B'))] },
-        { l: 'c', topic: 'nullstellen', text: <>Die Normalparabel {pn(Pb(1, 2, -3, 'p₁'))} schneidet die x-Achse in P und Q. Ermittle die Koordinaten.</>, steps: () => Q.zeros(Pb(1, 2, -3, 'p₁')) },
+        { l: 'c', topic: 'nullstellen', text: <>Die Normalparabel {pn(Pb(1, 2, -3, 'p₁'))} schneidet die x-Achse in P und Q. Ermittle die x-Koordinaten von P und Q.</>, steps: () => Q.zeros(Pb(1, 2, -3, 'p₁')) },
         { l: 'd', topic: 'zweipunkte', text: <>Die nach unten geöffnete Normalparabel p₂ verläuft durch C(1 | −6) und D(−4 | −1). Bestimme rechnerisch ihre Normalform.</>, steps: () => Q.twoPoints(-1, qpt(1, -6, 'C'), qpt(-4, -1, 'D'), 'p₂') },
         { l: 'f', topic: 'gerade', text: <>Berechne die Schnittpunkte T und U von {pn(Pb(1, -2, 1, 'p₄'))} mit der Geraden {fq('g: y = 2x − 2')}.</>, ...withFg(() => Q.intersect(Pb(1, -2, 1, 'p₄'), { m: 2, t: -2, n: 'g' }), [Pb(1, -2, 1, 'p₄'), { m: 2, t: -2, n: 'g' }], [qpt(1, 0, 'T'), qpt(3, 4, 'U')]) },
         { l: 'g', topic: 'zeichnen', text: <>Zeichne {pn(Pb(1, 2, -3, 'p₁'))} und {pn(Pb(-1, -4, -1, 'p₂'))} in ein Koordinatensystem.</>, ...dq([Pb(1, 2, -3, 'p₁'), Pb(-1, -4, -1, 'p₂')], [-6, 3, -5, 4]) }
@@ -761,9 +761,9 @@ const QF_EXAMS = [
         { l: 'b', topic: 'scheitelform', text: <>Berechne die Scheitelpunktform von {pn(Pb(1, 3, 4.25, 'p₂'))}.</>, steps: () => Q.vertexFromNorm(Pb(1, 3, 4.25, 'p₂'), 'S₂') },
         { l: 'c', topic: 'spiegeln', text: <>Durch Spiegelung von {pv(Pb(1, 3, 4.25, 'p₂'))} an der y-Achse entsteht p₃. Ermittle die Funktionsgleichung von p₃.</>, steps: () => Q.mirror(Pb(1, 3, 4.25, 'p₂'), 'y', 'p₃') },
         { l: 'd', topic: 'parabeln', text: <>Die Parabel {pn(Pb(-1, 0, 4.25, 'p₄'))} schneidet {pn(Pb(1, 3, 4.25, 'p₂'))} in C und D. Berechne die Koordinaten.</>, ...withFg(() => Q.intersect(Pb(1, 3, 4.25, 'p₂'), Pb(-1, 0, 4.25, 'p₄')), [Pb(1, 3, 4.25, 'p₂'), Pb(-1, 0, 4.25, 'p₄')], [qpt(-1.5, 2, 'D'), qpt(0, 4.25, 'C')]) },
-        { l: 'e', topic: 'gerade', text: <>Die Abbildung zeigt die Normalparabel p₅ und die Gerade g. Bestimme die Gleichung von g (g verläuft durch P(−4 | 3) und (−5 | 5)).</>, graph: { range: [-7, 1, -1, 6], lines: [Pb(-1, -6, -5, 'p₅'), { m: -2, t: -5, n: 'g' }], points: [qpt(-4, 3, 'P'), qpt(-3, 4, 'S₅')] }, steps: () => [S.calc('Berechne die Steigung m von g.', <V>m</V>, -2, 'm = (5 − 3) : (−5 − (−4)) = 2 : (−1)', 'm = −2'), S.calc('Berechne den y-Achsenabschnitt t.', <V>t</V>, -5, '3 = −2 · (−4) + t', 't = −5')] },
+        { l: 'e', topic: 'gerade', text: <>Die Abbildung zeigt die Normalparabel p₅ und die Gerade g. Bestimme die Gleichung von g (g verläuft durch P(−4 | 3) und Q(−5 | 5)).</>, graph: { range: [-7, 1, -1, 6], lines: [Pb(-1, -6, -5, 'p₅'), { m: -2, t: -5, n: 'g' }], points: [qpt(-4, 3, 'P'), qpt(-3, 4, 'S₅')] }, steps: () => [S.calc('Berechne die Steigung m von g.', <V>m</V>, -2, 'm = (5 − 3) : (−5 − (−4)) = 2 : (−1)', 'm = −2'), S.calc('Berechne den y-Achsenabschnitt t.', <V>t</V>, -5, '3 = −2 · (−4) + t', 't = −5')] },
         { l: 'f', topic: 'gerade', text: <>Berechne den spitzen Winkel α, den {fq('g: y = −2x − 5')} mit der x-Achse einschließt.</>, steps: () => [S.calc('Berechne α (auf zwei Nachkommastellen).', <span className="font-math-italic">α</span>, 63.43, 'tan α = |m| = 2 → α = tan⁻¹(2).', 'α ≈ 63,43°', '°', 0.06)] },
-        { l: 'g', topic: 'scheitel', text: <>Ermittle rechnerisch die Normalform der Parabel p₅ (siehe Abbildung, Scheitel S₅(−3 | 4), nach unten geöffnet).</>, graph: { range: [-7, 1, -1, 6], lines: [Pb(-1, -6, -5, 'p₅')] }, steps: () => Q.readGraph(-1, -3, 4, 'p₅') }
+        { l: 'g', topic: 'scheitel', text: <>Ermittle rechnerisch die Normalform der Parabel p₅ (siehe Abbildung, Scheitel S₅(−3 | 4), nach unten geöffnet).</>, graph: { range: [-7, 1, -1, 6], lines: [Pb(-1, -6, -5, 'p₅')] }, steps: () => Q.readGraph(-1, -3, 4, 'p₅', true, 'S₅') }
     ]},
     { id: '2014-I', label: 'MSA 2014 I', nr: '5', intro: <>Auf der nach oben geöffneten Normalparabel p₁ liegen A(−1 | 19) und B(5 | 7).</>, parts: [
         { l: 'a', topic: 'zweipunkte', text: <>Berechne die Normalform von p₁.</>, steps: () => Q.twoPoints(1, qpt(-1, 19, 'A'), qpt(5, 7, 'B'), 'p₁') },

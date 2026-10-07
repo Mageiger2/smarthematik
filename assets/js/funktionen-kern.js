@@ -53,11 +53,30 @@ const lfUseFrac = (v, frac) => {
     return f && f.d !== 1 && (frac === true || (frac !== false && !lfIsShort(v))) ? f : null;
 };
 
+// Prüft eine Zahleneingabe. Neben der Toleranz tol gilt: Ist das Ergebnis keine
+// abbrechende Dezimalzahl mit höchstens zwei Nachkommastellen (z. B. −5/3), zählt
+// auch jede gerundete oder abgeschnittene Dezimalzahl mit mindestens einer
+// Nachkommastelle — Schüler können kein Periodenzeichen tippen.
+// Beispiel −5/3 = −1,666…: −1,7 / −1,67 / −1,66 / −1,667 sind richtig, −1,8 nicht.
+const fkNumOk = (raw, v, correct, tol = 0.011) => {
+    if (isNaN(v)) return false;
+    if (Math.abs(v - correct) <= tol) return true;
+    if (lfIsShort(correct)) return false;
+    const dec = String(raw === null || raw === undefined ? '' : raw).replace(/\s+/g, '').match(/^[+\-−–]?\d*[.,](\d+)$/);
+    if (!dec) return false;
+    const f = Math.pow(10, dec[1].length);
+    const sign = correct < 0 ? -1 : 1, a = Math.abs(correct) * f;
+    const rounded = sign * Math.round(a) / f, cut = sign * Math.floor(a + 1e-9) / f;
+    return lfSame(v, rounded, 1e-9) || lfSame(v, cut, 1e-9);
+};
+
 // Zahl als Text: "−2/3", "0,25", "−1,5"
 const lfS = (v, frac) => {
+    // Bruch-Erkennung auf dem (fast) ungerundeten Wert: lfR(−5/3, 6) = −1,666667
+    // wäre sonst kein Bruch mehr und würde als „−1,6667“ angezeigt.
+    const f = lfUseFrac(lfR(v, 10), frac);
     v = lfR(v, 6);
     const sign = v < 0 ? '−' : '';
-    const f = lfUseFrac(v, frac);
     if (f) return `${sign}${Math.abs(f.n)}/${f.d}`;
     return sign + String(lfR(Math.abs(v), 4)).replace('.', ',');
 };
@@ -118,8 +137,8 @@ const V = ({ children }) => <span className="font-math-italic">{children}</span>
 
 // Zahl (ggf. als Bruch gestapelt)
 const Z = ({ v, frac }) => {
+    const f = lfUseFrac(lfR(v, 10), frac);
     v = lfR(v, 6);
-    const f = lfUseFrac(v, frac);
     if (!f) return <span>{lfS(v, false)}</span>;
     return <span className="whitespace-nowrap">{v < 0 ? '−' : ''}<Frac top={Math.abs(f.n)} bot={f.d} /></span>;
 };
@@ -411,7 +430,7 @@ const LfStepRunner = ({ task, tc, onWrong, onSolved, onSolutionShown, onNext, ne
         const primary = {};
         step.inputs.forEach(i => { primary[i.id] = i.correct; });
         const sets = [primary, ...(step.altSets || [])];
-        const fieldOk = (set, i) => !isNaN(vals[i.id]) && Math.abs(vals[i.id] - set[i.id]) <= (i.tol !== undefined ? i.tol : 0.011);
+        const fieldOk = (set, i) => fkNumOk(inputs[i.id], vals[i.id], set[i.id], i.tol);
         const match = sets.find(set => step.inputs.every(i => fieldOk(set, i)));
         if (match) {
             const st = {}; step.inputs.forEach(i => { st[i.id] = 'correct'; });
@@ -430,8 +449,7 @@ const LfStepRunner = ({ task, tc, onWrong, onSolved, onSolutionShown, onNext, ne
 
     const checkCalc = () => {
         const v = lfParse(calcInput);
-        const tol = step.tol !== undefined ? step.tol : 0.011;
-        if (!isNaN(v) && Math.abs(v - step.correct) <= tol) {
+        if (fkNumOk(calcInput, v, step.correct, step.tol)) {
             setCalcStatus('correct');
             setTimeout(() => advanceWith({ type: 'calc', value: calcInput, label: step.label, unit: step.unit }), 350);
         } else { setCalcStatus('incorrect'); onWrong(); }
@@ -488,7 +506,11 @@ const LfStepRunner = ({ task, tc, onWrong, onSolved, onSolutionShown, onNext, ne
         </div>
     );
 
-    const renderStep = (s, idx) => {
+    // Schritte mit adapt(vorherigeAntwort) passen Titel/Tipp/Lösung an den
+    // gewählten Rechenweg im vorigen Schritt an (z. B. „Teile durch 5“ statt „−5“).
+    const viewStep = (s, idx) => (s.adapt ? { ...s, ...s.adapt(answers[idx - 1]) } : s);
+    const renderStep = (s0, idx) => {
+        const s = viewStep(s0, idx);
         const isActive = idx === stepIdx && !completed;
         const isPast = idx < stepIdx || completed;
         return (
@@ -550,7 +572,8 @@ const LfStepRunner = ({ task, tc, onWrong, onSolved, onSolutionShown, onNext, ne
         );
     };
 
-    const solutionWay = () => task.steps.map((s, i) => {
+    const solutionWay = () => task.steps.map((s0, i) => {
+        const s = viewStep(s0, i);
         const sol = typeof s.solution === 'string' ? s.solution : '';
         return `Schritt ${i + 1}: ${s.goal}${sol ? `\n   → ${sol}` : ''}`;
     }).join('\n\n');

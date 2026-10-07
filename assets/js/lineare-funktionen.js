@@ -81,10 +81,15 @@ S.normal = (eq, name) => {
             hint: 'Rechne mit der Gegenoperation: Ein „+ 2x“ auf der linken Seite wird rechts zu „− 2x“. Links bleibt nur der Term mit y stehen.',
             solution: `${yS} = ${lfSideS([{ c: -B, v: 'x' }, { c: -C, v: '' }].filter(q => q.c !== 0))}`
         });
+        const divStep = (d) => ({
+            goal: `Teile durch ${lfS(d)} und gib die Normalform an.`,
+            hint: `Teile jeden Term auf beiden Seiten durch ${lfP(d)}. Achte auf die Vorzeichen!`
+        });
         steps.push({
             ...S.final(m, t, name),
-            goal: `Teile durch ${lfS(A)} und gib die Normalform an.`,
-            hint: `Teile jeden Term auf beiden Seiten durch ${lfP(A)}. Achte auf die Vorzeichen!`
+            ...divStep(A),
+            // Wer im vorigen Schritt mit −1 multipliziert hat (z. B. 5y statt −5y), teilt durch −A.
+            adapt: (prev) => (prev && prev.type === 'fill' && lfSame(lfParse(prev.values.a), -A) ? divStep(-A) : {})
         });
     } else {
         steps.push({
@@ -176,7 +181,7 @@ S.tFromPoint = (m, P) => {
     const t = lfR(P.y - m * P.x);
     return [
         {
-            type: 'fill', goal: `Setze m und den Punkt ${P.n || 'P'} in y = mx + t ein.`,
+            type: 'fill', goal: `Setze m und ${P.n === 'O' ? 'den Ursprung O(0 | 0)' : `den Punkt ${P.n || 'P'}`} in y = mx + t ein.`,
             inputs: [{ id: 'y', correct: P.y }, { id: 'm', correct: m }, { id: 'x', correct: P.x }],
             render: (h) => <LfZeile>{h.input('y')} = {h.input('m')} · {h.input('x')} + <V>t</V></LfZeile>,
             hint: `Für x und y setzt du die Koordinaten von ${lfPt(P)} ein, für m die Steigung ${lfS(m)}.`,
@@ -265,51 +270,71 @@ S.missingX = (m, t, y, pn = 'P') => {
 };
 S.unknownM = (P, t, name = 'g') => {
     const m = lfR((P.y - t) / P.x);
+    const mn = lfMName(name, 'm');
     return [
         {
             type: 'fill', goal: `Setze die Koordinaten von ${P.n || 'P'} ein.`,
             inputs: [{ id: 'y', correct: P.y }, { id: 'x', correct: P.x }],
-            render: (h) => <LfZeile>{h.input('y')} = <V>m</V> · {h.input('x')}{lfR(t) !== 0 && <> {t < 0 ? '−' : '+'} <Z v={Math.abs(t)} /></>}</LfZeile>,
+            render: (h) => <LfZeile>{h.input('y')} = {lfMJsx(mn)} · {h.input('x')}{lfR(t) !== 0 && <> {t < 0 ? '−' : '+'} <Z v={Math.abs(t)} /></>}</LfZeile>,
             hint: `Links die y-Koordinate (${lfS(P.y)}), rechts für x die x-Koordinate (${lfS(P.x)}).`,
-            solution: `${lfS(P.y)} = m · ${lfP(P.x)} ${t < 0 ? '−' : '+'} ${lfS(Math.abs(t))}`
+            solution: `${lfS(P.y)} = ${mn} · ${lfP(P.x)} ${t < 0 ? '−' : '+'} ${lfS(Math.abs(t))}`
         },
         {
-            type: 'calc', goal: 'Löse nach m auf.',
-            label: <V>m</V>, correct: m,
+            type: 'calc', goal: `Löse nach ${mn} auf.`,
+            label: lfMJsx(mn), correct: m,
             hint: `Bringe t auf die linke Seite (${t < 0 ? '+ ' + lfS(-t) : '− ' + lfS(t)}) und teile durch ${lfP(P.x)}.`,
-            solution: `m = (${lfS(P.y)} − ${lfP(t)}) : ${lfP(P.x)} = ${lfS(m)}`
+            solution: `${mn} = (${lfS(P.y)} − ${lfP(t)}) : ${lfP(P.x)} = ${lfS(m)}`
         }
     ];
 };
 
 // ---- Parallel / senkrecht ----
-S.relation = (kind) => ({
-    type: 'select', goal: 'Welche Beziehung gilt für die Steigungen?',
-    options: [
-        <span className="font-math"><V>m</V>₂ = <V>m</V>₁</span>,
-        <span className="font-math"><V>m</V>₁ · <V>m</V>₂ = −1</span>,
-        <span className="font-math"><V>m</V>₂ = −<V>m</V>₁</span>
-    ],
-    correctIdx: kind === 'parallel' ? 0 : 1,
-    hint: 'Parallele Geraden haben die gleiche Steigung. Bei senkrechten Geraden ergibt das Produkt der Steigungen −1.',
-    solution: kind === 'parallel' ? 'm₂ = m₁' : 'm₁ · m₂ = −1'
-});
-S.m2 = (kind, m1) => {
-    const m2 = kind === 'parallel' ? m1 : lfR(-1 / m1);
+// Steigungsname passend zum Geradennamen: g₃ → m₃. Geraden ohne Zahlindex
+// (g, h) bekommen den Ersatznamen (m₁ für die gegebene, m₂ für die gesuchte).
+const lfMName = (lineName, fallback) => {
+    const sub = String(lineName || '').match(/[₀-₉]+$/);
+    return sub ? 'm' + sub[0] : fallback;
+};
+const lfMNames = (refName, newName) => {
+    let a = lfMName(refName, 'm₁'), b = lfMName(newName, 'm₂');
+    if (a === b) { a = 'm₁'; b = 'm₂'; }
+    return [a, b];
+};
+const lfMJsx = (mn) => <><V>m</V>{mn.slice(1)}</>;
+// refName: gegebene Gerade, newName: gesuchte Gerade
+S.relation = (kind, refName, newName) => {
+    const [a, b] = lfMNames(refName, newName);
+    const [p1, p2] = a <= b ? [a, b] : [b, a];
     return {
-        type: 'calc', goal: kind === 'parallel' ? 'Gib die Steigung m₂ der Parallelen an.' : 'Berechne die Steigung m₂ der senkrechten Geraden.',
-        label: <span className="font-math"><V>m</V>₂</span>, correct: m2,
-        hint: kind === 'parallel'
-            ? `Parallele Geraden haben die gleiche Steigung: m₂ = m₁ = ${lfS(m1)}.`
-            : `m₂ = −1 : m₁ = −1 : ${lfP(m1)}. Merke: Kehrwert bilden und Vorzeichen umdrehen.`,
-        solution: kind === 'parallel' ? `m₂ = ${lfS(m2)}` : `m₂ = −1 : ${lfP(m1)} = ${lfS(m2)}`
+        type: 'select', goal: 'Welche Beziehung gilt für die Steigungen?',
+        options: [
+            <span className="font-math">{lfMJsx(b)} = {lfMJsx(a)}</span>,
+            <span className="font-math">{lfMJsx(p1)} · {lfMJsx(p2)} = −1</span>,
+            <span className="font-math">{lfMJsx(b)} = −{lfMJsx(a)}</span>
+        ],
+        correctIdx: kind === 'parallel' ? 0 : 1,
+        hint: 'Parallele Geraden haben die gleiche Steigung. Bei senkrechten Geraden ergibt das Produkt der Steigungen −1.',
+        solution: kind === 'parallel' ? `${b} = ${a}` : `${p1} · ${p2} = −1`
     };
 };
+S.m2 = (kind, m1, refName, newName) => {
+    const [a, b] = lfMNames(refName, newName);
+    const m2 = kind === 'parallel' ? m1 : lfR(-1 / m1);
+    return {
+        type: 'calc', goal: kind === 'parallel' ? `Gib die Steigung ${b} der Parallelen an.` : `Berechne die Steigung ${b} der senkrechten Geraden.`,
+        label: <span className="font-math">{lfMJsx(b)}</span>, correct: m2,
+        hint: kind === 'parallel'
+            ? `Parallele Geraden haben die gleiche Steigung: ${b} = ${a} = ${lfS(m1)}.`
+            : `${b} = −1 : ${a} = −1 : ${lfP(m1)}. Merke: Kehrwert bilden und Vorzeichen umdrehen.`,
+        solution: kind === 'parallel' ? `${b} = ${lfS(m2)}` : `${b} = −1 : ${lfP(m1)} = ${lfS(m2)}`
+    };
+};
+// opts.ref: Name der gegebenen Geraden (z. B. 'g₁'), opts.rel: Beziehungs-Schritt zeigen
 S.perpLine = (kind, m1, P, name, opts = {}) => {
     const m2 = kind === 'parallel' ? m1 : lfR(-1 / m1);
     const steps = [];
-    if (opts.rel) steps.push(S.relation(kind));
-    steps.push(S.m2(kind, m1));
+    if (opts.rel) steps.push(S.relation(kind, opts.ref, name));
+    steps.push(S.m2(kind, m1, opts.ref, name));
     steps.push(...S.linePM(P, m2, name));
     return steps;
 };
@@ -324,19 +349,20 @@ S.horizontal = (P, name) => ({
 S.checkPerp = (m1, m2, n1, n2) => {
     const prod = lfR(m1 * m2);
     const isPerp = lfSame(prod, -1);
+    const [a, b] = lfMNames(n1, n2);
     return [
         {
             type: 'calc', goal: `Berechne das Produkt der Steigungen von ${n1} und ${n2}.`,
-            label: <span className="font-math"><V>m</V>₁ · <V>m</V>₂</span>, correct: prod,
-            hint: `Die Steigungen sind m₁ = ${lfS(m1)} und m₂ = ${lfS(m2)}. Multipliziere sie.`,
-            solution: `${lfS(m1)} · ${lfP(m2)} = ${lfS(prod)}`
+            label: <span className="font-math">{lfMJsx(a)} · {lfMJsx(b)}</span>, correct: prod,
+            hint: `Die Steigungen sind ${a} = ${lfS(m1)} und ${b} = ${lfS(m2)}. Multipliziere sie.`,
+            solution: `${a} · ${b} = ${lfS(m1)} · ${lfP(m2)} = ${lfS(prod)}`
         },
         {
             type: 'select', goal: `Stehen ${n1} und ${n2} senkrecht aufeinander?`, noShuffle: true,
-            options: [<span>Ja, weil <span className="font-math"><V>m</V>₁ · <V>m</V>₂ = −1</span>.</span>, <span>Nein, weil <span className="font-math"><V>m</V>₁ · <V>m</V>₂ ≠ −1</span>.</span>],
+            options: [<span>Ja, weil <span className="font-math">{lfMJsx(a)} · {lfMJsx(b)} = −1</span>.</span>, <span>Nein, weil <span className="font-math">{lfMJsx(a)} · {lfMJsx(b)} ≠ −1</span>.</span>],
             correctIdx: isPerp ? 0 : 1,
             hint: 'Zwei Geraden stehen senkrecht aufeinander, wenn das Produkt ihrer Steigungen −1 ergibt.',
-            solution: isPerp ? 'Ja: m₁ · m₂ = −1' : `Nein: m₁ · m₂ = ${lfS(prod)} ≠ −1`
+            solution: isPerp ? `Ja: ${a} · ${b} = −1` : `Nein: ${a} · ${b} = ${lfS(prod)} ≠ −1`
         }
     ];
 };
@@ -346,11 +372,12 @@ S.lage = (g1, g2) => {
     const par = lfSame(g1.m, g2.m) && !same;
     const perp = lfSame(g1.m * g2.m, -1);
     const idx = same ? 3 : par ? 0 : perp ? 1 : 2;
+    const [a, b] = lfMNames(g1.n, g2.n);
     return {
         type: 'select', goal: `Wie liegen ${g1.n} und ${g2.n} zueinander?`, noShuffle: true,
-        options: [<span>parallel (gleiche Steigung, verschiedenes t)</span>, <span>senkrecht (m₁ · m₂ = −1)</span>, <span>weder parallel noch senkrecht</span>, <span>identisch (gleiche Gerade)</span>],
+        options: [<span>parallel (gleiche Steigung, verschiedenes t)</span>, <span>senkrecht ({a} · {b} = −1)</span>, <span>weder parallel noch senkrecht</span>, <span>identisch (gleiche Gerade)</span>],
         correctIdx: idx,
-        hint: `Vergleiche die Steigungen: m₁ = ${lfS(g1.m)}, m₂ = ${lfS(g2.m)}. Gleich → parallel (oder identisch). Produkt −1 → senkrecht.`,
+        hint: `Vergleiche die Steigungen: ${a} = ${lfS(g1.m)}, ${b} = ${lfS(g2.m)}. Gleich → parallel (oder identisch). Produkt −1 → senkrecht.`,
         solution: ['parallel', 'senkrecht', 'weder parallel noch senkrecht', 'identisch'][idx]
     };
 };
@@ -988,7 +1015,7 @@ const drawFg = (lines, range) => ({ range, lines });
 const LF_EXAMS = [
     { id: '2025-I', label: 'MSA 2025 I', nr: '2', parts: [
         { l: 'a', topic: 'ablesen', text: <>Gib mithilfe der Abbildung die Funktionsgleichung der Geraden g₁ an.</>, graph: { range: [-7, 5, -1, 7], lines: [Ln(-1/3, 2, 'g₁')] }, steps: () => S.readGraph(-1/3, 2, 'g₁') },
-        { l: 'b', topic: 'parallel', text: <>Die Gerade g₂ verläuft durch den Punkt A(−2 | 3) und steht senkrecht auf der Geraden {gl(-2, -1, 'g₃')}. Ermittle rechnerisch die Funktionsgleichung von g₂.</>, steps: () => S.perpLine('senkrecht', -2, Pt(-2, 3, 'A'), 'g₂', { rel: true }) },
+        { l: 'b', topic: 'parallel', text: <>Die Gerade g₂ verläuft durch den Punkt A(−2 | 3) und steht senkrecht auf der Geraden {gl(-2, -1, 'g₃')}. Ermittle rechnerisch die Funktionsgleichung von g₂.</>, steps: () => S.perpLine('senkrecht', -2, Pt(-2, 3, 'A'), 'g₂', { rel: true, ref: 'g₃' }) },
         { l: 'c', topic: 'nullstelle', text: <>Berechne die x-Koordinate des Schnittpunkts N von {gl(-2, -1, 'g₃')} mit der x-Achse und gib N an.</>, steps: () => S.zero(-2, -1, 'N') },
         { l: 'd', topic: 'gleichung', text: <>Die Gerade g₄ verläuft durch die Punkte B(−1 | 3) und C(−2 | 2). Bestimme rechnerisch die Funktionsgleichung von g₄.</>, steps: () => S.line2P(Pt(-1, 3, 'B'), Pt(-2, 2, 'C'), 'g₄') },
         { l: 'e', topic: 'zeichnen', text: <>Zeichne die Geraden {gl(-2, -1, 'g₃')} und {gl(1, 4, 'g₄')} in ein Koordinatensystem.</>, steps: () => S.drawLines([Ln(-2, -1, 'g₃'), Ln(1, 4, 'g₄')], LF_RANGE), fg: drawFg([Ln(-2, -1, 'g₃'), Ln(1, 4, 'g₄')], LF_RANGE) },
@@ -1006,7 +1033,7 @@ const LF_EXAMS = [
     { id: '2024-I', label: 'MSA 2024 I', nr: '1', parts: [
         { l: 'a', topic: 'gleichung', text: <>Die Gerade g₁ verläuft durch die Punkte A(1 | −3) und B(3 | −5). Ermittle rechnerisch die Funktionsgleichung von g₁.</>, steps: () => S.line2P(Pt(1, -3, 'A'), Pt(3, -5, 'B'), 'g₁') },
         { l: 'b', topic: 'punktprobe', text: <>Gegeben ist die Gerade {gl(3, -3, 'g₂')}. Überprüfe rechnerisch, ob der Punkt C(1,5 | 1,5) auf g₂ liegt.</>, steps: () => S.probe(3, -3, Pt(1.5, 1.5, 'C'), 'g₂') },
-        { l: 'c', topic: 'parallel', text: <>Die Gerade g₃ verläuft durch den Punkt D(3 | −2) und steht senkrecht auf {gl(3, -3, 'g₂')}. Ermittle die Funktionsgleichung von g₃.</>, steps: () => S.perpLine('senkrecht', 3, Pt(3, -2, 'D'), 'g₃', { rel: true }) },
+        { l: 'c', topic: 'parallel', text: <>Die Gerade g₃ verläuft durch den Punkt D(3 | −2) und steht senkrecht auf {gl(3, -3, 'g₂')}. Ermittle die Funktionsgleichung von g₃.</>, steps: () => S.perpLine('senkrecht', 3, Pt(3, -2, 'D'), 'g₃', { rel: true, ref: 'g₂' }) },
         { l: 'd', topic: 'nullstelle', text: <>Berechne die x-Koordinate des Schnittpunkts N₄ der Geraden {gl(-1, -1, 'g₄')} mit der x-Achse.</>, steps: () => S.zero(-1, -1, 'N₄') },
         { l: 'e', topic: 'schnittpunkt', text: <>Ermittle rechnerisch die Koordinaten des Schnittpunkts S der Geraden {gl(3, -3, 'g₂')} und {gl(-1, -1, 'g₄')}.</>, steps: () => S.intersect(Ln(3, -3, 'g₂'), Ln(-1, -1, 'g₄'), 'S'), fg: { range: LF_RANGE, lines: [Ln(3, -3, 'g₂'), Ln(-1, -1, 'g₄')], points: [Pt(0.5, -1.5, 'S')] } },
         { l: 'f', topic: 'parallel', text: <>Die Geraden {fm('g₅: y = 3/7 x − 3')} und {fm('g₆: y = 3/7 x + 7')} haben keinen gemeinsamen Punkt. Welche Veränderung genau einer Zahl sorgt dafür, dass die Geraden mindestens einen Punkt gemeinsam haben?</>, steps: () => [S.select('Welche Änderung führt zu einem gemeinsamen Punkt?', [<span>In g₅ wird 3/7 durch 2/7 ersetzt.</span>, <span>In g₅ wird −3 durch 5 ersetzt.</span>, <span>In g₆ wird 7 durch −7 ersetzt.</span>], 0, 'Parallele Geraden (gleiches m, verschiedenes t) haben keinen gemeinsamen Punkt. Ändert man eine Steigung, schneiden sie sich.', 'Steigung ändern, z. B. 3/7 → 2/7')] },
@@ -1020,7 +1047,7 @@ const LF_EXAMS = [
     ]},
     { id: '2023-I', label: 'MSA 2023 I', nr: '3', parts: [
         { l: 'a', topic: 'gleichung', text: <>Bestimme rechnerisch die Funktionsgleichung der Geraden g₁, die durch die Punkte A(−1 | −4,5) und B(4 | 3) verläuft.</>, steps: () => S.line2P(Pt(-1, -4.5, 'A'), Pt(4, 3, 'B'), 'g₁') },
-        { l: 'b', topic: 'parallel', text: <>Die Gerade g₃: {fm('0,5y = 2,5 + x')} steht senkrecht auf der Geraden g₂. Bestimme die Steigung m₂ einer möglichen Geraden g₂.</>, steps: () => [...S.normalStr('0.5y=2.5+x', 'g₃'), S.relation('senkrecht'), S.m2('senkrecht', 2)] },
+        { l: 'b', topic: 'parallel', text: <>Die Gerade g₃: {fm('0,5y = 2,5 + x')} steht senkrecht auf der Geraden g₂. Bestimme die Steigung m₂ einer möglichen Geraden g₂.</>, steps: () => [...S.normalStr('0.5y=2.5+x', 'g₃'), S.relation('senkrecht', 'g₃', 'g₂'), S.m2('senkrecht', 2, 'g₃', 'g₂')] },
         { l: 'c', topic: 'nullstelle', text: <>Gegeben ist {gl(2, 4, 'g₄')}. N₄ ist der Schnittpunkt von g₄ mit der x-Achse. Bestimme rechnerisch N₄.</>, steps: () => S.zero(2, 4, 'N₄') },
         { l: 'd', topic: 'zeichnen', text: <>Zeichne die Geraden {gl(1.5, -3, 'g₁')} und {gl(2, 4, 'g₄')} in ein Koordinatensystem.</>, steps: () => S.drawLines([Ln(1.5, -3, 'g₁'), Ln(2, 4, 'g₄')], LF_RANGE), fg: drawFg([Ln(1.5, -3, 'g₁'), Ln(2, 4, 'g₄')], LF_RANGE) },
         { l: 'e', topic: 'steigung', text: <>Berechne den spitzen Winkel, den die Gerade {gl(1.5, -3, 'g₁')} mit der x-Achse einschließt.</>, steps: () => S.angle(1.5) }
@@ -1029,7 +1056,7 @@ const LF_EXAMS = [
         { l: 'a', topic: 'ablesen', text: <>Gib die Funktionsgleichung der Geraden g₁ an.</>, steps: () => S.readGraph(2/3, -2, 'g₁') },
         { l: 'b', topic: 'steigung', text: <>Berechne den Winkel α, den die Gerade g₁ mit der x-Achse einschließt.</>, steps: () => S.angle(2/3) },
         { l: 'c', topic: 'gleichung', text: <>Die Gerade g₂ verläuft durch die Punkte A(−4 | 5) und B(1 | −2,5). Bestimme rechnerisch die Funktionsgleichung von g₂.</>, steps: () => S.line2P(Pt(-4, 5, 'A'), Pt(1, -2.5, 'B'), 'g₂') },
-        { l: 'd', topic: 'parallel', text: <>Die Gerade {fm('g₃: y = −⅘x + 2')} steht senkrecht auf der Geraden g₄, die durch den Ursprung verläuft. Bestimme die Funktionsgleichung von g₄.</>, steps: () => S.perpLine('senkrecht', -0.8, Pt(0, 0, 'O'), 'g₄', { rel: true }) },
+        { l: 'd', topic: 'parallel', text: <>Die Gerade {fm('g₃: y = −⅘x + 2')} steht senkrecht auf der Geraden g₄, die durch den Ursprung O(0 | 0) verläuft. Bestimme die Funktionsgleichung von g₄.</>, steps: () => S.perpLine('senkrecht', -0.8, Pt(0, 0, 'O'), 'g₄', { rel: true, ref: 'g₃' }) },
         { l: 'e', topic: 'nullstelle', text: <>N₃ ist der Schnittpunkt der Geraden {fm('g₃: y = −⅘x + 2')} mit der x-Achse. Ermittle rechnerisch N₃.</>, steps: () => S.zero(-0.8, 2, 'N₃') },
         { l: 'f', topic: 'schnittpunkt', text: <>Die Gerade g₅ hat die Gleichung {fm('y = 1,2x − 3')}. Zeige rechnerisch, dass der Schnittpunkt von g₅ mit {fm('g₃: y = −0,8x + 2')} auf der x-Achse liegt.</>, steps: () => S.intersect(Ln(1.2, -3, 'g₅'), Ln(-0.8, 2, 'g₃'), 'S'), fg: { range: LF_RANGE, lines: [Ln(1.2, -3, 'g₅'), Ln(-0.8, 2, 'g₃')], points: [Pt(2.5, 0, 'S')] } },
         { l: 'g', topic: 'zeichnen', text: <>Zeichne die Geraden {gl(-1.5, -1, 'g₂')} und {gl(-0.8, 2, 'g₃')} in ein Koordinatensystem.</>, steps: () => S.drawLines([Ln(-1.5, -1, 'g₂'), Ln(-0.8, 2, 'g₃')], LF_RANGE), fg: drawFg([Ln(-1.5, -1, 'g₂'), Ln(-0.8, 2, 'g₃')], LF_RANGE) }
@@ -1038,21 +1065,21 @@ const LF_EXAMS = [
         { l: 'a', topic: 'gleichung', text: <>Die Gerade g₁ verläuft durch den Punkt A(4 | 4,5) und hat die Steigung m₁ = ¾. Bestimme rechnerisch die Funktionsgleichung von g₁.</>, steps: () => S.linePM(Pt(4, 4.5, 'A'), 0.75, 'g₁') },
         { l: 'b', topic: 'nullstelle', text: <>Berechne die x-Koordinate der Nullstelle N der Geraden {gl(-2.5, -7.5, 'g₂')}.</>, steps: () => S.zero(-2.5, -7.5, 'N') },
         { l: 'c', topic: 'punktprobe', text: <>Der Punkt P(−4 | <V>y</V>) liegt auf {gl(-2.5, -7.5, 'g₂')}. Berechne die fehlende y-Koordinate.</>, steps: () => S.missingY(-2.5, -7.5, -4, 'P') },
-        { l: 'd', topic: 'parallel', text: <>Die Gerade g₄ durch C(4,5 | −2) steht senkrecht auf {gl(0.25, 4, 'g₃')}. Ermittle rechnerisch die Funktionsgleichung von g₄.</>, steps: () => S.perpLine('senkrecht', 0.25, Pt(4.5, -2, 'C'), 'g₄', { rel: true }) },
+        { l: 'd', topic: 'parallel', text: <>Die Gerade g₄ durch C(4,5 | −2) steht senkrecht auf {gl(0.25, 4, 'g₃')}. Ermittle rechnerisch die Funktionsgleichung von g₄.</>, steps: () => S.perpLine('senkrecht', 0.25, Pt(4.5, -2, 'C'), 'g₄', { rel: true, ref: 'g₃' }) },
         { l: 'e', topic: 'schnittpunkt', text: <>Die Gerade g₅: {fm('14 − 3y = 3,75x − 7')} schneidet {gl(0.25, 4, 'g₃')} im Punkt D. Bestimme rechnerisch die Koordinaten von D.</>, steps: () => [...S.normalStr('14-3y=3.75x-7', 'g₅'), ...S.intersect(Ln(0.25, 4, 'g₃'), Ln(-1.25, 7, 'g₅'), 'D')], fg: { range: [-4, 8, -3, 9], lines: [Ln(0.25, 4, 'g₃'), Ln(-1.25, 7, 'g₅')], points: [Pt(2, 4.5, 'D')] } },
         { l: 'f', topic: 'gleichung', text: <>Ermittle rechnerisch die Funktionsgleichung der Geraden g₆, auf der die Punkte E(4,5 | −2) und F(−1,5 | 6) liegen.</>, steps: () => S.line2P(Pt(4.5, -2, 'E'), Pt(-1.5, 6, 'F'), 'g₆') },
         { l: 'g', topic: 'zeichnen', text: <>Zeichne die Geraden {gl(-2.5, -7.5, 'g₂')}, {gl(0.25, 4, 'g₃')} und {fm('g₆: y = −4/3x + 4')} in ein Koordinatensystem.</>, steps: () => S.drawLines([Ln(-2.5, -7.5, 'g₂'), Ln(0.25, 4, 'g₃'), Ln(-4/3, 4, 'g₆')], LF_RANGE), fg: drawFg([Ln(-2.5, -7.5, 'g₂'), Ln(0.25, 4, 'g₃'), Ln(-4/3, 4, 'g₆')], LF_RANGE) }
     ]},
     { id: '2022-II', label: 'MSA 2022 II', nr: '1', parts: [
-        { l: 'a', topic: 'nullstelle', text: <>Die Gerade g₁ ist durch {gl(-1, 3.5, 'g₁')} bestimmt. Berechne den Schnittpunkt N von g₁ mit der x-Achse.</>, steps: () => S.zero(-1, 3.5, 'N') },
-        { l: 'b', topic: 'wertetabelle', text: <>Die Wertepaare (−3 | −4), (2 | 3,5) und (4 | 6,5) sind Punkte der Geraden g₂. Ermittle die Funktionsgleichung von g₂.</>, steps: () => S.line2P(Pt(-3, -4, 'P'), Pt(2, 3.5, 'Q'), 'g₂') },
+        { l: 'a', topic: 'nullstelle', text: <>Gegeben ist die Gerade {gl(-1, 3.5, 'g₁')}. Berechne den Schnittpunkt N von g₁ mit der x-Achse.</>, steps: () => S.zero(-1, 3.5, 'N') },
+        { l: 'b', topic: 'wertetabelle', text: <>Die Wertepaare A(−3 | −4), B(2 | 3,5) und C(4 | 6,5) sind Punkte der Geraden g₂. Ermittle die Funktionsgleichung von g₂ mithilfe von A und B.</>, steps: () => S.line2P(Pt(-3, -4, 'A'), Pt(2, 3.5, 'B'), 'g₂') },
         { l: 'c', topic: 'schnittpunkt', text: <>Die Gerade {gl(-0.2, -1.5, 'g₃')} schneidet {gl(-1, 3.5, 'g₁')} im Punkt T. Berechne die Koordinaten von T.</>, steps: () => S.intersect(Ln(-1, 3.5, 'g₁'), Ln(-0.2, -1.5, 'g₃'), 'T'), fg: { range: [-3, 9, -6, 6], lines: [Ln(-1, 3.5, 'g₁'), Ln(-0.2, -1.5, 'g₃')], points: [Pt(6.25, -2.75, 'T')] } },
-        { l: 'e', topic: 'parallel', text: <>Die Gerade g₅ hat die Gleichung {fm('y = ⅓x + 4')}. Die Gerade g₆ steht senkrecht auf g₅ und verläuft durch P(−1 | 5). Bestimme rechnerisch die Funktionsgleichung von g₆.</>, steps: () => S.perpLine('senkrecht', 1/3, Pt(-1, 5, 'P'), 'g₆', { rel: true }) },
+        { l: 'e', topic: 'parallel', text: <>Die Gerade g₅ hat die Gleichung {fm('y = ⅓x + 4')}. Die Gerade g₆ steht senkrecht auf g₅ und verläuft durch P(−1 | 5). Bestimme rechnerisch die Funktionsgleichung von g₆.</>, steps: () => S.perpLine('senkrecht', 1/3, Pt(-1, 5, 'P'), 'g₆', { rel: true, ref: 'g₅' }) },
         { l: 'f', topic: 'zeichnen', text: <>Zeichne die Geraden {gl(-1, 3.5, 'g₁')}, {fm('g₅: y = ⅓x + 4')} und {gl(-3, 2, 'g₆')} in ein Koordinatensystem.</>, steps: () => S.drawLines([Ln(-1, 3.5, 'g₁'), Ln(1/3, 4, 'g₅'), Ln(-3, 2, 'g₆')], LF_RANGE), fg: drawFg([Ln(-1, 3.5, 'g₁'), Ln(1/3, 4, 'g₅'), Ln(-3, 2, 'g₆')], LF_RANGE) }
     ]},
     { id: '2021-I', label: 'MSA 2021 I', nr: '5', parts: [
         { l: 'a', topic: 'gleichung', text: <>Bestimme rechnerisch die Funktionsgleichung der Geraden g₁ durch A(4 | −1) und B(6 | 1).</>, steps: () => S.line2P(Pt(4, -1, 'A'), Pt(6, 1, 'B'), 'g₁') },
-        { l: 'b', topic: 'parallel', text: <>Die Gerade g₂ verläuft durch C(2 | 4) und steht senkrecht auf g₃: {fm('y/x = 1')} (also {fm('y = x')}). Ermittle rechnerisch die Funktionsgleichung von g₂.</>, steps: () => S.perpLine('senkrecht', 1, Pt(2, 4, 'C'), 'g₂', { rel: true }) },
+        { l: 'b', topic: 'parallel', text: <>Die Gerade g₂ verläuft durch C(2 | 4) und steht senkrecht auf g₃: {fm('y/x = 1')} (also {fm('y = x')}). Ermittle rechnerisch die Funktionsgleichung von g₂.</>, steps: () => S.perpLine('senkrecht', 1, Pt(2, 4, 'C'), 'g₂', { rel: true, ref: 'g₃' }) },
         { l: 'c', topic: 'zeichnen', text: <>Zeichne die Geraden {gl(1, -5, 'g₁')} und {gl(-1, 6, 'g₂')} in ein Koordinatensystem.</>, steps: () => S.drawLines([Ln(1, -5, 'g₁'), Ln(-1, 6, 'g₂')], [-2, 8, -6, 6]), fg: drawFg([Ln(1, -5, 'g₁'), Ln(-1, 6, 'g₂')], [-2, 8, -6, 6]) },
         { l: 'd', topic: 'parallel', text: <>Welche Gleichung beschreibt eine Gerade g₄, die parallel zur x-Achse verläuft?</>, steps: () => [S.select('Welche Gerade verläuft parallel zur x-Achse?', [fm('y = 4'), fm('y = 4x'), fm('y = x + 4'), fm('x = 4')], 0, 'Eine Parallele zur x-Achse hat die Steigung 0: y = t.', 'y = 4')] },
         { l: 'e', topic: 'punktprobe', text: <>Der Punkt D(−3 | 3) liegt auf der Geraden g₅: {fm('y = m₅ · x − 9')}. Bestimme die Steigung m₅ rechnerisch.</>, steps: () => S.unknownM(Pt(-3, 3, 'D'), -9, 'g₅') },
@@ -1061,8 +1088,8 @@ const LF_EXAMS = [
     ]},
     { id: '2021-II', label: 'MSA 2021 II', nr: '1', intro: <>Die Gerade g₁ hat die Funktionsgleichung {gl(-0.5, 3, 'g₁')}.</>, parts: [
         { l: 'a', topic: 'nullstelle', text: <>Berechne die Koordinaten des Schnittpunkts N von g₁ mit der x-Achse.</>, steps: () => S.zero(-0.5, 3, 'N') },
-        { l: 'b', topic: 'wertetabelle', text: <>Ergänze die fehlenden Werte der Wertetabelle zu g₁.<LfTabelle xs={['5', '?']} ys={['?', '21']} /></>, steps: () => [...S.missingY(-0.5, 3, 5, 'P'), ...S.missingX(-0.5, 3, 21, 'Q')] },
-        { l: 'c', topic: 'parallel', text: <>Die Gerade g₂ verläuft durch B(−2,5 | 0) und steht senkrecht auf g₁. Bestimme rechnerisch die Funktionsgleichung von g₂.</>, steps: () => S.perpLine('senkrecht', -0.5, Pt(-2.5, 0, 'B'), 'g₂', { rel: true }) },
+        { l: 'b', topic: 'wertetabelle', text: <>Ergänze die fehlenden Werte der Wertetabelle zu g₁, also die Punkte P(5 | ?) und Q(? | 21).<LfTabelle xs={['5', '?']} ys={['?', '21']} /></>, steps: () => [...S.missingY(-0.5, 3, 5, 'P'), ...S.missingX(-0.5, 3, 21, 'Q')] },
+        { l: 'c', topic: 'parallel', text: <>Die Gerade g₂ verläuft durch B(−2,5 | 0) und steht senkrecht auf g₁. Bestimme rechnerisch die Funktionsgleichung von g₂.</>, steps: () => S.perpLine('senkrecht', -0.5, Pt(-2.5, 0, 'B'), 'g₂', { rel: true, ref: 'g₁' }) },
         { l: 'd', topic: 'zeichnen', text: <>Zeichne die Geraden {gl(-0.5, 3, 'g₁')} und {gl(2, 5, 'g₂')} in ein Koordinatensystem.</>, steps: () => S.drawLines([Ln(-0.5, 3, 'g₁'), Ln(2, 5, 'g₂')], LF_RANGE), fg: drawFg([Ln(-0.5, 3, 'g₁'), Ln(2, 5, 'g₂')], LF_RANGE) },
         { l: 'e', topic: 'gleichung', text: <>Die Gerade g₃ verläuft durch C(−1 | −1) und D(4 | 1). Ermittle ihre Funktionsgleichung rechnerisch.</>, steps: () => S.line2P(Pt(-1, -1, 'C'), Pt(4, 1, 'D'), 'g₃') },
         { l: 'f', topic: 'schnittpunkt', text: <>Die Gerade g₄: {fm('−0,5x = −5 − y')} schneidet g₁ im Punkt T. Bestimme durch Rechnung die Koordinaten von T.</>, steps: () => [...S.normalStr('-0.5x=-5-y', 'g₄'), ...S.intersect(Ln(-0.5, 3, 'g₁'), Ln(0.5, -5, 'g₄'), 'T')], fg: { range: [-2, 10, -6, 6], lines: [Ln(-0.5, 3, 'g₁'), Ln(0.5, -5, 'g₄')], points: [Pt(8, -1, 'T')] } },
@@ -1070,7 +1097,7 @@ const LF_EXAMS = [
     ]},
     { id: '2020-I', label: 'MSA 2020 I', nr: '5', parts: [
         { l: 'a', topic: 'gleichung', text: <>Bestimme rechnerisch die Funktionsgleichung der Geraden g₁ durch C(6 | 2) und D(−3 | −1).</>, steps: () => S.line2P(Pt(6, 2, 'C'), Pt(-3, -1, 'D'), 'g₁') },
-        { l: 'b', topic: 'parallel', text: <>Die Gerade g₃ verläuft durch B(1 | −2) und steht senkrecht auf {fm('g₂: y = x')}. Bestimme rechnerisch die Funktionsgleichung von g₃.</>, steps: () => S.perpLine('senkrecht', 1, Pt(1, -2, 'B'), 'g₃', { rel: true }) },
+        { l: 'b', topic: 'parallel', text: <>Die Gerade g₃ verläuft durch B(1 | −2) und steht senkrecht auf {fm('g₂: y = x')}. Bestimme rechnerisch die Funktionsgleichung von g₃.</>, steps: () => S.perpLine('senkrecht', 1, Pt(1, -2, 'B'), 'g₃', { rel: true, ref: 'g₂' }) },
         { l: 'c', topic: 'parallel', text: <>Welche Gerade g₄ verläuft parallel zu {fm('g₂: y = x')} und liegt nicht auf g₂?</>, steps: () => [S.select('Welche Gerade passt?', [fm('y = x + 2'), fm('y = −x'), fm('y = 2x'), fm('y = x')], 0, 'Parallel: gleiche Steigung m = 1. „Liegt nicht auf g₂“: ein anderes t.', 'y = x + 2')] },
         { l: 'd', topic: 'punktprobe', text: <>Der Punkt A(4 | −1) liegt auf g₅: {fm('y = m₅ · x + 4')}. Bestimme die Steigung m₅ rechnerisch.</>, steps: () => S.unknownM(Pt(4, -1, 'A'), 4, 'g₅') },
         { l: 'e', topic: 'schnittpunkt', text: <>Die Gerade {gl(1, -2.5, 'g₆')} und die Gerade g₇: {fm('2x + 3,5 = y')} schneiden sich im Punkt S. Ermittle rechnerisch die Koordinaten von S.</>, steps: () => S.intersect(Ln(1, -2.5, 'g₆'), Ln(2, 3.5, 'g₇'), 'S'), fg: { range: [-10, 4, -12, 4], lines: [Ln(1, -2.5, 'g₆'), Ln(2, 3.5, 'g₇')], points: [Pt(-6, -8.5, 'S')] } },
@@ -1088,7 +1115,7 @@ const LF_EXAMS = [
     ]},
     { id: '2019-I', label: 'MSA 2019 I', nr: '4', intro: <>Die Gerade g₁ mit der Steigung m₁ = 2 verläuft durch den Punkt A(5 | 3).</>, parts: [
         { l: 'a', topic: 'gleichung', text: <>Bestimme die Funktionsgleichung von g₁ rechnerisch.</>, steps: () => S.linePM(Pt(5, 3, 'A'), 2, 'g₁') },
-        { l: 'b', topic: 'parallel', text: <>Die Gerade g₂ verläuft durch den Ursprung und schneidet g₁ senkrecht. Ermittle rechnerisch die Funktionsgleichung von g₂.</>, steps: () => S.perpLine('senkrecht', 2, Pt(0, 0, 'O'), 'g₂', { rel: true }) },
+        { l: 'b', topic: 'parallel', text: <>Die Gerade g₂ verläuft durch den Ursprung O(0 | 0) und schneidet g₁ senkrecht. Ermittle rechnerisch die Funktionsgleichung von g₂.</>, steps: () => S.perpLine('senkrecht', 2, Pt(0, 0, 'O'), 'g₂', { rel: true, ref: 'g₁' }) },
         { l: 'c', topic: 'zeichnen', text: <>Zeichne die Geraden {gl(2, -7, 'g₁')} und {gl(-0.5, 0, 'g₂')} in ein Koordinatensystem.</>, steps: () => S.drawLines([Ln(2, -7, 'g₁'), Ln(-0.5, 0, 'g₂')], [-3, 8, -6, 6]), fg: drawFg([Ln(2, -7, 'g₁'), Ln(-0.5, 0, 'g₂')], [-3, 8, -6, 6]) },
         { l: 'd', topic: 'steigung', text: <>Berechne die Größe des spitzen Winkels α, den g₁ mit der x-Achse einschließt.</>, steps: () => S.angle(2) },
         { l: 'e', topic: 'parallel', text: <>Überprüfe, ob die Geraden g₃: {fm('4x + 2y = 8x + 3')} und g₄: {fm('−y/2 = x + 1')} parallel zu {gl(2, -7, 'g₁')} sind.</>, steps: () => [...S.normalStr('4x+2y=8x+3', 'g₃'), S.lage(Ln(2, -7, 'g₁'), Ln(2, 1.5, 'g₃')), ...S.normalStr('-0.5y=x+1', 'g₄'), S.lage(Ln(2, -7, 'g₁'), Ln(-2, -2, 'g₄'))] },
@@ -1103,28 +1130,28 @@ const LF_EXAMS = [
         { l: 'f', topic: 'steigung', text: <>Ermittle rechnerisch den spitzen Winkel α, den {gl(0.5, 1, 'g₂')} mit der x-Achse einschließt.</>, steps: () => S.angle(0.5) }
     ]},
     { id: '2018-I', label: 'MSA 2018 I', nr: '4', intro: <>Die Wertepaare (−10 | −4), (−5 | −1), (0 | 2) und (2,5 | 3,5) sind Punkte der Geraden g₁.</>, parts: [
-        { l: 'a', topic: 'wertetabelle', text: <>Bestimme die Funktionsgleichung von g₁ rechnerisch.</>, steps: () => S.line2P(Pt(-5, -1, 'P'), Pt(0, 2, 'Q'), 'g₁') },
-        { l: 'b', topic: 'parallel', text: <>Die Gerade g₂ ist durch {fm('−x + 5y = 20')} bestimmt. Die Gerade g₃ steht senkrecht auf g₂ und verläuft durch A(−3 | 0). Ermittle rechnerisch die Funktionsgleichung von g₃.</>, steps: () => [...S.normalStr('-x+5y=20', 'g₂'), ...S.perpLine('senkrecht', 0.2, Pt(-3, 0, 'A'), 'g₃')] },
-        { l: 'c', topic: 'punktprobe', text: <>Überprüfe rechnerisch, ob der Punkt B(5 | 5) auf der Geraden {gl(-5, -5, 'g₄')} liegt (und damit ein gemeinsamer Punkt mit g₂ sein könnte).</>, steps: () => S.probe(-5, -5, Pt(5, 5, 'B'), 'g₄') },
+        { l: 'a', topic: 'wertetabelle', text: <>Bestimme die Funktionsgleichung von g₁ rechnerisch. Nutze dazu die Punkte P(−5 | −1) und Q(0 | 2).</>, steps: () => S.line2P(Pt(-5, -1, 'P'), Pt(0, 2, 'Q'), 'g₁') },
+        { l: 'b', topic: 'parallel', text: <>Die Gerade g₂ ist durch {fm('−x + 5y = 20')} bestimmt. Die Gerade g₃ steht senkrecht auf g₂ und verläuft durch A(−3 | 0). Ermittle rechnerisch die Funktionsgleichung von g₃.</>, steps: () => [...S.normalStr('-x+5y=20', 'g₂'), ...S.perpLine('senkrecht', 0.2, Pt(-3, 0, 'A'), 'g₃', { ref: 'g₂' })] },
+        { l: 'c', topic: 'punktprobe', text: <>Überprüfe rechnerisch, ob der Punkt B(5 | 5) auf der Geraden {gl(-5, -5, 'g₄')} liegt.</>, steps: () => S.probe(-5, -5, Pt(5, 5, 'B'), 'g₄') },
         { l: 'd', topic: 'parallel', text: <>(I) Verläuft {gl(-5, -5, 'g₄')} parallel zu g₅: {fm('−5x + y = −3')}? (II) Steht g₄ senkrecht auf {gl(0.2, 0, 'g₆')}?</>, steps: () => [...S.normalStr('-5x+y=-3', 'g₅'), S.lage(Ln(-5, -5, 'g₄'), Ln(5, -3, 'g₅')), ...S.checkPerp(-5, 0.2, 'g₄', 'g₆')] },
         { l: 'e', topic: 'zeichnen', text: <>Zeichne die Graphen von {gl(0.6, 2, 'g₁')} und {gl(0.2, 0, 'g₆')} in ein Koordinatensystem.</>, steps: () => S.drawLines([Ln(0.6, 2, 'g₁'), Ln(0.2, 0, 'g₆')], [-6, 8, -4, 6]), fg: drawFg([Ln(0.6, 2, 'g₁'), Ln(0.2, 0, 'g₆')], [-6, 8, -4, 6]) }
     ]},
     { id: '2018-II', label: 'MSA 2018 II', nr: '1', intro: <>Gegeben ist der Graph der linearen Funktion g₁.</>, graph: { range: [-2, 7, -1, 4], lines: [Ln(-0.25, 2.5, 'g₁')] }, parts: [
         { l: 'a', topic: 'ablesen', text: <>Bestimme die Funktionsgleichung von g₁.</>, steps: () => S.readGraph(-0.25, 2.5, 'g₁') },
-        { l: 'b', topic: 'parallel', text: <>Die Gerade g₃ verläuft parallel zu {gl(-2, -3, 'g₂')} und durch C(1 | 2). Ermittle die Funktionsgleichung von g₃ rechnerisch.</>, steps: () => S.perpLine('parallel', -2, Pt(1, 2, 'C'), 'g₃', { rel: true }) },
+        { l: 'b', topic: 'parallel', text: <>Die Gerade g₃ verläuft parallel zu {gl(-2, -3, 'g₂')} und durch C(1 | 2). Ermittle die Funktionsgleichung von g₃ rechnerisch.</>, steps: () => S.perpLine('parallel', -2, Pt(1, 2, 'C'), 'g₃', { rel: true, ref: 'g₂' }) },
         { l: 'c', topic: 'nullstelle', text: <>Bestimme den Schnittpunkt N von {gl(-2, -3, 'g₂')} mit der x-Achse.</>, steps: () => S.zero(-2, -3, 'N') },
         { l: 'e', topic: 'punktprobe', text: <>Der Punkt D(16,5 | <V>y</V>) liegt auf {gl(-2, -3, 'g₂')}. Berechne die fehlende Koordinate.</>, steps: () => S.missingY(-2, -3, 16.5, 'D') },
         { l: 'f', topic: 'zeichnen', text: <>Zeichne die Graphen von {gl(-2, -3, 'g₂')} und {gl(-2, 4, 'g₃')} in ein Koordinatensystem.</>, steps: () => S.drawLines([Ln(-2, -3, 'g₂'), Ln(-2, 4, 'g₃')], LF_RANGE), fg: drawFg([Ln(-2, -3, 'g₂'), Ln(-2, 4, 'g₃')], LF_RANGE) }
     ]},
     { id: '2017-I', label: 'MSA 2017 I', nr: '1', intro: <>Die Abbildung zeigt den Graphen der Geraden g₁.</>, graph: { range: [-6, 4, -1, 7], lines: [Ln(0.25, 5, 'g₁')] }, parts: [
         { l: 'a', topic: 'ablesen', text: <>Gib die Funktionsgleichung von g₁ an.</>, steps: () => S.readGraph(0.25, 5, 'g₁') },
-        { l: 'b', topic: 'parallel', text: <>Die Gerade g₂ durch den Ursprung ist parallel zu g₁. Gib die Funktionsgleichung von g₂ an.</>, steps: () => S.perpLine('parallel', 0.25, Pt(0, 0, 'O'), 'g₂', { rel: true }) },
-        { l: 'c', topic: 'parallel', text: <>Die Gerade g₄ verläuft durch D(4 | 1) und ist parallel zu {gl(0.5, -3, 'g₃')}. Bestimme rechnerisch die Funktionsgleichung von g₄.</>, steps: () => S.perpLine('parallel', 0.5, Pt(4, 1, 'D'), 'g₄') },
+        { l: 'b', topic: 'parallel', text: <>Die Gerade g₂ durch den Ursprung O(0 | 0) ist parallel zu g₁. Gib die Funktionsgleichung von g₂ an.</>, steps: () => S.perpLine('parallel', 0.25, Pt(0, 0, 'O'), 'g₂', { rel: true, ref: 'g₁' }) },
+        { l: 'c', topic: 'parallel', text: <>Die Gerade g₄ verläuft durch D(4 | 1) und ist parallel zu {gl(0.5, -3, 'g₃')}. Bestimme rechnerisch die Funktionsgleichung von g₄.</>, steps: () => S.perpLine('parallel', 0.5, Pt(4, 1, 'D'), 'g₄', { ref: 'g₃' }) },
         { l: 'd', topic: 'zeichnen', text: <>Zeichne die Geraden {gl(0.5, -3, 'g₃')} und {gl(0.5, -1, 'g₄')} in ein Koordinatensystem.</>, steps: () => S.drawLines([Ln(0.5, -3, 'g₃'), Ln(0.5, -1, 'g₄')], LF_RANGE), fg: drawFg([Ln(0.5, -3, 'g₃'), Ln(0.5, -1, 'g₄')], LF_RANGE) }
     ]},
     { id: '2017-II', label: 'MSA 2017 II', nr: '1', intro: <>Gegeben ist die Gerade g₁: {fm('y = ⅓x + 2')}.</>, parts: [
         { l: 'a', topic: 'nullstelle', text: <>Berechne den Schnittpunkt N von g₁ mit der x-Achse.</>, steps: () => S.zero(1/3, 2, 'N') },
-        { l: 'b', topic: 'parallel', text: <>Die Gerade g₂ schneidet die y-Achse in P(0 | 7) und steht senkrecht auf g₁. Ermittle die Funktionsgleichung von g₂ rechnerisch.</>, steps: () => S.perpLine('senkrecht', 1/3, Pt(0, 7, 'P'), 'g₂', { rel: true }) },
+        { l: 'b', topic: 'parallel', text: <>Die Gerade g₂ schneidet die y-Achse in P(0 | 7) und steht senkrecht auf g₁. Ermittle die Funktionsgleichung von g₂ rechnerisch.</>, steps: () => S.perpLine('senkrecht', 1/3, Pt(0, 7, 'P'), 'g₂', { rel: true, ref: 'g₁' }) },
         { l: 'c', topic: 'gleichung', text: <>Die Gerade g₃ verläuft durch Q(−3 | 2) und R(6 | −1). Bestimme ihre Funktionsgleichung rechnerisch.</>, steps: () => S.line2P(Pt(-3, 2, 'Q'), Pt(6, -1, 'R'), 'g₃') },
         { l: 'd', topic: 'zeichnen', text: <>Zeichne die Geraden {fm('g₁: y = ⅓x + 2')} und {gl(-3, 7, 'g₂')} in ein Koordinatensystem.</>, steps: () => S.drawLines([Ln(1/3, 2, 'g₁'), Ln(-3, 7, 'g₂')], [-6, 6, -2, 8]), fg: drawFg([Ln(1/3, 2, 'g₁'), Ln(-3, 7, 'g₂')], [-6, 6, -2, 8]) },
         { l: 'e', topic: 'schnittpunkt', text: <>Die Gerade g₄: {fm('2x − y = 7')} schneidet g₁ im Punkt S. Ermittle rechnerisch die Koordinaten von S.</>, steps: () => [...S.normalStr('2x-y=7', 'g₄'), ...S.intersect(Ln(1/3, 2, 'g₁'), Ln(2, -7, 'g₄'), 'S')], fg: { range: [-2, 8, -4, 6], lines: [Ln(1/3, 2, 'g₁'), Ln(2, -7, 'g₄')], points: [Pt(5.4, 3.8, 'S')] } },
@@ -1142,7 +1169,7 @@ const LF_EXAMS = [
     { id: '2016-II', label: 'MSA 2016 II', nr: '1', parts: [
         { l: 'a', topic: 'gleichung', text: <>Die Gerade g₁ verläuft durch A(−2 | 6) und B(4 | 3). Bestimme ihre Funktionsgleichung rechnerisch.</>, steps: () => S.line2P(Pt(-2, 6, 'A'), Pt(4, 3, 'B'), 'g₁') },
         { l: 'b', topic: 'nullstelle', text: <>Berechne den Schnittpunkt N von {gl(1.5, 3, 'g₂')} mit der x-Achse.</>, steps: () => S.zero(1.5, 3, 'N') },
-        { l: 'c', topic: 'parallel', text: <>Die Gerade g₃ steht senkrecht auf {gl(1.5, 3, 'g₂')} und verläuft durch den Ursprung. Ermittle ihre Funktionsgleichung rechnerisch.</>, steps: () => S.perpLine('senkrecht', 1.5, Pt(0, 0, 'O'), 'g₃', { rel: true }) },
+        { l: 'c', topic: 'parallel', text: <>Die Gerade g₃ steht senkrecht auf {gl(1.5, 3, 'g₂')} und verläuft durch den Ursprung O(0 | 0). Ermittle ihre Funktionsgleichung rechnerisch.</>, steps: () => S.perpLine('senkrecht', 1.5, Pt(0, 0, 'O'), 'g₃', { rel: true, ref: 'g₂' }) },
         { l: 'd', topic: 'schnittpunkt', text: <>Die Gerade {gl(10, -14, 'g₄')} schneidet {gl(1.5, 3, 'g₂')} im Punkt T. Berechne die Koordinaten von T.</>, steps: () => S.intersect(Ln(10, -14, 'g₄'), Ln(1.5, 3, 'g₂'), 'T'), fg: { range: [-4, 6, -2, 9], lines: [Ln(10, -14, 'g₄'), Ln(1.5, 3, 'g₂')], points: [Pt(2, 6, 'T')] } },
         { l: 'e', topic: 'zeichnen', text: <>Zeichne die Geraden {gl(1.5, 3, 'g₂')} und {fm('g₃: y = −2/3x')} in ein Koordinatensystem.</>, steps: () => S.drawLines([Ln(1.5, 3, 'g₂'), Ln(-2/3, 0, 'g₃')], LF_RANGE), fg: drawFg([Ln(1.5, 3, 'g₂'), Ln(-2/3, 0, 'g₃')], LF_RANGE) }
     ]},
@@ -1150,7 +1177,7 @@ const LF_EXAMS = [
         { l: 'a', topic: 'nullstelle', text: <>Ermittle die Koordinaten von C rechnerisch.</>, steps: () => [...S.normalStr('-5y+2x-10=0', 'g₁'), ...S.zero(0.4, -2, 'C')] },
         { l: 'b', topic: 'gleichung', text: <>Die Gerade g₂ verläuft durch A(−0,5 | 5) und B(3,5 | −3). Bestimme ihre Funktionsgleichung rechnerisch.</>, steps: () => S.line2P(Pt(-0.5, 5, 'A'), Pt(3.5, -3, 'B'), 'g₂') },
         { l: 'c', topic: 'schnittpunkt', text: <>Die Geraden {gl(0.4, -2, 'g₁')} und {gl(-2, 4, 'g₂')} schneiden sich im Punkt D. Berechne die Koordinaten von D.</>, steps: () => S.intersect(Ln(0.4, -2, 'g₁'), Ln(-2, 4, 'g₂'), 'D'), fg: { range: LF_RANGE, lines: [Ln(0.4, -2, 'g₁'), Ln(-2, 4, 'g₂')], points: [Pt(2.5, -1, 'D')] } },
-        { l: 'd', topic: 'parallel', text: <>Die Gerade g₃ steht senkrecht auf {gl(-2, 4, 'g₂')} und verläuft durch E(−4 | 0). Ermittle ihre Funktionsgleichung rechnerisch.</>, steps: () => S.perpLine('senkrecht', -2, Pt(-4, 0, 'E'), 'g₃', { rel: true }) },
+        { l: 'd', topic: 'parallel', text: <>Die Gerade g₃ steht senkrecht auf {gl(-2, 4, 'g₂')} und verläuft durch E(−4 | 0). Ermittle ihre Funktionsgleichung rechnerisch.</>, steps: () => S.perpLine('senkrecht', -2, Pt(-4, 0, 'E'), 'g₃', { rel: true, ref: 'g₂' }) },
         { l: 'e', topic: 'zeichnen', text: <>Zeichne die Geraden {gl(0.4, -2, 'g₁')}, {gl(-2, 4, 'g₂')} und {gl(0.5, 2, 'g₃')} in ein Koordinatensystem.</>, steps: () => S.drawLines([Ln(0.4, -2, 'g₁'), Ln(-2, 4, 'g₂'), Ln(0.5, 2, 'g₃')], LF_RANGE), fg: drawFg([Ln(0.4, -2, 'g₁'), Ln(-2, 4, 'g₂'), Ln(0.5, 2, 'g₃')], LF_RANGE) },
         { l: 'f', topic: 'steigung', text: <>Berechne den spitzen Winkel α, den {gl(-2, 4, 'g₂')} mit der x-Achse einschließt.</>, steps: () => S.angle(-2) }
     ]},
@@ -1159,12 +1186,12 @@ const LF_EXAMS = [
         { l: 'b', topic: 'schnittpunkt', text: <>Die Gerade {gl(0, 2, 'g₂')} schneidet {fm('g₁: y = −2/3x + 3')} im Punkt T. Berechne die Koordinaten von T.</>, steps: () => S.intersect(Ln(-2/3, 3, 'g₁'), Ln(0, 2, 'g₂'), 'T'), fg: { range: LF_RANGE, lines: [Ln(-2/3, 3, 'g₁'), Ln(0, 2, 'g₂')], points: [Pt(1.5, 2, 'T')] } },
         { l: 'c', topic: 'nullstelle', text: <>Berechne den Schnittpunkt N von {fm('g₁: y = −2/3x + 3')} mit der x-Achse.</>, steps: () => S.zero(-2/3, 3, 'N') },
         { l: 'd', topic: 'punktprobe', text: <>Überprüfe durch Rechnung, ob P(−1,5 | 4) auf {fm('g₁: y = −2/3x + 3')} liegt.</>, steps: () => S.probe(-2/3, 3, Pt(-1.5, 4, 'P'), 'g₁') },
-        { l: 'e', topic: 'parallel', text: <>Die Gerade g₃ steht senkrecht auf {fm('g₁: y = −2/3x + 3')} und geht durch Q(2 | 4). Ermittle rechnerisch ihre Funktionsgleichung.</>, steps: () => S.perpLine('senkrecht', -2/3, Pt(2, 4, 'Q'), 'g₃', { rel: true }) },
+        { l: 'e', topic: 'parallel', text: <>Die Gerade g₃ steht senkrecht auf {fm('g₁: y = −2/3x + 3')} und geht durch Q(2 | 4). Ermittle rechnerisch ihre Funktionsgleichung.</>, steps: () => S.perpLine('senkrecht', -2/3, Pt(2, 4, 'Q'), 'g₃', { rel: true, ref: 'g₁' }) },
         { l: 'f', topic: 'zeichnen', text: <>Zeichne {fm('g₁: y = −2/3x + 3')}, {gl(0, 2, 'g₂')} und {gl(1.5, 1, 'g₃')} in ein Koordinatensystem.</>, steps: () => S.drawLines([Ln(-2/3, 3, 'g₁'), Ln(0, 2, 'g₂'), Ln(1.5, 1, 'g₃')], LF_RANGE), fg: drawFg([Ln(-2/3, 3, 'g₁'), Ln(0, 2, 'g₂'), Ln(1.5, 1, 'g₃')], LF_RANGE) }
     ]},
     { id: '2013-I', label: 'MSA 2013 I', nr: '1', parts: [
         { l: 'a', topic: 'gleichung', text: <>Die Gerade g₁ verläuft durch A(1,5 | 3) und B(−2 | 10). Ermittle rechnerisch ihre Funktionsgleichung.</>, steps: () => S.line2P(Pt(1.5, 3, 'A'), Pt(-2, 10, 'B'), 'g₁') },
-        { l: 'b', topic: 'parallel', text: <>Die Gerade g₂ schneidet {gl(-2, 6, 'g₁')} senkrecht im Punkt A(1,5 | 3). Bestimme die Funktionsgleichung von g₂ rechnerisch.</>, steps: () => S.perpLine('senkrecht', -2, Pt(1.5, 3, 'A'), 'g₂', { rel: true }) },
+        { l: 'b', topic: 'parallel', text: <>Die Gerade g₂ schneidet {gl(-2, 6, 'g₁')} senkrecht im Punkt A(1,5 | 3). Bestimme die Funktionsgleichung von g₂ rechnerisch.</>, steps: () => S.perpLine('senkrecht', -2, Pt(1.5, 3, 'A'), 'g₂', { rel: true, ref: 'g₁' }) },
         { l: 'c', topic: 'nullstelle', text: <>Berechne den Schnittpunkt N von {gl(-2, 6, 'g₁')} mit der x-Achse.</>, steps: () => S.zero(-2, 6, 'N') },
         { l: 'd', topic: 'schnittpunkt', text: <>Die Gerade g₃: {fm('3 = −x − y')} schneidet {gl(-2, 6, 'g₁')} im Punkt Q. Berechne die Koordinaten von Q.</>, steps: () => [...S.normalStr('3=-x-y', 'g₃'), ...S.intersect(Ln(-2, 6, 'g₁'), Ln(-1, -3, 'g₃'), 'Q')], fg: { range: [-12, 12, -12, 12], lines: [Ln(-2, 6, 'g₁'), Ln(-1, -3, 'g₃')], points: [Pt(9, -12, 'Q')] } },
         { l: 'e', topic: 'zeichnen', text: <>Zeichne {gl(-2, 6, 'g₁')}, {gl(0.5, 2.25, 'g₂')} und {gl(-1, -3, 'g₃')} in ein Koordinatensystem.</>, steps: () => S.drawLines([Ln(-2, 6, 'g₁'), Ln(0.5, 2.25, 'g₂'), Ln(-1, -3, 'g₃')], LF_RANGE), fg: drawFg([Ln(-2, 6, 'g₁'), Ln(0.5, 2.25, 'g₂'), Ln(-1, -3, 'g₃')], LF_RANGE) },
@@ -1172,7 +1199,7 @@ const LF_EXAMS = [
     ]},
     { id: '2013-II', label: 'MSA 2013 II', nr: '1', parts: [
         { l: 'a', topic: 'gleichung', text: <>Die Gerade g₁ verläuft durch A(2 | 1) und B(4 | 0,5). Ermittle rechnerisch ihre Funktionsgleichung.</>, steps: () => S.line2P(Pt(2, 1, 'A'), Pt(4, 0.5, 'B'), 'g₁') },
-        { l: 'b', topic: 'parallel', text: <>Die Gerade g₂ steht senkrecht auf {gl(-0.25, 1.5, 'g₁')} und verläuft durch C(−1,5 | 4). Bestimme ihre Funktionsgleichung rechnerisch.</>, steps: () => S.perpLine('senkrecht', -0.25, Pt(-1.5, 4, 'C'), 'g₂', { rel: true }) },
+        { l: 'b', topic: 'parallel', text: <>Die Gerade g₂ steht senkrecht auf {gl(-0.25, 1.5, 'g₁')} und verläuft durch C(−1,5 | 4). Bestimme ihre Funktionsgleichung rechnerisch.</>, steps: () => S.perpLine('senkrecht', -0.25, Pt(-1.5, 4, 'C'), 'g₂', { rel: true, ref: 'g₁' }) },
         { l: 'c', topic: 'schnittpunkt', text: <>Berechne den Schnittpunkt Q von {gl(-0.25, 1.5, 'g₁')} und {gl(4, 10, 'g₂')}.</>, steps: () => S.intersect(Ln(-0.25, 1.5, 'g₁'), Ln(4, 10, 'g₂'), 'Q'), fg: { range: LF_RANGE, lines: [Ln(-0.25, 1.5, 'g₁'), Ln(4, 10, 'g₂')], points: [Pt(-2, 2, 'Q')] } },
         { l: 'd', topic: 'nullstelle', text: <>Berechne den Schnittpunkt N von {gl(4, 10, 'g₂')} mit der x-Achse.</>, steps: () => S.zero(4, 10, 'N') },
         { l: 'e', topic: 'zeichnen', text: <>Zeichne {gl(-0.25, 1.5, 'g₁')} und {gl(4, 10, 'g₂')} in ein Koordinatensystem.</>, steps: () => S.drawLines([Ln(-0.25, 1.5, 'g₁'), Ln(4, 10, 'g₂')], LF_RANGE), fg: drawFg([Ln(-0.25, 1.5, 'g₁'), Ln(4, 10, 'g₂')], LF_RANGE) }
@@ -1180,14 +1207,14 @@ const LF_EXAMS = [
     { id: '2012-I', label: 'MSA 2012 I', nr: '1', intro: <>Die Punkte B(3 | 0) und D(5 | −1) liegen auf der Geraden g₁. Die Gerade g₂ ist durch {fm('2,5y = 3,75x − 6,25')} bestimmt.</>, parts: [
         { l: 'a', topic: 'gleichung', text: <>Ermittle rechnerisch die Funktionsgleichung von g₁.</>, steps: () => S.line2P(Pt(3, 0, 'B'), Pt(5, -1, 'D'), 'g₁') },
         { l: 'b', topic: 'schnittpunkt', text: <>Berechne den Schnittpunkt E von {gl(-0.5, 1.5, 'g₁')} mit g₂.</>, steps: () => [...S.normalStr('2.5y=3.75x-6.25', 'g₂'), ...S.intersect(Ln(-0.5, 1.5, 'g₁'), Ln(1.5, -2.5, 'g₂'), 'E')], fg: { range: LF_RANGE, lines: [Ln(-0.5, 1.5, 'g₁'), Ln(1.5, -2.5, 'g₂')], points: [Pt(2, 0.5, 'E')] } },
-        { l: 'c', topic: 'parallel', text: <>Die Gerade g₃ steht senkrecht auf {gl(-0.5, 1.5, 'g₁')} und verläuft durch C(1 | 1). Ermittle ihre Funktionsgleichung.</>, steps: () => S.perpLine('senkrecht', -0.5, Pt(1, 1, 'C'), 'g₃', { rel: true }) },
+        { l: 'c', topic: 'parallel', text: <>Die Gerade g₃ steht senkrecht auf {gl(-0.5, 1.5, 'g₁')} und verläuft durch C(1 | 1). Ermittle ihre Funktionsgleichung.</>, steps: () => S.perpLine('senkrecht', -0.5, Pt(1, 1, 'C'), 'g₃', { rel: true, ref: 'g₁' }) },
         { l: 'd', topic: 'nullstelle', text: <>Die Gerade {gl(2, -1, 'g₃')} schneidet die x-Achse im Punkt A. Ermittle die Koordinaten von A.</>, steps: () => S.zero(2, -1, 'A') },
         { l: 'e', topic: 'zeichnen', text: <>Zeichne {gl(-0.5, 1.5, 'g₁')}, {gl(1.5, -2.5, 'g₂')} und {gl(2, -1, 'g₃')} in ein Koordinatensystem.</>, steps: () => S.drawLines([Ln(-0.5, 1.5, 'g₁'), Ln(1.5, -2.5, 'g₂'), Ln(2, -1, 'g₃')], LF_RANGE), fg: drawFg([Ln(-0.5, 1.5, 'g₁'), Ln(1.5, -2.5, 'g₂'), Ln(2, -1, 'g₃')], LF_RANGE) }
     ]},
     { id: '2012-II', label: 'MSA 2012 II', nr: '1', parts: [
         { l: 'a', topic: 'gleichung', text: <>Die Gerade g₁ verläuft durch A(−1 | 7,5) und B(5 | −1,5). Ermittle rechnerisch ihre Funktionsgleichung.</>, steps: () => S.line2P(Pt(-1, 7.5, 'A'), Pt(5, -1.5, 'B'), 'g₁') },
         { l: 'b', topic: 'nullstelle', text: <>Berechne die Nullstelle N von {gl(-1.5, 6, 'g₁')}.</>, steps: () => S.zero(-1.5, 6, 'N') },
-        { l: 'c', topic: 'parallel', text: <>Die Gerade g₂ verläuft durch C(4,5 | 2,5) und steht senkrecht auf {gl(-1.5, 6, 'g₁')}. Bestimme ihre Funktionsgleichung rechnerisch.</>, steps: () => S.perpLine('senkrecht', -1.5, Pt(4.5, 2.5, 'C'), 'g₂', { rel: true }) },
+        { l: 'c', topic: 'parallel', text: <>Die Gerade g₂ verläuft durch C(4,5 | 2,5) und steht senkrecht auf {gl(-1.5, 6, 'g₁')}. Bestimme ihre Funktionsgleichung rechnerisch.</>, steps: () => S.perpLine('senkrecht', -1.5, Pt(4.5, 2.5, 'C'), 'g₂', { rel: true, ref: 'g₁' }) },
         { l: 'd', topic: 'schnittpunkt', text: <>Berechne den Schnittpunkt P von {gl(-1.5, 6, 'g₁')} und {fm('g₂: y = ⅔x − 0,5')}.</>, steps: () => S.intersect(Ln(-1.5, 6, 'g₁'), Ln(2/3, -0.5, 'g₂'), 'P'), fg: { range: LF_RANGE, lines: [Ln(-1.5, 6, 'g₁'), Ln(2/3, -0.5, 'g₂')], points: [Pt(3, 1.5, 'P')] } },
         { l: 'e', topic: 'zeichnen', text: <>Zeichne {gl(-1.5, 6, 'g₁')} und {fm('g₂: y = ⅔x − 0,5')} in ein Koordinatensystem.</>, steps: () => S.drawLines([Ln(-1.5, 6, 'g₁'), Ln(2/3, -0.5, 'g₂')], LF_RANGE), fg: drawFg([Ln(-1.5, 6, 'g₁'), Ln(2/3, -0.5, 'g₂')], LF_RANGE) }
     ]},
@@ -1195,26 +1222,26 @@ const LF_EXAMS = [
         { l: 'a', topic: 'gleichung', text: <>Ermittle rechnerisch die Funktionsgleichung der Geraden g₁ durch A und B.</>, steps: () => S.line2P(Pt(5, -1, 'A'), Pt(-5, 7, 'B'), 'g₁') },
         { l: 'b', topic: 'nullstelle', text: <>Berechne den Schnittpunkt N von {gl(-0.8, 3, 'g₁')} mit der x-Achse.</>, steps: () => S.zero(-0.8, 3, 'N') },
         { l: 'c', topic: 'parallel', text: <>Überprüfe rechnerisch, ob {gl(-0.8, 3, 'g₁')} und g₂ parallel verlaufen.</>, steps: () => [...S.normalStr('4y+3x+8=0', 'g₂'), S.lage(Ln(-0.8, 3, 'g₁'), Ln(-0.75, -2, 'g₂'))] },
-        { l: 'd', topic: 'parallel', text: <>Die Gerade g₃ steht senkrecht auf {gl(-0.8, 3, 'g₁')} und verläuft durch C. Ermittle ihre Funktionsgleichung.</>, steps: () => S.perpLine('senkrecht', -0.8, Pt(2, 0, 'C'), 'g₃', { rel: true }) },
+        { l: 'd', topic: 'parallel', text: <>Die Gerade g₃ steht senkrecht auf {gl(-0.8, 3, 'g₁')} und verläuft durch C. Ermittle ihre Funktionsgleichung.</>, steps: () => S.perpLine('senkrecht', -0.8, Pt(2, 0, 'C'), 'g₃', { rel: true, ref: 'g₁' }) },
         { l: 'e', topic: 'punktprobe', text: <>Überprüfe durch Rechnung, ob D auf {gl(1.25, -2.5, 'g₃')} liegt.</>, steps: () => S.probe(1.25, -2.5, Pt(20, 24, 'D'), 'g₃') },
         { l: 'f', topic: 'zeichnen', text: <>Zeichne {gl(-0.8, 3, 'g₁')}, {gl(-0.75, -2, 'g₂')} und {gl(1.25, -2.5, 'g₃')} in ein Koordinatensystem.</>, steps: () => S.drawLines([Ln(-0.8, 3, 'g₁'), Ln(-0.75, -2, 'g₂'), Ln(1.25, -2.5, 'g₃')], LF_RANGE), fg: drawFg([Ln(-0.8, 3, 'g₁'), Ln(-0.75, -2, 'g₂'), Ln(1.25, -2.5, 'g₃')], LF_RANGE) }
     ]},
     { id: '2011-II', label: 'MSA 2011 II', nr: '1', intro: <>Gegeben ist die Gerade {gl(2, -3, 'g₁')}.</>, parts: [
         { l: 'b', topic: 'nullstelle', text: <>Berechne den Schnittpunkt N von g₁ mit der x-Achse.</>, steps: () => S.zero(2, -3, 'N') },
-        { l: 'c', topic: 'parallel', text: <>Die Gerade g₂ steht senkrecht auf g₁ und schneidet die x-Achse im Punkt Q(8 | 0). Bestimme ihre Funktionsgleichung.</>, steps: () => S.perpLine('senkrecht', 2, Pt(8, 0, 'Q'), 'g₂', { rel: true }) },
+        { l: 'c', topic: 'parallel', text: <>Die Gerade g₂ steht senkrecht auf g₁ und schneidet die x-Achse im Punkt Q(8 | 0). Bestimme ihre Funktionsgleichung.</>, steps: () => S.perpLine('senkrecht', 2, Pt(8, 0, 'Q'), 'g₂', { rel: true, ref: 'g₁' }) },
         { l: 'd', topic: 'punktprobe', text: <>Überprüfe rechnerisch, ob A(1 | 3,5) auf {gl(-0.5, 4, 'g₂')} liegt.</>, steps: () => S.probe(-0.5, 4, Pt(1, 3.5, 'A'), 'g₂') },
         { l: 'e', topic: 'schnittpunkt', text: <>Berechne den Schnittpunkt P₃ von g₁ und {gl(-0.5, 4, 'g₂')}.</>, steps: () => S.intersect(Ln(2, -3, 'g₁'), Ln(-0.5, 4, 'g₂'), 'P₃'), fg: { range: LF_RANGE, lines: [Ln(2, -3, 'g₁'), Ln(-0.5, 4, 'g₂')], points: [Pt(2.8, 2.6, 'P₃')] } },
         { l: 'f', topic: 'zeichnen', text: <>Zeichne {gl(2, -3, 'g₁')} und {gl(-0.5, 4, 'g₂')} in ein Koordinatensystem.</>, steps: () => S.drawLines([Ln(2, -3, 'g₁'), Ln(-0.5, 4, 'g₂')], [-2, 9, -5, 6]), fg: drawFg([Ln(2, -3, 'g₁'), Ln(-0.5, 4, 'g₂')], [-2, 9, -5, 6]) }
     ]},
     { id: '2010-I', label: 'MSA 2010 I', nr: '4', parts: [
-        { l: 'a', topic: 'punktprobe', text: <>Überprüfe rechnerisch, ob die Punkte A(4 | 6,5), B(−4 | 0,5) und C(6 | 8) auf einer Geraden liegen.</>, steps: () => [...S.line2P(Pt(4, 6.5, 'A'), Pt(-4, 0.5, 'B'), 'g'), ...S.probe(0.75, 3.5, Pt(6, 8, 'C'), 'g')] },
+        { l: 'a', topic: 'punktprobe', text: <>Überprüfe rechnerisch, ob die Punkte A(4 | 6,5), B(−4 | 0,5) und C(6 | 8) auf einer Geraden liegen. Bestimme dazu die Gerade g durch A und B und prüfe, ob C auf g liegt.</>, steps: () => [...S.line2P(Pt(4, 6.5, 'A'), Pt(-4, 0.5, 'B'), 'g'), ...S.probe(0.75, 3.5, Pt(6, 8, 'C'), 'g')] },
         { l: 'b', topic: 'schnittpunkt', text: <>Die Geraden g₁: {fm('3x + 15y − 81 = 0')} und {gl(0.75, 3.5, 'g₂')} schneiden sich im Punkt D. Berechne die Koordinaten von D.</>, steps: () => [...S.normalStr('3x+15y-81=0', 'g₁'), ...S.intersect(Ln(-0.2, 5.4, 'g₁'), Ln(0.75, 3.5, 'g₂'), 'D')], fg: { range: LF_RANGE, lines: [Ln(-0.2, 5.4, 'g₁'), Ln(0.75, 3.5, 'g₂')], points: [Pt(2, 5, 'D')] } },
-        { l: 'c', topic: 'parallel', text: <>Die Gerade g₃ verläuft durch E(3 | 1) und steht senkrecht auf {gl(0.75, 3.5, 'g₂')}. Ermittle ihre Funktionsgleichung rechnerisch.</>, steps: () => S.perpLine('senkrecht', 0.75, Pt(3, 1, 'E'), 'g₃', { rel: true }) },
+        { l: 'c', topic: 'parallel', text: <>Die Gerade g₃ verläuft durch E(3 | 1) und steht senkrecht auf {gl(0.75, 3.5, 'g₂')}. Ermittle ihre Funktionsgleichung rechnerisch.</>, steps: () => S.perpLine('senkrecht', 0.75, Pt(3, 1, 'E'), 'g₃', { rel: true, ref: 'g₂' }) },
         { l: 'd', topic: 'zeichnen', text: <>Zeichne {gl(-0.2, 5.4, 'g₁')}, {gl(0.75, 3.5, 'g₂')} und {fm('g₃: y = −4/3x + 5')} in ein Koordinatensystem.</>, steps: () => S.drawLines([Ln(-0.2, 5.4, 'g₁'), Ln(0.75, 3.5, 'g₂'), Ln(-4/3, 5, 'g₃')], [-6, 8, -4, 8]), fg: drawFg([Ln(-0.2, 5.4, 'g₁'), Ln(0.75, 3.5, 'g₂'), Ln(-4/3, 5, 'g₃')], [-6, 8, -4, 8]) }
     ]},
     { id: '2010-II', label: 'MSA 2010 II', nr: '5', intro: <>Die Punkte A(0 | 4) und B(5 | 0) bestimmen die Gerade g₁.</>, parts: [
         { l: 'a', topic: 'gleichung', text: <>Ermittle rechnerisch die Funktionsgleichung von g₁.</>, steps: () => S.line2P(Pt(0, 4, 'A'), Pt(5, 0, 'B'), 'g₁') },
-        { l: 'b', topic: 'parallel', text: <>Die Gerade g₂ steht senkrecht auf {gl(-0.8, 4, 'g₁')} und verläuft durch C(2 | −1,5). Bestimme ihre Funktionsgleichung.</>, steps: () => S.perpLine('senkrecht', -0.8, Pt(2, -1.5, 'C'), 'g₂', { rel: true }) },
+        { l: 'b', topic: 'parallel', text: <>Die Gerade g₂ steht senkrecht auf {gl(-0.8, 4, 'g₁')} und verläuft durch C(2 | −1,5). Bestimme ihre Funktionsgleichung.</>, steps: () => S.perpLine('senkrecht', -0.8, Pt(2, -1.5, 'C'), 'g₂', { rel: true, ref: 'g₁' }) },
         { l: 'c', topic: 'zeichnen', text: <>Zeichne {gl(-0.8, 4, 'g₁')} und {gl(1.25, -4, 'g₂')} in ein Koordinatensystem.</>, steps: () => S.drawLines([Ln(-0.8, 4, 'g₁'), Ln(1.25, -4, 'g₂')], LF_RANGE), fg: drawFg([Ln(-0.8, 4, 'g₁'), Ln(1.25, -4, 'g₂')], LF_RANGE) }
     ]},
     { id: 'Muster-I', label: 'MSA Musterprüfung I', nr: '3', parts: [
@@ -1225,7 +1252,7 @@ const LF_EXAMS = [
         { l: 'e', topic: 'zeichnen', text: <>Zeichne {gl(-3, 2, 'g₁')} und {gl(2.5, -4, 'g₄')} in ein Koordinatensystem.</>, steps: () => S.drawLines([Ln(-3, 2, 'g₁'), Ln(2.5, -4, 'g₄')], LF_RANGE), fg: drawFg([Ln(-3, 2, 'g₁'), Ln(2.5, -4, 'g₄')], LF_RANGE) }
     ]},
     { id: 'Muster-II', label: 'MSA Musterprüfung II', nr: '3', intro: <>Gegeben ist die Gerade {gl(-2, 4, 'g₁')}.</>, parts: [
-        { l: 'a', topic: 'ablesen', text: <>Welche Aussagen sind richtig? (1) g₁ verläuft durch den Nullpunkt. (2) g₁ schneidet die x-Achse in (2 | 0). (3) g₁ verläuft nicht im 3. Quadranten. (4) g₁ schneidet die y-Achse in (0 | −4).</>, steps: () => [S.select('Welche Aussagen sind richtig?', [<span>(2) und (3)</span>, <span>(1) und (2)</span>, <span>(2) und (4)</span>, <span>(3) und (4)</span>], 0, 'Prüfe jede Aussage: t = 4 → Schnitt mit der y-Achse bei (0 | 4). Nullstelle: 0 = −2x + 4 → x = 2. Mit m < 0 und t > 0 verläuft die Gerade durch den 2., 1. und 4. Quadranten.', '(2) und (3)', true)] },
+        { l: 'a', topic: 'ablesen', text: <>Welche Aussagen sind richtig? (1) g₁ verläuft durch den Ursprung. (2) g₁ schneidet die x-Achse in (2 | 0). (3) g₁ verläuft nicht im 3. Quadranten. (4) g₁ schneidet die y-Achse in (0 | −4).</>, steps: () => [S.select('Welche Aussagen sind richtig?', [<span>(2) und (3)</span>, <span>(1) und (2)</span>, <span>(2) und (4)</span>, <span>(3) und (4)</span>], 0, 'Prüfe jede Aussage: t = 4 → Schnitt mit der y-Achse bei (0 | 4). Nullstelle: 0 = −2x + 4 → x = 2. Mit m < 0 und t > 0 verläuft die Gerade durch den 2., 1. und 4. Quadranten.', '(2) und (3)', true)] },
         { l: 'b', topic: 'punktprobe', text: <>Überprüfe rechnerisch, ob B(86 | −168) auf g₁ liegt.</>, steps: () => S.probe(-2, 4, Pt(86, -168, 'B'), 'g₁') },
         { l: 'd', topic: 'parallel', text: <>Begründe, dass g₃: {fm('0 = 3y + 6x − 12')} mindestens zwei gemeinsame Punkte mit g₁ hat.</>, steps: () => [...S.normalStr('0=3y+6x-12', 'g₃'), S.lage(Ln(-2, 4, 'g₁'), Ln(-2, 4, 'g₃'))] },
         { l: 'e', topic: 'parallel', text: <>Die Gerade g₄: {fm('y = 1 + 0,5x')} schneidet g₁. Zeige rechnerisch, dass g₁ senkrecht auf g₄ steht.</>, steps: () => S.checkPerp(-2, 0.5, 'g₁', 'g₄') },
@@ -1256,14 +1283,6 @@ const LF_EXAMS = [
             S.calc('Löse Gleichung (I) nach x auf.', <V>x</V>, 4, '3x = 12 | : 3', 'x = 4'),
             S.calc('Setze x = 4 in (II) und (III) ein und berechne y.', <V>y</V>, 7, '(II): 2y + z = 17, (III): −4y + 2z = −22 → −2y + z = −11. Subtrahiere: 4y = 28.', 'y = 7'),
             S.calc('Berechne z.', <V>z</V>, 3, 'z = 17 − 2y', 'z = 3')
-        ] }
-    ]},
-    { id: 'LGS-2012-II', label: 'MSA 2012 II', nr: '6', lgs: true, parts: [
-        { l: '', topic: 'sachaufgaben', text: <>Ein Wohnmobil kostet eine Grundgebühr g pro Tag und einen Betrag k pro Kilometer. Herr Huber zahlt für 6 Tage und 1 380 km 970,80 €. Herr Kern erhält 30 % Nachlass auf die Grundgebühr und zahlt für 9 Tage und 1 825 km 1 154,70 €. Berechne g und k.</>, steps: () => [
-            { type: 'fill', goal: 'Stelle Gleichung (I) für Herrn Huber auf.', inputs: [{ id: 'a', correct: 6 }, { id: 'b', correct: 1380 }, { id: 'c', correct: 970.8 }], render: (h) => <LfZeile>(I) {h.input('a', 'w-16')}<V>g</V> + {h.input('b')}<V>k</V> = {h.input('c')}</LfZeile>, hint: 'Tage · Grundgebühr + Kilometer · Kilometerpreis = Gesamtpreis', solution: '6g + 1380k = 970,80' },
-            { type: 'fill', goal: 'Stelle Gleichung (II) für Herrn Kern auf.', inputs: [{ id: 'a', correct: 6.3 }, { id: 'b', correct: 1825 }, { id: 'c', correct: 1154.7 }], render: (h) => <LfZeile>(II) {h.input('a', 'w-16')}<V>g</V> + {h.input('b')}<V>k</V> = {h.input('c')}</LfZeile>, hint: '30 % Nachlass: Er zahlt nur 70 % der Grundgebühr, also 9 · 0,7g = 6,3g.', solution: '6,3g + 1825k = 1154,70' },
-            S.calc('Berechne den Kilometerpreis k.', <V>k</V>, 0.36, 'Aus (I): g = 161,8 − 230k. In (II): 6,3(161,8 − 230k) + 1825k = 1154,7.', 'k = 0,36 €', '€', 0.006),
-            S.calc('Berechne die Grundgebühr g pro Tag.', <V>g</V>, 79, 'g = 161,8 − 230 · 0,36', 'g = 79 €', '€', 0.011)
         ] }
     ]},
     { id: 'LGS-2013-I', label: 'MSA 2013 I', nr: '3', lgs: true, parts: [
