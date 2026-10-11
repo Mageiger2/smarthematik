@@ -1,0 +1,1912 @@
+<!DOCTYPE html>
+<html lang="de" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Cache-Hygiene: HTML immer revalidieren (Assets werden über ?v=... versioniert). -->
+    <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <title>Klassenübersicht für Lehrkräfte — sMArTHEMATIK</title>
+    <meta name="description" content="Klassenübersicht für Lehrkräfte: Fortschritts-Codes der Schüler einlesen und je Thema sehen, wer gelernt, geübt oder gemeistert hat. Alles bleibt im Browser.">
+
+    <link rel="canonical" href="https://www.smarthematik.de/lehrer.html">
+    <meta property="og:title" content="Klassenübersicht für Lehrkräfte — sMArTHEMATIK">
+    <meta property="og:description" content="Klassenübersicht für Lehrkräfte: Fortschritts-Codes der Schüler einlesen und den Stand der Klasse je Thema sehen.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.smarthematik.de/lehrer.html">
+
+    <!-- Self-hosted Vendor-Skripte (kein Cross-Origin zu US-Servern) -->
+    <script src="assets/vendor/tailwindcss.js?v=202605251133"></script>
+    <script src="assets/vendor/react.production.min.js?v=202605251133"></script>
+    <script src="assets/vendor/react-dom.production.min.js?v=202605251133"></script>
+    <script src="assets/vendor/babel.min.js?v=202605251133"></script>
+
+    <link rel="stylesheet" href="assets/css/main.css?v=202605251133">
+</head>
+<body class="text-slate-800 font-sans antialiased flex flex-col min-h-screen">
+
+    <noscript>
+        <div style="background:#fef2f2;color:#991b1b;padding:1rem;text-align:center;border-bottom:2px solid #ef4444;font-family:system-ui,sans-serif;">
+            <strong>JavaScript ist deaktiviert.</strong> Diese Übungsseite benötigt JavaScript. Bitte aktiviere es im Browser und lade die Seite neu.
+        </div>
+    </noscript>
+
+    <header class="bg-white shadow-sm sticky top-0 z-50 border-b border-slate-200 relative">
+        <div class="max-w-[1200px] mx-auto px-2 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-1 sm:gap-4">
+            <a href="index.html" class="flex items-center hover:opacity-80 transition-opacity shrink-0">
+                <img src="Logo-sMArTH.png" alt="sMArTHEMATIK Logo" class="h-5 sm:h-8 md:h-10 w-auto object-contain">
+            </a>
+            <a href="https://ms-dachau-sued.de/" target="_blank" rel="noopener noreferrer" class="flex-grow flex justify-center items-center px-1 sm:px-2 hover:opacity-80 transition-opacity min-w-0">
+                <img src="LogoMSsued2.jpg" alt="Mittelschule Dachau-Süd Logo" class="h-4 sm:h-8 md:h-10 w-auto object-contain shadow-sm rounded-sm">
+            </a>
+            <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+                <button id="nav-toggle" type="button" class="p-2 text-slate-700 hover:bg-slate-100 rounded-lg" aria-label="Menü öffnen" aria-expanded="false" aria-controls="nav-menu">
+                    <svg id="nav-icon-open" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+                    <svg id="nav-icon-close" class="hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>
+                </button>
+                <img src="cropped-BdB_Logo-1.png" alt="Beratung digitale Bildung Logo" class="h-6 sm:h-10 md:h-12 w-auto object-contain">
+            </div>
+        </div>
+        <nav id="nav-menu" class="hidden absolute right-2 sm:right-6 top-full mt-2 w-72 max-w-[calc(100vw-1rem)] bg-white border border-slate-200 rounded-xl shadow-xl p-2 flex flex-col" role="navigation" aria-label="Hauptnavigation"><a href="index.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Startseite</a><div class="px-4 pt-3 pb-1 text-[10px] font-bold tracking-widest uppercase text-slate-400">Werkzeuge</div><a href="rechner.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">M10 Taschenrechner</a><a href="pruefung.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Prüfungssimulation</a><div class="px-4 pt-3 pb-1 text-[10px] font-bold tracking-widest uppercase text-slate-400">Trainer</div><a href="kopfrechnen.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Kopfrechnen</a><a href="binformeln.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Bin. Formeln</a><a href="bruchgleichungen.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Bruchgleichungen</a><a href="halbwertszeit.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Halbwertszeit</a><a href="kugel.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Kugel</a><a href="lineare-funktionen.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Lineare Funktionen</a><a href="potenzen.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Potenzen</a><a href="quadratische-funktionen.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Quadratische Funktionen</a><a href="trigonometrie.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Trigonometrie</a><a href="wachstum.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Wachstum & Zerfall</a><a href="wahrscheinlichkeit.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Wahrscheinlichkeit</a><div class="border-t border-slate-200 my-2"></div><a href="impressum.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-500 hover:bg-slate-50 hover:text-indigo-700 text-sm transition-colors">Impressum</a><a href="datenschutz.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-500 hover:bg-slate-50 hover:text-indigo-700 text-sm transition-colors">Datenschutz</a></nav>
+    </header>
+
+    <div id="boot-error" class="hidden bg-red-50 border-b-2 border-red-300 text-red-900 px-4 py-3 text-center text-sm">
+        <strong>Diese Seite konnte nicht vollständig geladen werden.</strong>
+        Bitte versuche es mit einem aktuellen Browser (Chrome, Firefox, Safari, Edge) und prüfe deine Internetverbindung.
+    </div>
+
+    <main class="flex-grow">
+        <div id="app-root"></div>
+    </main>
+
+    <footer class="bg-slate-900 text-slate-400 py-10 mt-auto border-t-4 border-indigo-600">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center text-center space-y-6">
+            <div>
+                <h4 class="text-white text-lg font-bold uppercase tracking-wider mb-4">Kontakt &amp; Infos</h4>
+                <a href="mailto:martin.geiger@ms-dachau-sued.de" class="inline-block px-6 py-2 bg-slate-800 text-slate-200 font-semibold rounded-lg hover:bg-indigo-600 hover:text-white transition-colors shadow-sm text-sm">E-Mail senden</a>
+                <p class="text-xs text-slate-500 mt-6 max-w-2xl mx-auto">
+                    Hinweis: Für die Richtigkeit der generierten Aufgaben und Berechnungen kann keine Garantie übernommen werden.
+                    <br><br>
+                    Quelle der Prüfungsaufgaben: <a href="https://www.bycs.de/pruefungsarchiv" target="_blank" rel="noopener noreferrer" class="underline hover:text-slate-300 transition-colors">Prüfungsarchiv des Bayerischen Staatsministeriums für Unterricht und Kultus (bycs.de)</a>. Originalprüfungen, Musterprüfungen und Hinweise zum Mittleren Schulabschluss: <a href="https://www.isb.bayern.de/schularten/mittelschule/mittlerer-schulabschluss/mathematik/" target="_blank" rel="noopener noreferrer" class="underline hover:text-slate-300 transition-colors">ISB Bayern – Mittlerer Schulabschluss Mathematik</a>.
+                </p>
+            </div>
+            <div class="w-full border-t border-slate-800 pt-6 mt-2 flex flex-col justify-between items-center text-sm gap-4">
+                <div class="flex flex-col md:flex-row items-center w-full justify-between gap-4">
+                    <div>&copy; 2026 - <strong class="text-white">Martin Geiger</strong></div>
+                    <div class="flex items-center gap-4">
+                        <a href="impressum.html" class="hover:text-white transition-colors">Impressum</a>
+                        <span class="text-slate-700">|</span>
+                        <a href="datenschutz.html" class="hover:text-white transition-colors">Datenschutz</a>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center gap-2 opacity-50 hover:opacity-100 transition-opacity grayscale hover:grayscale-0">
+                    <img src="https://hits.sh/ms-dachau-sued.de/smarthematik.svg?label=Aufrufe&color=4f46e5" alt="Seitenaufrufe Zähler" class="h-5">
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Burger-Menü Toggle (Vanilla, in allen modernen Browsern lauffähig).
+        (function () {
+            var btn = document.getElementById('nav-toggle');
+            var menu = document.getElementById('nav-menu');
+            var iconOpen = document.getElementById('nav-icon-open');
+            var iconClose = document.getElementById('nav-icon-close');
+            if (!btn || !menu) return;
+            function setOpen(open) {
+                if (open) {
+                    menu.classList.remove('hidden');
+                    iconOpen.classList.add('hidden');
+                    iconClose.classList.remove('hidden');
+                    btn.setAttribute('aria-expanded', 'true');
+                } else {
+                    menu.classList.add('hidden');
+                    iconOpen.classList.remove('hidden');
+                    iconClose.classList.add('hidden');
+                    btn.setAttribute('aria-expanded', 'false');
+                }
+            }
+            btn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                setOpen(menu.classList.contains('hidden'));
+            });
+            document.addEventListener('click', function (e) {
+                if (!menu.classList.contains('hidden') && !menu.contains(e.target) && e.target !== btn) {
+                    setOpen(false);
+                }
+            });
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') setOpen(false);
+            });
+        })();
+
+        // Boot-Error-Fallback: Wenn der React-Trainer nach 12 Sekunden noch nicht
+        // gemountet wurde (z.B. Babel-Standalone scheitert), zeigen wir einen
+        // Hinweis. Der Timer wird automatisch verworfen, sobald gemountet wurde.
+        (function () {
+            var bootTimer = setTimeout(function () {
+                var root = document.getElementById('app-root');
+                if (root && root.children.length === 0) {
+                    var banner = document.getElementById('boot-error');
+                    if (banner) banner.classList.remove('hidden');
+                }
+            }, 12000);
+            // Beobachte das app-root: sobald React etwas mountet, verwerfen wir den Timer
+            // und blenden den (eventuell schon sichtbaren) Banner wieder aus.
+            var observer = new MutationObserver(function () {
+                var root = document.getElementById('app-root');
+                if (root && root.children.length > 0) {
+                    clearTimeout(bootTimer);
+                    var banner = document.getElementById('boot-error');
+                    if (banner) banner.classList.add('hidden');
+                    observer.disconnect();
+                }
+            });
+            document.addEventListener('DOMContentLoaded', function () {
+                var root = document.getElementById('app-root');
+                if (root) observer.observe(root, { childList: true });
+            });
+        })();
+    </script>
+
+    <script type="text/babel" data-presets="typescript,react">
+// ==========================================
+// shared.js — Helpers, Theme, Shared UI Components, Icons
+// Wird auf jeder App-Seite via <script type="text/babel" src="..."> geladen.
+// Exponiert window.SH für App-spezifische Skripte.
+// ==========================================
+
+const { useState, useEffect } = React;
+
+// ==========================================
+// 1. HELPERS & UTILS
+// ==========================================
+const getStorage = (key, def) => { try { return parseInt(localStorage.getItem(key)) || def; } catch(e) { return def; } };
+const setStorage = (key, val) => { try { localStorage.setItem(key, val); } catch(e) {} };
+// JSON-Variante für strukturierte Daten (Adaptive-Schwierigkeit, Lernziele, Fehler-Statistik).
+const getStorageJSON = (key, def) => { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : def; } catch(e) { return def; } };
+const setStorageJSON = (key, val) => { try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {} };
+
+// ==========================================
+// ADAPTIVE FEATURES — Lernzielkontrolle, Schwierigkeits-Empfehlungen, Fehler-Statistik
+// ==========================================
+//
+// useAdaptive(trainerKey, difficulty) — leichter Hook, der parallel zu jedem Trainer
+// per-Schwierigkeit Statistik führt. Trainer rufen recordCorrect()/recordWrong() auf,
+// und die Daten landen in localStorage unter `smarth_adaptive_<trainerKey>` als JSON.
+//
+// Speicher-Schema:
+// {
+//   perDifficulty: {
+//     leicht: { correct: 12, wrong: 3, streak: 5, bestStreak: 8 },
+//     mittel: { correct: 4, wrong: 2, streak: 2, bestStreak: 3 },
+//     schwer: { correct: 0, wrong: 0, streak: 0, bestStreak: 0 },
+//     pruefung: { correct: 0, wrong: 0, streak: 0, bestStreak: 0 }
+//   },
+//   mastered: ['leicht']  // Schwierigkeiten, bei denen bereits >= 10 in Folge gelöst
+// }
+//
+// API:
+//   adaptive.stats           — kompletter Datensatz
+//   adaptive.recordCorrect() — bei richtiger Antwort, mit aktueller Schwierigkeit
+//   adaptive.recordWrong()   — bei falscher Antwort
+//   adaptive.suggestion      — { nextDifficulty, reason } oder null
+//   adaptive.isMastered(d)   — boolean: Schwierigkeit d gemeistert?
+function useAdaptive(trainerKey, difficulty) {
+    const key = `smarth_adaptive_${trainerKey}`;
+    const emptyStats = () => ({
+        perDifficulty: {
+            leicht: { correct: 0, wrong: 0, streak: 0, bestStreak: 0 },
+            mittel: { correct: 0, wrong: 0, streak: 0, bestStreak: 0 },
+            schwer: { correct: 0, wrong: 0, streak: 0, bestStreak: 0 },
+            pruefung: { correct: 0, wrong: 0, streak: 0, bestStreak: 0 }
+        },
+        mastered: []
+    });
+    const [stats, setStats] = useState(() => {
+        const stored = getStorageJSON(key, null);
+        if (stored && stored.perDifficulty) return stored;
+        return emptyStats();
+    });
+    useEffect(() => { setStorageJSON(key, stats); }, [stats, key]);
+
+    const recordCorrect = () => {
+        setStats(prev => {
+            const d = prev.perDifficulty[difficulty] || { correct: 0, wrong: 0, streak: 0, bestStreak: 0 };
+            const newStreak = d.streak + 1;
+            const updated = {
+                ...prev,
+                perDifficulty: {
+                    ...prev.perDifficulty,
+                    [difficulty]: {
+                        correct: d.correct + 1,
+                        wrong: d.wrong,
+                        streak: newStreak,
+                        bestStreak: Math.max(d.bestStreak, newStreak)
+                    }
+                }
+            };
+            // Mastery-Logik: ab 10 in Folge gilt eine Schwierigkeit als gemeistert.
+            if (newStreak >= 10 && !updated.mastered.includes(difficulty)) {
+                updated.mastered = [...updated.mastered, difficulty];
+            }
+            return updated;
+        });
+    };
+    const recordWrong = () => {
+        setStats(prev => {
+            const d = prev.perDifficulty[difficulty] || { correct: 0, wrong: 0, streak: 0, bestStreak: 0 };
+            return {
+                ...prev,
+                perDifficulty: {
+                    ...prev.perDifficulty,
+                    [difficulty]: { ...d, wrong: d.wrong + 1, streak: 0 }
+                }
+            };
+        });
+    };
+
+    // Schwierigkeits-Empfehlung: 5x in Folge richtig → nächste Stufe vorschlagen.
+    const order = ['leicht', 'mittel', 'schwer', 'pruefung'];
+    const suggestion = (() => {
+        const idx = order.indexOf(difficulty);
+        if (idx < 0 || idx === order.length - 1) return null;
+        const cur = stats.perDifficulty[difficulty];
+        if (!cur || cur.streak < 5) return null;
+        const next = order[idx + 1];
+        return { nextDifficulty: next, reason: `Du hast ${cur.streak} ${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}-Aufgaben in Folge richtig gelöst — wage dich an ${next.charAt(0).toUpperCase() + next.slice(1)}!` };
+    })();
+
+    const isMastered = (d) => stats.mastered.includes(d);
+
+    return { stats, recordCorrect, recordWrong, suggestion, isMastered };
+}
+
+// AdaptiveSuggestion — Banner, der nach 5x in Folge eine höhere Schwierigkeit empfiehlt.
+// onAccept übernimmt die nächste Schwierigkeit. Wird einmal beim Klick eingeklappt.
+const AdaptiveSuggestion = ({ suggestion, onAccept, theme = 'emerald' }) => {
+    const [dismissed, setDismissed] = useState(false);
+    if (!suggestion || dismissed) return null;
+    const t = themeColors[theme] || themeColors.emerald;
+    return (
+        <div className={`mb-4 ${t.activeBg} border-l-4 ${t.activeBorder} p-4 rounded-r-xl shadow-sm flex items-start gap-3 animate-fade-in`}>
+            <Target className={`w-6 h-6 ${t.activeTitle} shrink-0 mt-0.5`} />
+            <div className="flex-grow">
+                <p className={`font-semibold ${t.activeTitle}`}>Du bist auf Kurs!</p>
+                <p className="text-sm text-slate-700 mt-1">{suggestion.reason}</p>
+                <div className="mt-3 flex gap-2">
+                    <button onClick={() => { onAccept(suggestion.nextDifficulty); setDismissed(true); }}
+                            className={`${t.btnBg} ${t.btnHover} text-white px-4 py-1.5 rounded-lg font-bold text-sm shadow-sm transition-colors`}>
+                        Ja, los geht's
+                    </button>
+                    <button onClick={() => setDismissed(true)}
+                            className="bg-white hover:bg-slate-50 text-slate-600 px-4 py-1.5 rounded-lg font-medium text-sm border border-slate-200 transition-colors">
+                        Nicht jetzt
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// MasteryBadge — kleines Auszeichnungs-Element, wenn die Schwierigkeit bereits
+// 10× in Folge richtig gelöst wurde. Wird im Trainer-Header oder neben dem
+// Difficulty-Button angezeigt.
+const MasteryBadge = ({ mastered, theme = 'emerald' }) => {
+    if (!mastered || mastered.length === 0) return null;
+    const t = themeColors[theme] || themeColors.emerald;
+    const labels = { leicht: 'Leicht', mittel: 'Mittel', schwer: 'Schwer', pruefung: 'Prüfung' };
+    return (
+        <div className="inline-flex items-center gap-1.5 bg-amber-100 text-amber-800 border border-amber-300 px-2 py-1 rounded-full text-xs font-bold shadow-sm" title={`Gemeistert: ${mastered.map(d => labels[d]).join(', ')}`}>
+            <span aria-hidden="true">★</span>
+            <span>{mastered.length}× gemeistert</span>
+        </div>
+    );
+};
+
+// recordError(trainerKey, errorType) — minimale Fehler-Statistik. Bei jeder
+// falschen Eingabe wird ein Fehler-Typ getrackt (vom Trainer als String
+// gewählt, z.B. 'vorzeichen', 'doppelprodukt'). Speicherung in localStorage als
+// { errorType: count, ... }. Wird über getErrorStats(trainerKey) für ein
+// Fehler-Statistik-Panel zugänglich.
+const recordError = (trainerKey, errorType) => {
+    const key = `smarth_errors_${trainerKey}`;
+    const cur = getStorageJSON(key, {});
+    cur[errorType] = (cur[errorType] || 0) + 1;
+    setStorageJSON(key, cur);
+};
+const getErrorStats = (trainerKey) => getStorageJSON(`smarth_errors_${trainerKey}`, {});
+
+// ==========================================
+// Prüfungssimulation (pruefung.html)
+//   smarth_exam_run: { kind: 'B', start, end, parts: [...] } — laufende Simulation
+//   #pruefung/<key> öffnet in einem Trainer gezielt eine Prüfungsaufgabe
+// ==========================================
+const EXAM_RUN_KEY = 'smarth_exam_run';
+const examRun = () => { const r = getStorageJSON(EXAM_RUN_KEY, null); return r && r.end ? r : null; };
+const examRequest = () => { const m = (window.location.hash || '').match(/^#pruefung\/(.+)$/); return m ? decodeURIComponent(m[1]) : null; };
+let EXAM_REQ_PENDING = examRequest();
+// Mischt den Prüfungs-Pool; eine per Hash angeforderte Aufgabe kommt beim ersten Ziehen nach vorn
+const examPoolShuffle = (items, keyOf) => {
+    const pool = shuffleArray(items);
+    if (EXAM_REQ_PENDING) {
+        const i = pool.findIndex(t => keyOf(t) === EXAM_REQ_PENDING);
+        if (i > 0) { const [t] = pool.splice(i, 1); pool.unshift(t); }
+        if (i >= 0) EXAM_REQ_PENDING = null;
+    }
+    return pool;
+};
+// Gelöste Prüfungsaufgabe melden (Lernweg + Simulation); lnMarkExam kommt aus lernen-kern.js
+const examMark = (trainer, key) => { if (key && typeof lnMarkExam === 'function') lnMarkExam(trainer, key); };
+
+// Leiste „Prüfungssimulation läuft“ oben auf jeder Trainer-Seite (reines DOM, kein React)
+(() => {
+    try {
+        if (/pruefung\.html$/.test(window.location.pathname)) return;
+        const run = examRun(); if (!run || run.kind !== 'B') return;
+        const bar = document.createElement('div');
+        bar.id = 'exam-bar';
+        bar.className = 'sticky top-0 z-50 bg-slate-900 text-white text-sm px-4 py-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 shadow-md';
+        const fmt = (ms) => { const s = Math.max(0, Math.round(ms / 1000)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+        const draw = () => {
+            const left = run.end - Date.now();
+            bar.innerHTML = `<span class="font-bold">Prüfungssimulation läuft</span><span class="${left < 5 * 60000 ? 'text-amber-300 font-bold' : ''}">${left > 0 ? 'Restzeit ' + fmt(left) : 'Zeit abgelaufen'}</span><a href="pruefung.html" class="underline text-indigo-200 hover:text-white">Zur Übersicht</a>`;
+        };
+        draw(); setInterval(draw, 1000);
+        document.body.insertBefore(bar, document.body.firstChild);
+    } catch (e) {}
+})();
+
+// ==========================================
+// useTrainerCore — bündelt den State, der bisher in JEDEM Trainer einzeln definiert war:
+//   - streak (mit localStorage-Persistenz)
+//   - errors-Zähler (für TipBox)
+//   - tipRevealed (für TipBox)
+//   - triggerError (Streak auf 0, errors hochzählen)
+//   - advance (Schritt vor + errors/tip zurücksetzen)
+//   - showAnim (Konfetti-Animation alle 3 Streaks)
+//   - bestStreak / sessionCorrect (für Lernziel- und Fehler-Statistik)
+// Verwendung:  const tc = useTrainerCore({ storageKey: 'smarth_X' });
+// Dann: tc.streak, tc.errors, tc.tipRevealed, tc.setTipRevealed, tc.triggerError,
+//        tc.advance(setStep, nextStep), tc.onSuccessfulSolve(), tc.onSolutionShown()
+function useTrainerCore({ storageKey }) {
+    const streakKey = `smarth_streak_${storageKey}`;
+    const bestKey = `smarth_best_${storageKey}`;
+    const [streak, setStreak] = useState(() => getStorage(streakKey, 0));
+    const [bestStreak, setBestStreak] = useState(() => getStorage(bestKey, 0));
+    const [errors, setErrors] = useState(0);
+    const [tipRevealed, setTipRevealed] = useState(false);
+    const [showAnim, setShowAnim] = useState(false);
+
+    useEffect(() => { setStorage(streakKey, streak); }, [streak, streakKey]);
+    useEffect(() => { setStorage(bestKey, bestStreak); }, [bestStreak, bestKey]);
+
+    // Bei Fehleingabe: Streak auf 0, Fehler hochzählen — Tipp- bzw. Lösungs-Box
+    // erscheint dann ab 2 Fehlern (siehe TipBox).
+    const triggerError = () => { setErrors(e => e + 1); setStreak(0); };
+
+    // Nach erfolgreichem Lösen (z. B. SuccessBox-Anzeige): Streak hochzählen, Best
+    // tracken, Konfetti alle 3 Erfolge.
+    const onSuccessfulSolve = (incrementStreak = true) => {
+        if (!incrementStreak) return;
+        const newStreak = streak + 1;
+        setStreak(newStreak);
+        if (newStreak > bestStreak) setBestStreak(newStreak);
+        if (newStreak > 0 && newStreak % 3 === 0) triggerCelebration(setShowAnim);
+    };
+
+    // Wird in der TipBox aufgerufen, sobald die Lösung sichtbar gemacht wird.
+    const onSolutionShown = () => setStreak(0);
+
+    // Hilfsfunktion für StepCard-Trainer: vorrücken + Tipp-/Fehler-Zähler zurücksetzen.
+    const advanceStep = (setStep, nextStep) => {
+        setStep(nextStep);
+        setErrors(0);
+        setTipRevealed(false);
+    };
+
+    return {
+        streak, setStreak,
+        bestStreak,
+        errors, setErrors,
+        tipRevealed, setTipRevealed,
+        showAnim,
+        triggerError,
+        onSuccessfulSolve,
+        onSolutionShown,
+        advanceStep,
+    };
+}
+
+const triggerCelebration = (setShowAnim) => {
+    setShowAnim(true);
+    setTimeout(() => setShowAnim(false), 3500);
+};
+
+// Prüft eine Zahleneingabe einheitlich für alle Trainer. Neben der Toleranz tol gilt:
+// Ist das Ergebnis keine Dezimalzahl mit höchstens zwei Nachkommastellen (z. B. 1/3 oder
+// 23,333 %), zählt auch jede gerundete oder abgeschnittene Eingabe mit mindestens einer
+// Nachkommastelle — Schüler können kein Periodenzeichen tippen.
+// Beispiel −5/3: −1,7 / −1,67 / −1,66 / −1,667 sind richtig, −1,8 nicht.
+const numOk = (raw, v, correct, tol = 0.011) => {
+    if (isNaN(v)) return false;
+    if (Math.abs(v - correct) <= tol) return true;
+    if (Math.abs(correct * 100 - Math.round(correct * 100)) < 1e-7) return false;
+    const dec = String(raw === null || raw === undefined ? '' : raw).replace(/\s+/g, '').match(/^[+\-−–]?\d*[.,](\d+)$/);
+    if (!dec) return false;
+    const f = Math.pow(10, dec[1].length);
+    const sign = correct < 0 ? -1 : 1, a = Math.abs(correct) * f;
+    const rounded = sign * Math.round(a) / f, cut = sign * Math.floor(a + 1e-9) / f;
+    return Math.abs(v - rounded) <= 1e-9 || Math.abs(v - cut) <= 1e-9;
+};
+
+const formatNum = (num) => { if (num === null || num === undefined) return ""; return num.toString().replace('.', ','); };
+const fDe = (n) => String(n).replace('.', ',');
+// Normalisiert mathematische Eingaben für den Vergleich. Akzeptiert insbesondere
+// hochgestellte Unicode-Zahlen (² ³ ⁴ ⁵ ⁶), die Schüler mit AltGr+2 etc. tippen.
+const normalizeString = (str) => {
+    if (!str) return "";
+    return str.toString()
+        .toLowerCase()
+        .replace(/\s+/g, '')
+        .replace(/,/g, '.')
+        // Hochgestellte Unicode-Ziffern → ^N (vor weiteren Ersetzungen!)
+        .replace(/²/g, '^2')
+        .replace(/³/g, '^3')
+        .replace(/⁴/g, '^4')
+        .replace(/⁵/g, '^5')
+        .replace(/⁶/g, '^6')
+        // Variable+Ziffer ohne ^ → mit ^ (z.B. "x2" → "x^2")
+        .replace(/([a-z])2(?!\d)/g, '$1^2')
+        .replace(/([a-z])3(?!\d)/g, '$1^3')
+        .replace(/([a-z])4(?!\d)/g, '$1^4')
+        // Führende 1 vor Variable streichen ("1x" → "x")
+        .replace(/(^|[\+\-\=\(])1([a-z])/g, '$1$2');
+};
+const formatDe = (numStr) => numStr.toString().replace(/\./g, ',');
+const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+// Quellen-Badge für Prüfungsaufgaben: "MSA 2025 II/9" → "Angelehnt an MSA 2025 II/9".
+// Aufgaben, die mit "Angepasst" beginnen, bleiben unverändert. Urheberrechtlich relevant —
+// die Original-MSA-Aufgaben werden nicht 1:1 wiedergegeben, sondern dienen als Vorlage.
+const formatExamLabel = (label) => {
+    if (!label) return label;
+    if (label.startsWith('Angepasst')) return label;
+    return `Angelehnt an ${label}`;
+};
+
+const shuffleArray = (array) => {
+    const newArr = [...array];
+    for (let i = newArr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [newArr[i], newArr[j]] = [newArr[j], newArr[i]]; }
+    return newArr;
+};
+
+// Hilfsfunktion: fragt, ob zwei normalisierte Strings numerisch gleich sind.
+// Erlaubt z.B. "6.5" ~ "6.50", oder "1/2" ~ "0.5" (jedoch nicht "1/2" ~ "0,5", weil normalizeString Brüche nicht aufrechnet).
+const isNumericMatch = (a, b) => {
+    const na = parseFloat(a), nb = parseFloat(b);
+    return !isNaN(na) && !isNaN(nb) && Math.abs(na - nb) < 1e-6;
+};
+
+// Vergleicht eine Eingabe mit einer Sollstring (string-strict ODER numerisch tolerant).
+const checkValue = (input, expected) => {
+    const ni = normalizeString(input), ne = normalizeString(expected);
+    return ni === ne || isNumericMatch(ni, ne);
+};
+
+// Prüft, ob ein eingegebener Bruch t/b äquivalent zu einem Sollbruch top/bot ist.
+// Akzeptiert alle Kürzungen: 4/12 ≡ 2/6 ≡ 1/3. Sanity-Checks: b > 0, t/b im [0, 1]-Bereich.
+const isFractionEquivalent = (t, b, targetTop, targetBot) => {
+    const tNum = parseInt(t, 10);
+    const bNum = parseInt(b, 10);
+    if (!Number.isFinite(tNum) || !Number.isFinite(bNum)) return false;
+    if (bNum <= 0) return false;
+    if (tNum < 0) return false;
+    // Kreuzmultiplikation vermeidet Float-Ungenauigkeit komplett.
+    return tNum * targetBot === targetTop * bNum;
+};
+
+const checkMultiInput = (inputs, expectedArr) => {
+    const normInputs = inputs.map(normalizeString).filter(s => s !== "");
+    const normExpected = expectedArr.map(normalizeString);
+    if (normInputs.length !== normExpected.length) return false;
+    const remaining = [...normExpected];
+    for (let val of normInputs) {
+        let idx = remaining.indexOf(val);
+        if (idx === -1) {
+            // Numerischer Fallback (z.B. "6.5" vs "6.50", oder "0,5" vs "0.5" nach normalizeString).
+            idx = remaining.findIndex(r => isNumericMatch(val, r));
+        }
+        if (idx === -1) return false;
+        remaining.splice(idx, 1);
+    }
+    return true;
+};
+
+const formatTerm = (coef, isFirst=false, variable="") => {
+    if (coef === 0) return "";
+    let abs = Math.abs(coef); let sign = coef > 0 ? (isFirst ? "" : "+") : "-"; let val = (abs === 1 && variable !== "") ? variable : abs + variable;
+    return sign + val;
+};
+
+// Continued-Fraction-Approximation: Dezimal -> [Zähler, Nenner]. Liefert null, wenn nicht sinnvoll darstellbar.
+const decToFraction = (decimal, maxDenominator = 10000) => {
+    if (decimal === null || decimal === undefined) return null;
+    if (Number.isNaN(decimal) || !Number.isFinite(decimal)) return null;
+    if (Number.isInteger(decimal)) return [decimal, 1];
+    const tolerance = Math.max(Math.abs(decimal) * 1e-10, 1e-12);
+    const sign = decimal < 0 ? -1 : 1;
+    let x = Math.abs(decimal);
+    let h0 = 0, h1 = 1, k0 = 1, k1 = 0;
+    for (let i = 0; i < 50; i++) {
+        const a = Math.floor(x);
+        const h2 = a * h1 + h0;
+        const k2 = a * k1 + k0;
+        if (k2 > maxDenominator) break;
+        h0 = h1; h1 = h2;
+        k0 = k1; k1 = k2;
+        if (Math.abs(decimal - sign * h1 / k1) < tolerance) break;
+        const frac = x - a;
+        if (frac === 0) break;
+        x = 1 / frac;
+        if (!Number.isFinite(x)) break;
+    }
+    return [sign * h1, k1];
+};
+
+const VarWn = () => <span>W<sub>n</sub></span>;
+const VarW0 = () => <span>W<sub>0</sub></span>;
+const VarQ = () => <span>q</span>;
+const VarN = () => <span>n</span>;
+const VarQpowN = () => <span>q<sup>n</sup></span>;
+
+// ==========================================
+// 2. THEME
+// ==========================================
+const themeColors = {
+    emerald: { activeBorder: 'border-emerald-500', activeBg: 'bg-emerald-50', activeTitle: 'text-emerald-900', badgeBg: 'bg-emerald-600', shadow: 'shadow-emerald-100', btnBg: 'bg-emerald-600', btnHover: 'hover:bg-emerald-700' },
+    rose: { activeBorder: 'border-rose-400', activeBg: 'bg-rose-50', activeTitle: 'text-rose-900', badgeBg: 'bg-rose-500', shadow: 'shadow-rose-100', btnBg: 'bg-rose-500', btnHover: 'hover:bg-rose-600' },
+    amber: { activeBorder: 'border-amber-400', activeBg: 'bg-amber-50', activeTitle: 'text-amber-900', badgeBg: 'bg-amber-500', shadow: 'shadow-amber-100', btnBg: 'bg-amber-500', btnHover: 'hover:bg-amber-600' },
+    sky: { activeBorder: 'border-sky-400', activeBg: 'bg-sky-50', activeTitle: 'text-sky-900', badgeBg: 'bg-sky-500', shadow: 'shadow-sky-100', btnBg: 'bg-sky-500', btnHover: 'hover:bg-sky-600' },
+    violet: { activeBorder: 'border-violet-500', activeBg: 'bg-violet-50', activeTitle: 'text-violet-900', badgeBg: 'bg-violet-600', shadow: 'shadow-violet-100', btnBg: 'bg-violet-600', btnHover: 'hover:bg-violet-700' },
+    teal: { activeBorder: 'border-teal-500', activeBg: 'bg-teal-50', activeTitle: 'text-teal-900', badgeBg: 'bg-teal-600', shadow: 'shadow-teal-100', btnBg: 'bg-teal-600', btnHover: 'hover:bg-teal-700' },
+    cyan: { activeBorder: 'border-cyan-500', activeBg: 'bg-cyan-50', activeTitle: 'text-cyan-900', badgeBg: 'bg-cyan-600', shadow: 'shadow-cyan-100', btnBg: 'bg-cyan-600', btnHover: 'hover:bg-cyan-700' },
+    orange: { activeBorder: 'border-orange-500', activeBg: 'bg-orange-50', activeTitle: 'text-orange-900', badgeBg: 'bg-orange-600', shadow: 'shadow-orange-100', btnBg: 'bg-orange-600', btnHover: 'hover:bg-orange-700' },
+    indigo: { activeBorder: 'border-indigo-500', activeBg: 'bg-indigo-50', activeTitle: 'text-indigo-900', badgeBg: 'bg-indigo-600', shadow: 'shadow-indigo-100', btnBg: 'bg-indigo-600', btnHover: 'hover:bg-indigo-700' },
+    blue: { activeBorder: 'border-blue-500', activeBg: 'bg-blue-50', activeTitle: 'text-blue-900', badgeBg: 'bg-blue-600', shadow: 'shadow-blue-100', btnBg: 'bg-blue-600', btnHover: 'hover:bg-blue-700' },
+    fuchsia: { activeBorder: 'border-fuchsia-500', activeBg: 'bg-fuchsia-50', activeTitle: 'text-fuchsia-900', badgeBg: 'bg-fuchsia-600', shadow: 'shadow-fuchsia-100', btnBg: 'bg-fuchsia-600', btnHover: 'hover:bg-fuchsia-700' }
+};
+
+// ==========================================
+// 3. ICONS
+// ==========================================
+function IconBase({ path, className }) { return <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>{path}</svg>; }
+function Calculator({ className }) { return <IconBase className={className} path={<><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></>} />; }
+function CalculatorOff({ className }) { return <IconBase className={className} path={<><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/><line x1="2" y1="2" x2="22" y2="22"/></>} />; }
+function CheckCircle({ className }) { return <IconBase className={className} path={<><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></>} />; }
+function XCircle({ className }) { return <IconBase className={className} path={<><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></>} />; }
+function RefreshCw({ className }) { return <IconBase className={className} path={<><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></>} />; }
+function BookOpen({ className }) { return <IconBase className={className} path={<><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></>} />; }
+function TrendingUp({ className }) {
+    // Exponentiell steigende Kurve im angedeuteten Koordinatensystem.
+    // Achsen dünn (1.2) mit kleinen Pfeilspitzen oben + rechts, Kurve dünn (1.8)
+    // und mit eckigen Enden (kein Linecap "round"), damit der Graph präzise wirkt.
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinejoin="round" className={className}>
+            <line x1="3" y1="4" x2="3" y2="21" strokeWidth="1.2" />
+            <polygon points="3,1.5 1.5,5 4.5,5" fill="currentColor" stroke="none" />
+            <line x1="3" y1="21" x2="20" y2="21" strokeWidth="1.2" />
+            <polygon points="22.5,21 19,19.5 19,22.5" fill="currentColor" stroke="none" />
+            <path d="M 5 19 C 11 19, 15 16, 19.5 5.5" strokeWidth="1.8" strokeLinecap="butt" />
+        </svg>
+    );
+}
+function TrendingDown({ className }) {
+    // Exponentiell fallende Kurve im angedeuteten Koordinatensystem.
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinejoin="round" className={className}>
+            <line x1="3" y1="4" x2="3" y2="21" strokeWidth="1.2" />
+            <polygon points="3,1.5 1.5,5 4.5,5" fill="currentColor" stroke="none" />
+            <line x1="3" y1="21" x2="20" y2="21" strokeWidth="1.2" />
+            <polygon points="22.5,21 19,19.5 19,22.5" fill="currentColor" stroke="none" />
+            <path d="M 5 5.5 C 9 17, 14 19, 19.5 19" strokeWidth="1.8" strokeLinecap="butt" />
+        </svg>
+    );
+}
+function ArrowRight({ className }) { return <IconBase className={className} path={<><line x1="5" x2="19" y1="12" y2="12"/><polyline points="12 5 19 12 12 19"/></>} />; }
+function ChevronRight({ className }) { return <IconBase className={className} path={<><polyline points="9 18 15 12 9 6"/></>} />; }
+function HomeIcon({ className }) { return <IconBase className={className} path={<><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></>} />; }
+function MenuIcon({ className }) { return <IconBase className={className} path={<><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></>} />; }
+function Shield({ className }) { return <IconBase className={className} path={<><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></>} />; }
+function FileText({ className }) { return <IconBase className={className} path={<><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><polyline points="10 9 9 9 8 9"/></>} />; }
+function DeleteIcon({ className }) { return <IconBase className={className} path={<><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></>} />; }
+function HelpCircle({ className }) { return <IconBase className={className} path={<><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></>} />; }
+function FastForward({ className }) { return <IconBase className={className} path={<><polygon points="13 19 22 12 13 5 13 19"/><polygon points="2 19 11 12 2 5 2 19"/></>} />; }
+function Target({ className }) { return <IconBase className={className} path={<><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></>} />; }
+function DicesIcon({ className }) { return <IconBase className={className} path={<><rect width="12" height="12" x="2" y="10" rx="2" ry="2"/><path d="M17.92 14H20a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2h-8a2 2 0 0 0-2 2v2"/><circle cx="6" cy="14" r="1"/><circle cx="10" cy="18" r="1"/><circle cx="16" cy="8" r="1"/></>} />; }
+function Hash({ className }) { return <IconBase className={className} path={<><line x1="4" x2="20" y1="9" y2="9"/><line x1="4" x2="20" y1="15" y2="15"/><line x1="10" x2="8" y1="3" y2="21"/><line x1="16" x2="14" y1="3" y2="21"/></>} />; }
+// Einheitliche Text-Optik für die drei textbasierten Logos (Potenzen, Binom-
+// Formeln, Bruchgleichungen): system-ui sans-serif, fett (700). Vorbild ist die
+// hochgestellte 2 im BracketsIcon — gleiche Schriftart, harmonische Größen.
+const LOGO_TEXT_FONT = "system-ui, sans-serif";
+function SuperscriptIcon({ className }) {
+    // x mit hochgestellter 2 — eigenes SVG, weil IconBase kein <text> kann.
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" className={className}>
+            <text x="5" y="18" fontFamily={LOGO_TEXT_FONT} fontWeight="700" fontSize="14" fill="currentColor">x</text>
+            <text x="14" y="11" fontFamily={LOGO_TEXT_FONT} fontWeight="700" fontSize="10" fill="currentColor">2</text>
+        </svg>
+    );
+}
+function BracketsIcon({ className }) {
+    // Runde Klammern + hochgestellte 2 oben rechts (für "Binomische Formeln").
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+            <path d="M7 19s-3-2.5-3-7 3-7 3-7"/>
+            <path d="M13 5s3 2.5 3 7-3 7-3 7"/>
+            <text x="20.5" y="8" fill="currentColor" stroke="none" fontSize="10" fontWeight="700" textAnchor="middle" fontFamily={LOGO_TEXT_FONT}>2</text>
+        </svg>
+    );
+}
+function Sphere({ className }) {
+    // Kugel-Logo: Kreis mit Äquator-Ellipse (vorne durchgezogen, hinten gestrichelt).
+    // Großer Kreis (r=10.5 von viewBox 0-24) + dünne Striche, damit es kreisrund
+    // wirkt und nicht durch dicke Stroke-Linecaps "eiig" aussieht.
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="butt" strokeLinejoin="round" className={className}>
+            <circle cx="12" cy="12" r="10.5" />
+            <path d="M 1.5 12 A 10.5 2.9 0 0 0 22.5 12" strokeWidth="1.1" />
+            <path d="M 22.5 12 A 10.5 2.9 0 0 0 1.5 12" strokeDasharray="2,1.8" strokeWidth="0.9" />
+        </svg>
+    );
+}
+function FractionIcon({ className }) {
+    // Bruch 1 / (x − 1) — passend zu Bruchgleichungen.
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className}>
+            <line x1="3" x2="21" y1="12" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            <text x="12" y="10" textAnchor="middle" fontFamily={LOGO_TEXT_FONT} fontSize="10" fontWeight="700" fill="currentColor">1</text>
+            <text x="12" y="22" textAnchor="middle" fontFamily={LOGO_TEXT_FONT} fontSize="10" fontWeight="700" fill="currentColor">x−1</text>
+        </svg>
+    );
+}
+
+// ==========================================
+// 4. SHARED UI COMPONENTS
+// ==========================================
+const CelebrationOverlay = () => (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none">
+        <img src="Logo-sMArTH.png" className="w-[80vw] max-w-md drop-shadow-2xl animate-fly-logo bg-white/80 p-4 rounded-3xl backdrop-blur-sm" alt="Logo"
+             onError={(e)=>{e.target.style.display='none'}} />
+    </div>
+);
+
+const Frac = ({ top, bot }) => <span className="inline-flex flex-col items-center align-middle mx-1 px-1"><span className="border-b-[1.5px] border-current px-1 pb-0.5 w-full text-center leading-none">{top}</span><span className="px-1 pt-0.5 text-center leading-none">{bot}</span></span>;
+
+// Einheitlicher Trainer-Header. Auf Mobile (< sm) kompakt (p-3, kleinere Schrift +
+// Icons), auf Tablet/Desktop voll. Bg-Farbe und Streak-Pille richten sich nach Theme.
+const TrainerHeader = ({ theme, icon: Icon, title, streakIcon: StreakIcon, streak }) => {
+    const headerBg = {
+        emerald: 'bg-emerald-700', rose: 'bg-rose-600', amber: 'bg-amber-500', sky: 'bg-sky-500',
+        violet: 'bg-violet-600', teal: 'bg-teal-600', cyan: 'bg-cyan-600', orange: 'bg-orange-600',
+        indigo: 'bg-indigo-700', blue: 'bg-blue-700', fuchsia: 'bg-fuchsia-700'
+    }[theme] || 'bg-emerald-700';
+    const pillBg = {
+        emerald: 'bg-emerald-800', rose: 'bg-rose-700', amber: 'bg-amber-600', sky: 'bg-sky-600',
+        violet: 'bg-violet-700', teal: 'bg-teal-700', cyan: 'bg-cyan-700', orange: 'bg-orange-700',
+        indigo: 'bg-indigo-800', blue: 'bg-blue-800', fuchsia: 'bg-fuchsia-800'
+    }[theme] || 'bg-emerald-800';
+    return (
+        <header className={`${headerBg} shadow-md p-3 sm:p-6 rounded-xl mb-3 sm:mb-6`}>
+            <div className="flex flex-row items-center justify-between gap-2 sm:gap-4">
+                <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
+                    {Icon && <Icon className="w-6 h-6 sm:w-8 sm:h-8 shrink-0 text-white" />}
+                    <h1 className="text-base sm:text-2xl font-bold tracking-tight text-white truncate">
+                        {title}
+                        <span className="hidden sm:inline text-white/70 text-lg font-normal border-l-2 border-white/30 pl-2 ml-2">10. Klasse</span>
+                    </h1>
+                </div>
+                {streak !== null && <div className={`${pillBg} px-2.5 py-1 sm:px-4 sm:py-1.5 rounded-full text-xs sm:text-sm font-bold shadow-sm flex items-center shrink-0 text-white`}>
+                    {StreakIcon && <StreakIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2 text-white/80" />}
+                    Streak: {streak}
+                </div>}
+            </div>
+        </header>
+    );
+};
+
+const StepCard = ({ title, stepNum, currentStep, activeCondition, pastCondition, pastSummary, theme = 'amber', children }) => {
+    const isActive = activeCondition !== undefined ? activeCondition : currentStep === stepNum;
+    const isPast = pastCondition !== undefined ? pastCondition : currentStep > stepNum;
+    const t = themeColors[theme];
+    // Wenn pastSummary gesetzt ist und die Karte abgeschlossen ist, wird der Inhalt
+    // ausgeblendet und die Zusammenfassung direkt hinter dem Titel angezeigt — Karte
+    // schrumpft auf nur die Titelzeile. Spart Scrollweg, gerade in mehrstufigen Trainern.
+    const collapsedToTitle = isPast && pastSummary;
+
+    return (
+        <div className={`bg-white rounded-xl shadow-sm border-2 overflow-hidden transition-all duration-300 ${isActive ? `${t.activeBorder} ${t.shadow}` : isPast ? 'border-green-200' : 'border-slate-200 opacity-50'}`}>
+            <div className={`px-5 py-3 border-b flex items-center flex-wrap gap-x-2 ${isActive ? `${t.activeBg} border-opacity-50` : isPast ? 'bg-green-50 border-green-100' : 'bg-slate-50 border-slate-200'}`}>
+                {isPast ? <CheckCircle className="text-green-500 mr-3 w-6 h-6 shrink-0" /> : <div className={`w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold mr-3 shrink-0 ${isActive ? `${t.badgeBg} text-white` : 'bg-slate-300 text-slate-500'}`}>{stepNum}</div>}
+                <h3 className={`font-bold text-lg ${isActive ? t.activeTitle : isPast ? 'text-green-900' : 'text-slate-500'}`}>
+                    {title}{collapsedToTitle && <span>: <span className="font-bold">{pastSummary}</span></span>}
+                </h3>
+            </div>
+            <div className={`p-5 ${(!isActive && !isPast) || collapsedToTitle ? 'hidden' : ''}`}>{children}</div>
+        </div>
+    );
+};
+
+const SubmitBtn = ({ onClick, theme = 'amber', disabled = false }) => {
+    const t = themeColors[theme];
+    return <button onClick={onClick} disabled={disabled} className={`${disabled ? 'bg-slate-300 cursor-not-allowed' : `${t.btnBg} ${t.btnHover}`} text-white p-2.5 rounded shadow flex items-center transition-colors`} title="Überprüfen"><ArrowRight className="w-5 h-5" /></button>;
+};
+
+const SuccessMark = ({ text, className = "mt-4" }) => (
+    <div className={`${className} text-green-700 font-medium flex items-center bg-green-50 px-3 py-2 rounded-lg border border-green-100 inline-flex`}><CheckCircle className="w-5 h-5 mr-2 text-green-600 shrink-0" /> {text}</div>
+);
+
+// Erscheint nach 2 Fehleingaben. Bietet einen Tipp-Button und (wenn solutionText
+// gegeben) zusätzlich einen "Lösung anzeigen"-Button. Der Lösungs-Button füllt
+// nichts automatisch aus, sondern blendet die Lösung als Text ein — der Schüler
+// muss sie selbst eintippen. onSolutionShown wird genau einmal beim ersten Klick
+// aufgerufen (z.B. zum Zurücksetzen des Streaks).
+const TipBox = ({ errors, revealed, setRevealed, text, solutionText, onSolutionShown }) => {
+    const [solRevealed, setSolRevealed] = useState(false);
+    // Bei Schritt-Wechsel (errors === 0) zurücksetzen — Lösung gehört zur aktuellen Eingabe.
+    useEffect(() => { if (errors === 0) setSolRevealed(false); }, [errors]);
+
+    if (errors < 2) return null;
+
+    const handleShowSolution = () => {
+        setSolRevealed(true);
+        if (onSolutionShown) onSolutionShown();
+    };
+
+    const solBtn = (solutionText && !solRevealed) ? (
+        <button onClick={handleShowSolution} className="text-rose-700 bg-rose-50 hover:bg-rose-100 px-4 py-2 rounded-lg font-medium flex items-center transition-colors border border-rose-200">
+            <BookOpen className="w-5 h-5 mr-2" /> Lösung anzeigen
+        </button>
+    ) : null;
+
+    const solBox = (solRevealed && solutionText) ? (
+        <div className="mt-3 bg-rose-50 border-l-4 border-rose-500 p-4 rounded shadow-sm text-rose-900 text-sm animate-fade-in flex">
+            <BookOpen className="w-6 h-6 mr-3 shrink-0 text-rose-600" />
+            <div><strong className="block mb-1 text-rose-800">Lösung:</strong> <span className="break-words">{solutionText}</span></div>
+        </div>
+    ) : null;
+
+    if (!revealed) {
+        return (
+            <div className="mt-4 animate-fade-in">
+                <div className="flex flex-wrap gap-2">
+                    <button onClick={() => setRevealed(true)} className="text-amber-700 bg-amber-50 hover:bg-amber-100 px-4 py-2 rounded-lg font-medium flex items-center transition-colors border border-amber-200">
+                        <HelpCircle className="w-5 h-5 mr-2" /> Hier gibt es einen Tipp
+                    </button>
+                    {solBtn}
+                </div>
+                {solBox}
+            </div>
+        );
+    }
+    return (
+        <div className="mt-4 animate-fade-in">
+            <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded shadow-sm text-amber-900 text-sm flex">
+                <HelpCircle className="w-6 h-6 mr-3 shrink-0 text-amber-600" />
+                <div><strong className="block mb-1 text-amber-800">Tipp:</strong> {text}</div>
+            </div>
+            {solBtn && <div className="mt-2">{solBtn}</div>}
+            {solBox}
+        </div>
+    );
+};
+
+// onSubmit (optional): wird bei Drücken von Enter im Eingabefeld aufgerufen — so
+// können Schüler:innen über die Tastatur prüfen, ohne den SubmitBtn anzuklicken.
+const enterToSubmit = (onSubmit) => (e) => { if (e.key === 'Enter' && onSubmit) { e.preventDefault(); onSubmit(); } };
+
+const FormulaInput = ({ id, label, value, isUnknown, status, disabled, onChange, onSubmit, theme = "emerald" }) => {
+    const isRose = theme === 'rose'; const isEmerald = theme === 'emerald';
+    return (
+        <div className="flex flex-col items-center">
+            <div className="mb-1 text-slate-500 font-serif italic text-lg">{label}</div>
+            {isUnknown ? (
+                <div className={`w-20 md:w-24 h-12 rounded-lg border-2 flex items-center justify-center font-bold select-none shadow-sm ${isRose ? 'border-rose-300 bg-rose-50 text-rose-400' : isEmerald ? 'border-emerald-300 bg-emerald-50 text-emerald-400' : 'border-amber-300 bg-amber-50 text-amber-400'}`}>?</div>
+            ) : (
+                <div className="relative">
+                    <input type="text" value={value} disabled={disabled} onChange={(e) => onChange(id, e.target.value)} onKeyDown={enterToSubmit(onSubmit)} className={`w-20 md:w-24 h-12 text-center rounded-lg border-2 text-lg outline-none transition-colors shadow-sm ${status === 'correct' ? 'border-green-500 bg-green-50 text-green-900 font-bold' : status === 'incorrect' ? 'border-red-400 bg-red-50' : `border-slate-300 focus:border-${theme}-500 focus:ring-2 focus:ring-${theme}-200`}`} placeholder="..." />
+                    {status === 'correct' && <CheckCircle className="w-5 h-5 text-green-600 absolute -top-2 -right-2 bg-white rounded-full shadow-sm" />}
+                </div>
+            )}
+        </div>
+    );
+};
+
+const MiniFormulaInput = ({ id, value, isUnknown, status, disabled, onChange, onSubmit }) => {
+    if (isUnknown) return <div className="w-12 h-8 rounded border-2 flex items-center justify-center font-bold select-none border-rose-300 bg-rose-50 text-rose-400 text-sm">?</div>;
+    return (
+        <div className="relative">
+            <input type="text" value={value} disabled={disabled} onChange={(e) => onChange(id, e.target.value)} onKeyDown={enterToSubmit(onSubmit)} className={`w-12 h-8 text-center rounded border-2 text-sm outline-none transition-colors shadow-sm ${status === 'correct' ? 'border-green-500 bg-green-50 text-green-900 font-bold' : status === 'incorrect' ? 'border-red-400 bg-red-50' : `border-slate-300 focus:border-rose-500`}`} placeholder="..." />
+            {status === 'correct' && <CheckCircle className="w-3 h-3 text-green-600 absolute -top-1 -right-1 bg-white rounded-full" />}
+        </div>
+    );
+};
+
+const FractionInputInteraktiv = ({ idTop, idBot, valTop, valBot, onChange, onSubmit, disabled, statusTop, statusBot, theme, htmlIdPrefix, active }) => {
+    const getBorderClass = (status) => {
+        if (status === 'correct') return 'border-green-500 bg-green-50 text-green-900 font-bold';
+        if (status === 'incorrect') return 'border-red-400 bg-red-50 text-red-900';
+        return `border-slate-300 focus:border-${theme}-500 focus:ring-1 focus:ring-${theme}-200`;
+    };
+    // htmlIdPrefix erlaubt es, die Inputs gezielt per document.getElementById(...) zu
+    // fokussieren (z.B. wenn der Schüler im Baumdiagramm-MiniInput tippt und der
+    // Cursor stattdessen in das große Mobile-Eingabefeld unten springen soll).
+    const topId = htmlIdPrefix ? `${htmlIdPrefix}-${idTop}` : undefined;
+    const botId = htmlIdPrefix ? `${htmlIdPrefix}-${idBot}` : undefined;
+    // active=true → pulsierende gelb-orange Umrandung um den ganzen Bruch.
+    // Damit der Glow nicht durch das w-16 ausgeschnitten wird, sitzt er auf einem
+    // Padding-Wrapper, der ein bisschen mehr Platz hat.
+    const wrapperClass = `flex flex-col items-center justify-center w-16 relative ${active ? 'animate-glow-amber p-1' : ''}`;
+    return (
+        <div className={wrapperClass}>
+            <input id={topId} type="text" className={`w-14 h-10 text-center text-lg transition-colors border-2 rounded-t outline-none ${getBorderClass(statusTop)}`} value={valTop} onChange={e => onChange(idTop, e.target.value)} onKeyDown={enterToSubmit(onSubmit)} disabled={disabled} />
+            <div className="w-16 h-0.5 bg-slate-800 my-1"></div>
+            <input id={botId} type="text" className={`w-14 h-10 text-center text-lg transition-colors border-2 rounded-b outline-none ${getBorderClass(statusBot)}`} value={valBot} onChange={e => onChange(idBot, e.target.value)} onKeyDown={enterToSubmit(onSubmit)} disabled={disabled} />
+            {statusTop === 'correct' && statusBot === 'correct' && <CheckCircle className="w-5 h-5 text-green-600 absolute -right-6 top-1/2 -translate-y-1/2" />}
+        </div>
+    );
+};
+
+// Kompakte Variante für das interaktive Baumdiagramm (Wahrscheinlichkeits-Trainer).
+// Schmäler als das normale FractionInput, damit im Baumdiagramm zwischen den Pfaden
+// genug Luft bleibt: Container w-10 statt w-12, Eingaben w-9 statt w-10.
+const MiniFractionInput = ({ idTop, idBot, valTop, valBot, onChange, onSubmit, disabled, statusTop, statusBot, theme, active }) => {
+    const getBorderClass = (status) => {
+        if (status === 'correct') return 'border-green-500 bg-green-50 text-green-900 font-bold';
+        if (status === 'incorrect') return 'border-red-400 bg-red-50 text-red-900';
+        return `border-slate-300 focus:border-${theme}-500 focus:ring-1 focus:ring-${theme}-200`;
+    };
+    // active=true → pulsierende gelb-orange Umrandung um den Bruch (Hinweis "hier tippen!").
+    const containerClass = `flex flex-col items-center justify-center w-10 relative bg-white/95 backdrop-blur-sm rounded-lg shadow-md p-0.5 border border-slate-200 ${active ? 'animate-glow-amber' : ''}`;
+    return (
+        <div className={containerClass}>
+            <input type="text" className={`w-9 h-7 text-center text-sm transition-colors border-2 rounded-t outline-none ${getBorderClass(statusTop)}`} value={valTop} onChange={e => onChange(idTop, e.target.value)} onKeyDown={enterToSubmit(onSubmit)} disabled={disabled} />
+            <div className="w-9 h-0.5 bg-slate-800 my-0.5"></div>
+            <input type="text" className={`w-9 h-7 text-center text-sm transition-colors border-2 rounded-b outline-none ${getBorderClass(statusBot)}`} value={valBot} onChange={e => onChange(idBot, e.target.value)} onKeyDown={enterToSubmit(onSubmit)} disabled={disabled} />
+            {statusTop === 'correct' && statusBot === 'correct' && <CheckCircle className="w-4 h-4 text-green-600 absolute -right-3 top-1/2 -translate-y-1/2 bg-white rounded-full shadow-sm z-10" />}
+        </div>
+    );
+};
+
+const DifficultyMenu = ({ options, active, onChange, theme = 'emerald' }) => {
+    const t = themeColors[theme] || themeColors.emerald;
+    return (
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6 bg-white p-3 rounded-xl shadow-sm border border-slate-200">
+            <span className="font-bold text-slate-700 inline-flex items-center gap-2">
+                Neue Aufgabe generieren
+                <ArrowRight className={`w-5 h-5 ${t.activeTitle}`} />
+            </span>
+            <div className="flex gap-2 flex-wrap justify-center">
+                {options.map(opt => (
+                    <button key={opt.id} onClick={() => onChange(opt.id)}
+                        title={active === opt.id ? 'Neue Aufgabe in dieser Kategorie' : `Auf ${opt.label} wechseln`}
+                        className={`px-4 py-2 font-bold rounded-lg shadow-sm transition-colors ${active === opt.id ? `${t.btnBg} text-white` : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'}`}>
+                        {opt.label}
+                    </button>
+                ))}
+            </div>
+        </div>
+    );
+};
+
+// ==========================================
+// 4b. WISSENSCHAFTLICHER TASCHENRECHNER
+// ==========================================
+
+// Rendert ein berechnetes Ergebnis: Standard als Dezimal mit deutscher Komma-Notation,
+// optional als Bruch (Continued-Fraction-Approximation) wenn der Toggle aktiv ist.
+const CalcResult = ({ value, asFraction }) => {
+    if (value === null || value === undefined) return <span>{' '}</span>;
+    if (asFraction) {
+        const f = decToFraction(value);
+        if (f && f[1] > 1 && Math.abs(f[0]) < 1e10) {
+            return <Frac top={f[0]} bot={f[1]} />;
+        }
+    }
+    let s;
+    if (Math.abs(value) >= 1e15 || (Math.abs(value) < 1e-6 && value !== 0)) {
+        s = value.toExponential(6);
+    } else {
+        s = String(Math.round(value * 1e10) / 1e10);
+    }
+    return <span>{s.replace('.', ',')}</span>;
+};
+
+// ==========================================
+// 4b.2 MATH-TREE — Datenmodell für strukturelle Eingabe
+// ==========================================
+// Statt einer flachen Text-Eingabe baut der Rechner einen Baum auf: Bruch, Wurzel
+// und Exponent sind echte Boxen mit eigenen Sub-Sequenzen. Der Cursor wandert per
+// Pfad durch die Hierarchie und kann mitten in den Nenner / Radikand / Index
+// springen. Damit lassen sich Ausdrücke wie ³√(3·V/(4·π)) ohne Klammer-Zwang im
+// Nenner eintippen.
+
+const MT = {
+    seq:   (kids = []) => ({ type: 'seq', kids }),
+    ch:    (c) => ({ type: 'ch', c }),
+    sym:   (s) => ({ type: 'sym', s }),
+    fn:    (name) => ({ type: 'fn', name, body: MT.seq() }),
+    log:   () => ({ type: 'log', base: MT.seq(), arg: MT.seq() }),
+    frac:  (num, den) => ({ type: 'frac', num: num || MT.seq(), den: den || MT.seq() }),
+    sqrt:  (rad, idx) => ({ type: 'sqrt', idx: idx || null, rad: rad || MT.seq() }),
+    sup:   (base) => ({ type: 'sup', base, exp: MT.seq() }),
+    paren: (body) => ({ type: 'paren', body: body || MT.seq() })
+};
+
+// Pfad-Helfer (immutable): seq an Pfad lesen / ersetzen.
+const mtGetSeq = (root, path) => {
+    let cur = root;
+    for (const seg of path) cur = (typeof seg === 'number') ? cur.kids[seg] : cur[seg];
+    return cur;
+};
+const mtReplaceSeq = (root, path, newSeq) => {
+    if (path.length === 0) return newSeq;
+    const cloneSeq = (s) => ({ ...s, kids: [...s.kids] });
+    const newRoot = cloneSeq(root);
+    let cur = newRoot;
+    for (let i = 0; i < path.length - 1; i++) {
+        const seg = path[i];
+        if (typeof seg === 'number') {
+            cur.kids[seg] = { ...cur.kids[seg] };
+            cur = cur.kids[seg];
+        } else {
+            cur[seg] = cloneSeq(cur[seg]);
+            cur = cur[seg];
+        }
+    }
+    const last = path[path.length - 1];
+    if (typeof last === 'number') cur.kids[last] = newSeq;
+    else cur[last] = newSeq;
+    return newRoot;
+};
+
+const mtInsertKid = (root, cursor, kid) => {
+    const seq = mtGetSeq(root, cursor.path);
+    const newKids = [...seq.kids];
+    newKids.splice(cursor.pos, 0, kid);
+    return {
+        root: mtReplaceSeq(root, cursor.path, { type: 'seq', kids: newKids }),
+        cursor: { path: cursor.path, pos: cursor.pos + 1 }
+    };
+};
+
+const isNumLikeCh = (n) => n && n.type === 'ch' && /^[0-9,]+$/.test(n.c);
+const isOpCh = (n) => n && n.type === 'ch' && /^[+\-×÷=]$/.test(n.c);
+
+// Zeichen einfügen — Ziffern und Komma werden an den vorherigen "Zahl-ch" gehängt,
+// sodass eine mehrstellige Zahl als EIN Knoten gespeichert wird.
+const mtInsertChar = (root, cursor, c) => {
+    const seq = mtGetSeq(root, cursor.path);
+    const isDigit = /[0-9,]/.test(c);
+    if (isDigit && cursor.pos > 0 && isNumLikeCh(seq.kids[cursor.pos - 1])) {
+        const prev = seq.kids[cursor.pos - 1];
+        const newKids = [...seq.kids];
+        newKids[cursor.pos - 1] = { type: 'ch', c: prev.c + c };
+        return { root: mtReplaceSeq(root, cursor.path, { type: 'seq', kids: newKids }), cursor };
+    }
+    return mtInsertKid(root, cursor, MT.ch(c));
+};
+
+const wrappable = (n) => n && !isOpCh(n) && ['ch','sym','paren','frac','sqrt','sup','fn','log'].includes(n.type);
+
+// a/b-Taste: vorheriges Element wird Zähler; Cursor in Nenner. Ohne Vorgänger → leerer Bruch.
+const mtInsertFrac = (root, cursor) => {
+    const seq = mtGetSeq(root, cursor.path);
+    if (cursor.pos > 0 && wrappable(seq.kids[cursor.pos - 1])) {
+        const prev = seq.kids[cursor.pos - 1];
+        const newKids = [...seq.kids];
+        newKids.splice(cursor.pos - 1, 1, MT.frac(MT.seq([prev]), MT.seq()));
+        return {
+            root: mtReplaceSeq(root, cursor.path, { type: 'seq', kids: newKids }),
+            cursor: { path: [...cursor.path, cursor.pos - 1, 'den'], pos: 0 }
+        };
+    }
+    const r = mtInsertKid(root, cursor, MT.frac());
+    return { root: r.root, cursor: { path: [...cursor.path, cursor.pos, 'num'], pos: 0 } };
+};
+
+const mtInsertSqrt = (root, cursor, withIdx = false) => {
+    const sq = MT.sqrt(MT.seq(), withIdx ? MT.seq() : null);
+    const r = mtInsertKid(root, cursor, sq);
+    return { root: r.root, cursor: { path: [...cursor.path, cursor.pos, withIdx ? 'idx' : 'rad'], pos: 0 } };
+};
+
+const mtInsertSup = (root, cursor) => {
+    const seq = mtGetSeq(root, cursor.path);
+    if (cursor.pos > 0 && wrappable(seq.kids[cursor.pos - 1])) {
+        const prev = seq.kids[cursor.pos - 1];
+        const newKids = [...seq.kids];
+        newKids.splice(cursor.pos - 1, 1, MT.sup(prev));
+        return {
+            root: mtReplaceSeq(root, cursor.path, { type: 'seq', kids: newKids }),
+            cursor: { path: [...cursor.path, cursor.pos - 1, 'exp'], pos: 0 }
+        };
+    }
+    return { root, cursor };
+};
+
+const mtInsertSquare = (root, cursor) => {
+    const r1 = mtInsertSup(root, cursor);
+    if (r1.cursor === cursor) return r1;
+    const r2 = mtInsertChar(r1.root, r1.cursor, '2');
+    return { root: r2.root, cursor: mtMoveRight(r2.root, r2.cursor) };
+};
+
+const mtInsertParen = (root, cursor) => {
+    const r = mtInsertKid(root, cursor, MT.paren());
+    return { root: r.root, cursor: { path: [...cursor.path, cursor.pos, 'body'], pos: 0 } };
+};
+
+const mtInsertFn = (root, cursor, name) => {
+    const r = mtInsertKid(root, cursor, MT.fn(name));
+    return { root: r.root, cursor: { path: [...cursor.path, cursor.pos, 'body'], pos: 0 } };
+};
+
+const mtInsertLog = (root, cursor) => {
+    const r = mtInsertKid(root, cursor, MT.log());
+    return { root: r.root, cursor: { path: [...cursor.path, cursor.pos, 'base'], pos: 0 } };
+};
+
+const mtInsertSym = (root, cursor, s) => mtInsertKid(root, cursor, MT.sym(s));
+
+const mtBackspace = (root, cursor) => {
+    if (cursor.pos > 0) {
+        const seq = mtGetSeq(root, cursor.path);
+        const prev = seq.kids[cursor.pos - 1];
+        // Multi-Char-Zahl: nur das letzte Zeichen entfernen
+        if (isNumLikeCh(prev) && prev.c.length > 1) {
+            const newKids = [...seq.kids];
+            newKids[cursor.pos - 1] = { type: 'ch', c: prev.c.slice(0, -1) };
+            return { root: mtReplaceSeq(root, cursor.path, { type: 'seq', kids: newKids }), cursor };
+        }
+        const newKids = [...seq.kids];
+        newKids.splice(cursor.pos - 1, 1);
+        return {
+            root: mtReplaceSeq(root, cursor.path, { type: 'seq', kids: newKids }),
+            cursor: { path: cursor.path, pos: cursor.pos - 1 }
+        };
+    }
+    // Cursor am Anfang einer Sub-Seq → aus der Struktur raus zur Position davor
+    if (cursor.path.length === 0) return { root, cursor };
+    const structIdx = cursor.path[cursor.path.length - 2];
+    const grandPath = cursor.path.slice(0, -2);
+    return { root, cursor: { path: grandPath, pos: structIdx } };
+};
+
+// Navigation: Bei Vorrücken in Struktur-Knoten einsteigen; bei Sub-Seq-Ende zum
+// nächsten Feld des Eltern-Strukturknotens oder ganz aus der Struktur raus.
+const mtMoveRight = (root, cursor) => {
+    const seq = mtGetSeq(root, cursor.path);
+    if (cursor.pos < seq.kids.length) {
+        const next = seq.kids[cursor.pos];
+        if (next.type === 'frac')  return { path: [...cursor.path, cursor.pos, 'num'], pos: 0 };
+        if (next.type === 'sqrt' && next.idx) return { path: [...cursor.path, cursor.pos, 'idx'], pos: 0 };
+        if (next.type === 'sqrt')  return { path: [...cursor.path, cursor.pos, 'rad'], pos: 0 };
+        if (next.type === 'paren') return { path: [...cursor.path, cursor.pos, 'body'], pos: 0 };
+        if (next.type === 'fn')    return { path: [...cursor.path, cursor.pos, 'body'], pos: 0 };
+        if (next.type === 'log')   return { path: [...cursor.path, cursor.pos, 'base'], pos: 0 };
+        if (next.type === 'sup')   return { path: [...cursor.path, cursor.pos, 'exp'], pos: 0 };
+        return { path: cursor.path, pos: cursor.pos + 1 };
+    }
+    if (cursor.path.length === 0) return cursor;
+    const field = cursor.path[cursor.path.length - 1];
+    const structIdx = cursor.path[cursor.path.length - 2];
+    const grandPath = cursor.path.slice(0, -2);
+    const struct = mtGetSeq(root, grandPath).kids[structIdx];
+    if (struct.type === 'frac' && field === 'num') return { path: [...grandPath, structIdx, 'den'], pos: 0 };
+    if (struct.type === 'sqrt' && field === 'idx') return { path: [...grandPath, structIdx, 'rad'], pos: 0 };
+    if (struct.type === 'log'  && field === 'base')return { path: [...grandPath, structIdx, 'arg'], pos: 0 };
+    return { path: grandPath, pos: structIdx + 1 };
+};
+
+const mtMoveLeft = (root, cursor) => {
+    if (cursor.pos > 0) {
+        const seq = mtGetSeq(root, cursor.path);
+        const prev = seq.kids[cursor.pos - 1];
+        if (prev.type === 'frac')  return { path: [...cursor.path, cursor.pos - 1, 'den'], pos: prev.den.kids.length };
+        if (prev.type === 'sqrt')  return { path: [...cursor.path, cursor.pos - 1, 'rad'], pos: prev.rad.kids.length };
+        if (prev.type === 'paren') return { path: [...cursor.path, cursor.pos - 1, 'body'], pos: prev.body.kids.length };
+        if (prev.type === 'fn')    return { path: [...cursor.path, cursor.pos - 1, 'body'], pos: prev.body.kids.length };
+        if (prev.type === 'log')   return { path: [...cursor.path, cursor.pos - 1, 'arg'], pos: prev.arg.kids.length };
+        if (prev.type === 'sup')   return { path: [...cursor.path, cursor.pos - 1, 'exp'], pos: prev.exp.kids.length };
+        return { path: cursor.path, pos: cursor.pos - 1 };
+    }
+    if (cursor.path.length === 0) return cursor;
+    const field = cursor.path[cursor.path.length - 1];
+    const structIdx = cursor.path[cursor.path.length - 2];
+    const grandPath = cursor.path.slice(0, -2);
+    const struct = mtGetSeq(root, grandPath).kids[structIdx];
+    if (struct.type === 'frac' && field === 'den') return { path: [...grandPath, structIdx, 'num'], pos: struct.num.kids.length };
+    if (struct.type === 'sqrt' && field === 'rad' && struct.idx) return { path: [...grandPath, structIdx, 'idx'], pos: struct.idx.kids.length };
+    if (struct.type === 'log'  && field === 'arg') return { path: [...grandPath, structIdx, 'base'], pos: struct.base.kids.length };
+    return { path: grandPath, pos: structIdx };
+};
+
+// ===== Render (Display) =====
+const mtPathsEq = (a, b) => {
+    if (a.length !== b.length) return false;
+    for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
+    return true;
+};
+const mtCursorMark = (key) => (
+    <span key={key} className="inline-block w-[2px] h-[1.05em] bg-amber-300 animate-pulse align-middle mx-[1px]" aria-hidden="true" />
+);
+const mtEmptySlot = (key) => (
+    <span key={key} className="inline-block w-[0.8em] h-[1.05em] border border-dashed border-slate-500 rounded mx-[1px] align-middle" aria-hidden="true" />
+);
+
+// Click-to-Position: jeder Kid eines seq und jede leere Sub-Seq sind klickbar.
+// onCursorMove({path, pos}) → setzt den Cursor an die geklickte Stelle.
+// Konvention: Klick auf ein Atom → Cursor RECHTS davon; Klick auf Whitespace einer
+// Sub-Seq (nicht auf ein Kid) → Cursor ans ENDE der Sub-Seq; Klick auf leeren Slot → pos 0.
+
+const MtRenderSeq = ({ seq, path, cursor, onCursorMove }) => {
+    const hasCursor = cursor && mtPathsEq(cursor.path, path);
+    const clickEnd = onCursorMove ? (e) => {
+        // Nur reagieren, wenn der Klick wirklich auf dem Wrapper landete
+        // (nicht auf einem Kid, das schon stopPropagation gemacht hat).
+        if (e.target === e.currentTarget) {
+            e.stopPropagation();
+            onCursorMove({ path, pos: seq.kids.length });
+        }
+    } : undefined;
+    if (seq.kids.length === 0) {
+        const clickEmpty = onCursorMove ? (e) => { e.stopPropagation(); onCursorMove({ path, pos: 0 }); } : undefined;
+        return (
+            <span className={onCursorMove ? 'cursor-text' : ''} onClick={clickEmpty}>
+                {hasCursor ? mtCursorMark('c') : mtEmptySlot('e')}
+            </span>
+        );
+    }
+    const parts = [];
+    seq.kids.forEach((kid, i) => {
+        if (hasCursor && cursor.pos === i) parts.push(mtCursorMark(`c${i}`));
+        const clickAfter = onCursorMove ? (e) => { e.stopPropagation(); onCursorMove({ path, pos: i + 1 }); } : undefined;
+        parts.push(
+            <span key={`k${i}`} className={onCursorMove ? 'cursor-text' : ''} onClick={clickAfter}>
+                <MtRenderNode node={kid} path={[...path, i]} cursor={cursor} onCursorMove={onCursorMove} />
+            </span>
+        );
+    });
+    if (hasCursor && cursor.pos === seq.kids.length) parts.push(mtCursorMark('cE'));
+    return (
+        <span className={`inline-flex items-center ${onCursorMove ? 'cursor-text' : ''}`} onClick={clickEnd}>
+            {parts}
+        </span>
+    );
+};
+
+const MtRenderNode = ({ node, path, cursor, onCursorMove }) => {
+    if (node.type === 'ch') {
+        const c = node.c;
+        if (/^[+\-×÷=]$/.test(c)) return <span className="mx-1">{c}</span>;
+        return <span>{c}</span>;
+    }
+    if (node.type === 'sym') return <span className="mx-[1px]">{node.s}</span>;
+    if (node.type === 'frac') {
+        return (
+            <span className="inline-flex flex-col items-center mx-1 align-middle text-[0.85em] leading-tight">
+                <span className="border-b-2 border-current px-1 pb-0.5 min-w-[1em] text-center">
+                    <MtRenderSeq seq={node.num} path={[...path, 'num']} cursor={cursor} onCursorMove={onCursorMove} />
+                </span>
+                <span className="px-1 pt-0.5 min-w-[1em] text-center">
+                    <MtRenderSeq seq={node.den} path={[...path, 'den']} cursor={cursor} onCursorMove={onCursorMove} />
+                </span>
+            </span>
+        );
+    }
+    if (node.type === 'sqrt') {
+        return (
+            <span className="inline-flex items-end mx-0.5 align-middle">
+                {node.idx && (
+                    <span className="text-[0.6em] self-start mr-[-3px] mt-[-2px]">
+                        <MtRenderSeq seq={node.idx} path={[...path, 'idx']} cursor={cursor} onCursorMove={onCursorMove} />
+                    </span>
+                )}
+                <span className="text-[1.6em] leading-none">√</span>
+                <span className="border-t-2 border-current pt-0.5 px-1 min-w-[1em] self-center">
+                    <MtRenderSeq seq={node.rad} path={[...path, 'rad']} cursor={cursor} onCursorMove={onCursorMove} />
+                </span>
+            </span>
+        );
+    }
+    if (node.type === 'sup') {
+        return (
+            <span className="inline-flex items-start">
+                <MtRenderNode node={node.base} path={[...path, 'base']} cursor={cursor} onCursorMove={onCursorMove} />
+                <sup className="text-[0.7em] ml-[1px]">
+                    <MtRenderSeq seq={node.exp} path={[...path, 'exp']} cursor={cursor} onCursorMove={onCursorMove} />
+                </sup>
+            </span>
+        );
+    }
+    if (node.type === 'paren') {
+        return (
+            <span className="inline-flex items-center mx-0.5">
+                <span>(</span>
+                <MtRenderSeq seq={node.body} path={[...path, 'body']} cursor={cursor} onCursorMove={onCursorMove} />
+                <span>)</span>
+            </span>
+        );
+    }
+    if (node.type === 'fn') {
+        return (
+            <span className="inline-flex items-center mx-0.5">
+                <span>{node.name}(</span>
+                <MtRenderSeq seq={node.body} path={[...path, 'body']} cursor={cursor} onCursorMove={onCursorMove} />
+                <span>)</span>
+            </span>
+        );
+    }
+    if (node.type === 'log') {
+        return (
+            <span className="inline-flex items-end mx-0.5">
+                <span>log</span>
+                <sub className="text-[0.7em] ml-[1px]">
+                    <MtRenderSeq seq={node.base} path={[...path, 'base']} cursor={cursor} onCursorMove={onCursorMove} />
+                </sub>
+                <span className="ml-0.5">(</span>
+                <MtRenderSeq seq={node.arg} path={[...path, 'arg']} cursor={cursor} onCursorMove={onCursorMove} />
+                <span>)</span>
+            </span>
+        );
+    }
+    return null;
+};
+
+// ===== Evaluator: Baum → JS-Ausdruck =====
+const mtToJS = (node) => {
+    if (node.type === 'seq') {
+        if (node.kids.length === 0) return '(0)';
+        return node.kids.map(mtToJS).join('');
+    }
+    if (node.type === 'ch') {
+        const c = node.c;
+        if (c === '×') return '*';
+        if (c === '÷') return '/';
+        if (c === '−') return '-';
+        // Multi-Char-Zahlen können Kommas enthalten ("17,4") — alle ersetzen, sonst
+        // interpretiert JS das Komma als sequence-operator und wirft mit dem letzten Wert weiter.
+        return c.replace(/,/g, '.');
+    }
+    if (node.type === 'sym') {
+        if (node.s === 'π') return '(Math.PI)';
+        if (node.s === 'e') return '(Math.E)';
+        return node.s;
+    }
+    if (node.type === 'frac') return `((${mtToJS(node.num)})/(${mtToJS(node.den)}))`;
+    if (node.type === 'sqrt') {
+        if (node.idx) return `(Math.pow((${mtToJS(node.rad)}),(1/(${mtToJS(node.idx)}))))`;
+        return `Math.sqrt(${mtToJS(node.rad)})`;
+    }
+    if (node.type === 'sup') return `(Math.pow((${mtToJS(node.base)}),(${mtToJS(node.exp)})))`;
+    if (node.type === 'paren') return `(${mtToJS(node.body)})`;
+    if (node.type === 'fn') {
+        const arg = mtToJS(node.body);
+        if (node.name === 'sin') return `(Math.sin((${arg})*Math.PI/180))`;
+        if (node.name === 'cos') return `(Math.cos((${arg})*Math.PI/180))`;
+        if (node.name === 'tan') return `(Math.tan((${arg})*Math.PI/180))`;
+        if (node.name === 'sin⁻¹') return `(Math.asin(${arg})*180/Math.PI)`;
+        if (node.name === 'cos⁻¹') return `(Math.acos(${arg})*180/Math.PI)`;
+        if (node.name === 'tan⁻¹') return `(Math.atan(${arg})*180/Math.PI)`;
+        return `Math.${node.name}(${arg})`;
+    }
+    if (node.type === 'log') {
+        const arg = mtToJS(node.arg);
+        const baseEmpty = node.base.kids.length === 0;
+        if (baseEmpty) return `(Math.log(${arg}))`;
+        return `(Math.log(${arg})/Math.log(${mtToJS(node.base)}))`;
+    }
+    return '';
+};
+
+// Whitelist-Schutz: nach allen Substitutionen darf nur eine eng begrenzte Zeichenmenge bleiben.
+const mtSafeEval = (jsExpr) => {
+    const stripped = jsExpr.replace(/Math\.(PI|E|sqrt|log|sin|cos|tan|asin|acos|atan|pow)/g, '');
+    if (!/^[\d\s\.\+\-\*\/\(\)\,]*$/.test(stripped)) throw new Error('Ungültige Zeichen');
+    return Function(`"use strict"; return (${jsExpr});`)();
+};
+
+// ==========================================
+// 4b.3 ScientificCalculator — UI für den Math-Tree
+// ==========================================
+const ScientificCalculator = ({ onClose, theme = 'sky' }) => {
+    // Root + Cursor leben gemeinsam in EINEM State-Objekt. Bei schnellen
+    // Tastendrücken (mehrere Clicks im selben Tick) hätten getrennte useStates
+    // stale-closure-Probleme — der zweite Click würde noch den alten root sehen.
+    // Mit funktionalem setState liest jeder Aufruf den frischesten Zustand.
+    const [state, setState] = useState(() => ({ root: MT.seq(), cursor: { path: [], pos: 0 } }));
+    const [result, setResult] = useState(null);
+    const [error, setError] = useState(null);
+    const [showAsFraction, setShowAsFraction] = useState(false);
+    const [ans, setAns] = useState(null);
+
+    const { root, cursor } = state;
+    const t = themeColors[theme] || themeColors.sky;
+
+    // Hilfsfunktion: führt eine Tree-Operation aus und übernimmt das Ergebnis —
+    // immer über die funktionale Form, damit kein stale closure möglich ist.
+    const apply = (op) => {
+        setState(prev => {
+            const r = op(prev.root, prev.cursor);
+            return { root: r.root, cursor: r.cursor };
+        });
+        setError(null);
+    };
+
+    const insertChar   = (c)        => apply((r, cu) => mtInsertChar(r, cu, c));
+    const insertSym    = (s)        => apply((r, cu) => mtInsertSym(r, cu, s));
+    const insertFn     = (n)        => apply((r, cu) => mtInsertFn(r, cu, n));
+    const insertLog    = ()         => apply(mtInsertLog);
+    const insertFrac   = ()         => apply(mtInsertFrac);
+    const insertSqrt   = (idx=false)=> apply((r, cu) => mtInsertSqrt(r, cu, idx));
+    const insertSup    = ()         => apply(mtInsertSup);
+    const insertSquare = ()         => apply(mtInsertSquare);
+    const insertParen  = ()         => apply(mtInsertParen);
+    const backspace    = ()         => apply(mtBackspace);
+    const setCursorTo  = (c)        => setState(prev => ({ root: prev.root, cursor: c }));
+    const goLeft       = ()         => setState(prev => ({ root: prev.root, cursor: mtMoveLeft(prev.root, prev.cursor) }));
+    const goRight      = ()         => setState(prev => ({ root: prev.root, cursor: mtMoveRight(prev.root, prev.cursor) }));
+    const goStart      = ()         => setState(prev => ({ root: prev.root, cursor: { path: [], pos: 0 } }));
+    const goEnd        = ()         => setState(prev => ({ root: prev.root, cursor: { path: [], pos: prev.root.kids.length } }));
+    const clearAll     = ()         => { setState({ root: MT.seq(), cursor: { path: [], pos: 0 } }); setResult(null); setError(null); };
+
+    const useAns = () => {
+        if (ans === null) return;
+        setState(prev => {
+            let r = mtInsertParen(prev.root, prev.cursor);
+            const ansStr = String(Math.round(ans * 1e10) / 1e10);
+            for (const c of ansStr) {
+                r = mtInsertChar(r.root, r.cursor, c === '.' ? ',' : c);
+            }
+            return { root: r.root, cursor: mtMoveRight(r.root, r.cursor) };
+        });
+        setError(null);
+    };
+
+    const calc = () => {
+        // root aus dem aktuellen State lesen — Closure ist OK, weil = nicht in
+        // rapid-fire mit anderen Operationen kollidiert.
+        const currentRoot = state.root;
+        if (currentRoot.kids.length === 0) return;
+        try {
+            const expr = mtToJS(currentRoot);
+            const r = mtSafeEval(expr);
+            if (typeof r !== 'number' || !Number.isFinite(r)) {
+                setError('Mathe-Fehler'); setResult(null); return;
+            }
+            setResult(r); setAns(r);
+        } catch (e) {
+            setError('Fehler im Ausdruck'); setResult(null);
+        }
+    };
+
+    // PC-Tastatur — greift nicht, wenn der Cursor in einer anderen Eingabe steht (Trainer-Felder).
+    useEffect(() => {
+        const handler = (e) => {
+            const ae = document.activeElement;
+            const tag = ae ? ae.tagName : '';
+            if (tag === 'INPUT' || tag === 'TEXTAREA' || (ae && ae.isContentEditable)) return;
+            if (e.ctrlKey || e.altKey || e.metaKey) return;
+            const k = e.key;
+            if (/^[0-9]$/.test(k)) { e.preventDefault(); insertChar(k); return; }
+            if (k === '+') { e.preventDefault(); insertChar('+'); return; }
+            if (k === '-') { e.preventDefault(); insertChar('−'); return; }
+            if (k === '*') { e.preventDefault(); insertChar('×'); return; }
+            if (k === '/') { e.preventDefault(); insertChar('÷'); return; }  // Inline-Division, kein Bruch
+            if (k === '^') { e.preventDefault(); insertSup(); return; }
+            if (k === '(') { e.preventDefault(); insertParen(); return; }
+            if (k === ')') { e.preventDefault(); goRight(); return; }
+            if (k === '.' || k === ',') { e.preventDefault(); insertChar(','); return; }
+            if (k === 'Enter' || k === '=') { e.preventDefault(); calc(); return; }
+            if (k === 'Backspace') { e.preventDefault(); backspace(); return; }
+            if (k === 'Delete' || k === 'Escape') { e.preventDefault(); clearAll(); return; }
+            if (k === 'ArrowLeft')  { e.preventDefault(); goLeft(); return; }
+            if (k === 'ArrowRight') { e.preventDefault(); goRight(); return; }
+            if (k === 'Home')       { e.preventDefault(); goStart(); return; }
+            if (k === 'End')        { e.preventDefault(); goEnd(); return; }
+            if (k === 'Tab')        { e.preventDefault(); goRight(); return; }
+        };
+        document.addEventListener('keydown', handler);
+        return () => document.removeEventListener('keydown', handler);
+    }, [state, ans]);
+
+    const Btn = ({ label, onClick, variant = 'number' }) => {
+        const base = 'h-9 sm:h-11 rounded-lg font-bold text-xs sm:text-sm transition-colors flex items-center justify-center select-none';
+        // Drei klare Stufen statt fünf Farbtöne:
+        //   number: weiß (Ziffern, Konstanten — ruhig, häufig gedrückt)
+        //   op:     hellgrau (Inline-Operatoren)
+        //   func:   soft Indigo (Trig/Struktur — semantisch "Mathe-Funktion")
+        // Plus zwei farbige Akzente (danger=AC, primary==).
+        const variants = {
+            number:  'bg-white border border-slate-200 hover:bg-slate-50 text-slate-900',
+            op:      'bg-slate-100 border border-slate-200 hover:bg-slate-200 text-slate-700',
+            func:    'bg-indigo-50 border border-indigo-100 hover:bg-indigo-100 text-indigo-700',
+            util:    'bg-white border border-slate-200 hover:bg-slate-50 text-slate-500',
+            danger:  'bg-red-50 border border-red-200 hover:bg-red-100 text-red-700',
+            primary: `${t.btnBg} ${t.btnHover} text-white shadow-sm`
+        };
+        return <button type="button" onClick={onClick} className={`${base} ${variants[variant] || variants.number}`}>{label}</button>;
+    };
+
+    return (
+        <div className="bg-white rounded-2xl shadow-md border border-slate-200 w-full overflow-hidden">
+            <div className={`${t.btnBg} text-white px-3 sm:px-4 py-1 flex justify-between items-center`}>
+                <div className="flex items-center gap-2">
+                    <Calculator className="w-4 h-4" />
+                    <span className="font-bold text-sm">M10 Taschenrechner</span>
+                </div>
+                {onClose && (
+                    <button type="button" onClick={onClose} className="hover:bg-white/20 rounded-lg p-1 transition-colors" aria-label="Rechner schließen" title="Rechner schließen">
+                        <XCircle className="w-5 h-5" />
+                    </button>
+                )}
+            </div>
+
+            {/* Display: gerenderter Math-Tree mit Cursor — Klick positioniert den Cursor */}
+            <div className="bg-slate-800 text-white px-3 sm:px-4 py-3 font-math">
+                <div className="text-base sm:text-lg min-h-[44px] flex justify-end items-center overflow-x-auto cursor-text"
+                     onClick={(e) => {
+                         // Klick auf den leeren rechten Bereich → Cursor ans Ende
+                         if (e.target === e.currentTarget) setCursorTo({ path: [], pos: root.kids.length });
+                     }}>
+                    {root.kids.length === 0 && mtPathsEq(cursor.path, [])
+                        ? <span className="cursor-text" onClick={() => setCursorTo({ path: [], pos: 0 })}>{mtCursorMark('cE0')}</span>
+                        : <MtRenderSeq seq={root} path={[]} cursor={cursor} onCursorMove={setCursorTo} />}
+                </div>
+                <div className="text-2xl sm:text-3xl font-bold min-h-[36px] flex items-center justify-end mt-1">
+                    {error
+                        ? <span className="text-red-400 text-base">{error}</span>
+                        : result !== null
+                            ? <CalcResult value={result} asFraction={showAsFraction} />
+                            : <span>{' '}</span>}
+                </div>
+            </div>
+
+            {/* Cursor-Steuerung — schmal (h-6), Tab springt zusätzlich in/aus Boxen */}
+            <div className="bg-slate-100 px-2 sm:px-3 py-1 grid grid-cols-4 gap-1 sm:gap-1.5 border-y border-slate-200">
+                <button type="button" onClick={goStart} className="h-6 rounded bg-white hover:bg-slate-200 border border-slate-200 flex items-center justify-center" title="Cursor an den Anfang">
+                    <svg width="16" height="12" viewBox="0 0 24 18" fill="#0f172a" aria-hidden="true"><rect x="2" y="3" width="2.4" height="12" /><polygon points="20 3, 6.5 9, 20 15" /></svg>
+                </button>
+                <button type="button" onClick={goLeft} className="h-6 rounded bg-white hover:bg-slate-200 border border-slate-200 flex items-center justify-center" title="Cursor nach links">
+                    <svg width="12" height="12" viewBox="0 0 18 18" fill="#0f172a" aria-hidden="true"><polygon points="14 3, 3 9, 14 15" /></svg>
+                </button>
+                <button type="button" onClick={goRight} className="h-6 rounded bg-white hover:bg-slate-200 border border-slate-200 flex items-center justify-center" title="Cursor nach rechts (Tab springt in/aus Boxen)">
+                    <svg width="12" height="12" viewBox="0 0 18 18" fill="#0f172a" aria-hidden="true"><polygon points="4 3, 15 9, 4 15" /></svg>
+                </button>
+                <button type="button" onClick={goEnd} className="h-6 rounded bg-white hover:bg-slate-200 border border-slate-200 flex items-center justify-center" title="Cursor ans Ende">
+                    <svg width="16" height="12" viewBox="0 0 24 18" fill="#0f172a" aria-hidden="true"><polygon points="4 3, 17.5 9, 4 15" /><rect x="19.6" y="3" width="2.4" height="12" /></svg>
+                </button>
+            </div>
+
+            <div className="p-2 sm:p-3 grid grid-cols-5 gap-1 sm:gap-1.5">
+                <Btn variant="func" label="sin"  onClick={() => insertFn('sin')} />
+                <Btn variant="func" label="cos"  onClick={() => insertFn('cos')} />
+                <Btn variant="func" label="tan"  onClick={() => insertFn('tan')} />
+                {/* log mit Basis als tiefgestelltem Kästchen und leicht höherem Argument-Kästchen */}
+                <Btn variant="func" label={(
+                    <span className="inline-flex items-baseline leading-none">
+                        <span>log</span>
+                        <sub className="ml-px text-[1px]">
+                            <span className="inline-block w-[7px] h-[7px] border border-current align-baseline" />
+                        </sub>
+                        <span className="inline-block w-[8px] h-[10px] border border-current ml-[2px] align-baseline" />
+                    </span>
+                )} onClick={insertLog} />
+                <Btn variant="op"   label="⌫"   onClick={backspace} />
+
+                <Btn variant="func" label={<span>sin<sup>−1</sup></span>} onClick={() => insertFn('sin⁻¹')} />
+                <Btn variant="func" label={<span>cos<sup>−1</sup></span>} onClick={() => insertFn('cos⁻¹')} />
+                <Btn variant="func" label={<span>tan<sup>−1</sup></span>} onClick={() => insertFn('tan⁻¹')} />
+                <Btn variant="func" label={<span>x<sup>2</sup></span>}    onClick={insertSquare} />
+                <Btn variant="danger" label="AC" onClick={clearAll} />
+
+                <Btn variant="func" label="(" onClick={insertParen} />
+                <Btn variant="func" label=")" onClick={goRight} />
+                <Btn variant="func" label={<span>x<sup>y</sup></span>} onClick={insertSup} />
+                <Btn variant="func" label="√" onClick={() => insertSqrt(false)} />
+                <Btn variant="func" label={<span><sup className="text-xs">n</sup>√</span>} onClick={() => insertSqrt(true)} />
+
+                <Btn variant="number" label="7" onClick={() => insertChar('7')} />
+                <Btn variant="number" label="8" onClick={() => insertChar('8')} />
+                <Btn variant="number" label="9" onClick={() => insertChar('9')} />
+                <Btn variant="op"     label="÷" onClick={() => insertChar('÷')} />
+                {/* a/b-Symbol als gestapelter Bruch: zwei quadratische Kästchen mit Bruchstrich */}
+                <Btn variant="func"   label={(
+                    <span className="inline-flex flex-col items-center leading-none">
+                        <span className="inline-block w-2.5 h-2.5 border border-current" />
+                        <span className="inline-block w-3.5 h-px bg-current my-[2px]" />
+                        <span className="inline-block w-2.5 h-2.5 border border-current" />
+                    </span>
+                )} onClick={insertFrac} />
+
+                <Btn variant="number" label="4" onClick={() => insertChar('4')} />
+                <Btn variant="number" label="5" onClick={() => insertChar('5')} />
+                <Btn variant="number" label="6" onClick={() => insertChar('6')} />
+                <Btn variant="op"     label="×" onClick={() => insertChar('×')} />
+                <Btn variant="number" label="π" onClick={() => insertSym('π')} />
+
+                <Btn variant="number" label="1" onClick={() => insertChar('1')} />
+                <Btn variant="number" label="2" onClick={() => insertChar('2')} />
+                <Btn variant="number" label="3" onClick={() => insertChar('3')} />
+                <Btn variant="op"     label="−" onClick={() => insertChar('−')} />
+                <Btn variant="util"   label="S↔D" onClick={() => setShowAsFraction(f => !f)} />
+
+                <Btn variant="number" label="0"   onClick={() => insertChar('0')} />
+                <Btn variant="number" label=","   onClick={() => insertChar(',')} />
+                <Btn variant="number" label="Ans" onClick={useAns} />
+                <Btn variant="op"     label="+"   onClick={() => insertChar('+')} />
+                <Btn variant="primary" label="="  onClick={calc} />
+            </div>
+        </div>
+    );
+};
+
+// Wiederverwendbarer Trigger-Button: rendert den Rechner inline (aufklappbar)
+// statt als Modal-Overlay — verdeckt nichts auf der Seite.
+const CalcButton = ({ theme = 'sky', label = 'Rechner' }) => {
+    const [open, setOpen] = useState(false);
+    const t = themeColors[theme] || themeColors.sky;
+    return (
+        <div className="w-full">
+            <button type="button" onClick={() => setOpen(o => !o)}
+                    className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border-2 font-medium text-sm transition-colors bg-white hover:bg-slate-50 border-slate-200 text-slate-700"
+                    aria-expanded={open}
+                    title={open ? 'Rechner einklappen' : 'Wissenschaftlichen Rechner einblenden'}>
+                <Calculator className={`w-4 h-4 ${t.activeTitle}`} />
+                <span>{open ? `${label} schließen` : label}</span>
+            </button>
+            {open && (
+                <div className="mt-3 animate-fade-in flex justify-center">
+                    <div className="w-full max-w-xs">
+                        <ScientificCalculator theme={theme} onClose={() => setOpen(false)} />
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
+const SuccessBox = ({ text = "Klasse gemacht! 🎉", subtitle, showSolutionBtn, showSolution, onToggleSolution, onNext, nextBtnText = "Nächste Aufgabe", extraBtn, solutionText, theme = 'emerald' }) => {
+    const t = themeColors[theme] || themeColors.emerald;
+    return (
+        <div className="bg-green-50 border-2 border-green-500 p-8 rounded-xl shadow-sm text-center animate-fade-in mt-6">
+            <h3 className="text-3xl font-bold text-green-800 mb-3">{text}</h3>
+            {subtitle && <p className="text-green-700 mb-6 text-lg">{subtitle}</p>}
+            <div className="flex flex-col sm:flex-row justify-center gap-4 mt-6">
+                {extraBtn}
+                {showSolutionBtn && (
+                    <button onClick={onToggleSolution} className="text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium shadow-sm"><BookOpen className="w-4 h-4"/> Lösungsweg</button>
+                )}
+                <button onClick={onNext} className={`${t.btnBg} ${t.btnHover} text-white px-8 py-3 rounded-lg font-bold shadow-md flex items-center justify-center gap-2`}><RefreshCw className="w-5 h-5" /> {nextBtnText}</button>
+            </div>
+            {showSolution && solutionText && <div className="w-full bg-white p-6 rounded-xl border border-green-200 mt-6 text-sm font-mono whitespace-pre-line text-slate-700 text-left shadow-inner">{solutionText}</div>}
+        </div>
+    );
+};
+
+// (Kein Export — diese Datei wird inline pro App-Seite zusammen mit dem
+//  Trainer-Code kompiliert, sodass alle obigen Konstanten im selben Scope sind.)
+
+
+// fehlerheft-map.js — Fehlerarten je Trainer: Beschriftung und passende Lernkarte (#lernen/<karte>)
+// Wird von index.html (Fehlerheft) und lehrer.html (Klassenübersicht) genutzt. Reines JavaScript, kein JSX.
+var FH_MAP = {
+binformeln: { title: 'Binomische Formeln', href: 'binformeln.html', kinds: { mittelglied: ['Mittleres Glied 2·a·b', 'k2'], quadrat: ['Quadrate der Glieder', 'k3'], klammer: ['Klammer aus dem Term erkennen', 'k5'] } },
+bruchgleichungen: { title: 'Bruchgleichungen', href: 'bruchgleichungen.html', kinds: { definitionsmenge: ['Definitionsmenge', 'k2'], hauptnenner: ['Hauptnenner', 'k3'], multiplizieren: ['Mit dem Hauptnenner multiplizieren', 'k4'], normalform: ['Auf Normalform bringen', 'k5'], pq: ['Lösungsformel (p und q)', 'k5'], loesen: ['Gleichung lösen', 'k5'], loesungsmenge: ['Lösungsmenge mit D vergleichen', 'k5'] } },
+halbwertszeit: { title: 'Halbwertszeit', href: 'halbwertszeit.html', kinds: { gesucht: ['Was ist gesucht?', 'k2'], einsetzen: ['Werte in die Formel einsetzen', 'k2'], umformen: ['Formel umstellen', 'k4'], ergebnis: ['Ergebnis berechnen', 'k3'] } },
+wachstum: { title: 'Wachstum & Zerfall', href: 'wachstum.html', kinds: { gesucht: ['Was ist gesucht?', 'k5'], einsetzen: ['Werte und q einsetzen', 'k1'], umformen: ['Formel umstellen', 'k4'], ergebnis: ['Ergebnis berechnen', 'k2'] } },
+kugel: { title: 'Die Kugel', href: 'kugel.html', kinds: { formel: ['Richtige Formel wählen', 'k2'], einsetzen: ['Radius einsetzen', 'k1'], rechnen: ['Ergebnis berechnen', 'k3'] } },
+potenzen: { title: 'Potenzen', href: 'potenzen.html', kinds: { zahlen: ['Zahlen zusammenfassen', 'k5'], exponenten: ['Exponenten addieren', 'k2'], kuerzen: ['Exponenten subtrahieren', 'k3'], term: ['Ergebnisterm', 'k4'] } },
+trigonometrie: { title: 'Trigonometrie', href: 'trigonometrie.html', kinds: { formel: ['sin, cos oder tan wählen', 'k2'], einsetzen: ['Werte einsetzen', 'k3'], rechnen: ['Ergebnis berechnen', 'k4'] } },
+wahrscheinlichkeit: { title: 'Wahrscheinlichkeit', href: 'wahrscheinlichkeit.html', kinds: { art: ['Mit oder ohne Zurücklegen?', 'k4'], brueche: ['Brüche im Baumdiagramm', 'k4'], ergebnis: ['Pfadregel und Ergebnis', 'k3'] } },
+lineare: { title: 'Lineare Funktionen', href: 'lineare-funktionen.html', topics: { wertetabelle: 'Wertetabelle', ablesen: 'Steigung & y-Achsenabschnitt', zeichnen: 'Graph zeichnen', nullstelle: 'Nullstelle & Achsenschnittpunkte', steigung: 'Steigung aus zwei Punkten', gleichung: 'Geradengleichung aufstellen', punktprobe: 'Punktprobe', parallel: 'Parallele & senkrechte Geraden', schnittpunkt: 'Schnittpunkt zweier Geraden', sachaufgaben: 'Sachaufgaben', pruefung: 'Prüfungsaufgaben' } },
+quadratische: { title: 'Quadratische Funktionen', href: 'quadratische-funktionen.html', topics: { wertetabelle: 'Wertetabelle & Punktprobe', scheitel: 'Scheitelpunkt & Öffnung', zeichnen: 'Parabel zeichnen', normalform: 'Scheitelpunktform → Normalform', scheitelform: 'Normalform → Scheitelpunktform', nullstellen: 'Quadratische Gleichungen & Nullstellen', zweipunkte: 'Parabel durch zwei Punkte', spiegeln: 'Verschieben & Spiegeln', gerade: 'Parabel und Gerade', parabeln: 'Schnittpunkte zweier Parabeln', pruefung: 'Prüfungsaufgaben' } },
+kopfrechnen: { title: 'Kopfrechnen', href: 'kopfrechnen.html', links: { 'Binomische Formeln': 'binformeln.html#lernen', 'Potenzgesetze': 'potenzen.html#lernen', 'Potenzgleichung': 'potenzen.html#lernen', 'Wahrscheinlichkeit': 'wahrscheinlichkeit.html#lernen', 'Kugel': 'kugel.html#lernen', 'Geometrie (Volumen)': 'kugel.html#lernen', 'Trigonometrie': 'trigonometrie.html#lernen', 'Satzgruppe des Pythagoras': 'trigonometrie.html#lernen/k5', 'Wachstum & Zerfall': 'wachstum.html#lernen', 'Halbwertszeit': 'halbwertszeit.html#lernen', 'Lineare Funktionen': 'lineare-funktionen.html', 'Quadratische Funktionen': 'quadratische-funktionen.html', 'Definitionsmenge': 'bruchgleichungen.html#lernen/k2' } }
+            };
+var FH_STEP = { select: 'Ansatz wählen', fill: 'Werte einsetzen', calc: 'Ergebnis berechnen', points: 'Zeichnen' };
+
+
+// ==========================================
+// lehrer.js — Klassenübersicht für Lehrkräfte
+// Wird inline mit shared.js und fehlerheft-map.js kompiliert.
+//   Schüler kopieren ihren Fortschritts-Code (Startseite → „Dein Fortschritt“) und schicken ihn der Lehrkraft.
+//   Diese Seite liest beliebig viele Codes ein und zeigt je Schüler und Thema: gelernt, geübt, gemeistert,
+//   gelöste Prüfungsteile, Prüfungssimulationen und die häufigsten Fehler. Alles bleibt im Browser der Lehrkraft
+//   (localStorage smarth_lehrer_klasse), es wird nichts übertragen.
+// ==========================================
+const LE_KEY = 'smarth_lehrer_klasse';
+const LE_T = themeColors.indigo;
+const LE_CARDS = 5; // Lernkarten je Trainer ohne Themenauswahl
+const LE_TRAINERS = [
+    { key: 'kopfrechnen', title: 'Kopfrechnen', short: 'Kopf', streak: 'kopf', learn: false },
+    { key: 'binformeln', title: 'Binomische Formeln', short: 'Binom', streak: 'binformeln' },
+    { key: 'bruchgleichungen', title: 'Bruchgleichungen', short: 'Bruchgl.', streak: 'brueche' },
+    { key: 'halbwertszeit', title: 'Halbwertszeit', short: 'Halbw.', streak: 'zerfall' },
+    { key: 'kugel', title: 'Die Kugel', short: 'Kugel', streak: 'kugel' },
+    { key: 'lineare', title: 'Lineare Funktionen', short: 'Lin. Fkt.', fk: true },
+    { key: 'potenzen', title: 'Potenzen', short: 'Potenzen', streak: 'potenzen' },
+    { key: 'quadratische', title: 'Quadratische Funktionen', short: 'Quad. Fkt.', fk: true },
+    { key: 'trigonometrie', title: 'Trigonometrie', short: 'Trigo', streak: 'trigonometrie' },
+    { key: 'wachstum', title: 'Wachstum & Zerfall', short: 'Wachstum', streak: 'wachstum' },
+    { key: 'wahrscheinlichkeit', title: 'Wahrscheinlichkeit', short: 'Wahrsch.', streak: 'wahrscheinlichkeit' }
+];
+const LE_STATUS = {
+    gemeistert: { l: 'M', title: 'gemeistert', cls: 'bg-amber-100 text-amber-800 border-amber-300' },
+    geuebt: { l: 'Ü', title: 'geübt', cls: 'bg-green-100 text-green-800 border-green-300' },
+    gelernt: { l: 'L', title: 'gelernt', cls: 'bg-sky-100 text-sky-800 border-sky-300' },
+    begonnen: { l: '·', title: 'begonnen', cls: 'bg-slate-100 text-slate-500 border-slate-200' }
+};
+
+// ---------- Fortschritts-Code lesen (gleiches Format wie auf der Startseite) ----------
+const leB64ToBytes = (b64) => { const s = atob(b64), a = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) a[i] = s.charCodeAt(i); return a; };
+const leInflate = (bytes) => { const ds = new DecompressionStream('deflate'); const w = ds.writable.getWriter(); w.write(bytes).catch(() => {}); w.close().catch(() => {}); return new Response(ds.readable).arrayBuffer().then(b => new Uint8Array(b)); };
+const leReadCode = async (code) => {
+    code = (code || '').replace(/\s+/g, '');
+    const m = code.match(/^SMARTH([01])\.([A-Za-z0-9+\/=]+)$/);
+    if (!m) throw new Error('kein gültiger Fortschritts-Code');
+    const bytes = leB64ToBytes(m[2]);
+    const raw = m[1] === '1' ? await leInflate(bytes) : bytes;
+    const obj = JSON.parse(new TextDecoder().decode(raw));
+    if (!obj || !obj.data) throw new Error('Code unvollständig');
+    return obj;
+};
+// Eingabe: eine Zeile je Schüler, „Name: CODE“, „Name; CODE“ oder nur der Code
+const leParseLines = (text) => text.split(/\n/).map(l => l.trim()).filter(Boolean).map(l => {
+    const m = l.match(/^(.*?)[:;,\t]\s*(SMARTH[01]\.[A-Za-z0-9+\/=]+)\s*$/);
+    if (m) return { name: m[1].trim(), code: m[2] };
+    const c = l.match(/SMARTH[01]\.[A-Za-z0-9+\/=]+/);
+    return { name: '', code: c ? c[0] : l };
+});
+
+// ---------- Auswertung eines Codes ----------
+const leJSON = (data, k, def) => { try { const v = data[k]; return v ? JSON.parse(v) : def; } catch (e) { return def; } };
+const leInt = (data, k) => parseInt(data[k]) || 0;
+const leEval = (data) => {
+    const progress = leJSON(data, 'smarth_progress', { t: {} });
+    const trainers = {};
+    LE_TRAINERS.forEach(tr => {
+        let correct = 0, masteredLevels = 0;
+        Object.keys(data).forEach(k => {
+            if (k === `smarth_adaptive_${tr.key}` || k.indexOf(`smarth_adaptive_${tr.key}_`) === 0) {
+                const a = leJSON(data, k, null); if (!a) return;
+                if (a.perDifficulty) Object.values(a.perDifficulty).forEach(d => { correct += d.correct || 0; });
+                if (a.mastered && a.mastered.length) masteredLevels += a.mastered.length;
+            }
+        });
+        const exams = Object.keys(leJSON(data, `smarth_exams_${tr.key}`, {})).length;
+        const errors = Object.entries(leJSON(data, `smarth_errors_${tr.key}`, {})).sort((a, b) => b[1] - a[1]);
+        let learned = 0, learnTotal = 0, cards = 0, masteredTopics = 0;
+        if (tr.fk) {
+            const sm = leJSON(data, `smarth_summary_${tr.key}`, null);
+            if (sm) { learned = sm.learned || 0; learnTotal = sm.topics || 0; masteredTopics = sm.mastered || 0; }
+            const pt = (progress.t || {})[tr.key] || {};
+            cards = Object.values(pt).reduce((a, t) => a + ((t.cards || []).length), 0);
+        } else if (tr.learn !== false) {
+            const lp = ((progress.t || {})[tr.key] || {})[tr.key];
+            learnTotal = 1; cards = lp ? (lp.cards || []).length : 0; learned = lp && lp.done ? 1 : 0;
+        }
+        const best = tr.streak ? leInt(data, `smarth_best_${tr.streak}`) : 0;
+        const status = (masteredLevels > 0 || masteredTopics > 0 || exams >= 3) ? 'gemeistert' : correct >= 5 ? 'geuebt' : (learned > 0 && learned >= learnTotal) ? 'gelernt' : (correct > 0 || cards > 0) ? 'begonnen' : null;
+        trainers[tr.key] = { status, correct, masteredLevels, masteredTopics, exams, errors, learned, learnTotal, cards, best };
+    });
+    const sims = leJSON(data, 'smarth_exam_results', []);
+    const lastA = sims.find(r => r.kind === 'A'), lastB = sims.find(r => r.kind === 'B');
+    const totalCorrect = Object.values(trainers).reduce((a, t) => a + t.correct, 0);
+    const totalExams = Object.values(trainers).reduce((a, t) => a + t.exams, 0);
+    return { trainers, lastA, lastB, totalCorrect, totalExams };
+};
+// Beschriftung einer Fehlerart (aus fehlerheft-map.js)
+const leErrLabel = (trainer, kind) => {
+    const cfg = FH_MAP[trainer]; if (!cfg) return kind;
+    if (cfg.kinds) return (cfg.kinds[kind] || [kind])[0];
+    if (cfg.topics) { const [tp, st] = kind.split(':'); return (cfg.topics[tp] || tp) + (FH_STEP[st] ? ': ' + FH_STEP[st] : ''); }
+    return kind;
+};
+const leDate = (ms) => ms ? new Date(ms).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '';
+
+// ---------- Bausteine ----------
+const LeChip = ({ status, title }) => {
+    const st = LE_STATUS[status];
+    if (!st) return <span className="inline-block w-7 h-7 rounded-md border border-dashed border-slate-200" title={title || 'noch nichts'} />;
+    return <span title={title} className={`inline-flex items-center justify-center w-7 h-7 rounded-md border text-sm font-bold ${st.cls}`}>{st.l}</span>;
+};
+const LeBtn = ({ onClick, children, primary = false, small = false }) => (
+    <button type="button" onClick={onClick} className={`${primary ? `${LE_T.btnBg} ${LE_T.btnHover} text-white` : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'} ${small ? 'px-3 py-1.5 text-sm' : 'px-4 py-2'} rounded-lg font-bold shadow-sm inline-flex items-center gap-2`}>{children}</button>
+);
+
+// Eingabe: Codes einfügen oder Dateien wählen
+const LeImport = ({ onAdd }) => {
+    const [text, setText] = useState('');
+    const [msg, setMsg] = useState(null);
+    const [busy, setBusy] = useState(false);
+    const addAll = async (entries) => {
+        setBusy(true);
+        let ok = 0, bad = 0;
+        const out = [];
+        for (const e of entries) {
+            try { const obj = await leReadCode(e.code); out.push({ name: e.name, at: obj.at || Date.now(), data: obj.data }); ok++; }
+            catch (err) { bad++; }
+        }
+        onAdd(out); setBusy(false); setText('');
+        setMsg({ ok: bad === 0, text: `${ok} Code${ok === 1 ? '' : 's'} eingelesen${bad ? `, ${bad} ungültig` : ''}.` });
+    };
+    const onFiles = async (e) => {
+        const files = Array.from(e.target.files || []); if (!files.length) return;
+        const entries = await Promise.all(files.map(f => new Promise(res => { const r = new FileReader(); r.onload = () => res({ name: f.name.replace(/\.txt$/i, '').replace(/^smarthematik-fortschritt-?/i, ''), code: String(r.result || '').trim() }); r.readAsText(f); })));
+        addAll(entries); e.target.value = '';
+    };
+    return (
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-5">
+            <p className="font-bold text-slate-800 mb-1">Codes einlesen</p>
+            <p className="text-sm text-slate-600 mb-3">Eine Zeile je Schülerin oder Schüler, am besten als <span className="font-mono">Name: SMARTH1.…</span>. Ohne Namen wird durchnummeriert. Oder die gespeicherten Dateien auswählen (mehrere auf einmal möglich).</p>
+            <textarea value={text} onChange={e => setText(e.target.value)} rows={4} placeholder={'Anna: SMARTH1.eJy…\nBen: SMARTH1.eJy…'} className="w-full rounded-lg border border-slate-300 p-2 text-xs font-mono" />
+            <div className="mt-2 flex flex-wrap items-center gap-3">
+                <LeBtn primary onClick={() => addAll(leParseLines(text))}>{busy ? 'Lese…' : 'Hinzufügen'}</LeBtn>
+                <label className="text-sm text-slate-700 inline-flex items-center gap-2 cursor-pointer"><span className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white font-medium hover:bg-slate-50">Dateien wählen</span><input type="file" accept=".txt" multiple onChange={onFiles} className="hidden" /></label>
+                {msg && <span className={`text-sm font-medium ${msg.ok ? 'text-green-700' : 'text-red-700'}`}>{msg.text}</span>}
+            </div>
+        </div>
+    );
+};
+
+// Klassen-Übersicht je Thema: wie viele stehen wo
+const LeKlasse = ({ students }) => {
+    if (!students.length) return null;
+    const n = students.length;
+    const rows = LE_TRAINERS.map(tr => {
+        const c = { gemeistert: 0, geuebt: 0, gelernt: 0, begonnen: 0, nichts: 0 };
+        students.forEach(s => { c[s.ev.trainers[tr.key].status || 'nichts']++; });
+        return { tr, c };
+    });
+    const errAgg = {};
+    students.forEach(s => LE_TRAINERS.forEach(tr => s.ev.trainers[tr.key].errors.forEach(([kind, cnt]) => { const k = tr.key + '|' + kind; errAgg[k] = errAgg[k] || { tr, kind, n: 0, who: 0 }; errAgg[k].n += cnt; errAgg[k].who++; })));
+    const topErr = Object.values(errAgg).sort((a, b) => b.n - a.n).slice(0, 6);
+    const seg = (w, cls) => w > 0 ? <div className={`${cls} h-full`} style={{ width: `${100 * w / n}%` }} /> : null;
+    return (
+        <div className="grid lg:grid-cols-5 gap-4">
+            <div className="lg:col-span-3 bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-5">
+                <p className="font-bold text-slate-800 mb-1">Stand der Klasse je Thema</p>
+                <p className="text-xs text-slate-500 mb-3"><span className="inline-block w-3 h-3 rounded-sm bg-amber-400 align-middle mr-1" />gemeistert <span className="inline-block w-3 h-3 rounded-sm bg-green-500 align-middle ml-3 mr-1" />geübt <span className="inline-block w-3 h-3 rounded-sm bg-sky-400 align-middle ml-3 mr-1" />gelernt <span className="inline-block w-3 h-3 rounded-sm bg-slate-300 align-middle ml-3 mr-1" />begonnen</p>
+                <div className="space-y-2">
+                    {rows.map(({ tr, c }) => (
+                        <div key={tr.key} className="flex items-center gap-3 text-sm">
+                            <span className="w-28 sm:w-40 shrink-0 text-slate-700 truncate">{tr.title}</span>
+                            <div className="flex-grow h-4 bg-slate-100 rounded overflow-hidden flex" title={`${c.gemeistert} gemeistert, ${c.geuebt} geübt, ${c.gelernt} gelernt, ${c.begonnen} begonnen, ${c.nichts} ohne Stand`}>
+                                {seg(c.gemeistert, 'bg-amber-400')}{seg(c.geuebt, 'bg-green-500')}{seg(c.gelernt, 'bg-sky-400')}{seg(c.begonnen, 'bg-slate-300')}
+                            </div>
+                            <span className="w-14 text-right text-slate-500 text-xs">{n - c.nichts} von {n}</span>
+                        </div>
+                    ))}
+                </div>
+            </div>
+            <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-5">
+                <p className="font-bold text-slate-800 mb-1">Häufigste Fehler der Klasse</p>
+                {topErr.length === 0 ? <p className="text-sm text-slate-500">Noch keine Fehler erfasst.</p> : (
+                    <ol className="text-sm space-y-1.5 mt-2">
+                        {topErr.map(e => <li key={e.tr.key + e.kind} className="flex items-start gap-2"><span className="bg-red-50 text-red-700 border border-red-200 font-bold px-1.5 rounded-full text-xs shrink-0">{e.n}×</span><span><span className="text-slate-500">{e.tr.title}:</span> {leErrLabel(e.tr.key, e.kind)} <span className="text-slate-400 text-xs">({e.who} Schüler)</span></span></li>)}
+                    </ol>
+                )}
+                <p className="text-xs text-slate-500 mt-3">Tipp: Diese Fehlerarten lohnen sich zum Wiederholen im Unterricht. Die passende Lernkarte steht bei jedem Schüler im Fehlerheft auf der Startseite.</p>
+            </div>
+        </div>
+    );
+};
+
+// Detail eines Schülers
+const LeDetail = ({ s, onClose }) => (
+    <div className="bg-white rounded-xl border-2 border-indigo-300 shadow-sm p-4 sm:p-5 animate-fade-in">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <p className="font-bold text-slate-800 text-lg">{s.name} <span className="text-sm font-normal text-slate-500">· Code vom {leDate(s.at)} · {s.ev.totalCorrect} Aufgaben richtig · {s.ev.totalExams} Prüfungsteile</span></p>
+            <LeBtn small onClick={onClose}>Schließen</LeBtn>
+        </div>
+        {(s.ev.lastA || s.ev.lastB) && <p className="text-sm text-slate-700 mb-3"><b>Prüfungssimulation:</b> {s.ev.lastA ? `Teil A ${s.ev.lastA.ok} von ${s.ev.lastA.total} (${leDate(s.ev.lastA.at)})` : ''}{s.ev.lastA && s.ev.lastB ? ' · ' : ''}{s.ev.lastB ? `Teil B ${s.ev.lastB.ok} von ${s.ev.lastB.total} (${leDate(s.ev.lastB.at)})` : ''}</p>}
+        <div className="grid sm:grid-cols-2 gap-2">
+            {LE_TRAINERS.map(tr => { const t = s.ev.trainers[tr.key]; return (
+                <div key={tr.key} className={`rounded-lg border p-2.5 text-sm ${t.status ? 'border-slate-200' : 'border-slate-100 opacity-60'}`}>
+                    <div className="flex items-center gap-2 mb-1"><LeChip status={t.status} /><span className="font-bold text-slate-800">{tr.title}</span></div>
+                    <p className="text-xs text-slate-600">
+                        {t.correct} richtig{tr.learn !== false && (tr.fk ? ` · ${t.learned} von ${t.learnTotal} Themen gelernt` : ` · ${t.cards} von ${LE_CARDS} Lernkarten`)}{t.exams ? ` · ${t.exams} Prüfungsteile` : ''}{t.masteredLevels ? ` · ${t.masteredLevels} Stufe${t.masteredLevels > 1 ? 'n' : ''} 10× in Folge` : ''}{t.best ? ` · bester Streak ${t.best}` : ''}
+                    </p>
+                    {t.errors.length > 0 && <p className="text-xs text-red-700 mt-1">Fehler: {t.errors.slice(0, 3).map(([k, c]) => `${leErrLabel(tr.key, k)} (${c}×)`).join(', ')}</p>}
+                </div>
+            ); })}
+        </div>
+    </div>
+);
+
+// CSV für Excel/LibreOffice
+const leCSV = (students) => {
+    const head = ['Name', 'Code vom', ...LE_TRAINERS.map(t => t.title), 'Aufgaben richtig', 'Prüfungsteile', 'Simulation Teil A', 'Simulation Teil B'];
+    const rows = students.map(s => [s.name, leDate(s.at), ...LE_TRAINERS.map(t => { const st = s.ev.trainers[t.key].status; return st ? LE_STATUS[st].title : ''; }), s.ev.totalCorrect, s.ev.totalExams, s.ev.lastA ? `${s.ev.lastA.ok}/${s.ev.lastA.total}` : '', s.ev.lastB ? `${s.ev.lastB.ok}/${s.ev.lastB.total}` : '']);
+    const esc = v => `"${String(v).replace(/"/g, '""')}"`;
+    return '﻿' + [head, ...rows].map(r => r.map(esc).join(';')).join('\r\n');
+};
+
+// ---------- App ----------
+const LehrerApp = () => {
+    const [list, setList] = useState(() => getStorageJSON(LE_KEY, []));
+    const [open, setOpen] = useState(null);
+    const students = React.useMemo(() => list.map(s => ({ ...s, ev: leEval(s.data) })).sort((a, b) => a.name.localeCompare(b.name, "de")), [list]);
+    const save = (l) => { setList(l); setStorageJSON(LE_KEY, l); };
+    const add = (entries) => {
+        let l = [...list];
+        entries.forEach((e, i) => {
+            const name = e.name || `Schüler ${l.length + 1}`;
+            const idx = l.findIndex(x => x.name === name);
+            const rec = { id: idx >= 0 ? l[idx].id : Date.now() + i, name, at: e.at, data: e.data };
+            if (idx >= 0) l[idx] = rec; else l.push(rec);   // gleicher Name = neuer Stand ersetzt den alten
+        });
+        save(l);
+    };
+    const remove = (id) => save(list.filter(s => s.id !== id));
+    const clearAll = () => { if (window.confirm('Alle Schülerdaten aus diesem Browser löschen?')) { save([]); setOpen(null); } };
+    const rename = (id) => { const s = list.find(x => x.id === id); const n = window.prompt('Name:', s.name); if (n && n.trim()) save(list.map(x => x.id === id ? { ...x, name: n.trim() } : x)); };
+    const exportCSV = () => { const blob = new Blob([leCSV(students)], { type: 'text/csv;charset=utf-8' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'smarthematik-klasse.csv'; document.body.appendChild(a); a.click(); document.body.removeChild(a); };
+    const sel = students.find(s => s.id === open);
+    return (
+        <div className="page-transition max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-6">
+            <TrainerHeader theme="indigo" icon={Shield} title="Klassenübersicht" streak={null} />
+            <div className="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-slate-200">
+                <p className="text-slate-700">Für Lehrkräfte: Die Schüler kopieren auf der Startseite unter „Dein Fortschritt“ ihren Fortschritts-Code und schicken ihn dir. Hier siehst du für die ganze Klasse, wer welches Thema gelernt, geübt oder gemeistert hat, und welche Fehler sich häufen.</p>
+                <p className="text-xs text-slate-500 mt-2">Datenschutz: Die Codes bleiben in diesem Browser auf diesem Gerät. Es wird nichts an einen Server geschickt. Lösche die Liste, wenn du sie nicht mehr brauchst.</p>
+            </div>
+            <LeImport onAdd={add} />
+            {students.length > 0 && (
+                <>
+                    <LeKlasse students={students} />
+                    <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-5">
+                        <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                            <p className="font-bold text-slate-800">{students.length} Schüler · <span className="font-normal text-slate-500 text-sm">M gemeistert, Ü geübt (5 richtig), L gelernt (alle Lernkarten), · begonnen. Zeile anklicken für Details.</span></p>
+                            <div className="flex gap-2"><LeBtn small onClick={exportCSV}>Als CSV speichern</LeBtn><LeBtn small onClick={clearAll}>Liste löschen</LeBtn></div>
+                        </div>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-sm">
+                                <thead><tr className="text-left text-slate-500 border-b border-slate-200">
+                                    <th className="py-2 pr-2 sticky left-0 bg-white">Name</th>
+                                    {LE_TRAINERS.map(t => <th key={t.key} className="py-2 px-1 text-center font-medium text-xs" title={t.title}>{t.short}</th>)}
+                                    <th className="py-2 px-2 text-center text-xs">Richtig</th><th className="py-2 px-2 text-center text-xs">Prüf.-teile</th><th className="py-2 px-2 text-center text-xs">Simulation</th><th className="py-2 pl-2 text-xs">Häufigster Fehler</th><th></th>
+                                </tr></thead>
+                                <tbody>
+                                    {students.map(s => {
+                                        const allErr = LE_TRAINERS.flatMap(t => s.ev.trainers[t.key].errors.map(([k, c]) => ({ t, k, c }))).sort((a, b) => b.c - a.c)[0];
+                                        return (
+                                            <tr key={s.id} onClick={() => setOpen(open === s.id ? null : s.id)} className={`border-b border-slate-100 cursor-pointer hover:bg-slate-50 ${open === s.id ? 'bg-indigo-50' : ''}`}>
+                                                <td className="py-1.5 pr-2 font-bold text-slate-800 whitespace-nowrap sticky left-0 bg-inherit">{s.name}</td>
+                                                {LE_TRAINERS.map(t => { const x = s.ev.trainers[t.key]; return <td key={t.key} className="py-1.5 px-1 text-center"><LeChip status={x.status} title={`${t.title}: ${x.status ? LE_STATUS[x.status].title : 'noch nichts'} · ${x.correct} richtig · ${x.exams} Prüfungsteile`} /></td>; })}
+                                                <td className="py-1.5 px-2 text-center">{s.ev.totalCorrect}</td>
+                                                <td className="py-1.5 px-2 text-center">{s.ev.totalExams}</td>
+                                                <td className="py-1.5 px-2 text-center whitespace-nowrap text-xs">{s.ev.lastA ? `A ${s.ev.lastA.ok}/${s.ev.lastA.total}` : ''}{s.ev.lastA && s.ev.lastB ? ' · ' : ''}{s.ev.lastB ? `B ${s.ev.lastB.ok}/${s.ev.lastB.total}` : ''}</td>
+                                                <td className="py-1.5 pl-2 text-xs text-slate-600 max-w-[16rem] truncate">{allErr ? `${leErrLabel(allErr.t.key, allErr.k)} (${allErr.c}×)` : ''}</td>
+                                                <td className="py-1.5 pl-2 whitespace-nowrap"><button type="button" title="Umbenennen" onClick={(e) => { e.stopPropagation(); rename(s.id); }} className="text-sm text-slate-400 hover:text-indigo-700 mr-2">✎</button><button type="button" title="Entfernen" onClick={(e) => { e.stopPropagation(); remove(s.id); }} className="text-sm text-slate-400 hover:text-red-700">✕</button></td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {sel && <LeDetail s={sel} onClose={() => setOpen(null)} />}
+                </>
+            )}
+        </div>
+    );
+};
+
+const root = ReactDOM.createRoot(document.getElementById('app-root'));
+root.render(<LehrerApp />);
+    </script>
+</body>
+</html>
