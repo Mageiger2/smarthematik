@@ -117,6 +117,33 @@ const LLAbstandLab = ({ onDone }) => {
     );
 };
 
+// Spiegel-Labor: Gerade an der x- oder y-Achse spiegeln
+const LLSpiegelLab = ({ onDone }) => {
+    const g = { m: 0.5, t: 2, n: 'g' };
+    const [axis, setAxis] = useState(null);
+    const [seen, setSeen] = useState([]);
+    useEffect(() => { if (onDone && seen.length >= 2) onDone(); /* eslint-disable-next-line */ }, [seen.length]);
+    const pick = (a) => { setAxis(a); if (!seen.includes(a)) setSeen([...seen, a]); };
+    const gs = axis === 'y' ? { m: -0.5, t: 2, n: "g'", color: '#dc2626' } : axis === 'x' ? { m: -0.5, t: -2, n: "g'", color: '#dc2626' } : null;
+    const btn = (a, label) => <button type="button" onClick={() => pick(a)} className={`px-3 py-1.5 rounded-lg border-2 text-sm font-bold ${axis === a ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-blue-700 border-blue-200 hover:bg-blue-50'}`}>{label}</button>;
+    return (
+        <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 sm:p-4">
+            <div className="grid md:grid-cols-2 gap-4 items-center">
+                <Koord range={[-6, 6, -6, 6]} lines={gs ? [g, gs] : [g]} points={[{ x: 0, y: 2, n: 'Y', color: '#16a34a' }]} />
+                <div className="space-y-3">
+                    <div className="flex gap-2 flex-wrap">{btn('y', 'an der y-Achse spiegeln')}{btn('x', 'an der x-Achse spiegeln')}</div>
+                    <div className="bg-white border border-slate-200 rounded-lg p-3 font-math text-base sm:text-lg space-y-1">
+                        <div>g: y = 0,5x + 2</div>
+                        {gs && <div className="text-red-700">g': {lfGlS(gs.m, gs.t)}</div>}
+                        {axis === 'y' && <div className="text-sm font-sans text-slate-600">Links-rechts geklappt: m wechselt das Vorzeichen, Y(0 | 2) bleibt.</div>}
+                        {axis === 'x' && <div className="text-sm font-sans text-slate-600">Oben-unten geklappt: m und t wechseln das Vorzeichen.</div>}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 // Schnitt-Labor: g₂ gegen g₁ bewegen (Schnittpunkt, parallel, identisch)
 const LLSchnittLab = ({ onDone }) => {
     const g1 = { m: 1, t: -1, n: 'g₁' };
@@ -460,6 +487,78 @@ const LF_LEARN_BUILD = () => {
           </>,
           merke: <>Schnittpunkt: Terme gleichsetzen, nach x auflösen, x in eine Gleichung einsetzen → y. Gleiche Steigung → parallel, kein Schnittpunkt.</>,
           check: { q: '(I) y = 2x + 1, (II) y = 4x − 3. Lösung?', options: opt('x = 2, y = 5', 'x = 1, y = 3', 'x = −2, y = −3', 'x = 2, y = 1'), correct: 0, hint: '2x + 1 = 4x − 3 → 4 = 2x → x = 2, y = 5.' } }
+    ]};
+
+    L.spiegeln = { cards: [
+        { id: 'k1', title: 'Spiegeln an der y-Achse',
+          body: <>
+            <p>Klappst du eine Gerade an der y-Achse um, wird aus „steigend“ „fallend“ und umgekehrt. Der Schnittpunkt mit der y-Achse bleibt, wo er ist. Also: <M>m' = −m</M> und <M>t' = t</M>. Probiere beide Spiegelungen aus.</p>
+          </>,
+          widget: (p) => <LLSpiegelLab onDone={p.onDone} />,
+          check: { q: 'g: y = 2x − 3 wird an der y-Achse gespiegelt. Wie lautet g\'?', options: opt('y = −2x − 3', 'y = −2x + 3', 'y = 2x + 3', 'y = 0,5x − 3'), correct: 0, hint: 'Nur m wechselt das Vorzeichen, t bleibt −3.' } },
+        { id: 'k2', title: 'Spiegeln an der x-Achse',
+          body: <>
+            <p>An der x-Achse wird die Gerade nach oben-unten geklappt. Jetzt wandert auch der Schnittpunkt mit der y-Achse auf die andere Seite: <M>m' = −m</M> und <M>t' = −t</M>.</p>
+          </>,
+          widget: (p) => <LnSteps onDone={p.onDone} lines={[
+            { f: 'g: y = 2x − 3', e: 'm = 2, t = −3' },
+            { f: "an der x-Achse: m' = −2, t' = 3", e: 'beide Vorzeichen wechseln' },
+            { f: "g': y = −2x + 3", e: 'fertig' }]} />,
+          merke: <>y-Achse: nur m wechselt das Vorzeichen. x-Achse: m und t wechseln das Vorzeichen. Merkhilfe: Beim Spiegeln an der x-Achse wird jedes y zu −y, also die ganze rechte Seite mal −1.</>,
+          check: { q: 'g: y = −x + 4 wird an der x-Achse gespiegelt. Wie lautet g\'?', options: opt('y = x − 4', 'y = x + 4', 'y = −x − 4', 'y = −x + 4'), correct: 0, hint: 'Beide Vorzeichen wechseln: −(−x + 4) = x − 4.' } }
+    ]};
+
+    L.lgs = { cards: [
+        { id: 'k1', title: 'Was ist ein Gleichungssystem?',
+          body: <>
+            <p>Zwei Gleichungen mit zwei Unbekannten x und y. Gesucht ist das Zahlenpaar, das <b>beide</b> Gleichungen erfüllt. Im Koordinatensystem sind das zwei Geraden, die Lösung ist ihr Schnittpunkt.</p>
+            <p>Es gibt drei Verfahren: <b>Gleichsetzen</b>, <b>Einsetzen</b>, <b>Addieren</b>. Alle führen zum selben Ergebnis. Du wählst das, bei dem am wenigsten zu rechnen ist.</p>
+          </>,
+          check: { q: 'Was ist die Lösung eines linearen Gleichungssystems?', options: [<span>Ein Zahlenpaar (x | y), das beide Gleichungen erfüllt</span>, <span>Nur eine Zahl x</span>, <span>Zwei verschiedene Zahlenpaare</span>, <span>Die Steigung der Geraden</span>], correct: 0, hint: 'Beide Gleichungen müssen stimmen: Das ist der Schnittpunkt.' } },
+        { id: 'k2', title: 'Gleichsetzungsverfahren',
+          body: <>
+            <p>Sind beide Gleichungen nach y aufgelöst, setzt du die rechten Seiten gleich. Das ist dasselbe wie beim Schnittpunkt zweier Geraden.</p>
+          </>,
+          widget: (p) => <LnSteps onDone={p.onDone} lines={[
+            { f: 'I: y = 2x + 1     II: y = −x + 7', e: 'beide nach y aufgelöst' },
+            { f: '2x + 1 = −x + 7', e: 'rechte Seiten gleichsetzen' },
+            { f: '3x = 6  →  x = 2', e: '+x, −1, dann : 3' },
+            { f: 'y = 2 · 2 + 1 = 5', e: 'x in I einsetzen' },
+            { f: 'L = {(2 | 5)}', e: 'Lösung als Zahlenpaar' }]} />,
+          check: { q: 'I: y = x + 3, II: y = 3x − 1. Was ist x?', options: opt('x = 2', 'x = 1', 'x = −2', 'x = 4'), correct: 0, hint: 'x + 3 = 3x − 1 → 4 = 2x.' } },
+        { id: 'k3', title: 'Einsetzungsverfahren',
+          body: <>
+            <p>Ist nur eine Gleichung nach einer Variablen aufgelöst, setzt du diesen Term in die andere Gleichung ein. Klammer nicht vergessen!</p>
+          </>,
+          widget: (p) => <LnSteps onDone={p.onDone} lines={[
+            { f: 'I: y = x − 1     II: 2x + 3y = 12', e: 'I ist nach y aufgelöst' },
+            { f: '2x + 3 · (x − 1) = 12', e: 'y in II ersetzen, Klammer!' },
+            { f: '2x + 3x − 3 = 12  →  5x = 15  →  x = 3', e: 'ausmultiplizieren, lösen' },
+            { f: 'y = 3 − 1 = 2  →  L = {(3 | 2)}', e: 'x in I einsetzen' }]} />,
+          check: { q: 'I: x = 2y, II: x + y = 9. Was ist y?', options: opt('y = 3', 'y = 6', 'y = 4,5', 'y = 9'), correct: 0, hint: '2y + y = 9 → 3y = 9.' } },
+        { id: 'k4', title: 'Additionsverfahren',
+          body: <>
+            <p>Stehen beide Gleichungen in der Form ax + by = c, addierst du sie so, dass eine Variable wegfällt. Dazu müssen die Zahlen vor dieser Variablen gleich groß sein, aber verschiedene Vorzeichen haben. Sonst vorher eine Gleichung mit einer Zahl malnehmen.</p>
+          </>,
+          widget: (p) => <LnSteps onDone={p.onDone} lines={[
+            { f: 'I: 3x + 2y = 16     II: 5x − 2y = 8', e: '+2y und −2y' },
+            { f: 'I + II: 8x = 24  →  x = 3', e: 'y fällt weg' },
+            { f: '3 · 3 + 2y = 16  →  2y = 7  →  y = 3,5', e: 'x in I einsetzen' },
+            { f: 'L = {(3 | 3,5)}', e: 'fertig' }]} />,
+          merke: <>Gleichsetzen: beide nach y. Einsetzen: eine nach x oder y. Addieren: beide in der Form ax + by = c, eine Variable muss wegfallen.</>,
+          check: { q: 'I: x + y = 10, II: x − y = 4. Was ergibt I + II?', options: opt('2x = 14', '2y = 14', '2x = 6', 'x = 14'), correct: 0, hint: '+y und −y fallen weg, 10 + 4 = 14.' } },
+        { id: 'k5', title: 'Sachaufgaben: Gleichungen aufstellen',
+          body: <>
+            <p>Bei Textaufgaben ist das Aufstellen der schwere Teil. Lies den Text Satz für Satz: Jede Angabe wird eine Gleichung. Schreibe dazu, was x und y bedeuten.</p>
+          </>,
+          widget: (p) => <LnSteps onDone={p.onDone} lines={[
+            { f: '„Motorräder und Pkws, zusammen 50 Fahrzeuge und 160 Reifen.“', e: 'x = Motorräder, y = Pkws' },
+            { f: 'I: x + y = 50', e: 'Anzahl der Fahrzeuge' },
+            { f: 'II: 2x + 4y = 160', e: 'Reifen: 2 pro Motorrad, 4 pro Pkw' },
+            { f: 'x = 50 − y  →  2(50 − y) + 4y = 160  →  2y = 60  →  y = 30', e: 'Einsetzen' },
+            { f: 'x = 20: 20 Motorräder, 30 Pkws', e: 'Antwortsatz nicht vergessen' }]} />,
+          merke: <>Sachaufgabe: 1. Variablen festlegen, 2. jede Angabe als Gleichung schreiben, 3. lösen, 4. Antwortsatz und Probe am Text.</>,
+          check: { q: '„Die Summe zweier Zahlen ist 35, ihre Differenz 17.“ Welches System passt?', options: opt('x + y = 35, x − y = 17', 'x + y = 17, x − y = 35', 'x · y = 35, x − y = 17', 'x + y = 35, x + y = 17'), correct: 0, hint: 'Summe = plus, Differenz = minus.' } }
     ]};
 
     L.sachaufgaben = { cards: [

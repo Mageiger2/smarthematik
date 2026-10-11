@@ -864,6 +864,178 @@ GEN.abstand = (level, forbidden) => {
         finalGraph: lfSegGraph([A, B], lfRightTri(A, B)) };
 };
 
+// 10. Achsenspiegelung einer Geraden: y-Achse → m' = −m, t' = t; x-Achse → m' = −m, t' = −t
+S.mirrorFill = (m, t, axis) => {
+    const m2 = lfR(-m), t2 = axis === 'x' ? lfR(-t) : t;
+    return {
+        type: 'fill', goal: `Gib die Gleichung der Spiegelgeraden g' (Spiegelung an der ${axis}-Achse) an.`,
+        inputs: [{ id: 'm', correct: m2 }, { id: 't', correct: t2 }],
+        render: (h) => <LfZeile><span className="mr-1">g':</span><V>y</V> = {h.input('m')}<V>x</V> + {h.input('t')}</LfZeile>,
+        hint: axis === 'y' ? 'Spiegelung an der y-Achse: Die Steigung wechselt das Vorzeichen (m\' = −m), t bleibt gleich.' : 'Spiegelung an der x-Achse: Steigung und y-Achsenabschnitt wechseln das Vorzeichen (m\' = −m, t\' = −t).',
+        solution: `g': ${lfGlS(m2, t2)}`
+    };
+};
+GEN.spiegeln = (level, forbidden) => {
+    const m = lfPick([2, -2, 0.5, -0.5, 1, -1, 1.5, -1.5, 3, -3, 1/3, -2/3]), t = lfPick([-4, -3, -2, -1, 1, 2, 3, 4]);
+    const g = { m, t, n: 'g' };
+    const gy = { m: lfR(-m), t, n: "g'", color: '#dc2626' }, gx = { m: lfR(-m), t: lfR(-t), n: "g'", color: '#dc2626' };
+    if (level === 'leicht') {
+        return { typeId: 1, title: 'Spiegelung an der y-Achse', desc: <>Die Gerade <Gl m={m} t={t} name="g" /> wird an der y-Achse gespiegelt. Bestimme die Gleichung der Spiegelgeraden g'.</>,
+            graph: { range: LF_RANGE, lines: [g] }, steps: [
+                S.select('Was ändert sich bei der Spiegelung an der y-Achse?', ['Nur das Vorzeichen der Steigung', 'Steigung und y-Achsenabschnitt wechseln das Vorzeichen', 'Nur das Vorzeichen von t'], 0, 'Die Gerade wird nach links-rechts geklappt. Der Schnittpunkt mit der y-Achse bleibt, wo er ist.', "m' = −m, t' = t"),
+                S.mirrorFill(m, t, 'y')
+            ], finalGraph: { range: LF_RANGE, lines: [g, gy], points: [{ x: 0, y: t, n: 'Y' }] } };
+    }
+    if (level === 'mittel') {
+        return { typeId: 2, title: 'Spiegelung an der x-Achse', desc: <>Die Gerade <Gl m={m} t={t} name="g" /> wird an der x-Achse gespiegelt. Bestimme die Gleichung der Spiegelgeraden g'.</>,
+            graph: { range: LF_RANGE, lines: [g] }, steps: [
+                S.select('Was ändert sich bei der Spiegelung an der x-Achse?', ['Steigung und y-Achsenabschnitt wechseln das Vorzeichen', 'Nur das Vorzeichen der Steigung', 'Nur das Vorzeichen von t'], 0, 'Die Gerade wird nach oben-unten geklappt. Auch der Schnittpunkt mit der y-Achse wandert auf die andere Seite.', "m' = −m, t' = −t"),
+                S.mirrorFill(m, t, 'x')
+            ], finalGraph: { range: LF_RANGE, lines: [g, gx], points: [{ x: 0, y: t, n: 'Y' }, { x: 0, y: -t, n: "Y'" }] } };
+    }
+    const type = lfChooseType([3, 4], forbidden);
+    if (type === 3) {
+        // Welche Achse? Spiegelbild gegeben
+        const axis = lfPick(['x', 'y']), gs = axis === 'x' ? gx : gy;
+        return { typeId: 3, title: 'Spiegelachse erkennen', desc: <>Die Gerade <Gl m={m} t={t} name="g" /> wurde an einer Koordinatenachse gespiegelt. Die Spiegelgerade ist <Gl m={gs.m} t={gs.t} name="g'" />. An welcher Achse wurde gespiegelt?</>,
+            graph: { range: LF_RANGE, lines: [g, gs] }, steps: [
+                S.select('An welcher Achse wurde gespiegelt?', ['An der x-Achse', 'An der y-Achse'], axis === 'x' ? 0 : 1, 'Vergleiche t und t\': Bleibt der y-Achsenabschnitt gleich, war es die y-Achse. Wechselt er das Vorzeichen, war es die x-Achse.', axis === 'x' ? 'x-Achse (t hat das Vorzeichen gewechselt)' : 'y-Achse (t ist gleich geblieben)')
+            ], finalGraph: { range: LF_RANGE, lines: [g, gs] } };
+    }
+    // Zweimal spiegeln: erst y-Achse, dann x-Achse
+    const g2 = { m, t: lfR(-t), n: "g''", color: '#16a34a' };
+    return { typeId: 4, title: 'Zweimal gespiegelt', desc: <>Die Gerade <Gl m={m} t={t} name="g" /> wird zuerst an der y-Achse und dann an der x-Achse gespiegelt. Bestimme die Gleichungen von g' und g''.</>,
+        graph: { range: LF_RANGE, lines: [g] }, steps: [
+            S.mirrorFill(m, t, 'y'),
+            { type: 'fill', goal: "Spiegle jetzt g' an der x-Achse: Gleichung von g''.", inputs: [{ id: 'm', correct: m }, { id: 't', correct: lfR(-t) }],
+              render: (h) => <LfZeile><span className="mr-1">g'':</span><V>y</V> = {h.input('m')}<V>x</V> + {h.input('t')}</LfZeile>,
+              hint: "Von g' aus: m und t wechseln beide das Vorzeichen.", solution: `g'': ${lfGlS(m, lfR(-t))}` }
+        ], finalGraph: { range: LF_RANGE, lines: [g, gy, g2] } };
+};
+
+// 11. Lineare Gleichungssysteme
+// Gleichung a·x + b·y = c als Text (a, b ganzzahlig)
+const lgsTerm = (k, v, first) => {
+    if (k === 0) return '';
+    const sign = k < 0 ? '− ' : (first ? '' : '+ ');
+    const a = Math.abs(k);
+    return `${sign}${a === 1 ? '' : lfS(a)}${v} `;
+};
+const lgsEq = (a, b, c) => `${lgsTerm(a, 'x', true)}${lgsTerm(b, 'y', a === 0)}= ${lfS(c)}`.replace(/\s+/g, ' ').trim();
+const lgsSys = (eq1, eq2) => <div className="font-math text-lg sm:text-xl bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 inline-block text-left my-2"><div>I&nbsp;&nbsp; {eq1}</div><div>II&nbsp; {eq2}</div></div>;
+// Lösungsschritt: Lösungsmenge L = {(x | y)}
+S.lgsL = (x, y) => ({
+    type: 'fill', goal: 'Gib die Lösung des Gleichungssystems an.', inputs: [{ id: 'x', correct: x }, { id: 'y', correct: y }],
+    render: (h) => <LfZeile><V>L</V> = {'{('}{h.input('x')} | {h.input('y')}{')}'}</LfZeile>,
+    hint: 'Erst x, dann y. Das Zahlenpaar ist der Schnittpunkt der beiden Geraden.', solution: `L = {(${lfS(x)} | ${lfS(y)})}`
+});
+const LGS_VERFAHREN = ['Gleichsetzungsverfahren', 'Einsetzungsverfahren', 'Additionsverfahren'];
+GEN.lgs = (level, forbidden) => {
+    if (level === 'leicht') {
+        // Beide Gleichungen nach y aufgelöst → Gleichsetzen
+        let m1, t1, m2, t2, x, y;
+        for (let i = 0; i < 100; i++) {
+            m1 = lfPick([1, 2, 3, -1, -2, 0.5]); m2 = lfPick([1, 2, 3, -1, -2, -3, 0.5, -0.5]); if (m1 === m2) continue;
+            x = lfRand(-4, 4); t1 = lfRand(-6, 6); y = lfR(m1 * x + t1); t2 = lfR(y - m2 * x);
+            if (Number.isInteger(y) && Number.isInteger(t2) && Math.abs(t2) <= 9 && Math.abs(y) <= 9) break;
+        }
+        return { typeId: 1, title: 'Gleichsetzungsverfahren', desc: <>Löse das Gleichungssystem.{lgsSys(lfGlS(m1, t1), lfGlS(m2, t2))}</>,
+            steps: [
+                S.select('Welches Verfahren passt hier am besten?', LGS_VERFAHREN, 0, 'Beide Gleichungen sind schon nach y aufgelöst. Dann setzt du die rechten Seiten gleich.', 'Gleichsetzungsverfahren: ' + `${lfGlS(m1, t1).slice(4)} = ${lfGlS(m2, t2).slice(4)}`),
+                S.calc('Setze die rechten Seiten gleich und löse nach x auf.', <V>x</V>, x, `${lfGlS(m1, t1).slice(4)} = ${lfGlS(m2, t2).slice(4)}. Bringe die x-Terme auf eine Seite, die Zahlen auf die andere.`, `${lfS(lfR(m1 - m2))}x = ${lfS(lfR(t2 - t1))}  →  x = ${lfS(x)}`),
+                S.calc('Setze x in eine Gleichung ein und berechne y.', <V>y</V>, y, `Zum Beispiel in I: y = ${lfS(m1)} · ${lfP(x)} + ${lfP(t1)}.`, `y = ${lfS(m1)} · ${lfP(x)} + ${lfP(t1)} = ${lfS(y)}`),
+                S.lgsL(x, y)
+            ], finalGraph: { range: lfRangeFor([{ x, y }]), lines: [{ m: m1, t: t1, n: 'I' }, { m: m2, t: t2, n: 'II' }], points: [{ x, y, n: 'S' }] } };
+    }
+    if (level === 'mittel') {
+        const type = lfChooseType([2, 3], forbidden);
+        if (type === 2) {
+            // I nach y aufgelöst, II allgemein → Einsetzen
+            let m1, t1, a, b, c, x, y;
+            for (let i = 0; i < 100; i++) {
+                m1 = lfPick([1, 2, 3, -1, -2]); t1 = lfRand(-5, 5); x = lfRand(-4, 4); y = m1 * x + t1;
+                a = lfPick([1, 2, 3, -1, -2]); b = lfPick([1, 2, 3, -1, -3]); c = a * x + b * y;
+                if (a + b * m1 !== 0 && Math.abs(c) <= 40 && Math.abs(y) <= 12) break;
+            }
+            return { typeId: 2, title: 'Einsetzungsverfahren', desc: <>Löse das Gleichungssystem.{lgsSys(lfGlS(m1, t1), lgsEq(a, b, c))}</>,
+                steps: [
+                    S.select('Welches Verfahren passt hier am besten?', LGS_VERFAHREN, 1, 'Gleichung I ist nach y aufgelöst. Diesen Term setzt du in II für y ein.', 'Einsetzungsverfahren: y aus I in II einsetzen'),
+                    { type: 'fill', goal: 'Setze den Term aus I für y in Gleichung II ein.', inputs: [{ id: 'm', correct: m1 }, { id: 't', correct: t1 }],
+                      render: (h) => <LfZeile>{lgsTerm(a, 'x', true)}{a === 0 ? '' : (b < 0 ? '− ' : '+ ')}{Math.abs(b) === 1 ? '' : lfS(Math.abs(b))}({h.input('m')}<V>x</V> + {h.input('t')}) = {lfS(c)}</LfZeile>,
+                      hint: `In II steht y. Dafür schreibst du den ganzen Term aus I in Klammern: (${lfGlS(m1, t1).slice(4)}).`, solution: `${lgsTerm(a, 'x', true)}${b < 0 ? '− ' : '+ '}${Math.abs(b) === 1 ? '' : lfS(Math.abs(b))}(${lfGlS(m1, t1).slice(4)}) = ${lfS(c)}` },
+                    S.calc('Löse die Klammer auf und berechne x.', <V>x</V>, x, `Klammer ausmultiplizieren: ${lfS(b * m1)}x ${b * t1 < 0 ? '−' : '+'} ${lfS(Math.abs(b * t1))}. Dann x-Terme zusammenfassen.`, `${lfS(a + b * m1)}x = ${lfS(c - b * t1)}  →  x = ${lfS(x)}`),
+                    S.calc('Berechne y mit Gleichung I.', <V>y</V>, y, `y = ${lfS(m1)} · ${lfP(x)} + ${lfP(t1)}`, `y = ${lfS(y)}`),
+                    S.lgsL(x, y)
+                ] };
+        }
+        // Addition: y-Koeffizienten heben sich auf
+        let a1, a2, b, c1, c2, x, y;
+        for (let i = 0; i < 100; i++) {
+            a1 = lfPick([1, 2, 3, 4]); a2 = lfPick([1, 2, 3, 5]); b = lfPick([1, 2, 3]); x = lfRand(-4, 5); y = lfRand(-5, 5);
+            c1 = a1 * x + b * y; c2 = a2 * x - b * y;
+            if (x !== 0 && y !== 0) break;
+        }
+        return { typeId: 3, title: 'Additionsverfahren', desc: <>Löse das Gleichungssystem.{lgsSys(lgsEq(a1, b, c1), lgsEq(a2, -b, c2))}</>,
+            steps: [
+                S.select('Was passiert, wenn du die Gleichungen I und II addierst?', ['y fällt weg', 'x fällt weg', 'Nichts fällt weg'], 0, `In I steht +${lfS(b)}y, in II steht −${lfS(b)}y. Zusammen ergibt das 0.`, 'I + II: y fällt weg'),
+                S.calc('Addiere I + II und berechne x.', <V>x</V>, x, `(${lfS(a1)} + ${lfS(a2)})x = ${lfS(c1)} ${c2 < 0 ? '−' : '+'} ${lfS(Math.abs(c2))}`, `${lfS(a1 + a2)}x = ${lfS(c1 + c2)}  →  x = ${lfS(x)}`),
+                S.calc('Setze x in Gleichung I ein und berechne y.', <V>y</V>, y, `${lfS(a1)} · ${lfP(x)} + ${lfS(b)}y = ${lfS(c1)}. Zahl auf die andere Seite, dann durch ${lfS(b)} teilen.`, `${lfS(b)}y = ${lfS(c1 - a1 * x)}  →  y = ${lfS(y)}`),
+                S.lgsL(x, y)
+            ] };
+    }
+    // Schwer: Sachaufgaben
+    const type = lfChooseType([4, 5, 6, 7], forbidden);
+    const sysSelect = (goal, right, wrong1, wrong2, hint) => S.select(goal, [right, wrong1, wrong2].map(o => <span className="font-math">{o}</span>), 0, hint, right);
+    if (type === 4) {
+        const x = lfRand(12, 40), y = lfRand(3, x - 2), S_ = x + y, D = x - y;
+        return { typeId: 4, title: 'Zwei Zahlen gesucht', desc: <>Die Summe zweier Zahlen beträgt {lfS(S_)}, ihre Differenz ist {lfS(D)}. Ermittle die beiden Zahlen mithilfe eines linearen Gleichungssystems.</>,
+            steps: [
+                sysSelect('Welches Gleichungssystem passt? (x ist die größere Zahl)', `I: x + y = ${lfS(S_)}   II: x − y = ${lfS(D)}`, `I: x + y = ${lfS(S_)}   II: x · y = ${lfS(D)}`, `I: x − y = ${lfS(S_)}   II: x + y = ${lfS(D)}`, 'Summe = plus, Differenz = minus.'),
+                S.calc('Addiere I + II und berechne x.', <V>x</V>, x, `y fällt weg: 2x = ${lfS(S_)} + ${lfS(D)}.`, `2x = ${lfS(S_ + D)}  →  x = ${lfS(x)}`),
+                S.calc('Berechne die zweite Zahl y.', <V>y</V>, y, `y = ${lfS(S_)} − ${lfS(x)}`, `y = ${lfS(y)}`),
+                S.lgsL(x, y)
+            ] };
+    }
+    if (type === 5) {
+        const mo = lfRand(40, 180), pk = lfRand(80, 320), N = mo + pk, R = 2 * mo + 4 * pk;
+        return { typeId: 5, title: 'Motorräder und Pkws', desc: <>Auf einem Parkplatz stehen Motorräder und Pkws, zusammen {lfS(N)} Fahrzeuge und {lfS(R)} Reifen. Berechne die Anzahl der Motorräder (x) und der Pkws (y).</>,
+            steps: [
+                sysSelect('Welches Gleichungssystem passt?', `I: x + y = ${lfS(N)}   II: 2x + 4y = ${lfS(R)}`, `I: x + y = ${lfS(N)}   II: 4x + 2y = ${lfS(R)}`, `I: 2x + 4y = ${lfS(N)}   II: x + y = ${lfS(R)}`, 'Ein Motorrad hat 2 Reifen, ein Pkw 4 Reifen.'),
+                S.calc('Löse I nach x auf, setze in II ein und berechne y (Pkws).', <V>y</V>, pk, `x = ${lfS(N)} − y. In II: 2(${lfS(N)} − y) + 4y = ${lfS(R)}, also ${lfS(2 * N)} + 2y = ${lfS(R)}.`, `2y = ${lfS(R - 2 * N)}  →  y = ${lfS(pk)}`),
+                S.calc('Berechne x (Motorräder).', <V>x</V>, mo, `x = ${lfS(N)} − ${lfS(pk)}`, `x = ${lfS(mo)}`),
+                S.lgsL(mo, pk)
+            ] };
+    }
+    if (type === 6) {
+        // Winkel im Viereck: α = k1·γ, β = δ/k2, γ + δ = s, Winkelsumme 360°
+        let k1, k2, ga, de;
+        for (let i = 0; i < 300; i++) {
+            k1 = lfPick([2, 3]); k2 = lfPick([2, 4]); de = k2 * lfRand(10, 45); ga = (360 - de - de / k2) / (k1 + 1);
+            if (Number.isInteger(ga) && ga >= 20 && ga + de <= 300 && k1 * ga < 180) break;
+        }
+        const al = k1 * ga, be = de / k2, sum = ga + de;
+        const k2w = k2 === 2 ? 'halb so groß wie' : 'ein Viertel von';
+        return { typeId: 6, title: 'Winkel im Viereck', desc: <>In einem Viereck ist der Winkel α {k1 === 2 ? 'doppelt' : 'dreimal'} so groß wie der Winkel γ. Der Winkel β ist {k2w} der Winkel δ. Die Winkel γ und δ messen zusammen {lfS(sum)}°. Wie viel Grad hat jeder Winkel? (Winkelsumme im Viereck: 360°)</>,
+            steps: [
+                sysSelect('Welche Gleichung entsteht aus der Winkelsumme (mit α = ' + k1 + 'γ und β = δ : ' + k2 + ')?', `${k1}γ + δ : ${k2} + γ + δ = 360`, `${k1}γ + ${k2}δ + γ + δ = 360`, `γ + δ = 360`, 'Alle vier Winkel zusammen sind 360°. Ersetze α und β durch die Angaben.'),
+                S.calc('Setze δ = ' + lfS(sum) + ' − γ ein und berechne γ.', <span>γ</span>, ga, `${k1 + 1}γ + (${lfS(sum)} − γ) · ${lfS(1 + 1 / k2)} = 360. Klammer auflösen, γ zusammenfassen.`, `γ = ${lfS(ga)}°`, '°'),
+                S.calc('Berechne δ.', <span>δ</span>, de, `δ = ${lfS(sum)} − γ`, `δ = ${lfS(de)}°`, '°'),
+                S.calc('Berechne α.', <span>α</span>, al, `α = ${k1} · γ`, `α = ${lfS(al)}°`, '°'),
+                S.calc('Berechne β.', <span>β</span>, be, `β = δ : ${k2}`, `β = ${lfS(be)}°`, '°')
+            ] };
+    }
+    // Drei Getränke
+    const O = lfRand(60, 120), d1 = lfPick([20, 30, 40, 50, 60, 80]), d2 = lfPick([20, 30, 40, 50, 60]);
+    const A = O - d1, M = A + O - d2, T = A + O + M;
+    return { typeId: 7, title: 'Drei Getränke', desc: <>Ein Hausmeister verkaufte in der Pause Apfelsaft, Orangensaft und Mineralwasser, zusammen {lfS(T)} Flaschen. Vom Apfelsaft verkaufte er {lfS(d1)} Flaschen weniger als vom Orangensaft. Vom Mineralwasser verkaufte er {lfS(d2)} Flaschen weniger als von den beiden anderen Getränken zusammen. Wie viele Flaschen waren es von jedem Getränk? (O = Orangensaft, A = Apfelsaft, M = Mineralwasser)</>,
+        steps: [
+            sysSelect('Welche Gleichungen passen?', `A = O − ${lfS(d1)};  M = A + O − ${lfS(d2)};  A + O + M = ${lfS(T)}`, `A = O + ${lfS(d1)};  M = A + O − ${lfS(d2)};  A + O + M = ${lfS(T)}`, `A = O − ${lfS(d1)};  M = ${lfS(d2)} − A − O;  A + O + M = ${lfS(T)}`, '„weniger als“ heißt minus. Alles zusammen ist die Gesamtzahl.'),
+            S.calc('Drücke alles durch O aus und berechne O (Orangensaft).', <V>O</V>, O, `A = O − ${lfS(d1)}, M = 2O − ${lfS(d1 + d2)}. Summe: 4O − ${lfS(2 * d1 + d2)} = ${lfS(T)}.`, `4O = ${lfS(T + 2 * d1 + d2)}  →  O = ${lfS(O)}`),
+            S.calc('Berechne A (Apfelsaft).', <V>A</V>, A, `A = ${lfS(O)} − ${lfS(d1)}`, `A = ${lfS(A)}`),
+            S.calc('Berechne M (Mineralwasser).', <V>M</V>, M, `M = ${lfS(A)} + ${lfS(O)} − ${lfS(d2)}`, `M = ${lfS(M)}`)
+        ] };
+};
+
 // 6. Geradengleichung aufstellen
 GEN.gleichung = (level, forbidden) => {
     if (level === 'leicht') {
@@ -871,7 +1043,20 @@ GEN.gleichung = (level, forbidden) => {
         const t = lfR(P.y - m * P.x);
         return { typeId: 1, title: 'Gleichung aus Punkt und Steigung', desc: <>Die Gerade g hat die Steigung m = {lfS(m)} und verläuft durch den Punkt {lfPt(P)}. Bestimme ihre Funktionsgleichung.</>, steps: S.linePM(P, m, 'g'), finalGraph: { range: lfRangeFor([P, { x: 0, y: t }]), lines: [{ m, t, n: 'g' }], points: [P] } };
     }
-    const type = level === 'mittel' ? 2 : lfChooseType([3, 4], forbidden);
+    const type = level === 'mittel' ? lfChooseType([2, 5], forbidden) : lfChooseType([3, 4], forbidden);
+    if (type === 5) {
+        // y-Achsenabschnitt und Punkt gegeben: m berechnen
+        const t = lfPick([-4, -3, -2, -1, 1, 2, 3, 4]), m = lfPick([2, -2, 0.5, -0.5, 1.5, -1.5, 3, -3, 1, -1]);
+        const x = lfPick([-4, -2, 2, 4]), P = { x, y: lfR(m * x + t), n: 'P' };
+        return { typeId: 5, title: 'Gleichung aus y-Achsenabschnitt und Punkt', desc: <>Die Gerade g schneidet die y-Achse bei t = {lfS(t)} und verläuft durch den Punkt {lfPt(P)}. Bestimme rechnerisch ihre Funktionsgleichung.</>,
+            steps: [
+                { type: 'fill', goal: 'Setze t und den Punkt P in y = mx + t ein.', inputs: [{ id: 'y', correct: P.y }, { id: 'x', correct: P.x }, { id: 't', correct: t }],
+                  render: (h) => <LfZeile>{h.input('y')} = <V>m</V> · {h.input('x')} + {h.input('t')}</LfZeile>,
+                  hint: `Für x und y die Koordinaten von ${lfPt(P)}, für t den y-Achsenabschnitt ${lfS(t)}. m bleibt unbekannt.`, solution: `${lfS(P.y)} = m · ${lfP(P.x)} + ${lfP(t)}` },
+                S.calc('Berechne die Steigung m.', <V>m</V>, m, `Bringe t auf die andere Seite: ${lfS(P.y)} − ${lfP(t)} = ${lfS(P.y - t)}. Dann durch ${lfP(P.x)} teilen.`, `m = (${lfS(P.y)} − ${lfP(t)}) : ${lfP(P.x)} = ${lfS(m)}`),
+                S.final(m, t, 'g')
+            ], finalGraph: { range: lfRangeFor([P]), lines: [{ m, t, n: 'g' }], points: [P, { x: 0, y: t, n: 'Y' }] } };
+    }
     if (type === 4) {
         const m = lfPick([3/4, -3/4, 2/3, -2/3, 1.5, -2.5, 0.25]);
         let P;
@@ -1427,12 +1612,14 @@ const LF_TOPICS = [
     { id: 'nullstelle', nr: 4, title: 'Nullstelle & Achsenschnittpunkte', desc: 'Schnittpunkte mit der x-Achse und der y-Achse berechnen.' },
     { id: 'steigung', nr: 5, title: 'Steigung aus zwei Punkten', desc: 'm = (y₂ − y₁) : (x₂ − x₁) berechnen — mit der Option Tangens auch den Steigungswinkel α.' },
     { id: 'abstand', nr: 6, title: 'Abstand zweier Punkte', desc: 'Streckenlänge mit dem Satz des Pythagoras: d = √((x₂ − x₁)² + (y₂ − y₁)²), auch Umfang und fehlende Koordinate.' },
-    { id: 'gleichung', nr: 7, title: 'Geradengleichung aufstellen', desc: 'Die Gleichung aus Punkt und Steigung oder aus zwei Punkten bestimmen.' },
+    { id: 'gleichung', nr: 7, title: 'Geradengleichung aufstellen', desc: 'Die Gleichung aus Steigung und Punkt, aus y-Achsenabschnitt und Punkt oder aus zwei Punkten bestimmen.' },
     { id: 'punktprobe', nr: 8, title: 'Punktprobe', desc: 'Liegt der Punkt auf der Geraden? Fehlende Koordinaten und Steigungen berechnen.' },
     { id: 'parallel', nr: 9, title: 'Parallele & senkrechte Geraden', desc: 'm₂ = m₁ oder m₁ · m₂ = −1: Geraden durch einen Punkt bestimmen und Lage prüfen.' },
     { id: 'schnittpunkt', nr: 10, title: 'Schnittpunkt zweier Geraden', desc: 'Gleichsetzen, x und y berechnen — auch mit Gleichungssystemen.' },
-    { id: 'sachaufgaben', nr: 11, title: 'Sachaufgaben', desc: 'Handytarif, Taxi, Kerze & Co. — lineare Zusammenhänge im Alltag.' },
-    { id: 'pruefung', nr: 12, title: 'MSA-Prüfungsaufgaben', desc: 'Komplette Prüfungsaufgaben 2010–2025 Teilaufgabe für Teilaufgabe durcharbeiten.' }
+    { id: 'spiegeln', nr: 11, title: 'Spiegeln an den Achsen', desc: 'Gerade an der x- oder y-Achse spiegeln: m\' = −m, und t bleibt oder wechselt das Vorzeichen.' },
+    { id: 'lgs', nr: 12, title: 'Lineare Gleichungssysteme', desc: 'Gleichsetzen, Einsetzen, Addieren — und Sachaufgaben mit zwei Unbekannten.' },
+    { id: 'sachaufgaben', nr: 13, title: 'Sachaufgaben', desc: 'Handytarif, Taxi, Kerze & Co. — lineare Zusammenhänge im Alltag.' },
+    { id: 'pruefung', nr: 14, title: 'MSA-Prüfungsaufgaben', desc: 'Komplette Prüfungsaufgaben 2010–2025 Teilaufgabe für Teilaufgabe durcharbeiten.' }
 ];
 
 // ==========================================
