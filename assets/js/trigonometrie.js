@@ -905,7 +905,7 @@ const FormulaSelection = ({ step, onCorrect, onTipShown }) => {
     const confirmSelection = () => {
         if (!selected) return;
         if (selected === step.correctAnswer) { setError(""); onCorrect(step.id, selected); }
-        else { setError(step.feedback); setErrors(e => e + 1); }
+        else { setError(step.feedback); setErrors(e => e + 1); recordError('trigonometrie', 'formel'); }
     };
 
     return (
@@ -957,7 +957,7 @@ const SubstitutionInput = ({ step, onCorrect, onTipShown }) => {
             }
         }
         if (matched) { setError(""); onCorrect(step.id, inputs); }
-        else { setError(step.feedback); setErrors(e => e + 1); }
+        else { setError(step.feedback); setErrors(e => e + 1); recordError('trigonometrie', 'einsetzen'); }
     };
 
     const renderTemplate = () => {
@@ -1000,13 +1000,13 @@ const CalculationInput = ({ step, onCorrect, onTipShown }) => {
     const checkAnswer = () => {
         const userVal = parseFloat(val.replace(',', '.'));
         const correct = parseFloat(step.correctAnswer.replace(',', '.'));
-        if (isNaN(userVal)) { setError(step.feedback); setErrors(e => e + 1); return; }
+        if (isNaN(userVal)) { setError(step.feedback); setErrors(e => e + 1); recordError('trigonometrie', 'rechnen'); return; }
         const tol = step.tolerance || 0.6;
         const isStrict = Math.abs(userVal - correct) <= tol;
         const isRounded = Math.round(userVal) === Math.round(correct);
         const isOneDecimal = userVal.toFixed(1) === correct.toFixed(1);
         if (isStrict || isRounded || isOneDecimal) { setError(""); onCorrect(step.id, val); }
-        else { setError(step.feedback); setErrors(e => e + 1); }
+        else { setError(step.feedback); setErrors(e => e + 1); recordError('trigonometrie', 'rechnen'); }
     };
 
     return (

@@ -2377,7 +2377,7 @@ const KopfrechenTrainer = () => {
             setStreak(newStreak);
             if (newStreak > 0 && newStreak % 6 === 0) triggerCelebration(setShowAnim);
             adaptive.recordCorrect();
-        } else { setStreak(0); adaptive.recordWrong(); }
+        } else { setStreak(0); adaptive.recordWrong(); if (!isCorrect) recordError('kopfrechnen', currentQuestion.category); }
     };
 
     const loadNextQuestion = () => {

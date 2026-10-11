@@ -237,8 +237,11 @@ const LnModeTabs = ({ topicId, mode, hasLearn, simple = false }) => {
 // ==========================================
 // 3. LERN-ANSICHT EINES THEMAS
 // ==========================================
-const LnLearnView = ({ trainer, topic, cards, Icon, backLink, onPractice, simple = false }) => {
+const LnLearnView = ({ trainer, topic, cards, Icon, backLink, onPractice, simple = false, focusId = null }) => {
     const [doneIds, setDoneIds] = useState(() => lnTopic(trainer, topic.id).cards);
+    // focusId: Karte aus dem Fehlerheft — wird zusätzlich geöffnet, auch wenn sie noch nicht an der Reihe ist
+    const focusIdx = focusId ? cards.findIndex(c => c.id === focusId) : -1;
+    useEffect(() => { if (focusIdx >= 0) { const el = document.getElementById(`ln-card-${focusIdx}`); if (el) setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300); } /* eslint-disable-next-line */ }, []);
     const [runKey, setRunKey] = useState(0);
     const streak = getStorage(topic.streakKey || `smarth_streak_${lnStoreId(trainer, topic.id)}`, 0);
     const t = themeColors[FK_THEME()] || themeColors.emerald;
@@ -268,7 +271,7 @@ const LnLearnView = ({ trainer, topic, cards, Icon, backLink, onPractice, simple
             <div className="space-y-4" key={runKey}>
                 {cards.map((c, i) => (
                     <div key={c.id} id={`ln-card-${i}`} className="scroll-mt-24">
-                        <LnCard card={c} idx={i} state={doneIds.includes(c.id) ? 'done' : i === firstOpen ? 'active' : 'locked'} onDone={() => markDone(c.id)} />
+                        <LnCard card={c} idx={i} state={doneIds.includes(c.id) ? 'done' : (i === firstOpen || i === focusIdx) ? 'active' : 'locked'} onDone={() => markDone(c.id)} />
                     </div>
                 ))}
             </div>
@@ -305,7 +308,8 @@ const LnStatusChips = ({ st, hasLearn }) => {
 // ==========================================
 // 4. TRAINER OHNE THEMENAUSWAHL: Lernen ↔ Üben über den Hash (#lernen)
 // ==========================================
-const lnSimpleMode = () => (window.location.hash === '#lernen' ? 'lernen' : 'ueben');
+const lnSimpleMode = () => (window.location.hash.indexOf('#lernen') === 0 ? 'lernen' : 'ueben');
+const lnSimpleFocus = () => (window.location.hash.split('/')[1] || null);
 
 // Umschalter + Status-Chips für einen Trainer ohne Themen (steht unter dem Trainer-Header)
 const LnSimpleTabs = ({ trainer, cards, streakKey }) => {
@@ -333,8 +337,8 @@ const LnSimpleApp = ({ trainer, title, Icon, theme, cards, streakKey, children }
         return () => window.removeEventListener('hashchange', onHash);
     }, []);
     if (mode === 'lernen' && cards && cards.length) {
-        return <LnLearnView key="lernen" trainer={trainer} topic={{ id: trainer, title, streakKey }} cards={cards} Icon={Icon}
-                            onPractice={() => { window.location.hash = 'ueben'; }} simple={true} />;
+        return <LnLearnView key={'lernen/' + (lnSimpleFocus() || '')} trainer={trainer} topic={{ id: trainer, title, streakKey }} cards={cards} Icon={Icon}
+                            onPractice={() => { window.location.hash = 'ueben'; }} simple={true} focusId={lnSimpleFocus()} />;
     }
     return children;
 };

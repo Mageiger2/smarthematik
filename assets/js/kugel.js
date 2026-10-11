@@ -1057,7 +1057,7 @@ const KugelTrainer = () => {
             setTimeout(() => advanceWith(answer), 350);
         } else {
             setSelectStatus('incorrect');
-            tc.triggerError();
+            tc.triggerError(); recordError('kugel', 'formel');
             adaptive.recordWrong();
         }
     };
@@ -1084,7 +1084,7 @@ const KugelTrainer = () => {
             const values = currentStep.inputs.map(i => ({ id: i.id, value: stepInputs[i.id] }));
             setTimeout(() => advanceWith({ type: 'fill', values }), 350);
         } else {
-            tc.triggerError();
+            tc.triggerError(); recordError('kugel', 'einsetzen');
             adaptive.recordWrong();
         }
     };
@@ -1093,7 +1093,7 @@ const KugelTrainer = () => {
         const v = parseDe(calcInput);
         if (isNaN(v)) {
             setCalcStatus('incorrect');
-            tc.triggerError(); adaptive.recordWrong();
+            tc.triggerError(); recordError('kugel', 'rechnen'); adaptive.recordWrong();
             return;
         }
         const expected = parseFloat(currentStep.correct);
@@ -1104,7 +1104,7 @@ const KugelTrainer = () => {
             setTimeout(() => advanceWith(answer), 350);
         } else {
             setCalcStatus('incorrect');
-            tc.triggerError();
+            tc.triggerError(); recordError('kugel', 'rechnen');
             adaptive.recordWrong();
         }
     };

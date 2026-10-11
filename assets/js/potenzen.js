@@ -202,7 +202,7 @@ const PotenzenTrainer = () => {
         setStep4HintMsg(null);
         setFeedback({});
     };
-    const triggerError = (fBack) => { setErrors(e => e + 1); setStreak(0); setFeedback(fBack); adaptive.recordWrong(); };
+    const triggerError = (fBack, kind) => { setErrors(e => e + 1); setStreak(0); setFeedback(fBack); adaptive.recordWrong(); if (kind) recordError('potenzen', kind); };
 
     const handleInp = (key, val) => {
         setInputs(prev => ({ ...prev, [key]: val }));
@@ -309,7 +309,7 @@ const PotenzenTrainer = () => {
         if (parseInt(inputs.s1n) === problem.s1.num) f.s1n = 'correct'; else { f.s1n = 'incorrect'; allOk = false; }
         if (parseInt(inputs.s1d) === problem.s1.den) f.s1d = 'correct'; else { f.s1d = 'incorrect'; allOk = false; }
         if (allOk) { setFeedback(f); setTimeout(() => advance(2), 500); }
-        else triggerError(f);
+        else triggerError(f, 'zahlen');
     };
 
     const checkStep2 = () => {
@@ -321,7 +321,7 @@ const PotenzenTrainer = () => {
             if (inpD === problem.s2.denExp[v]) f['s2d'+v] = 'correct'; else { f['s2d'+v] = 'incorrect'; allOk = false; }
         });
         if (allOk) { setFeedback(f); setTimeout(() => advance(3), 500); }
-        else triggerError(f);
+        else triggerError(f, 'exponenten');
     };
 
     const checkStep3 = () => {
@@ -344,7 +344,7 @@ const PotenzenTrainer = () => {
             if (inpE === problem.s3.exp[v]) f['s3e'+v] = 'correct'; else { f['s3e'+v] = 'incorrect'; allOk = false; }
         });
         if (allOk) { setFeedback(f); setTimeout(() => advance(4), 500); }
-        else triggerError(f);
+        else triggerError(f, 'kuerzen');
     };
 
     const checkStep4 = () => {
@@ -354,7 +354,7 @@ const PotenzenTrainer = () => {
             // Check auf Form: ^0 oder ^1 sollten weggekürzt werden.
             if (val.includes('^0') || val.match(/\^1(?!\d)/)) {
                 setStep4HintMsg("Mathematisch korrekt — aber noch nicht maximal vereinfacht! 'hoch 0' ist immer 1 und kann weggelassen werden. Ein 'hoch 1' schreibt man normalerweise gar nicht (z.B. nur x statt x^1).");
-                triggerError({ s4: 'incorrect' });
+                triggerError({ s4: 'incorrect' }, 'term');
                 return;
             }
             setStep4HintMsg(null);
@@ -366,7 +366,7 @@ const PotenzenTrainer = () => {
             setTimeout(() => advance(5), 500);
         } else {
             setStep4HintMsg(null);
-            triggerError({ s4: 'incorrect' });
+            triggerError({ s4: 'incorrect' }, 'term');
         }
     };
 

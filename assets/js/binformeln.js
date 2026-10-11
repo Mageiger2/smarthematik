@@ -185,6 +185,7 @@ const buildDynamicTask = (level) => {
         const answers = (idx === 8 && (formel === 1 || formel === 2)) ? tMidAlts : [token];
         const longest = Math.max(...answers.map(a => a.length));
         inputs[inputId] = {
+            idx,
             answers,
             width: longest > 3 ? 'w-24' : 'w-16',
             value: '',
@@ -330,6 +331,9 @@ const BinformelnTrainer = () => {
             setErrorMsg("Noch nicht ganz richtig. Streak zurückgesetzt.");
             setStreak(0);
             setErrors(e => e + 1);
+            // Fehlerheft: welche Art von Lücke war falsch? (8 = mittleres Glied, 6/10/12/14 = Quadrate, sonst Klammerglieder)
+            const kinds = new Set(Object.values(newInputs).filter(i => i.status === 'incorrect').map(i => i.idx === 8 ? 'mittelglied' : [6, 10, 12, 14].includes(i.idx) ? 'quadrat' : 'klammer'));
+            kinds.forEach(k => recordError('binformeln', k));
             adaptive.recordWrong();
         }
     };

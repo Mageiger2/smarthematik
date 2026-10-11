@@ -136,7 +136,7 @@ const WachstumsTrainer = () => {
 
     useEffect(() => { setStorage('smarth_streak_wachstum', streak); }, [streak]);
     const advance = (nextStep) => { setStep(nextStep); setErrors(0); setTipRevealed(false); };
-    const triggerError = () => { setErrors(e => e + 1); setStreak(0); adaptive.recordWrong(); };
+    const triggerError = (kind) => { setErrors(e => e + 1); setStreak(0); adaptive.recordWrong(); if (kind) recordError('wachstum', kind); };
     const round = (num, decimals = 2) => Math.round(num * Math.pow(10, decimals)) / Math.pow(10, decimals);
     const handleInputChange = (id, val) => { setInputs(prev => ({ ...prev, [id]: val.replace('.', ',') })); setInputFeedback(prev => ({ ...prev, [id]: null })); };
 
@@ -282,7 +282,7 @@ const WachstumsTrainer = () => {
     };
     const confirmIdentify = () => {
         if (step > 1 || !problem || !selectedIdentification) return;
-        if (selectedIdentification === problem.type) { advance(2); } else { triggerError(); }
+        if (selectedIdentification === problem.type) { advance(2); } else { triggerError('gesucht'); }
     };
 
     const checkFormulaInputs = () => {
@@ -294,7 +294,7 @@ const WachstumsTrainer = () => {
         if (problem.type !== 'rate' && !checkVal(inputs.q, problem.q)) { feedback.q = 'incorrect'; allCorrect = false; } else feedback.q = 'correct';
         if (problem.type !== 'n' && !checkVal(inputs.n, problem.n)) { feedback.n = 'incorrect'; allCorrect = false; } else feedback.n = 'correct';
         setInputFeedback(feedback);
-        if (allCorrect) advance(3); else triggerError();
+        if (allCorrect) advance(3); else triggerError('einsetzen');
     };
 
     // Step 3: Auswahl nur markieren — Bestätigung über SubmitBtn (siehe Step 1).
@@ -306,7 +306,7 @@ const WachstumsTrainer = () => {
         if (step > 3 || !selectedOptionId) return;
         const opt = options.find(o => o.id === selectedOptionId);
         if (!opt) return;
-        if (opt.isCorrect) { advance(4); } else { triggerError(); }
+        if (opt.isCorrect) { advance(4); } else { triggerError('umformen'); }
     };
 
     const checkFinalResult = () => {
@@ -323,7 +323,7 @@ const WachstumsTrainer = () => {
             if (newStreak > 0 && newStreak % 3 === 0) triggerCelebration(setShowAnim);
             adaptive.recordCorrect();
             setShowSolution(true); advance(5);
-        } else { setFinalFeedback('incorrect'); triggerError(); }
+        } else { setFinalFeedback('incorrect'); triggerError('ergebnis'); }
     };
 
     // Liefert den Lösungstext für den aktuellen Schritt — wird in TipBox angezeigt,

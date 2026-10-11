@@ -1935,6 +1935,7 @@ const fkExamTask = (part) => {
         title: `Aufgabe ${ex.nr}${part.l}`,
         label: `${ex.label}/${ex.nr}${part.l}`,
         sigKey: `${ex.id}-${part.l}`,
+        topic: part.topic || null,
         desc: <>{ex.intro && <div className="mb-2 text-slate-600">{ex.intro}</div>}<div>{part.text}</div></>,
         graph: part.graph !== undefined ? part.graph : (ex.graph || null),
         steps: built,
@@ -1982,7 +1983,7 @@ const LfStepRunner = ({ task, tc, onWrong, onSolved, onSolutionShown, onNext, ne
         if (selectIdx === step.correctIdx) {
             setSelectStatus('correct');
             setTimeout(() => advanceWith({ type: 'select', jsx: step.options[selectIdx] }), 350);
-        } else { setSelectStatus('incorrect'); onWrong(); }
+        } else { setSelectStatus('incorrect'); onWrong(step.type); }
     };
 
     const checkFill = () => {
@@ -2004,7 +2005,7 @@ const LfStepRunner = ({ task, tc, onWrong, onSolved, onSolutionShown, onNext, ne
             sets.forEach(set => { const c = step.inputs.filter(i => fieldOk(set, i)).length; if (c > bestCount) { best = set; bestCount = c; } });
             const st = {}; step.inputs.forEach(i => { st[i.id] = fieldOk(best, i) ? 'correct' : 'incorrect'; });
             setStatus(st);
-            onWrong();
+            onWrong(step.type);
         }
     };
 
@@ -2013,7 +2014,7 @@ const LfStepRunner = ({ task, tc, onWrong, onSolved, onSolutionShown, onNext, ne
         if (fkNumOk(calcInput, v, step.correct, step.tol)) {
             setCalcStatus('correct');
             setTimeout(() => advanceWith({ type: 'calc', value: calcInput, label: step.label, unit: step.unit }), 350);
-        } else { setCalcStatus('incorrect'); onWrong(); }
+        } else { setCalcStatus('incorrect'); onWrong(step.type); }
     };
 
     const checkPoints = () => {
@@ -2024,7 +2025,7 @@ const LfStepRunner = ({ task, tc, onWrong, onSolved, onSolutionShown, onNext, ne
         });
         setPlaced(res);
         if (res.every(p => p.ok)) setTimeout(() => advanceWith({ type: 'points', pts: res }), 350);
-        else onWrong();
+        else onWrong(step.type);
     };
 
     const placePoint = (x, y) => {
@@ -2235,7 +2236,7 @@ const LfTopicTrainer = ({ topic }) => {
                 {task && <LfTaskCard task={task} />}
                 {task && (
                     <LfStepRunner key={taskKey} task={task} tc={tc}
-                                  onWrong={() => { tc.triggerError(); adaptive.recordWrong(); }}
+                                  onWrong={(kind) => { tc.triggerError(); adaptive.recordWrong(); recordError(FKC.key, `${topic.id}:${kind}`); }}
                                   onSolved={() => { tc.onSuccessfulSolve(); adaptive.recordCorrect(); if (task.sigKey) lnMarkExam(FKC.key, task.sigKey); }}
                                   onSolutionShown={() => { tc.onSolutionShown(); adaptive.recordWrong(); }}
                                   onNext={() => newTask()}
@@ -2320,7 +2321,7 @@ const LfExamTrainer = ({ topic }) => {
                     </div>
                     <LfTaskCard task={task} />
                     <LfStepRunner key={taskKey} task={task} tc={tc}
-                                  onWrong={() => tc.triggerError()}
+                                  onWrong={(kind) => { tc.triggerError(); recordError(FKC.key, `${task.topic || 'pruefung'}:${kind}`); }}
                                   onSolved={() => { tc.onSuccessfulSolve(); setDone(d => ({ ...d, [partIdx]: true })); lnMarkExam(FKC.key, task.sigKey); }}
                                   onSolutionShown={() => tc.onSolutionShown()}
                                   onNext={() => { if (partIdx + 1 < parts.length) openPart(exam, partIdx + 1); else { setExamId(null); setTask(null); } }}
@@ -2479,12 +2480,12 @@ const FkApp = () => {
         window.addEventListener('hashchange', onHash);
         return () => window.removeEventListener('hashchange', onHash);
     }, []);
-    const [topicId, mode] = hash.split('/');
+    const [topicId, mode, cardId] = hash.split('/');
     const topic = FKC.topics.find(t => t.id === topicId);
     if (!topic) return <LfOverview />;
     if (mode === 'lernen' && fkHasLearn(topic.id)) {
-        return <LnLearnView key={topic.id + '/lernen'} trainer={FKC.key} topic={topic} cards={fkLearnCards(topic.id)} Icon={FKC.icon}
-                            backLink={<LfBackLink />} onPractice={() => { window.location.hash = topic.id; }} />;
+        return <LnLearnView key={topic.id + '/lernen/' + (cardId || '')} trainer={FKC.key} topic={topic} cards={fkLearnCards(topic.id)} Icon={FKC.icon}
+                            backLink={<LfBackLink />} onPractice={() => { window.location.hash = topic.id; }} focusId={cardId || null} />;
     }
     if (topic.id === 'pruefung') return <LfExamTrainer key={topic.id} topic={topic} />;
     return <LfTopicTrainer key={topic.id} topic={topic} />;
@@ -2743,8 +2744,11 @@ const LnModeTabs = ({ topicId, mode, hasLearn, simple = false }) => {
 // ==========================================
 // 3. LERN-ANSICHT EINES THEMAS
 // ==========================================
-const LnLearnView = ({ trainer, topic, cards, Icon, backLink, onPractice, simple = false }) => {
+const LnLearnView = ({ trainer, topic, cards, Icon, backLink, onPractice, simple = false, focusId = null }) => {
     const [doneIds, setDoneIds] = useState(() => lnTopic(trainer, topic.id).cards);
+    // focusId: Karte aus dem Fehlerheft — wird zusätzlich geöffnet, auch wenn sie noch nicht an der Reihe ist
+    const focusIdx = focusId ? cards.findIndex(c => c.id === focusId) : -1;
+    useEffect(() => { if (focusIdx >= 0) { const el = document.getElementById(`ln-card-${focusIdx}`); if (el) setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300); } /* eslint-disable-next-line */ }, []);
     const [runKey, setRunKey] = useState(0);
     const streak = getStorage(topic.streakKey || `smarth_streak_${lnStoreId(trainer, topic.id)}`, 0);
     const t = themeColors[FK_THEME()] || themeColors.emerald;
@@ -2774,7 +2778,7 @@ const LnLearnView = ({ trainer, topic, cards, Icon, backLink, onPractice, simple
             <div className="space-y-4" key={runKey}>
                 {cards.map((c, i) => (
                     <div key={c.id} id={`ln-card-${i}`} className="scroll-mt-24">
-                        <LnCard card={c} idx={i} state={doneIds.includes(c.id) ? 'done' : i === firstOpen ? 'active' : 'locked'} onDone={() => markDone(c.id)} />
+                        <LnCard card={c} idx={i} state={doneIds.includes(c.id) ? 'done' : (i === firstOpen || i === focusIdx) ? 'active' : 'locked'} onDone={() => markDone(c.id)} />
                     </div>
                 ))}
             </div>
@@ -2811,7 +2815,8 @@ const LnStatusChips = ({ st, hasLearn }) => {
 // ==========================================
 // 4. TRAINER OHNE THEMENAUSWAHL: Lernen ↔ Üben über den Hash (#lernen)
 // ==========================================
-const lnSimpleMode = () => (window.location.hash === '#lernen' ? 'lernen' : 'ueben');
+const lnSimpleMode = () => (window.location.hash.indexOf('#lernen') === 0 ? 'lernen' : 'ueben');
+const lnSimpleFocus = () => (window.location.hash.split('/')[1] || null);
 
 // Umschalter + Status-Chips für einen Trainer ohne Themen (steht unter dem Trainer-Header)
 const LnSimpleTabs = ({ trainer, cards, streakKey }) => {
@@ -2839,8 +2844,8 @@ const LnSimpleApp = ({ trainer, title, Icon, theme, cards, streakKey, children }
         return () => window.removeEventListener('hashchange', onHash);
     }, []);
     if (mode === 'lernen' && cards && cards.length) {
-        return <LnLearnView key="lernen" trainer={trainer} topic={{ id: trainer, title, streakKey }} cards={cards} Icon={Icon}
-                            onPractice={() => { window.location.hash = 'ueben'; }} simple={true} />;
+        return <LnLearnView key={'lernen/' + (lnSimpleFocus() || '')} trainer={trainer} topic={{ id: trainer, title, streakKey }} cards={cards} Icon={Icon}
+                            onPractice={() => { window.location.hash = 'ueben'; }} simple={true} focusId={lnSimpleFocus()} />;
     }
     return children;
 };

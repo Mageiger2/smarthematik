@@ -372,6 +372,7 @@ const fkExamTask = (part) => {
         title: `Aufgabe ${ex.nr}${part.l}`,
         label: `${ex.label}/${ex.nr}${part.l}`,
         sigKey: `${ex.id}-${part.l}`,
+        topic: part.topic || null,
         desc: <>{ex.intro && <div className="mb-2 text-slate-600">{ex.intro}</div>}<div>{part.text}</div></>,
         graph: part.graph !== undefined ? part.graph : (ex.graph || null),
         steps: built,
@@ -419,7 +420,7 @@ const LfStepRunner = ({ task, tc, onWrong, onSolved, onSolutionShown, onNext, ne
         if (selectIdx === step.correctIdx) {
             setSelectStatus('correct');
             setTimeout(() => advanceWith({ type: 'select', jsx: step.options[selectIdx] }), 350);
-        } else { setSelectStatus('incorrect'); onWrong(); }
+        } else { setSelectStatus('incorrect'); onWrong(step.type); }
     };
 
     const checkFill = () => {
@@ -441,7 +442,7 @@ const LfStepRunner = ({ task, tc, onWrong, onSolved, onSolutionShown, onNext, ne
             sets.forEach(set => { const c = step.inputs.filter(i => fieldOk(set, i)).length; if (c > bestCount) { best = set; bestCount = c; } });
             const st = {}; step.inputs.forEach(i => { st[i.id] = fieldOk(best, i) ? 'correct' : 'incorrect'; });
             setStatus(st);
-            onWrong();
+            onWrong(step.type);
         }
     };
 
@@ -450,7 +451,7 @@ const LfStepRunner = ({ task, tc, onWrong, onSolved, onSolutionShown, onNext, ne
         if (fkNumOk(calcInput, v, step.correct, step.tol)) {
             setCalcStatus('correct');
             setTimeout(() => advanceWith({ type: 'calc', value: calcInput, label: step.label, unit: step.unit }), 350);
-        } else { setCalcStatus('incorrect'); onWrong(); }
+        } else { setCalcStatus('incorrect'); onWrong(step.type); }
     };
 
     const checkPoints = () => {
@@ -461,7 +462,7 @@ const LfStepRunner = ({ task, tc, onWrong, onSolved, onSolutionShown, onNext, ne
         });
         setPlaced(res);
         if (res.every(p => p.ok)) setTimeout(() => advanceWith({ type: 'points', pts: res }), 350);
-        else onWrong();
+        else onWrong(step.type);
     };
 
     const placePoint = (x, y) => {
@@ -672,7 +673,7 @@ const LfTopicTrainer = ({ topic }) => {
                 {task && <LfTaskCard task={task} />}
                 {task && (
                     <LfStepRunner key={taskKey} task={task} tc={tc}
-                                  onWrong={() => { tc.triggerError(); adaptive.recordWrong(); }}
+                                  onWrong={(kind) => { tc.triggerError(); adaptive.recordWrong(); recordError(FKC.key, `${topic.id}:${kind}`); }}
                                   onSolved={() => { tc.onSuccessfulSolve(); adaptive.recordCorrect(); if (task.sigKey) lnMarkExam(FKC.key, task.sigKey); }}
                                   onSolutionShown={() => { tc.onSolutionShown(); adaptive.recordWrong(); }}
                                   onNext={() => newTask()}
@@ -757,7 +758,7 @@ const LfExamTrainer = ({ topic }) => {
                     </div>
                     <LfTaskCard task={task} />
                     <LfStepRunner key={taskKey} task={task} tc={tc}
-                                  onWrong={() => tc.triggerError()}
+                                  onWrong={(kind) => { tc.triggerError(); recordError(FKC.key, `${task.topic || 'pruefung'}:${kind}`); }}
                                   onSolved={() => { tc.onSuccessfulSolve(); setDone(d => ({ ...d, [partIdx]: true })); lnMarkExam(FKC.key, task.sigKey); }}
                                   onSolutionShown={() => tc.onSolutionShown()}
                                   onNext={() => { if (partIdx + 1 < parts.length) openPart(exam, partIdx + 1); else { setExamId(null); setTask(null); } }}
@@ -916,12 +917,12 @@ const FkApp = () => {
         window.addEventListener('hashchange', onHash);
         return () => window.removeEventListener('hashchange', onHash);
     }, []);
-    const [topicId, mode] = hash.split('/');
+    const [topicId, mode, cardId] = hash.split('/');
     const topic = FKC.topics.find(t => t.id === topicId);
     if (!topic) return <LfOverview />;
     if (mode === 'lernen' && fkHasLearn(topic.id)) {
-        return <LnLearnView key={topic.id + '/lernen'} trainer={FKC.key} topic={topic} cards={fkLearnCards(topic.id)} Icon={FKC.icon}
-                            backLink={<LfBackLink />} onPractice={() => { window.location.hash = topic.id; }} />;
+        return <LnLearnView key={topic.id + '/lernen/' + (cardId || '')} trainer={FKC.key} topic={topic} cards={fkLearnCards(topic.id)} Icon={FKC.icon}
+                            backLink={<LfBackLink />} onPractice={() => { window.location.hash = topic.id; }} focusId={cardId || null} />;
     }
     if (topic.id === 'pruefung') return <LfExamTrainer key={topic.id} topic={topic} />;
     return <LfTopicTrainer key={topic.id} topic={topic} />;

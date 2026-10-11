@@ -112,7 +112,7 @@ const ZerfallsTrainer = () => {
 
     useEffect(() => { setStorage('smarth_streak_zerfall', streak); }, [streak]);
     const advance = (nextStep) => { setStep(nextStep); setErrors(0); setTipRevealed(false); };
-    const triggerError = () => { setErrors(e => e + 1); setStreak(0); adaptive.recordWrong(); };
+    const triggerError = (kind) => { setErrors(e => e + 1); setStreak(0); adaptive.recordWrong(); if (kind) recordError('halbwertszeit', kind); };
     const round = (num, decimals = 2) => Math.round(num * Math.pow(10, decimals)) / Math.pow(10, decimals);
     const handleInputChange = (id, val) => { setInputs(prev => ({ ...prev, [id]: val.replace('.', ',') })); setInputFeedback(prev => ({ ...prev, [id]: null })); };
 
@@ -232,7 +232,7 @@ const ZerfallsTrainer = () => {
     };
     const confirmIdentify = () => {
         if (step > 1 || !problem || !selectedIdentification) return;
-        if (selectedIdentification === problem.type) { advance(2); } else { triggerError(); }
+        if (selectedIdentification === problem.type) { advance(2); } else { triggerError('gesucht'); }
     };
 
     const checkFormulaInputs = () => {
@@ -244,7 +244,7 @@ const ZerfallsTrainer = () => {
         if (problem.type !== 't' && !checkVal(inputs.t, problem.t)) { feedback.t = 'incorrect'; allCorrect = false; } else feedback.t = 'correct';
         if (!checkVal(inputs.thalf, problem.thalf)) { feedback.thalf = 'incorrect'; allCorrect = false; } else feedback.thalf = 'correct';
         setInputFeedback(feedback);
-        if (allCorrect) advance(3); else triggerError();
+        if (allCorrect) advance(3); else triggerError('einsetzen');
     };
 
     // Step 3: Auswahl nur markieren — Bestätigung über SubmitBtn.
@@ -256,7 +256,7 @@ const ZerfallsTrainer = () => {
         if (step > 3 || !selectedOptionId) return;
         const opt = options.find(o => o.id === selectedOptionId);
         if (!opt) return;
-        if (opt.isCorrect) { advance(4); } else { triggerError(); }
+        if (opt.isCorrect) { advance(4); } else { triggerError('umformen'); }
     };
 
     const checkFinalResult = () => {
@@ -270,7 +270,7 @@ const ZerfallsTrainer = () => {
             if (newStreak > 0 && newStreak % 3 === 0) triggerCelebration(setShowAnim);
             adaptive.recordCorrect();
             setShowSolution(true); advance(5);
-        } else { setFinalFeedback('incorrect'); triggerError(); }
+        } else { setFinalFeedback('incorrect'); triggerError('ergebnis'); }
     };
 
     // Liefert den Lösungstext für den aktuellen Schritt — TipBox zeigt ihn an,

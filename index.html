@@ -105,6 +105,14 @@
                     </div>
                     <p id="fs-empty" class="text-slate-600 text-sm">Noch kein Fortschritt gespeichert. Sobald du in einem Trainer übst, erscheint hier dein Stand. Mit dem Fortschritts-Code nimmst du ihn auf ein anderes Gerät mit.</p>
                     <div id="fs-grid" class="hidden grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                    <div id="fh" class="hidden mt-6 bg-white rounded-xl border border-slate-200 p-4 sm:p-5">
+                        <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
+                            <h4 class="font-bold text-slate-800 text-lg">Mein Fehlerheft</h4>
+                            <button type="button" id="fh-clear" class="text-xs text-slate-500 hover:text-red-700 underline">Fehlerheft leeren</button>
+                        </div>
+                        <p class="text-sm text-slate-600 mb-3">Deine häufigsten Fehler beim Üben. Der Link öffnet die Lernkarte, die genau dazu passt.</p>
+                        <ol id="fh-list" class="space-y-2"></ol>
+                    </div>
                     <div id="fs-import" class="hidden mt-4 bg-slate-50 border border-slate-200 rounded-xl p-4">
                         <label for="fs-code" class="block text-sm font-bold text-slate-700 mb-2">Fortschritts-Code einfügen (oder Datei wählen)</label>
                         <textarea id="fs-code" rows="3" class="w-full rounded-lg border border-slate-300 p-2 text-xs font-mono" placeholder="SMARTH1…"></textarea>
@@ -269,6 +277,21 @@
                 { key: 'wachstum', streak: 'wachstum', title: 'Wachstum & Zerfall', href: 'wachstum.html', color: 'emerald' },
                 { key: 'wahrscheinlichkeit', streak: 'wahrscheinlichkeit', title: 'Wahrscheinlichkeit', href: 'wahrscheinlichkeit.html', color: 'amber' }
             ];
+            // Fehlerheft: Fehlerart → Beschriftung und passende Lernkarte (Hash #lernen/<karte>)
+            var FH = {
+                binformeln: { title: 'Binomische Formeln', href: 'binformeln.html', kinds: { mittelglied: ['Mittleres Glied 2·a·b', 'k2'], quadrat: ['Quadrate der Glieder', 'k3'], klammer: ['Klammer aus dem Term erkennen', 'k5'] } },
+                bruchgleichungen: { title: 'Bruchgleichungen', href: 'bruchgleichungen.html', kinds: { definitionsmenge: ['Definitionsmenge', 'k2'], hauptnenner: ['Hauptnenner', 'k3'], multiplizieren: ['Mit dem Hauptnenner multiplizieren', 'k4'], normalform: ['Auf Normalform bringen', 'k5'], pq: ['Lösungsformel (p und q)', 'k5'], loesen: ['Gleichung lösen', 'k5'], loesungsmenge: ['Lösungsmenge mit D vergleichen', 'k5'] } },
+                halbwertszeit: { title: 'Halbwertszeit', href: 'halbwertszeit.html', kinds: { gesucht: ['Was ist gesucht?', 'k2'], einsetzen: ['Werte in die Formel einsetzen', 'k2'], umformen: ['Formel umstellen', 'k4'], ergebnis: ['Ergebnis berechnen', 'k3'] } },
+                wachstum: { title: 'Wachstum & Zerfall', href: 'wachstum.html', kinds: { gesucht: ['Was ist gesucht?', 'k5'], einsetzen: ['Werte und q einsetzen', 'k1'], umformen: ['Formel umstellen', 'k4'], ergebnis: ['Ergebnis berechnen', 'k2'] } },
+                kugel: { title: 'Die Kugel', href: 'kugel.html', kinds: { formel: ['Richtige Formel wählen', 'k2'], einsetzen: ['Radius einsetzen', 'k1'], rechnen: ['Ergebnis berechnen', 'k3'] } },
+                potenzen: { title: 'Potenzen', href: 'potenzen.html', kinds: { zahlen: ['Zahlen zusammenfassen', 'k5'], exponenten: ['Exponenten addieren', 'k2'], kuerzen: ['Exponenten subtrahieren', 'k3'], term: ['Ergebnisterm', 'k4'] } },
+                trigonometrie: { title: 'Trigonometrie', href: 'trigonometrie.html', kinds: { formel: ['sin, cos oder tan wählen', 'k2'], einsetzen: ['Werte einsetzen', 'k3'], rechnen: ['Ergebnis berechnen', 'k4'] } },
+                wahrscheinlichkeit: { title: 'Wahrscheinlichkeit', href: 'wahrscheinlichkeit.html', kinds: { art: ['Mit oder ohne Zurücklegen?', 'k4'], brueche: ['Brüche im Baumdiagramm', 'k4'], ergebnis: ['Pfadregel und Ergebnis', 'k3'] } },
+                lineare: { title: 'Lineare Funktionen', href: 'lineare-funktionen.html', topics: { wertetabelle: 'Wertetabelle', ablesen: 'Steigung & y-Achsenabschnitt', zeichnen: 'Graph zeichnen', nullstelle: 'Nullstelle & Achsenschnittpunkte', steigung: 'Steigung aus zwei Punkten', gleichung: 'Geradengleichung aufstellen', punktprobe: 'Punktprobe', parallel: 'Parallele & senkrechte Geraden', schnittpunkt: 'Schnittpunkt zweier Geraden', sachaufgaben: 'Sachaufgaben', pruefung: 'Prüfungsaufgaben' } },
+                quadratische: { title: 'Quadratische Funktionen', href: 'quadratische-funktionen.html', topics: { wertetabelle: 'Wertetabelle & Punktprobe', scheitel: 'Scheitelpunkt & Öffnung', zeichnen: 'Parabel zeichnen', normalform: 'Scheitelpunktform → Normalform', scheitelform: 'Normalform → Scheitelpunktform', nullstellen: 'Quadratische Gleichungen & Nullstellen', zweipunkte: 'Parabel durch zwei Punkte', spiegeln: 'Verschieben & Spiegeln', gerade: 'Parabel und Gerade', parabeln: 'Schnittpunkte zweier Parabeln', pruefung: 'Prüfungsaufgaben' } },
+                kopfrechnen: { title: 'Kopfrechnen', href: 'kopfrechnen.html', links: { 'Binomische Formeln': 'binformeln.html#lernen', 'Potenzgesetze': 'potenzen.html#lernen', 'Potenzgleichung': 'potenzen.html#lernen', 'Wahrscheinlichkeit': 'wahrscheinlichkeit.html#lernen', 'Kugel': 'kugel.html#lernen', 'Geometrie (Volumen)': 'kugel.html#lernen', 'Trigonometrie': 'trigonometrie.html#lernen', 'Satzgruppe des Pythagoras': 'trigonometrie.html#lernen/k5', 'Wachstum & Zerfall': 'wachstum.html#lernen', 'Halbwertszeit': 'halbwertszeit.html#lernen', 'Lineare Funktionen': 'lineare-funktionen.html', 'Quadratische Funktionen': 'quadratische-funktionen.html', 'Definitionsmenge': 'bruchgleichungen.html#lernen/k2' } }
+            };
+            var FH_STEP = { select: 'Ansatz wählen', fill: 'Werte einsetzen', calc: 'Ergebnis berechnen', points: 'Zeichnen' };
             var BAR = { sky: 'bg-sky-500', rose: 'bg-rose-500', violet: 'bg-violet-600', teal: 'bg-teal-600', indigo: 'bg-indigo-600', blue: 'bg-blue-600', cyan: 'bg-cyan-600', fuchsia: 'bg-fuchsia-600', orange: 'bg-orange-600', emerald: 'bg-emerald-600', amber: 'bg-amber-500' };
             var ls = function () { try { return window.localStorage; } catch (e) { return null; } };
             var getJSON = function (k) { try { var v = ls().getItem(k); return v ? JSON.parse(v) : null; } catch (e) { return null; } };
@@ -290,7 +313,35 @@
                 return { sum: sum, n: n };
             }
 
+            // Fehlerheft: alle smarth_errors_* einsammeln, nach Häufigkeit sortieren, mit Lernkarte verlinken
+            function fehlerheft() {
+                var box = el('fh'), list = el('fh-list'), store = ls(); if (!box || !store) return;
+                var rows = [];
+                for (var i = 0; i < store.length; i++) {
+                    var k = store.key(i); if (k.indexOf('smarth_errors_') !== 0) continue;
+                    var tr = k.slice(14), cfg = FH[tr], d = getJSON(k); if (!cfg || !d) continue;
+                    for (var kind in d) {
+                        var n = d[kind] || 0; if (!n) continue;
+                        var label, href;
+                        if (cfg.kinds) { var e = cfg.kinds[kind]; if (!e) continue; label = e[0]; href = cfg.href + '#lernen/' + e[1]; }
+                        else if (cfg.topics) { var tp = kind.split(':')[0], st = kind.split(':')[1]; if (!cfg.topics[tp]) continue; label = cfg.topics[tp] + (FH_STEP[st] ? ': ' + FH_STEP[st] : ''); href = cfg.href + '#' + tp + (tp === 'pruefung' ? '' : '/lernen'); }
+                        else { label = kind; href = cfg.links[kind] || cfg.href; }
+                        rows.push({ trainer: cfg.title, label: label, href: href, n: n, learn: href.indexOf('lernen') >= 0 });
+                    }
+                }
+                rows.sort(function (a, b) { return b.n - a.n; });
+                rows = rows.slice(0, 8);
+                list.innerHTML = rows.map(function (r) {
+                    return '<li class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm border-b border-slate-100 pb-2 last:border-0">' +
+                           '<span class="bg-red-50 text-red-700 border border-red-200 font-bold px-2 py-0.5 rounded-full text-xs shrink-0">' + r.n + '×</span>' +
+                           '<span class="text-slate-500">' + esc(r.trainer) + '</span><span class="font-medium text-slate-800">' + esc(r.label) + '</span>' +
+                           '<a href="' + r.href + '" class="ml-auto text-indigo-700 font-bold hover:underline whitespace-nowrap">' + (r.learn ? 'Lernkarte öffnen →' : 'Üben →') + '</a></li>';
+                }).join('');
+                box.classList.toggle('hidden', rows.length === 0);
+            }
+
             function render() {
+                fehlerheft();
                 var grid = el('fs-grid'), empty = el('fs-empty'); if (!grid || !ls()) return;
                 var html = '', any = false;
                 TRAINER.forEach(function (tr) {
@@ -380,6 +431,12 @@
                     el('fs-import').classList.add('hidden'); el('fs-code').value = '';
                     render(); msg('Fortschritt übernommen (' + n + ' Einträge).', true);
                 }).catch(function (err) { msg(err.message || 'Code konnte nicht gelesen werden.', false); });
+            });
+            el('fh-clear').addEventListener('click', function () {
+                var store = ls(), del = []; if (!store) return;
+                for (var i = 0; i < store.length; i++) { var k = store.key(i); if (k.indexOf('smarth_errors_') === 0) del.push(k); }
+                del.forEach(function (k) { store.removeItem(k); });
+                render(); msg('Fehlerheft geleert.', true);
             });
             el('fs-clear').addEventListener('click', function () {
                 if (!window.confirm('Wirklich den gesamten Fortschritt in diesem Browser löschen? Sichere ihn vorher als Code, wenn du ihn behalten willst.')) return;

@@ -152,7 +152,8 @@ const BruchgleichungsTrainer = () => {
     };
 
     const handleNextPruefung = () => { drawNextExam(); clearForm(); };
-    const handleError = (msg) => { setErrorMsg(msg); setErrors(prev => prev + 1); setStreak(0); adaptive.recordWrong(); };
+    const BG_ERR = { 1: 'definitionsmenge', 2: 'hauptnenner', 3: 'multiplizieren', 4: 'normalform', 5: 'pq', 6: 'pq', 7: 'loesen', 8: 'loesungsmenge' };
+    const handleError = (msg) => { setErrorMsg(msg); setErrors(prev => prev + 1); setStreak(0); adaptive.recordWrong(); recordError('bruchgleichungen', BG_ERR[currentStep] || 'loesen'); };
     const advanceStep = () => {
         const nextStep = currentStep + 1;
         setCurrentStep(nextStep); setErrors(0); setErrorMsg(""); setTipRevealed(false);

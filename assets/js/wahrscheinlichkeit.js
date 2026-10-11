@@ -748,7 +748,7 @@ const WahrscheinlichkeitsTrainer = () => {
 
     useEffect(() => { setStorage('smarth_streak_wahrscheinlichkeit', streak); }, [streak]);
     const advance = (nextStep) => { setStep(nextStep); setErrors(0); setTipRevealed(false); };
-    const triggerError = () => { setErrors(e => e + 1); setStreak(0); adaptive.recordWrong(); };
+    const triggerError = (kind) => { setErrors(e => e + 1); setStreak(0); adaptive.recordWrong(); if (kind) recordError('wahrscheinlichkeit', kind); };
     const handleInputChange = (id, val) => { setInputs(prev => ({ ...prev, [id]: val.replace('.', ',') })); setInputFeedback(prev => ({ ...prev, [id]: null })); };
 
     const generateProblem = () => {
@@ -808,7 +808,7 @@ const WahrscheinlichkeitsTrainer = () => {
     };
     const confirmIdentify = () => {
         if (step > 1 || !problem || !selectedIdentification) return;
-        if (selectedIdentification === problem.type) { advance(2); } else { triggerError(); }
+        if (selectedIdentification === problem.type) { advance(2); } else { triggerError('art'); }
     };
 
     // Step-Konstanten je nach taskType. Bei 'direkt' (Standard) hat der Trainer 5 Schritte,
@@ -831,7 +831,7 @@ const WahrscheinlichkeitsTrainer = () => {
     const checkFracStep = (topKey, botKey, target, nextStep) => {
         const ok = isFractionEquivalent(inputs[topKey], inputs[botKey], target.top, target.bot);
         setInputFeedback({ ...inputFeedback, [topKey]: ok ? 'correct' : 'incorrect', [botKey]: ok ? 'correct' : 'incorrect' });
-        if (ok) advance(nextStep); else triggerError();
+        if (ok) advance(nextStep); else triggerError('brueche');
     };
 
     // Pfad A:
@@ -859,7 +859,7 @@ const WahrscheinlichkeitsTrainer = () => {
             if (newStreak > 0 && newStreak % 3 === 0) triggerCelebration(setShowAnim);
             adaptive.recordCorrect();
             setShowSolution(true); advance(STEP.done);
-        } else { setFinalFeedback('incorrect'); triggerError(); }
+        } else { setFinalFeedback('incorrect'); triggerError('ergebnis'); }
     };
 
     // Liefert Lösungstext für den aktuellen Schritt — TipBox zeigt ihn an,
