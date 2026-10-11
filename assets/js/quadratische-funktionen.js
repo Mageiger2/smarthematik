@@ -952,7 +952,7 @@ fkMount({
     title: 'Quadratische Funktionen',
     icon: ParabelIcon,
     theme: 'fuchsia',
-    beta: true,
+    beta: false,
     topics: QF_TOPICS,
     gen: QGEN,
     exams: QF_EXAMS

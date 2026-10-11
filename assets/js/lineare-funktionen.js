@@ -1334,7 +1334,7 @@ fkMount({
     title: 'Lineare Funktionen',
     icon: LinearIcon,
     theme: 'blue',
-    beta: true,
+    beta: false,
     topics: LF_TOPICS,
     gen: GEN,
     exams: LF_EXAMS,
