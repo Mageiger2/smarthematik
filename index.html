@@ -88,6 +88,41 @@
                 </div>
             </section>
 
+            <!-- Dein Fortschritt: wird per Skript aus dem Browser-Speicher gefüllt (siehe unten). Ohne gespeicherten
+                 Fortschritt bleibt nur die Zeile mit dem Fortschritts-Code sichtbar. -->
+            <section id="fortschritt" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 scroll-mt-20">
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6">
+                    <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                        <h3 class="text-xl sm:text-2xl font-bold text-slate-800 flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-600"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                            Dein Fortschritt
+                        </h3>
+                        <div class="flex flex-wrap gap-2">
+                            <button type="button" id="fs-copy" class="px-3 py-1.5 rounded-lg border border-indigo-200 text-indigo-700 bg-indigo-50 hover:bg-indigo-100 text-sm font-medium">Fortschritts-Code kopieren</button>
+                            <button type="button" id="fs-save" class="px-3 py-1.5 rounded-lg border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 text-sm font-medium">Als Datei speichern</button>
+                            <button type="button" id="fs-load" class="px-3 py-1.5 rounded-lg border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 text-sm font-medium">Code einlesen</button>
+                        </div>
+                    </div>
+                    <p id="fs-empty" class="text-slate-600 text-sm">Noch kein Fortschritt gespeichert. Sobald du in einem Trainer übst, erscheint hier dein Stand. Mit dem Fortschritts-Code nimmst du ihn auf ein anderes Gerät mit.</p>
+                    <div id="fs-grid" class="hidden grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                    <div id="fs-import" class="hidden mt-4 bg-slate-50 border border-slate-200 rounded-xl p-4">
+                        <label for="fs-code" class="block text-sm font-bold text-slate-700 mb-2">Fortschritts-Code einfügen (oder Datei wählen)</label>
+                        <textarea id="fs-code" rows="3" class="w-full rounded-lg border border-slate-300 p-2 text-xs font-mono" placeholder="SMARTH1…"></textarea>
+                        <div class="mt-2 flex flex-wrap items-center gap-2">
+                            <input type="file" id="fs-file" accept=".txt" class="text-sm">
+                            <button type="button" id="fs-import-go" class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold">Einlesen</button>
+                            <button type="button" id="fs-import-cancel" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 text-sm">Abbrechen</button>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-2">Achtung: Beim Einlesen wird der Fortschritt in diesem Browser durch den Code ersetzt.</p>
+                    </div>
+                    <p id="fs-msg" class="hidden mt-3 text-sm font-medium"></p>
+                    <div class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
+                        <span>Dein Fortschritt wird nur in diesem Browser gespeichert.</span>
+                        <button type="button" id="fs-clear" class="hover:text-red-700 underline">Fortschritt löschen</button>
+                    </div>
+                </div>
+            </section>
+
             <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-16">
                 <div class="text-center mb-10"><h3 class="text-2xl sm:text-3xl font-bold text-slate-800">W&auml;hle dein Thema</h3></div>
                 <div class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -216,6 +251,143 @@
         </div>
     </footer>
 
+
+    <script>
+        // „Dein Fortschritt“ auf der Startseite: liest die smarth_-Schlüssel aus localStorage und
+        // bietet einen Fortschritts-Code (Export/Import) für den Wechsel auf ein anderes Gerät.
+        (function () {
+            var TRAINER = [
+                { key: 'kopfrechnen', streak: 'kopf', title: 'Kopfrechnen', href: 'kopfrechnen.html', color: 'sky' },
+                { key: 'binformeln', streak: 'binformeln', title: 'Binomische Formeln', href: 'binformeln.html', color: 'rose' },
+                { key: 'bruchgleichungen', streak: 'brueche', title: 'Bruchgleichungen', href: 'bruchgleichungen.html', color: 'violet' },
+                { key: 'halbwertszeit', streak: 'zerfall', title: 'Halbwertszeit', href: 'halbwertszeit.html', color: 'teal' },
+                { key: 'kugel', streak: 'kugel', title: 'Die Kugel', href: 'kugel.html', color: 'indigo' },
+                { key: 'lineare', summary: true, title: 'Lineare Funktionen', href: 'lineare-funktionen.html', color: 'blue' },
+                { key: 'potenzen', streak: 'potenzen', title: 'Potenzen', href: 'potenzen.html', color: 'cyan' },
+                { key: 'quadratische', summary: true, title: 'Quadratische Funktionen', href: 'quadratische-funktionen.html', color: 'fuchsia' },
+                { key: 'trigonometrie', streak: 'trigonometrie', title: 'Trigonometrie', href: 'trigonometrie.html', color: 'orange' },
+                { key: 'wachstum', streak: 'wachstum', title: 'Wachstum & Zerfall', href: 'wachstum.html', color: 'emerald' },
+                { key: 'wahrscheinlichkeit', streak: 'wahrscheinlichkeit', title: 'Wahrscheinlichkeit', href: 'wahrscheinlichkeit.html', color: 'amber' }
+            ];
+            var BAR = { sky: 'bg-sky-500', rose: 'bg-rose-500', violet: 'bg-violet-600', teal: 'bg-teal-600', indigo: 'bg-indigo-600', blue: 'bg-blue-600', cyan: 'bg-cyan-600', fuchsia: 'bg-fuchsia-600', orange: 'bg-orange-600', emerald: 'bg-emerald-600', amber: 'bg-amber-500' };
+            var ls = function () { try { return window.localStorage; } catch (e) { return null; } };
+            var getJSON = function (k) { try { var v = ls().getItem(k); return v ? JSON.parse(v) : null; } catch (e) { return null; } };
+            var getInt = function (k) { try { return parseInt(ls().getItem(k)) || 0; } catch (e) { return 0; } };
+            var el = function (id) { return document.getElementById(id); };
+            var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+
+            // Summe richtiger Aufgaben aus allen Adaptiv-Statistiken eines Trainers
+            function correctFor(key) {
+                var sum = 0, n = 0, store = ls(); if (!store) return { sum: 0, n: 0 };
+                for (var i = 0; i < store.length; i++) {
+                    var k = store.key(i);
+                    if (k.indexOf('smarth_adaptive_' + key) === 0) {
+                        var d = getJSON(k); if (!d || !d.perDifficulty) continue;
+                        for (var lv in d.perDifficulty) { sum += d.perDifficulty[lv].correct || 0; }
+                        n++;
+                    }
+                }
+                return { sum: sum, n: n };
+            }
+
+            function render() {
+                var grid = el('fs-grid'), empty = el('fs-empty'); if (!grid || !ls()) return;
+                var html = '', any = false;
+                TRAINER.forEach(function (tr) {
+                    var card = '';
+                    if (tr.summary) {
+                        var s = getJSON('smarth_summary_' + tr.key); if (!s) return;
+                        any = true;
+                        card = '<div class="flex items-center justify-between text-sm text-slate-600 mb-1"><span>' + s.mastered + ' von ' + s.topics + ' Themen gemeistert</span><span class="font-bold text-slate-800">' + s.pct + ' %</span></div>' +
+                               '<div class="h-2.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full ' + BAR[tr.color] + ' rounded-full" style="width:' + s.pct + '%"></div></div>' +
+                               '<div class="text-xs text-slate-500 mt-1.5">' + s.learned + ' Themen gelernt · ' + s.solvedExams + ' von ' + s.totalExams + ' Prüfungsteilen gelöst</div>';
+                    } else {
+                        var streak = getInt('smarth_streak_' + tr.streak), best = getInt('smarth_best_' + tr.streak), c = correctFor(tr.key);
+                        if (!streak && !best && !c.sum) return;
+                        any = true;
+                        card = '<div class="flex flex-wrap gap-1.5 text-xs font-bold">' +
+                               (c.sum ? '<span class="bg-green-50 text-green-800 border border-green-300 px-2 py-0.5 rounded-full">' + c.sum + ' Aufgaben richtig</span>' : '') +
+                               (streak ? '<span class="bg-slate-50 text-slate-700 border border-slate-200 px-2 py-0.5 rounded-full">Streak ' + streak + '</span>' : '') +
+                               (best ? '<span class="bg-amber-50 text-amber-800 border border-amber-300 px-2 py-0.5 rounded-full">Bester Streak ' + best + '</span>' : '') + '</div>';
+                    }
+                    html += '<a href="' + tr.href + '" class="block bg-white rounded-xl border border-slate-200 p-4 hover:shadow-md hover:-translate-y-0.5 transition-all no-underline">' +
+                            '<div class="font-bold text-slate-800 mb-2">' + esc(tr.title) + '</div>' + card + '</a>';
+                });
+                grid.innerHTML = html;
+                grid.classList.toggle('hidden', !any);
+                empty.classList.toggle('hidden', any);
+            }
+
+            // ---- Fortschritts-Code: alle smarth_-Schlüssel → JSON → (deflate) → Base64 ----
+            function collect() {
+                var store = ls(), out = {}; if (!store) return out;
+                for (var i = 0; i < store.length; i++) { var k = store.key(i); if (k.indexOf('smarth_') === 0) out[k] = store.getItem(k); }
+                return out;
+            }
+            function bytesToB64(bytes) { var s = ''; for (var i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]); return btoa(s); }
+            function b64ToBytes(b64) { var s = atob(b64), a = new Uint8Array(s.length); for (var i = 0; i < s.length; i++) a[i] = s.charCodeAt(i); return a; }
+            function streamBytes(bytes, kind) {
+                var cs = kind === 'deflate' ? new CompressionStream('deflate') : new DecompressionStream('deflate');
+                var w = cs.writable.getWriter(); w.write(bytes); w.close();
+                return new Response(cs.readable).arrayBuffer().then(function (b) { return new Uint8Array(b); });
+            }
+            function makeCode() {
+                var json = JSON.stringify({ v: 1, at: Date.now(), data: collect() });
+                var bytes = new TextEncoder().encode(json);
+                if (typeof CompressionStream === 'undefined') return Promise.resolve('SMARTH0.' + bytesToB64(bytes));
+                return streamBytes(bytes, 'deflate').then(function (z) { return 'SMARTH1.' + bytesToB64(z); });
+            }
+            function readCode(code) {
+                code = (code || '').replace(/\s+/g, '');
+                var m = code.match(/^SMARTH([01])\.([A-Za-z0-9+\/=]+)$/); if (!m) return Promise.reject(new Error('Das ist kein gültiger Fortschritts-Code.'));
+                var bytes = b64ToBytes(m[2]);
+                var p = m[1] === '1' ? streamBytes(bytes, 'inflate') : Promise.resolve(bytes);
+                return p.then(function (b) { var obj = JSON.parse(new TextDecoder().decode(b)); if (!obj || !obj.data) throw new Error('Code unvollständig.'); return obj; });
+            }
+            function msg(text, ok) { var m = el('fs-msg'); m.textContent = text; m.className = 'mt-3 text-sm font-medium ' + (ok ? 'text-green-700' : 'text-red-700'); }
+
+            el('fs-copy').addEventListener('click', function () {
+                makeCode().then(function (code) {
+                    var done = function () { msg('Fortschritts-Code kopiert (' + code.length + ' Zeichen). Füge ihn auf dem anderen Gerät unter „Code einlesen“ ein.', true); };
+                    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(code).then(done, function () { el('fs-import').classList.remove('hidden'); el('fs-code').value = code; msg('Kopieren nicht möglich — markiere den Code im Feld und kopiere ihn selbst.', false); });
+                    else { el('fs-import').classList.remove('hidden'); el('fs-code').value = code; msg('Markiere den Code im Feld und kopiere ihn.', false); }
+                });
+            });
+            el('fs-save').addEventListener('click', function () {
+                makeCode().then(function (code) {
+                    var blob = new Blob([code], { type: 'text/plain' }), a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob); a.download = 'smarthematik-fortschritt.txt'; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+                    msg('Datei gespeichert. Auf dem anderen Gerät unter „Code einlesen“ die Datei wählen.', true);
+                });
+            });
+            el('fs-load').addEventListener('click', function () { el('fs-import').classList.toggle('hidden'); el('fs-code').focus(); });
+            el('fs-import-cancel').addEventListener('click', function () { el('fs-import').classList.add('hidden'); });
+            el('fs-file').addEventListener('change', function (e) {
+                var f = e.target.files && e.target.files[0]; if (!f) return;
+                var r = new FileReader(); r.onload = function () { el('fs-code').value = String(r.result || '').trim(); }; r.readAsText(f);
+            });
+            el('fs-import-go').addEventListener('click', function () {
+                readCode(el('fs-code').value).then(function (obj) {
+                    var n = Object.keys(obj.data).length;
+                    if (!window.confirm('Fortschritt aus dem Code übernehmen? Der bisherige Stand in diesem Browser wird ersetzt (' + n + ' Einträge).')) return;
+                    var store = ls(), del = [];
+                    for (var i = 0; i < store.length; i++) { var k = store.key(i); if (k.indexOf('smarth_') === 0) del.push(k); }
+                    del.forEach(function (k) { store.removeItem(k); });
+                    Object.keys(obj.data).forEach(function (k) { store.setItem(k, obj.data[k]); });
+                    el('fs-import').classList.add('hidden'); el('fs-code').value = '';
+                    render(); msg('Fortschritt übernommen (' + n + ' Einträge).', true);
+                }).catch(function (err) { msg(err.message || 'Code konnte nicht gelesen werden.', false); });
+            });
+            el('fs-clear').addEventListener('click', function () {
+                if (!window.confirm('Wirklich den gesamten Fortschritt in diesem Browser löschen? Sichere ihn vorher als Code, wenn du ihn behalten willst.')) return;
+                var store = ls(), del = [];
+                for (var i = 0; i < store.length; i++) { var k = store.key(i); if (k.indexOf('smarth_') === 0) del.push(k); }
+                del.forEach(function (k) { store.removeItem(k); });
+                render(); msg('Fortschritt gelöscht.', true);
+            });
+            render();
+        })();
+    </script>
     <script>
         (function () {
             var btn = document.getElementById('nav-toggle');

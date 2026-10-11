@@ -831,6 +831,12 @@ const LfOverview = () => {
     const next = topics.find(tp => !stats[tp.id].mastered);
     const nextMode = next && (fkHasLearn(next.id) && !stats[next.id].learned ? 'lernen' : 'ueben');
     const started = got > 0 || solvedExams > 0;
+    // Kurzfassung für die Startseite („Dein Fortschritt“ über alle Trainer)
+    const touched = started || topics.some(tp => stats[tp.id].learnedCards > 0 || stats[tp.id].correct > 0);
+    useEffect(() => {
+        if (touched) setStorageJSON(`smarth_summary_${FKC.key}`, { pct, solvedExams, totalExams, learned: topics.filter(tp => stats[tp.id].learned).length, mastered: topics.filter(tp => stats[tp.id].mastered).length, topics: topics.length, at: Date.now() });
+        /* eslint-disable-next-line */
+    }, [pct, solvedExams]);
 
     return (
         <div className="page-transition max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
@@ -862,7 +868,7 @@ const LfOverview = () => {
                         <span className="text-sm text-slate-500">{pct} % · {solvedExams} von {totalExams} Prüfungsteilen gelöst</span>
                     </div>
                     <div className="h-3 bg-slate-100 rounded-full overflow-hidden"><div className={`h-full bg-${FK.theme}-600 rounded-full transition-all`} style={{ width: `${pct}%` }} /></div>
-                    <div className="mt-2"><LnHint title="Wie zählt das?">Für jedes Thema zählt: <b>Gelernt</b> (alle Lernkarten), <b>Geübt</b> (5 Aufgaben richtig) und <b>Gemeistert</b> (10 in Folge oder 3 Prüfungsteile). Dein Fortschritt wird in diesem Browser gespeichert.</LnHint></div>
+                    <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1"><LnHint title="Wie zählt das?">Für jedes Thema zählt: <b>Gelernt</b> (alle Lernkarten), <b>Geübt</b> (5 Aufgaben richtig) und <b>Gemeistert</b> (10 in Folge oder 3 Prüfungsteile). Dein Fortschritt wird in diesem Browser gespeichert.</LnHint><a href="index.html#fortschritt" className={`text-sm font-medium text-${FK.theme}-700 hover:underline inline-flex items-center gap-1 no-underline`}><FileText className="w-4 h-4" /> Fortschritt sichern</a></div>
                 </div>
                 {next && (
                     <a href={`#${next.id}${nextMode === 'lernen' ? '/lernen' : ''}`} className={`shrink-0 bg-${FK.theme}-600 hover:bg-${FK.theme}-700 text-white px-5 py-3 rounded-xl font-bold shadow-md inline-flex items-center gap-3 no-underline`}>
