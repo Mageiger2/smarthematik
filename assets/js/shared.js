@@ -1054,15 +1054,19 @@ const MtRenderNode = ({ node, path, cursor, onCursorMove }) => {
         );
     }
     if (node.type === 'sqrt') {
+        // Wurzelzeichen als SVG, das sich auf die Höhe des Radikanden streckt (Zahl, Bruch, verschachtelt).
+        // Der Strich endet oben rechts genau an der Linie über dem Radikanden; die Strichstärke bleibt konstant.
         return (
-            <span className="inline-flex items-end mx-0.5 align-middle">
+            <span className="inline-flex items-stretch mx-0.5 align-middle">
                 {node.idx && (
-                    <span className="text-[0.6em] self-start mr-[-3px] mt-[-2px]">
+                    <span className="text-[0.6em] self-start mr-[-0.35em] mt-[-0.15em] relative z-10 pr-px">
                         <MtRenderSeq seq={node.idx} path={[...path, 'idx']} cursor={cursor} onCursorMove={onCursorMove} />
                     </span>
                 )}
-                <span className="text-[1.6em] leading-none">√</span>
-                <span className="border-t-2 border-current pt-0.5 px-1 min-w-[1em] self-center">
+                <svg className="w-[0.8em] self-stretch shrink-0" viewBox="0 0 10 20" preserveAspectRatio="none" aria-hidden="true">
+                    <path d="M0.8 11.5 L3 10.6 L5.4 18.6 L9.5 0.9" fill="none" stroke="currentColor" strokeWidth="2" vectorEffect="non-scaling-stroke" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                <span className="border-t-2 border-current pt-0.5 pr-1 pl-0.5 min-w-[1em] inline-flex items-center">
                     <MtRenderSeq seq={node.rad} path={[...path, 'rad']} cursor={cursor} onCursorMove={onCursorMove} />
                 </span>
             </span>
@@ -1113,10 +1117,12 @@ const MtRenderNode = ({ node, path, cursor, onCursorMove }) => {
 };
 
 // ===== Evaluator: Baum → JS-Ausdruck =====
+// Knoten mit eigenem Wert: zwischen zwei solchen Nachbarn fehlt ein Mal-Zeichen (2π, 3√4, 2(3+4), 2·½).
+const mtIsValue = (n) => n && (n.type !== 'ch' || !isOpCh(n));
 const mtToJS = (node) => {
     if (node.type === 'seq') {
-        if (node.kids.length === 0) return '(0)';
-        return node.kids.map(mtToJS).join('');
+        if (node.kids.length === 0) throw new Error('leer');
+        return node.kids.map((k, i) => (i > 0 && mtIsValue(node.kids[i - 1]) && mtIsValue(k) ? '*' : '') + mtToJS(k)).join('');
     }
     if (node.type === 'ch') {
         const c = node.c;
@@ -1152,7 +1158,7 @@ const mtToJS = (node) => {
     if (node.type === 'log') {
         const arg = mtToJS(node.arg);
         const baseEmpty = node.base.kids.length === 0;
-        if (baseEmpty) return `(Math.log(${arg}))`;
+        if (baseEmpty) return `(Math.log10(${arg}))`;   // „log“ ohne Basis = Zehnerlogarithmus (wie auf dem Schul-Taschenrechner)
         return `(Math.log(${arg})/Math.log(${mtToJS(node.base)}))`;
     }
     return '';
@@ -1160,7 +1166,7 @@ const mtToJS = (node) => {
 
 // Whitelist-Schutz: nach allen Substitutionen darf nur eine eng begrenzte Zeichenmenge bleiben.
 const mtSafeEval = (jsExpr) => {
-    const stripped = jsExpr.replace(/Math\.(PI|E|sqrt|log|sin|cos|tan|asin|acos|atan|pow)/g, '');
+    const stripped = jsExpr.replace(/Math\.(PI|E|sqrt|log10|log|sin|cos|tan|asin|acos|atan|pow)/g, '');
     if (!/^[\d\s\.\+\-\*\/\(\)\,]*$/.test(stripped)) throw new Error('Ungültige Zeichen');
     return Function(`"use strict"; return (${jsExpr});`)();
 };
@@ -1235,7 +1241,7 @@ const ScientificCalculator = ({ onClose, theme = 'sky' }) => {
             }
             setResult(r); setAns(r);
         } catch (e) {
-            setError('Fehler im Ausdruck'); setResult(null);
+            setError(e && e.message === 'leer' ? 'Ein Kästchen ist noch leer' : 'Fehler im Ausdruck'); setResult(null);
         }
     };
 

@@ -31,13 +31,14 @@ Große Sitzung: vom Übungsportal zum Lernkurs.
 7. **Prüfungssimulation** (acbe258): `pruefung.html` mit Teil A (10 Ankreuzaufgaben ohne Taschenrechner, 15 min, echte Teil-A-Aufgaben plus Generatoren) und Teil B (8 Prüfungsteile aus allen Trainern, 60 min). Trainer öffnen eine Aufgabe über `#pruefung/<key>` und melden das Lösen zurück; Leiste mit Restzeit auf allen Seiten. Keine Note, nur Anteil gelöster Teile.
 8. **ISB-Verweis** (64d8185): Fußzeile aller Seiten und Simulationsseite verlinken die ISB-Seite zum Mittleren Schulabschluss Mathematik und das ByCS-Prüfungsarchiv.
 9. **Klassenübersicht für Lehrkräfte** (3ce5bc0): `lehrer.html` liest Fortschritts-Codes ein (Text oder Dateien), zeigt Stand je Schüler und Thema, Klassenbalken, häufigste Fehler, Simulationen, CSV-Export. Alles bleibt im Browser.
-10. **FAQ und dieses Protokoll** angelegt.
+10. **FAQ und dieses Protokoll** angelegt (dd3a4e1).
+11. **Taschenrechner**: Wurzelzeichen ist jetzt eine SVG-Grafik, die sich auf die Höhe des Radikanden streckt (Zahl, Bruch, verschachtelt), Strich endet an der Linie. Rechenfehler behoben: fehlendes Mal-Zeichen wird ergänzt (2π, 3√4, 2(3+4)), „log“ ohne Basis ist der Zehnerlogarithmus (vorher ln), leere Kästchen melden „Ein Kästchen ist noch leer“ statt still 0 zu rechnen.
+12. **Lernkarten ausgebaut** in einfacher Sprache: Trigonometrie 4 neue Karten (gleichschenkliges Dreieck halbieren, Sachaufgaben mit Skizze, Thaleskreis, Abschnitte im Verhältnis), Wahrscheinlichkeit 3 neue Karten (Gruppen bilden, Reihenfolge egal, „mindestens“ über das Gegenteil).
 
 ### Offene Punkte und Ideen
 
 - Definitionsmenge: Bruchgleichungs-Trainer und Teil-A-Aufgaben schreiben ℝ, die neuen Lernkarten ℚ. Schreibweise im Unterricht klären und vereinheitlichen.
 - Notenschlüssel für die Prüfungssimulation, falls gewünscht (Punktgrenzen vom Lehrer).
-- Weitere Lernkarten dort, wo die Prüfung über die Übungen hinausgeht (Wahrscheinlichkeit: Gegenereignis, drei Stufen; Trigonometrie: allgemeines Dreieck zerlegen, Sachaufgaben mit Skizze).
 - Wiederholungs-Planer (gemeisterte Themen nach 7 und 30 Tagen wieder vorschlagen).
 - Tastaturbedienung der Kontrollfragen, Druckversion der Merkkästen als Formelsammlung.
 - Die beiden Beobachtungen aus Punkt 4 (Kopfrechnen-Feier, Trigonometrie-Layout) angleichen.

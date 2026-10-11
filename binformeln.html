@@ -1208,15 +1208,19 @@ const MtRenderNode = ({ node, path, cursor, onCursorMove }) => {
         );
     }
     if (node.type === 'sqrt') {
+        // Wurzelzeichen als SVG, das sich auf die Höhe des Radikanden streckt (Zahl, Bruch, verschachtelt).
+        // Der Strich endet oben rechts genau an der Linie über dem Radikanden; die Strichstärke bleibt konstant.
         return (
-            <span className="inline-flex items-end mx-0.5 align-middle">
+            <span className="inline-flex items-stretch mx-0.5 align-middle">
                 {node.idx && (
-                    <span className="text-[0.6em] self-start mr-[-3px] mt-[-2px]">
+                    <span className="text-[0.6em] self-start mr-[-0.35em] mt-[-0.15em] relative z-10 pr-px">
                         <MtRenderSeq seq={node.idx} path={[...path, 'idx']} cursor={cursor} onCursorMove={onCursorMove} />
                     </span>
                 )}
-                <span className="text-[1.6em] leading-none">√</span>
-                <span className="border-t-2 border-current pt-0.5 px-1 min-w-[1em] self-center">
+                <svg className="w-[0.8em] self-stretch shrink-0" viewBox="0 0 10 20" preserveAspectRatio="none" aria-hidden="true">
+                    <path d="M0.8 11.5 L3 10.6 L5.4 18.6 L9.5 0.9" fill="none" stroke="currentColor" strokeWidth="2" vectorEffect="non-scaling-stroke" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                <span className="border-t-2 border-current pt-0.5 pr-1 pl-0.5 min-w-[1em] inline-flex items-center">
                     <MtRenderSeq seq={node.rad} path={[...path, 'rad']} cursor={cursor} onCursorMove={onCursorMove} />
                 </span>
             </span>
@@ -1267,10 +1271,12 @@ const MtRenderNode = ({ node, path, cursor, onCursorMove }) => {
 };
 
 // ===== Evaluator: Baum → JS-Ausdruck =====
+// Knoten mit eigenem Wert: zwischen zwei solchen Nachbarn fehlt ein Mal-Zeichen (2π, 3√4, 2(3+4), 2·½).
+const mtIsValue = (n) => n && (n.type !== 'ch' || !isOpCh(n));
 const mtToJS = (node) => {
     if (node.type === 'seq') {
-        if (node.kids.length === 0) return '(0)';
-        return node.kids.map(mtToJS).join('');
+        if (node.kids.length === 0) throw new Error('leer');
+        return node.kids.map((k, i) => (i > 0 && mtIsValue(node.kids[i - 1]) && mtIsValue(k) ? '*' : '') + mtToJS(k)).join('');
     }
     if (node.type === 'ch') {
         const c = node.c;
@@ -1306,7 +1312,7 @@ const mtToJS = (node) => {
     if (node.type === 'log') {
         const arg = mtToJS(node.arg);
         const baseEmpty = node.base.kids.length === 0;
-        if (baseEmpty) return `(Math.log(${arg}))`;
+        if (baseEmpty) return `(Math.log10(${arg}))`;   // „log“ ohne Basis = Zehnerlogarithmus (wie auf dem Schul-Taschenrechner)
         return `(Math.log(${arg})/Math.log(${mtToJS(node.base)}))`;
     }
     return '';
@@ -1314,7 +1320,7 @@ const mtToJS = (node) => {
 
 // Whitelist-Schutz: nach allen Substitutionen darf nur eine eng begrenzte Zeichenmenge bleiben.
 const mtSafeEval = (jsExpr) => {
-    const stripped = jsExpr.replace(/Math\.(PI|E|sqrt|log|sin|cos|tan|asin|acos|atan|pow)/g, '');
+    const stripped = jsExpr.replace(/Math\.(PI|E|sqrt|log10|log|sin|cos|tan|asin|acos|atan|pow)/g, '');
     if (!/^[\d\s\.\+\-\*\/\(\)\,]*$/.test(stripped)) throw new Error('Ungültige Zeichen');
     return Function(`"use strict"; return (${jsExpr});`)();
 };
@@ -1389,7 +1395,7 @@ const ScientificCalculator = ({ onClose, theme = 'sky' }) => {
             }
             setResult(r); setAns(r);
         } catch (e) {
-            setError('Fehler im Ausdruck'); setResult(null);
+            setError(e && e.message === 'leer' ? 'Ein Kästchen ist noch leer' : 'Fehler im Ausdruck'); setResult(null);
         }
     };
 
@@ -2594,6 +2600,68 @@ LN_CARDS.trigonometrie = [
         </>,
         check: { q: 'Was gilt nach dem Kathetensatz für a²?', options: [<M>a² = c · p</M>, <M>a² = p · q</M>, <M>a² = c · q</M>], correct: 0, hint: 'Kathete hoch 2 = Hypotenuse mal Abschnitt auf derselben Seite.' },
         merke: <>Seite gesucht: Formel wählen (GAGA HühnerHof AG), einsetzen, umstellen. Winkel gesucht: Bruch ausrechnen, dann Umkehrtaste. Mit h, p, q: Höhensatz <M>h² = p·q</M>, Kathetensatz <M>a² = c·p</M>.</>
+    },
+    {
+        id: 'k6', title: 'Gleichschenkliges Dreieck: erst halbieren',
+        body: <>
+            <p>Ein gleichschenkliges Dreieck hat keinen rechten Winkel. Aber die Höhe teilt es in <b>zwei gleiche rechtwinklige Dreiecke</b>. Damit kannst du wieder rechnen.</p>
+            <LnSteps lines={[
+                { f: 'Basis c = 12 cm, Schenkel a = 10 cm', e: 'gesucht: Höhe h und Basiswinkel α' },
+                { f: 'halbe Basis: 12 : 2 = 6 cm', e: 'die Höhe halbiert die Basis' },
+                { f: 'h² = 10² − 6² = 64  →  h = 8 cm', e: 'Pythagoras im halben Dreieck' },
+                { f: 'cos α = 6 / 10 = 0,6  →  α ≈ 53,1°', e: 'Ankathete 6, Hypotenuse 10' }
+            ]} />
+            <p>Merke: Kein rechter Winkel da? Zeichne eine Höhe ein. Dann hast du einen.</p>
+        </>,
+        check: { q: 'Basis 16 cm. Welche Länge nimmst du im halben Dreieck?', options: ['8 cm', '16 cm', '4 cm'], correct: 0, hint: 'Die Höhe teilt die Basis in zwei gleiche Teile.' }
+    },
+    {
+        id: 'k7', title: 'Sachaufgaben: das Dreieck finden',
+        body: <>
+            <p>Leiter, Turm, Seilbahn: In jeder Sachaufgabe steckt ein rechtwinkliges Dreieck. So findest du es:</p>
+            <LnUl items={[
+                <>Der <b>Boden</b> und etwas <b>Senkrechtes</b> (Mauer, Turm, Mast) bilden den rechten Winkel.</>,
+                <>Die <b>schräge Strecke</b> (Leiter, Seil, Sonnenstrahl) ist die Hypotenuse.</>,
+                <>Der Winkel steht fast immer unten am Boden.</>
+            ]} />
+            <LnSteps lines={[
+                { f: 'Turm 25 m hoch, Schatten 15 m lang', e: 'gesucht: Winkel α der Sonne (unten am Schattenende)' },
+                { f: 'Gegenkathete 25 (Turm), Ankathete 15 (Schatten)', e: 'beide Katheten bekannt: Tangens' },
+                { f: 'tan α = 25 / 15 = 1,667', e: 'Bruch ausrechnen' },
+                { f: 'α = tan⁻¹(1,667) ≈ 59°', e: 'Umkehrtaste' }
+            ]} />
+            <p>Mach immer eine kleine Skizze und schreib die Zahlen an die Seiten. Dann siehst du, welche Formel passt.</p>
+        </>,
+        check: { q: 'Eine 6 m lange Leiter lehnt an der Wand. Was ist die Leiter im Dreieck?', options: ['Die Hypotenuse', 'Die Gegenkathete', 'Die Ankathete'], correct: 0, hint: 'Die schräge Strecke liegt gegenüber dem rechten Winkel.' }
+    },
+    {
+        id: 'k8', title: 'Thaleskreis: Kreis und Dreieck',
+        body: <>
+            <p>Liegt die Spitze C eines Dreiecks auf einem Kreis und ist die Seite AB der Durchmesser, dann ist der Winkel bei C ein <b>rechter Winkel</b>. Das ist der Satz des Thales.</p>
+            <LnSteps lines={[
+                { f: 'Kreisfläche A = 113,1 cm²', e: 'gesucht: Hypotenuse c = Durchmesser' },
+                { f: 'r = √(A : π) = √(113,1 : 3,1416) = 6 cm', e: 'Kreisformel A = π · r² umstellen' },
+                { f: 'c = 2 · r = 12 cm', e: 'Durchmesser = Hypotenuse' },
+                { f: 'dann wie gewohnt: sin, cos, tan oder Pythagoras', e: 'mit c und einem Winkel oder einer Seite' }
+            ]} />
+        </>,
+        check: { q: 'AB ist Durchmesser, C liegt auf dem Kreis. Wo ist der rechte Winkel?', options: ['Bei C', 'Bei A', 'Beim Mittelpunkt M'], correct: 0, hint: 'Satz des Thales: rechter Winkel an der Spitze auf dem Kreis.' }
+    },
+    {
+        id: 'k9', title: 'Abschnitte im Verhältnis',
+        body: <>
+            <p>Manchmal sind p und q nicht als Zahlen gegeben, sondern als Verhältnis, zum Beispiel <M>p : q = 4 : 1</M>. Dann rechnest du mit einem Platzhalter <M>x</M>:</p>
+            <LnSteps lines={[
+                { f: 'p : q = 4 : 1, Höhe h = 10 cm', e: 'gesucht: p, q und c' },
+                { f: 'p = 4x,  q = x', e: 'Verhältnis als Vielfache von x' },
+                { f: 'h² = p · q  →  100 = 4x · x = 4x²', e: 'Höhensatz' },
+                { f: 'x² = 25  →  x = 5', e: 'durch 4 teilen, Wurzel' },
+                { f: 'q = 5 cm,  p = 20 cm,  c = 25 cm', e: 'einsetzen, c = p + q' }
+            ]} />
+            <p>Danach kannst du mit dem Kathetensatz oder mit sin und cos weiterrechnen.</p>
+        </>,
+        check: { q: 'p : q = 2 : 3. Wie schreibst du p und q?', options: [<M>p = 2x, q = 3x</M>, <M>p = 2, q = 3</M>, <M>p = x + 2, q = x + 3</M>], correct: 0, hint: 'Verhältnis heißt: beide sind Vielfache derselben Zahl x.' },
+        merke: <>Kein rechter Winkel zu sehen? Höhe einzeichnen oder den Satz des Thales nutzen. Verhältnis gegeben? Mit <M>x</M> rechnen. Immer zuerst eine Skizze mit allen Zahlen.</>
     }
 ];
 
@@ -2650,6 +2718,48 @@ LN_CARDS.wahrscheinlichkeit = [
         </>,
         check: { q: '„Beide Kugeln haben verschiedene Farben.“ Was tust du?', options: ['Die passenden Pfade addieren', 'Nur einen Pfad nehmen', 'Die Pfade multiplizieren'], correct: 0, hint: 'rot-andere und andere-rot passen beide.' },
         merke: <>Baum zeichnen, Brüche an die Äste (ohne Zurücklegen: Nenner −1). Entlang eines Pfades <b>mal</b>, mehrere Pfade <b>plus</b>.</>
+    },
+    {
+        id: 'k6', title: 'Drei Sorten? Gruppen bilden',
+        body: <>
+            <p>In der Prüfung gibt es oft drei Sorten, zum Beispiel 4 Deutsche, 5 Österreicher und 3 Schweizer. Gefragt ist aber nur nach den Schweizern. Dann machst du aus drei Sorten <b>zwei Gruppen</b>: „Schweizer“ und „Andere“.</p>
+            <LnSteps lines={[
+                { f: '12 Läufer: 3 Schweizer, 9 Andere', e: '4 + 5 = 9 Andere' },
+                { f: 'P(Schweizer, Schweizer) = 3/12 · 2/11', e: 'ohne Zurücklegen: Nenner und Zähler sinken' },
+                { f: '= 6/132 = 1/22 ≈ 4,5 %', e: 'kürzen' }
+            ]} />
+            <p>So bleibt der Baum klein: nur zwei Äste pro Stufe.</p>
+        </>,
+        check: { q: '75 Aprikose, 70 Erdbeere, 5 Senf. Gefragt: „kein Senf“. Welche Gruppen bildest du?', options: ['Senf (5) und Andere (145)', 'Aprikose (75) und Erdbeere (70)', 'Drei Gruppen, alle einzeln'], correct: 0, hint: 'Nur das, wonach gefragt ist, bleibt eine eigene Gruppe.' }
+    },
+    {
+        id: 'k7', title: 'Zwei verschiedene Sorten, Reihenfolge egal',
+        body: <>
+            <p>„Ein Kleingewinn <b>und</b> eine Niete“ kann auf zwei Wegen passieren: erst Kleingewinn, dann Niete, oder erst Niete, dann Kleingewinn. Beide Pfade zählen.</p>
+            <LnSteps lines={[
+                { f: '50 Lose: 9 Kleingewinne (K), 40 Nieten (N), 1 Hauptgewinn', e: 'zwei Lose ohne Zurücklegen' },
+                { f: 'Pfad K, N:  9/50 · 40/49 = 360/2450', e: 'erst K, dann N' },
+                { f: 'Pfad N, K:  40/50 · 9/49 = 360/2450', e: 'erst N, dann K (gleich groß!)' },
+                { f: 'P = 2 · 360/2450 = 720/2450 ≈ 29,4 %', e: 'beide Pfade addieren' }
+            ]} />
+            <p>Tipp: Bei „Reihenfolge egal“ sind die beiden Pfade immer gleich groß. Einen Pfad rechnen und verdoppeln.</p>
+        </>,
+        check: { q: '„Ein rotes und ein grünes Gummibärchen, Reihenfolge egal.“ Wie viele Pfade addierst du?', options: ['2', '1', '4'], correct: 0, hint: 'rot-grün und grün-rot.' }
+    },
+    {
+        id: 'k8', title: '„Mindestens eins“: das Gegenteil rechnen',
+        body: <>
+            <p>„Mindestens eine Niete“ heißt: eine oder zwei Nieten. Das sind viele Pfade. Schneller geht das Gegenteil: <b>keine Niete</b>. Das ist nur ein Pfad.</p>
+            <LnBox>P(mindestens eins) = 1 − P(keins)</LnBox>
+            <LnSteps lines={[
+                { f: '10 Kugeln, 3 rot. Zwei ziehen ohne Zurücklegen.', e: 'gesucht: mindestens eine rote' },
+                { f: 'P(keine rote) = 7/10 · 6/9 = 42/90', e: 'Gegenteil: beide andere' },
+                { f: 'P(mindestens eine rote) = 1 − 42/90 = 48/90 ≈ 53,3 %', e: 'von 1 abziehen' }
+            ]} />
+            <p>Die Wahrscheinlichkeiten aller Pfade zusammen sind immer 1. Darum klappt dieser Trick.</p>
+        </>,
+        check: { q: 'Wie rechnest du „mindestens ein Treffer“ am schnellsten?', options: ['1 − P(kein Treffer)', 'P(ein Treffer) · 2', 'P(Treffer, Treffer)'], correct: 0, hint: 'Alle Pfade zusammen ergeben 1. Das Gegenteil hat nur einen Pfad.' },
+        merke: <>Drei Sorten? Zwei Gruppen bilden. „Und, Reihenfolge egal“? Beide Pfade addieren. „Mindestens“? 1 minus Gegenteil.</>
     }
 ];
 

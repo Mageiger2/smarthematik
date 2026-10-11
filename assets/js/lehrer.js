@@ -8,7 +8,8 @@
 // ==========================================
 const LE_KEY = 'smarth_lehrer_klasse';
 const LE_T = themeColors.indigo;
-const LE_CARDS = 5; // Lernkarten je Trainer ohne Themenauswahl
+const LE_CARDS_N = { trigonometrie: 9, wahrscheinlichkeit: 8 }; // Lernkarten je Trainer ohne Themenauswahl (sonst 5)
+const leCards = (key) => LE_CARDS_N[key] || 5;
 const LE_TRAINERS = [
     { key: 'kopfrechnen', title: 'Kopfrechnen', short: 'Kopf', streak: 'kopf', learn: false },
     { key: 'binformeln', title: 'Binomische Formeln', short: 'Binom', streak: 'binformeln' },
@@ -197,7 +198,7 @@ const LeDetail = ({ s, onClose }) => (
                 <div key={tr.key} className={`rounded-lg border p-2.5 text-sm ${t.status ? 'border-slate-200' : 'border-slate-100 opacity-60'}`}>
                     <div className="flex items-center gap-2 mb-1"><LeChip status={t.status} /><span className="font-bold text-slate-800">{tr.title}</span></div>
                     <p className="text-xs text-slate-600">
-                        {t.correct} richtig{tr.learn !== false && (tr.fk ? ` · ${t.learned} von ${t.learnTotal} Themen gelernt` : ` · ${t.cards} von ${LE_CARDS} Lernkarten`)}{t.exams ? ` · ${t.exams} Prüfungsteile` : ''}{t.masteredLevels ? ` · ${t.masteredLevels} Stufe${t.masteredLevels > 1 ? 'n' : ''} 10× in Folge` : ''}{t.best ? ` · bester Streak ${t.best}` : ''}
+                        {t.correct} richtig{tr.learn !== false && (tr.fk ? ` · ${t.learned} von ${t.learnTotal} Themen gelernt` : ` · ${t.cards} von ${leCards(tr.key)} Lernkarten`)}{t.exams ? ` · ${t.exams} Prüfungsteile` : ''}{t.masteredLevels ? ` · ${t.masteredLevels} Stufe${t.masteredLevels > 1 ? 'n' : ''} 10× in Folge` : ''}{t.best ? ` · bester Streak ${t.best}` : ''}
                     </p>
                     {t.errors.length > 0 && <p className="text-xs text-red-700 mt-1">Fehler: {t.errors.slice(0, 3).map(([k, c]) => `${leErrLabel(tr.key, k)} (${c}×)`).join(', ')}</p>}
                 </div>
