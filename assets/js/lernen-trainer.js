@@ -256,11 +256,11 @@ LN_CARDS.bruchgleichungen = [
             <LnSteps lines={[
                 { f: 'Nenner: x − 2', e: 'jeden Nenner einzeln anschauen' },
                 { f: 'x − 2 = 0  →  x = 2', e: 'Nenner gleich 0 setzen' },
-                { f: 'D = ℚ \\ {2}', e: 'alle Zahlen außer 2' }
+                { f: 'D = ℝ \\ {2}', e: 'alle Zahlen außer 2' }
             ]} />
-            <p>Mehrere Nenner, mehrere verbotene Zahlen: Bei <M><LnF top="5" bot="x + 3" /> + <LnF top="1" bot="x" /></M> ist <M>D = ℚ \ {'{'}−3; 0{'}'}</M>.</p>
+            <p>Mehrere Nenner, mehrere verbotene Zahlen: Bei <M><LnF top="5" bot="x + 3" /> + <LnF top="1" bot="x" /></M> ist <M>D = ℝ \ {'{'}−3; 0{'}'}</M>.</p>
         </>,
-        check: { q: 'Definitionsmenge von 7/(x + 4) = 2?', options: [<M>D = ℚ \ {'{'}−4{'}'}</M>, <M>D = ℚ \ {'{'}4{'}'}</M>, <M>D = ℚ \ {'{'}0{'}'}</M>], correct: 0, hint: 'x + 4 = 0 ergibt x = −4.' }
+        check: { q: 'Definitionsmenge von 7/(x + 4) = 2?', options: [<M>D = ℝ \ {'{'}−4{'}'}</M>, <M>D = ℝ \ {'{'}4{'}'}</M>, <M>D = ℝ \ {'{'}0{'}'}</M>], correct: 0, hint: 'x + 4 = 0 ergibt x = −4.' }
     },
     {
         id: 'k3', title: 'Hauptnenner finden',
@@ -280,7 +280,7 @@ LN_CARDS.bruchgleichungen = [
         body: <>
             <p>Multiplizierst du die ganze Gleichung mit dem Hauptnenner, verschwinden die Brüche. Dann löst du wie gewohnt:</p>
             <LnSteps lines={[
-                { f: '6/x = 3        | · x', e: 'D = ℚ \\ {0}, HN = x' },
+                { f: '6/x = 3        | · x', e: 'D = ℝ \\ {0}, HN = x' },
                 { f: '6 = 3x', e: 'links kürzt sich x weg' },
                 { f: 'x = 2', e: 'durch 3 teilen' },
                 { f: '2 ∈ D  →  L = {2}', e: 'Probe mit der Definitionsmenge' }
@@ -294,7 +294,7 @@ LN_CARDS.bruchgleichungen = [
         body: <>
             <p>Oft bleibt nach dem Multiplizieren eine quadratische Gleichung übrig. Dann bringst du alles auf eine Seite und nutzt die Lösungsformel:</p>
             <LnSteps lines={[
-                { f: 'x + 6/x = 5        | · x', e: 'D = ℚ \\ {0}' },
+                { f: 'x + 6/x = 5        | · x', e: 'D = ℝ \\ {0}' },
                 { f: 'x² + 6 = 5x', e: 'Brüche weg' },
                 { f: 'x² − 5x + 6 = 0', e: 'alles auf eine Seite' },
                 { f: 'x₁ = 2,  x₂ = 3', e: 'Lösungsformel oder pq-Formel' },

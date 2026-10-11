@@ -1367,7 +1367,7 @@ const ScientificCalculator = ({ onClose, theme = 'sky' }) => {
     const goRight      = ()         => setState(prev => ({ root: prev.root, cursor: mtMoveRight(prev.root, prev.cursor) }));
     const goStart      = ()         => setState(prev => ({ root: prev.root, cursor: { path: [], pos: 0 } }));
     const goEnd        = ()         => setState(prev => ({ root: prev.root, cursor: { path: [], pos: prev.root.kids.length } }));
-    const clearAll     = ()         => { setState({ root: MT.seq(), cursor: { path: [], pos: 0 } }); setResult(null); setError(null); };
+    const clearAll     = ()         => { setState({ root: MT.seq(), cursor: { path: [], pos: 0 } }); setResult(null); setError(null); setShowAsFraction(false); };
 
     const useAns = () => {
         if (ans === null) return;
@@ -1393,7 +1393,7 @@ const ScientificCalculator = ({ onClose, theme = 'sky' }) => {
             if (typeof r !== 'number' || !Number.isFinite(r)) {
                 setError('Mathe-Fehler'); setResult(null); return;
             }
-            setResult(r); setAns(r);
+            setResult(r); setAns(r); setShowAsFraction(false);   // S↔D gilt nur einmalig für das aktuelle Ergebnis
         } catch (e) {
             setError(e && e.message === 'leer' ? 'Ein Kästchen ist noch leer' : 'Fehler im Ausdruck'); setResult(null);
         }

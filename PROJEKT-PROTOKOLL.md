@@ -33,11 +33,11 @@ Große Sitzung: vom Übungsportal zum Lernkurs.
 9. **Klassenübersicht für Lehrkräfte** (3ce5bc0): `lehrer.html` liest Fortschritts-Codes ein (Text oder Dateien), zeigt Stand je Schüler und Thema, Klassenbalken, häufigste Fehler, Simulationen, CSV-Export. Alles bleibt im Browser.
 10. **FAQ und dieses Protokoll** angelegt (dd3a4e1).
 11. **Taschenrechner**: Wurzelzeichen ist jetzt eine SVG-Grafik, die sich auf die Höhe des Radikanden streckt (Zahl, Bruch, verschachtelt), Strich endet an der Linie. Rechenfehler behoben: fehlendes Mal-Zeichen wird ergänzt (2π, 3√4, 2(3+4)), „log“ ohne Basis ist der Zehnerlogarithmus (vorher ln), leere Kästchen melden „Ein Kästchen ist noch leer“ statt still 0 zu rechnen.
-12. **Lernkarten ausgebaut** in einfacher Sprache: Trigonometrie 4 neue Karten (gleichschenkliges Dreieck halbieren, Sachaufgaben mit Skizze, Thaleskreis, Abschnitte im Verhältnis), Wahrscheinlichkeit 3 neue Karten (Gruppen bilden, Reihenfolge egal, „mindestens“ über das Gegenteil).
+12. **Zahlenraum einheitlich ℝ** (Definitionsmenge in den Lernkarten, wie Trainer und Prüfungsaufgaben). Taschenrechner: S↔D wirkt nur einmalig, jede neue Rechnung zeigt wieder Dezimal.
+13. **Lernkarten ausgebaut** in einfacher Sprache: Trigonometrie 4 neue Karten (gleichschenkliges Dreieck halbieren, Sachaufgaben mit Skizze, Thaleskreis, Abschnitte im Verhältnis), Wahrscheinlichkeit 3 neue Karten (Gruppen bilden, Reihenfolge egal, „mindestens“ über das Gegenteil).
 
 ### Offene Punkte und Ideen
 
-- Definitionsmenge: Bruchgleichungs-Trainer und Teil-A-Aufgaben schreiben ℝ, die neuen Lernkarten ℚ. Schreibweise im Unterricht klären und vereinheitlichen.
 - Notenschlüssel für die Prüfungssimulation, falls gewünscht (Punktgrenzen vom Lehrer).
 - Wiederholungs-Planer (gemeisterte Themen nach 7 und 30 Tagen wieder vorschlagen).
 - Tastaturbedienung der Kontrollfragen, Druckversion der Merkkästen als Formelsammlung.
