@@ -46,7 +46,7 @@ const lnResetTopic = (trainer, topic) => {
 // Gelöste Prüfungsteile pro Trainer: { '2025-I-a': <ms>, ... }
 const lnExamsKey = (trainer) => `smarth_exams_${trainer}`;
 const lnExamsSolved = (trainer) => getStorageJSON(lnExamsKey(trainer), {});
-const lnMarkExam = (trainer, sig) => { const m = lnExamsSolved(trainer); if (!m[sig]) { m[sig] = Date.now(); setStorageJSON(lnExamsKey(trainer), m); } };
+const lnMarkExam = (trainer, sig) => { const m = lnExamsSolved(trainer); m[sig] = Date.now(); setStorageJSON(lnExamsKey(trainer), m); };
 
 // Status eines Themas aus allen Speichern: gelernt / geübt / gemeistert
 //   gelernt     — alle Lernkarten abgeschlossen

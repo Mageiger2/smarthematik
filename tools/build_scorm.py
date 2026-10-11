@@ -25,7 +25,7 @@ ZIP = BUILD / 'smarthematik-lernpaket.zip'
 
 PAGES = ['index', 'rechner', 'kopfrechnen', 'binformeln', 'bruchgleichungen', 'halbwertszeit', 'kugel',
          'lineare-funktionen', 'potenzen', 'quadratische-funktionen', 'trigonometrie', 'wachstum',
-         'wahrscheinlichkeit']
+         'wahrscheinlichkeit', 'pruefung']
 ASSETS = ['assets/vendor/react.production.min.js', 'assets/vendor/react-dom.production.min.js',
           'assets/vendor/tailwindcss.js', 'assets/css/main.css',
           'Logo-sMArTH.png', 'LogoMSsued2.jpg', 'cropped-BdB_Logo-1.png']

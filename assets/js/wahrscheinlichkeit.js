@@ -745,6 +745,8 @@ const WahrscheinlichkeitsTrainer = () => {
     const [examIdx, setExamIdx] = useState(0);
     // Adaptive Schwierigkeit + Lernzielkontrolle.
     const adaptive = useAdaptive('wahrscheinlichkeit', difficulty);
+    // Prüfungssimulation: #pruefung/<key> startet direkt mit dieser Prüfungsaufgabe
+    useEffect(() => { if (examRequest()) handleDifficultyChange('pruefung'); /* eslint-disable-next-line */ }, []);
 
     useEffect(() => { setStorage('smarth_streak_wahrscheinlichkeit', streak); }, [streak]);
     const advance = (nextStep) => { setStep(nextStep); setErrors(0); setTipRevealed(false); };
@@ -763,7 +765,7 @@ const WahrscheinlichkeitsTrainer = () => {
             let pool = examShuffled;
             let idx = examIdx;
             if (pool.length === 0 || idx >= pool.length) {
-                pool = shuffleArray(wahrscheinlichkeitsExamTasks);
+                pool = examPoolShuffle(wahrscheinlichkeitsExamTasks, t => t.sigKey);
                 idx = 0;
                 setExamShuffled(pool);
             }
@@ -858,6 +860,7 @@ const WahrscheinlichkeitsTrainer = () => {
             setStreak(newStreak);
             if (newStreak > 0 && newStreak % 3 === 0) triggerCelebration(setShowAnim);
             adaptive.recordCorrect();
+            if (difficulty === 'pruefung') examMark('wahrscheinlichkeit', problem.sigKey);
             setShowSolution(true); advance(STEP.done);
         } else { setFinalFeedback('incorrect'); triggerError('ergebnis'); }
     };

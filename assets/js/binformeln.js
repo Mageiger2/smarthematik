@@ -46,51 +46,61 @@ const normalizeBino = (str) => {
 const binoExamTemplates = [
     {
         sourceLabel: "MSA 2021 I/9a",
+        sigKey: "bin-1-msa-2021-i-9a",
         template: "( 2a + [input:8b] ) · ( 2a − [input:8b] ) = [input:4a²] − 64b²",
         tip: "3. Binomische Formel: (a + b) · (a − b) = a² − b². Hier ist a = 2a und b = ?. Aus 64b² folgt b = 8b (Wurzel aus 64b² = 8b). (2a)² = 4a²."
     },
     {
         sourceLabel: "MSA 2019 II/5a",
+        sigKey: "bin-2-msa-2019-ii-5a",
         template: "( [input:6a] − 9d )² = 36a² − [input:108ad|108da] + 81d²",
         tip: "2. Binomische Formel: (a − b)² = a² − 2·a·b + b². Aus 36a² folgt a = 6a (Wurzel aus 36a² = 6a). Mittleres Glied: 2 · 6a · 9d = 108ad."
     },
     {
         sourceLabel: "MSA 2017 I/6b",
+        sigKey: "bin-3-msa-2017-i-6b",
         template: "( 4z + [input:5x] ) · ( 4z − [input:5x] ) = [input:16z²] − 25x²",
         tip: "3. Binomische Formel: (a + b) · (a − b) = a² − b². Aus 25x² folgt b = 5x. (4z)² = 16z²."
     },
     {
         sourceLabel: "MSA 2016 I/9a",
+        sigKey: "bin-4-msa-2016-i-9a",
         template: "( 4x − [input:y|1y] )² = [input:16x²] − [input:8xy|8yx] + y²",
         tip: "2. Binomische Formel: (a − b)² = a² − 2·a·b + b². Hier a = 4x, b = y. (4x)² = 16x²; Mittleres Glied: 2 · 4x · y = 8xy."
     },
     {
         sourceLabel: "Angepasst",
+        sigKey: "bin-5-angepasst",
         template: "( [input:3a³|3a^3] − [input:4b] )² = 9a⁶ − 24a³b + [input:16b²|16b^2]",
         tip: "2. Binomische Formel: (a − b)² = a² − 2·a·b + b². Aus 9a⁶ folgt a = 3a³ (Wurzel aus 9a⁶ = 3a³). Aus 24a³b = 2 · 3a³ · b folgt b = 4b. Dann b² = 16b²."
     },
     {
         sourceLabel: "MSA 2022 I/9a",
+        sigKey: "bin-6-msa-2022-i-9a",
         template: "( 7a³ + [input:10c] )² = [input:49a⁶|49a^6] + [input:140a³c|140ca³|140a^3c|140ca^3] + 100c²",
         tip: "1. Binomische Formel: (a + b)² = a² + 2·a·b + b². a = 7a³, b = ? — aus 100c² folgt b = 10c. a² = (7a³)² = 49a⁶; Mittleres Glied: 2 · 7a³ · 10c = 140a³c."
     },
     {
         sourceLabel: "MSA 2017 I/6a",
+        sigKey: "bin-7-msa-2017-i-6a",
         template: "( [input:0,5x²y|0.5x²y|0,5yx²|0.5yx²] − 3z )² = 0,25x⁴y² − [input:3x²yz|3zx²y|3x²zy|3yx²z|3yzx²|3zyx²] + [input:9z²|9z^2]",
         tip: "2. Binomische Formel: (a − b)² = a² − 2·a·b + b². Aus 0,25x⁴y² folgt a = 0,5x²y (Wurzel ziehen!). Mittleres Glied: 2 · 0,5x²y · 3z = 3x²yz. Letztes Glied: (3z)² = 9z²."
     },
     {
         sourceLabel: "MSA 2014 I/8a",
+        sigKey: "bin-8-msa-2014-i-8a",
         template: "( 4ab² + [input:3c] )² = [input:16a²b⁴|16b⁴a²] + [input:24ab²c|24acb²|24b²ac|24b²ca|24cab²|24cb²a] + 9c²",
         tip: "1. Binomische Formel: (a + b)² = a² + 2·a·b + b². a = 4ab², b = ? — aus 9c² folgt b = 3c. a² = (4ab²)² = 16a²b⁴; Mittleres Glied: 2 · 4ab² · 3c = 24ab²c."
     },
     {
         sourceLabel: "MSA 2011 I/6b",
+        sigKey: "bin-9-msa-2011-i-6b",
         template: "( w − 4z )² = [input:w²|w^2] − [input:8wz|8zw] + 16z²",
         tip: "2. Binomische Formel: (a − b)² = a² − 2·a·b + b². Hier a = w, b = 4z. a² = w²; Mittleres Glied: 2 · w · 4z = 8wz."
     },
     {
         sourceLabel: "MSA 2016 I/9b",
+        sigKey: "bin-10-msa-2016-i-9b",
         template: "( [input:0,5z|0.5z] + [input:8] )² = 0,25z² + 8z + [input:64]",
         tip: "1. Binomische Formel: (a + b)² = a² + 2·a·b + b². Aus 0,25z² folgt a = 0,5z. Aus 8z = 2 · 0,5z · b folgt b = 8. Dann b² = 64."
     }
@@ -101,6 +111,7 @@ const binoExamTemplates = [
 const parseExamTemplate = (entry) => {
     const template = typeof entry === 'string' ? entry : entry.template;
     const sourceLabel = typeof entry === 'string' ? null : entry.sourceLabel;
+    const sigKey = typeof entry === 'string' ? null : (entry.sigKey || null);
     const tip = typeof entry === 'string' ? null : (entry.tip || null);
     const tokens = [];
     const inputs = {};
@@ -124,7 +135,7 @@ const parseExamTemplate = (entry) => {
     if (lastIdx < template.length) {
         tokens.push(template.substring(lastIdx));
     }
-    return { tokens, inputs, sourceLabel, tip };
+    return { tokens, inputs, sourceLabel, sigKey, tip };
 };
 
 // Generator für Level 1–3: dynamische Aufgaben, alle drei binomischen Formeln.
@@ -229,6 +240,8 @@ const BinformelnTrainer = () => {
     const [tipRevealed, setTipRevealed] = useState(false);
     // Adaptive Schwierigkeit + Lernzielkontrolle (siehe useAdaptive in shared.js).
     const adaptive = useAdaptive('binformeln', difficulty);
+    // Prüfungssimulation: #pruefung/<key> startet direkt mit dieser Prüfungsaufgabe
+    useEffect(() => { if (examRequest()) handleDifficultyChange('pruefung'); /* eslint-disable-next-line */ }, []);
     // taskKey wird nur bei wirklichem Aufgabenwechsel hochgezählt — verhindert,
     // dass der Auto-Focus bei jedem Tastendruck zur ersten Lücke springt.
     const [taskKey, setTaskKey] = useState(0);
@@ -249,7 +262,7 @@ const BinformelnTrainer = () => {
             let pool = examShuffled;
             let idx = examIdx;
             if (pool.length === 0 || idx >= pool.length) {
-                pool = shuffleArray(binoExamTemplates);
+                pool = examPoolShuffle(binoExamTemplates, t => t.sigKey);
                 idx = 0;
                 setExamShuffled(pool);
             }
@@ -269,7 +282,7 @@ const BinformelnTrainer = () => {
             setDifficulty(newDiff);
             // Bei Wechsel zu Prüfungsaufgaben den Pool zurücksetzen.
             if (newDiff === 'pruefung') {
-                const pool = shuffleArray(binoExamTemplates);
+                const pool = examPoolShuffle(binoExamTemplates, t => t.sigKey);
                 setExamShuffled(pool);
                 setExamIdx(1);
                 setProblem(parseExamTemplate(pool[0]));
@@ -326,6 +339,7 @@ const BinformelnTrainer = () => {
                 setStreak(newStreak);
                 if (newStreak > 0 && newStreak % 3 === 0) triggerCelebration(setShowAnim);
                 adaptive.recordCorrect();
+                if (difficulty === 'pruefung') examMark('binformeln', problem.sigKey);
             }
         } else {
             setErrorMsg("Noch nicht ganz richtig. Streak zurückgesetzt.");

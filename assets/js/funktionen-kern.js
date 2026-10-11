@@ -687,7 +687,7 @@ const LfTopicTrainer = ({ topic }) => {
 // ==========================================
 // 9. MSA-PRÜFUNGEN (ganze Aufgaben Teil für Teil)
 // ==========================================
-const LfExamTrainer = ({ topic }) => {
+const LfExamTrainer = ({ topic, requestSig = null }) => {
     const [examId, setExamId] = useState(null);
     const [partIdx, setPartIdx] = useState(0);
     const [done, setDone] = useState({});
@@ -707,6 +707,15 @@ const LfExamTrainer = ({ topic }) => {
     };
     const openExam = (ex) => { setExamId(ex.id); setDone({}); openPart(ex, 0); };
     const randomExam = () => openExam(lfPick(FKC.exams.filter(e => !e.lgs && fkVisibleParts(e).length)));
+    // Prüfungssimulation: angeforderte Teilaufgabe direkt öffnen
+    useEffect(() => {
+        if (!requestSig) return;
+        for (const ex of FKC.exams) {
+            const i = fkVisibleParts(ex).findIndex(p => `${ex.id}-${p.l}` === requestSig);
+            if (i >= 0) { setExamId(ex.id); setDone({}); openPart(ex, i); break; }
+        }
+        /* eslint-disable-next-line */
+    }, [requestSig]);
 
     const groups = (FKC.examGroups || [{ title: FKC.title, filter: () => true }])
         .map(g => ({ title: g.title, items: FKC.exams.filter(e => g.filter(e) && fkVisibleParts(e).length) }))
@@ -924,7 +933,7 @@ const FkApp = () => {
         return <LnLearnView key={topic.id + '/lernen/' + (cardId || '')} trainer={FKC.key} topic={topic} cards={fkLearnCards(topic.id)} Icon={FKC.icon}
                             backLink={<LfBackLink />} onPractice={() => { window.location.hash = topic.id; }} focusId={cardId || null} />;
     }
-    if (topic.id === 'pruefung') return <LfExamTrainer key={topic.id} topic={topic} />;
+    if (topic.id === 'pruefung') return <LfExamTrainer key={topic.id} topic={topic} requestSig={mode && mode !== 'lernen' ? mode : null} />;
     return <LfTopicTrainer key={topic.id} topic={topic} />;
 };
 

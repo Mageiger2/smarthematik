@@ -14,6 +14,7 @@ const preventArrows = (e) => {
 const potenzenExamTasks = [
     {
         sourceLabel: "MSA 2025 I/6",
+        sigKey: "pot-1-msa-2025-i-6",
         vars: ['x', 'y', 'z'],
         raw: {
             num: <span>18<span className="font-math-italic">x</span><sup>6</sup><span className="font-math-italic">z</span><sup>2</sup> · 24<span className="font-math-italic">y</span><sup>3</sup> · 10<span className="font-math-italic">x</span><sup>3</sup> · <span className="font-math-italic">z</span></span>,
@@ -25,6 +26,7 @@ const potenzenExamTasks = [
     },
     {
         sourceLabel: "MSA 2024 I/3",
+        sigKey: "pot-2-msa-2024-i-3",
         vars: ['x', 'y', 'z'],
         raw: {
             num: <span>9<span className="font-math-italic">x</span><sup>-2</sup><span className="font-math-italic">y</span> · 4<span className="font-math-italic">y</span><sup>2</sup><span className="font-math-italic">z</span><sup>-3</sup> · 5<span className="font-math-italic">x</span><sup>7</sup></span>,
@@ -36,6 +38,7 @@ const potenzenExamTasks = [
     },
     {
         sourceLabel: "MSA 2019 II/7a",
+        sigKey: "pot-3-msa-2019-ii-7a",
         vars: ['a', 'b'],
         raw: {
             num: <span>3<span className="font-math-italic">a</span><sup>3</sup> · 4<span className="font-math-italic">b</span><sup>-7</sup> · 3<span className="font-math-italic">a</span><sup>-1</sup> · 3<span className="font-math-italic">b</span><sup>8</sup></span>,
@@ -191,6 +194,8 @@ const PotenzenTrainer = () => {
 
     // Adaptive Schwierigkeit + Lernzielkontrolle.
     const adaptive = useAdaptive('potenzen', difficulty);
+    // Prüfungssimulation: #pruefung/<key> startet direkt mit dieser Prüfungsaufgabe
+    useEffect(() => { if (examRequest()) handleDifficultyChange('pruefung'); /* eslint-disable-next-line */ }, []);
 
     const isHard = difficulty === 'schwer' || difficulty === 'pruefung';
 
@@ -222,7 +227,7 @@ const PotenzenTrainer = () => {
             let pool = freshPool || examShuffled;
             let idx = (freshIdx !== undefined) ? freshIdx : examIdx;
             if (pool.length === 0 || idx >= pool.length) {
-                pool = shuffleArray(Array.from({ length: potenzenExamTasks.length }, (_, i) => i));
+                pool = examPoolShuffle(Array.from({ length: potenzenExamTasks.length }, (_, i) => i), i => potenzenExamTasks[i].sigKey);
                 setExamShuffled(pool); idx = 0;
             }
             newProb = generatePotenzenProblem(d, pool[idx]);
@@ -237,7 +242,7 @@ const PotenzenTrainer = () => {
     useEffect(() => {
         // Beim Wechsel ZU Prüfungsaufgaben Pool frisch mischen.
         if (difficulty === 'pruefung') {
-            const pool = shuffleArray(Array.from({ length: potenzenExamTasks.length }, (_, i) => i));
+            const pool = examPoolShuffle(Array.from({ length: potenzenExamTasks.length }, (_, i) => i), i => potenzenExamTasks[i].sigKey);
             setExamShuffled(pool);
             generateProblem('pruefung', pool, 0);
         } else {
@@ -252,7 +257,7 @@ const PotenzenTrainer = () => {
         if (newDiff === difficulty) {
             if (newDiff === 'pruefung') {
                 // Frischer Pool, falls man die nächste Prüfung sehen will.
-                const pool = shuffleArray(Array.from({ length: potenzenExamTasks.length }, (_, i) => i));
+                const pool = examPoolShuffle(Array.from({ length: potenzenExamTasks.length }, (_, i) => i), i => potenzenExamTasks[i].sigKey);
                 setExamShuffled(pool);
                 generateProblem('pruefung', pool, 0);
             } else {
@@ -363,6 +368,7 @@ const PotenzenTrainer = () => {
             setStreak(newStreak);
             if (newStreak > 0 && newStreak % 3 === 0) triggerCelebration(setShowAnim);
             adaptive.recordCorrect();
+            if (difficulty === 'pruefung') examMark('potenzen', problem.sigKey);
             setTimeout(() => advance(5), 500);
         } else {
             setStep4HintMsg(null);

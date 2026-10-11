@@ -1057,12 +1057,14 @@ const TrigonometrieTrainer = () => {
     const [taskKey, setTaskKey] = useState(0);
     // Adaptive Schwierigkeit + Lernzielkontrolle.
     const adaptive = useAdaptive('trigonometrie', difficulty);
+    // Prüfungssimulation: #pruefung/<key> startet direkt mit dieser Prüfungsaufgabe
+    useEffect(() => { if (examRequest()) handleDifficultyChange('pruefung'); /* eslint-disable-next-line */ }, []);
 
     // Tracking für maximale Abwechslung pro Level + Anti-Repeat-Pool für MSA.
     // historyRef hält pro Level die letzten 2 Typen — beide werden bei der nächsten
     // Generation blockiert, damit der Schüler nicht zwei sehr ähnliche Aufgaben hintereinander sieht.
     const historyRef = React.useRef({ l1: [], l2: [], l3: [] });
-    const [examPool, setExamPool] = useState(() => shuffleArray(Array.from({ length: msaTasks.length }, (_, i) => i)));
+    const [examPool, setExamPool] = useState(() => examPoolShuffle(Array.from({ length: msaTasks.length }, (_, i) => i), i => msaTasks[i].id));
     const examIdxRef = React.useRef(0);
     // Alternierende Dreieck-Farben: orange → grün → blau → … sehr dezent.
     const colorCycle = ['rgba(249, 115, 22, 0.10)', 'rgba(74, 222, 128, 0.12)', 'rgba(59, 130, 246, 0.10)'];
@@ -1089,7 +1091,7 @@ const TrigonometrieTrainer = () => {
             let pool = examPool;
             let idx = examIdxRef.current;
             if (idx >= pool.length) {
-                pool = shuffleArray(Array.from({ length: msaTasks.length }, (_, i) => i));
+                pool = examPoolShuffle(Array.from({ length: msaTasks.length }, (_, i) => i), i => msaTasks[i].id);
                 setExamPool(pool);
                 idx = 0;
             }
@@ -1136,6 +1138,7 @@ const TrigonometrieTrainer = () => {
             setCurrentStepIndex(prev => prev + 1);
         } else {
             setIsCompleted(true);
+            if (difficulty === 'pruefung') examMark('trigonometrie', currentTask.id);
             const newStreak = streak + 1;
             setStreak(newStreak);
             if (newStreak > 0 && newStreak % 3 === 0) triggerCelebration(setShowAnim);

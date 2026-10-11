@@ -166,6 +166,46 @@ const recordError = (trainerKey, errorType) => {
 const getErrorStats = (trainerKey) => getStorageJSON(`smarth_errors_${trainerKey}`, {});
 
 // ==========================================
+// Prüfungssimulation (pruefung.html)
+//   smarth_exam_run: { kind: 'B', start, end, parts: [...] } — laufende Simulation
+//   #pruefung/<key> öffnet in einem Trainer gezielt eine Prüfungsaufgabe
+// ==========================================
+const EXAM_RUN_KEY = 'smarth_exam_run';
+const examRun = () => { const r = getStorageJSON(EXAM_RUN_KEY, null); return r && r.end ? r : null; };
+const examRequest = () => { const m = (window.location.hash || '').match(/^#pruefung\/(.+)$/); return m ? decodeURIComponent(m[1]) : null; };
+let EXAM_REQ_PENDING = examRequest();
+// Mischt den Prüfungs-Pool; eine per Hash angeforderte Aufgabe kommt beim ersten Ziehen nach vorn
+const examPoolShuffle = (items, keyOf) => {
+    const pool = shuffleArray(items);
+    if (EXAM_REQ_PENDING) {
+        const i = pool.findIndex(t => keyOf(t) === EXAM_REQ_PENDING);
+        if (i > 0) { const [t] = pool.splice(i, 1); pool.unshift(t); }
+        if (i >= 0) EXAM_REQ_PENDING = null;
+    }
+    return pool;
+};
+// Gelöste Prüfungsaufgabe melden (Lernweg + Simulation); lnMarkExam kommt aus lernen-kern.js
+const examMark = (trainer, key) => { if (key && typeof lnMarkExam === 'function') lnMarkExam(trainer, key); };
+
+// Leiste „Prüfungssimulation läuft“ oben auf jeder Trainer-Seite (reines DOM, kein React)
+(() => {
+    try {
+        if (/pruefung\.html$/.test(window.location.pathname)) return;
+        const run = examRun(); if (!run || run.kind !== 'B') return;
+        const bar = document.createElement('div');
+        bar.id = 'exam-bar';
+        bar.className = 'sticky top-0 z-50 bg-slate-900 text-white text-sm px-4 py-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 shadow-md';
+        const fmt = (ms) => { const s = Math.max(0, Math.round(ms / 1000)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+        const draw = () => {
+            const left = run.end - Date.now();
+            bar.innerHTML = `<span class="font-bold">Prüfungssimulation läuft</span><span class="${left < 5 * 60000 ? 'text-amber-300 font-bold' : ''}">${left > 0 ? 'Restzeit ' + fmt(left) : 'Zeit abgelaufen'}</span><a href="pruefung.html" class="underline text-indigo-200 hover:text-white">Zur Übersicht</a>`;
+        };
+        draw(); setInterval(draw, 1000);
+        document.body.insertBefore(bar, document.body.firstChild);
+    } catch (e) {}
+})();
+
+// ==========================================
 // useTrainerCore — bündelt den State, der bisher in JEDEM Trainer einzeln definiert war:
 //   - streak (mit localStorage-Persistenz)
 //   - errors-Zähler (für TipBox)
@@ -514,10 +554,10 @@ const TrainerHeader = ({ theme, icon: Icon, title, streakIcon: StreakIcon, strea
                         <span className="hidden sm:inline text-white/70 text-lg font-normal border-l-2 border-white/30 pl-2 ml-2">10. Klasse</span>
                     </h1>
                 </div>
-                <div className={`${pillBg} px-2.5 py-1 sm:px-4 sm:py-1.5 rounded-full text-xs sm:text-sm font-bold shadow-sm flex items-center shrink-0 text-white`}>
+                {streak !== null && <div className={`${pillBg} px-2.5 py-1 sm:px-4 sm:py-1.5 rounded-full text-xs sm:text-sm font-bold shadow-sm flex items-center shrink-0 text-white`}>
                     {StreakIcon && <StreakIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2 text-white/80" />}
                     Streak: {streak}
-                </div>
+                </div>}
             </div>
         </header>
     );

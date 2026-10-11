@@ -947,6 +947,8 @@ const KugelTrainer = () => {
 
     const tc = useTrainerCore({ storageKey: 'kugel' });
     const adaptive = useAdaptive('kugel', difficulty);
+    // Prüfungssimulation: #pruefung/<key> startet direkt mit dieser Prüfungsaufgabe
+    useEffect(() => { if (examRequest()) handleDifficultyChange('pruefung'); /* eslint-disable-next-line */ }, []);
 
     // Anti-Wiederholung pro Schwierigkeit
     const lastTypeIdRef = React.useRef({ leicht: [], mittel: [], schwer: [] });
@@ -983,7 +985,7 @@ const KugelTrainer = () => {
         if (difficulty === 'pruefung') {
             let pool = examShuffled, idx = examIdx;
             if (pool.length === 0 || idx >= pool.length) {
-                pool = shuffleArray(kugelExamTasks);
+                pool = examPoolShuffle(kugelExamTasks, t => t.sigKey);
                 idx = 0;
                 setExamShuffled(pool);
             }
@@ -1036,6 +1038,7 @@ const KugelTrainer = () => {
             setCompleted(true);
             tc.onSuccessfulSolve();
             adaptive.recordCorrect();
+            if (difficulty === 'pruefung') examMark('kugel', task.sigKey);
         } else {
             setStepIdx(nextIdx);
             resetStepState();

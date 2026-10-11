@@ -133,6 +133,8 @@ const WachstumsTrainer = () => {
     const [examIdx, setExamIdx] = useState(0);
     // Adaptive Schwierigkeit + Lernzielkontrolle (siehe useAdaptive in shared.js).
     const adaptive = useAdaptive('wachstum', difficulty);
+    // Prüfungssimulation: #pruefung/<key> startet direkt mit dieser Prüfungsaufgabe
+    useEffect(() => { if (examRequest()) handleDifficultyChange('pruefung'); /* eslint-disable-next-line */ }, []);
 
     useEffect(() => { setStorage('smarth_streak_wachstum', streak); }, [streak]);
     const advance = (nextStep) => { setStep(nextStep); setErrors(0); setTipRevealed(false); };
@@ -185,7 +187,7 @@ const WachstumsTrainer = () => {
             let pool = examShuffled;
             let idx = examIdx;
             if (pool.length === 0 || idx >= pool.length) {
-                pool = shuffleArray(wachstumsExamTasks);
+                pool = examPoolShuffle(wachstumsExamTasks, t => t.sigKey);
                 idx = 0;
                 setExamShuffled(pool);
             }
@@ -322,6 +324,7 @@ const WachstumsTrainer = () => {
             setStreak(newStreak);
             if (newStreak > 0 && newStreak % 3 === 0) triggerCelebration(setShowAnim);
             adaptive.recordCorrect();
+            if (difficulty === 'pruefung') examMark('wachstum', problem.sigKey);
             setShowSolution(true); advance(5);
         } else { setFinalFeedback('incorrect'); triggerError('ergebnis'); }
     };

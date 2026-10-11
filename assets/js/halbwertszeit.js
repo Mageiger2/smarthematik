@@ -109,6 +109,8 @@ const ZerfallsTrainer = () => {
     const [examIdx, setExamIdx] = useState(0);
     // Adaptive Schwierigkeit + Lernzielkontrolle.
     const adaptive = useAdaptive('halbwertszeit', difficulty);
+    // Prüfungssimulation: #pruefung/<key> startet direkt mit dieser Prüfungsaufgabe
+    useEffect(() => { if (examRequest()) handleDifficultyChange('pruefung'); /* eslint-disable-next-line */ }, []);
 
     useEffect(() => { setStorage('smarth_streak_zerfall', streak); }, [streak]);
     const advance = (nextStep) => { setStep(nextStep); setErrors(0); setTipRevealed(false); };
@@ -138,7 +140,7 @@ const ZerfallsTrainer = () => {
             let pool = examShuffled;
             let idx = examIdx;
             if (pool.length === 0 || idx >= pool.length) {
-                pool = shuffleArray(halbwertszeitsExamTasks);
+                pool = examPoolShuffle(halbwertszeitsExamTasks, t => t.sigKey);
                 idx = 0;
                 setExamShuffled(pool);
             }
@@ -269,6 +271,7 @@ const ZerfallsTrainer = () => {
             setStreak(newStreak);
             if (newStreak > 0 && newStreak % 3 === 0) triggerCelebration(setShowAnim);
             adaptive.recordCorrect();
+            if (difficulty === 'pruefung') examMark('halbwertszeit', problem.sigKey);
             setShowSolution(true); advance(5);
         } else { setFinalFeedback('incorrect'); triggerError('ergebnis'); }
     };
