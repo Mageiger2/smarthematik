@@ -664,6 +664,7 @@ const LfTopicTrainer = ({ topic }) => {
             {tc.showAnim && <CelebrationOverlay />}
             <LfBackLink />
             <TrainerHeader theme={FK.theme} icon={Icon} title={topic.title} streakIcon={Icon} streak={tc.streak} />
+            <LnModeTabs topicId={topic.id} mode="ueben" hasLearn={fkHasLearn(topic.id)} />
             <DifficultyMenu theme={FK.theme} active={difficulty} onChange={handleDifficultyChange} options={options} />
             {adaptive.stats.mastered.length > 0 && (
                 <div className="mb-4 flex justify-center"><MasteryBadge mastered={adaptive.stats.mastered} theme={FK.theme} /></div>
@@ -674,7 +675,7 @@ const LfTopicTrainer = ({ topic }) => {
                 {task && (
                     <LfStepRunner key={taskKey} task={task} tc={tc}
                                   onWrong={() => { tc.triggerError(); adaptive.recordWrong(); }}
-                                  onSolved={() => { tc.onSuccessfulSolve(); adaptive.recordCorrect(); }}
+                                  onSolved={() => { tc.onSuccessfulSolve(); adaptive.recordCorrect(); if (task.sigKey) lnMarkExam(FKC.key, task.sigKey); }}
                                   onSolutionShown={() => { tc.onSolutionShown(); adaptive.recordWrong(); }}
                                   onNext={() => newTask()}
                                   nextBtnText={difficulty === 'pruefung' ? 'Nächste Prüfungsaufgabe' : 'Nächste Aufgabe'} />
@@ -757,7 +758,7 @@ const LfExamTrainer = ({ topic }) => {
                     <LfTaskCard task={task} />
                     <LfStepRunner key={taskKey} task={task} tc={tc}
                                   onWrong={() => tc.triggerError()}
-                                  onSolved={() => { tc.onSuccessfulSolve(); setDone(d => ({ ...d, [partIdx]: true })); }}
+                                  onSolved={() => { tc.onSuccessfulSolve(); setDone(d => ({ ...d, [partIdx]: true })); lnMarkExam(FKC.key, task.sigKey); }}
                                   onSolutionShown={() => tc.onSolutionShown()}
                                   onNext={() => { if (partIdx + 1 < exam.parts.length) openPart(exam, partIdx + 1); else { setExamId(null); setTask(null); } }}
                                   nextBtnText={partIdx + 1 < exam.parts.length ? 'Nächste Teilaufgabe' : 'Zur Prüfungsübersicht'} />
@@ -770,13 +771,36 @@ const LfExamTrainer = ({ topic }) => {
 // ==========================================
 // 10. KACHEL-ÜBERSICHT
 // ==========================================
+// Lernkarten eines Themas (aus cfg.learn), leer wenn es keine gibt
+// cfg.learn darf auch eine Funktion sein, die die Karten erst beim ersten Zugriff baut
+// (die Inhalte nutzen Helfer des Trainer-Skripts, das nach den Lerninhalten geladen wird).
+const fkLearnCards = (topicId) => {
+    if (typeof FKC.learn === 'function') FKC.learn = FKC.learn();
+    return (FKC.learn && FKC.learn[topicId] && FKC.learn[topicId].cards) || [];
+};
+const fkHasLearn = (topicId) => fkLearnCards(topicId).length > 0;
+// Status eines Themas (Lernen / Üben / Prüfen) aus dem Browser-Speicher
+const fkTopicStatus = (tp) => {
+    const sigs = fkExamParts(FKC.exams).filter(p => p.topic === tp.id).map(p => `${p.exam.id}-${p.l}`);
+    return lnTopicStatus(FKC.key, tp.id, fkLearnCards(tp.id).length, sigs);
+};
+
 const LfOverview = () => {
-    const tileStats = (id) => {
-        const streak = getStorage(`smarth_streak_${FKC.key}_${id}`, 0);
-        const adapt = getStorageJSON(`smarth_adaptive_${FKC.key}_${id}`, null);
-        return { streak, mastered: adapt && adapt.mastered ? adapt.mastered.length : 0 };
-    };
     const Icon = FKC.icon;
+    const topics = FKC.topics.filter(tp => tp.id !== 'pruefung');
+    const examTile = FKC.topics.find(tp => tp.id === 'pruefung');
+    const stats = {};
+    FKC.topics.forEach(tp => { stats[tp.id] = fkTopicStatus(tp); });
+    const solvedExams = Object.keys(lnExamsSolved(FKC.key)).length, totalExams = fkExamParts(FKC.exams).length;
+    // Gesamtfortschritt: je Thema drei Stufen (gelernt, geübt, gemeistert)
+    const steps = topics.reduce((a, tp) => a + (fkHasLearn(tp.id) ? 3 : 2), 0);
+    const got = topics.reduce((a, tp) => { const s = stats[tp.id]; return a + (s.learned ? 1 : 0) + (s.practiced ? 1 : 0) + (s.mastered ? 1 : 0); }, 0);
+    const pct = steps ? Math.round(100 * got / steps) : 0;
+    // Nächster Schritt: erstes Thema in der Reihenfolge, das noch nicht gemeistert ist
+    const next = topics.find(tp => !stats[tp.id].mastered);
+    const nextMode = next && (fkHasLearn(next.id) && !stats[next.id].learned ? 'lernen' : 'ueben');
+    const started = got > 0 || solvedExams > 0;
+
     return (
         <div className="page-transition max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
             {FKC.beta && (
@@ -794,29 +818,57 @@ const LfOverview = () => {
                     </h1>
                 </div>
             </header>
-            <p className="text-slate-600 mb-8 text-center max-w-2xl mx-auto">
-                Wähle ein Thema. Jedes Thema hat die Stufen Leicht, Mittel und Schwer sowie passende MSA-Prüfungsaufgaben. Dein Fortschritt wird pro Thema gespeichert.
+            <p className="text-slate-600 mb-6 text-center max-w-2xl mx-auto">
+                Wähle ein Thema. Zu jedem Thema gibt es <b>Lernen</b> (Erklärungen zum Ausprobieren), <b>Üben</b> (Leicht, Mittel, Schwer) und <b>Prüfen</b> (MSA-Prüfungsaufgaben). Dein Fortschritt wird in diesem Browser gespeichert.
             </p>
+
+            {/* Dein Weg: Fortschritt und nächster Schritt */}
+            <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm mb-8 flex flex-col md:flex-row md:items-center gap-4 md:gap-8">
+                <div className="flex-grow">
+                    <div className="flex items-center justify-between mb-1.5">
+                        <span className="font-bold text-slate-800 flex items-center gap-2"><Target className={`w-5 h-5 text-${FK.theme}-700`} /> Dein Lernweg</span>
+                        <span className="text-sm text-slate-500">{pct} % · {solvedExams} von {totalExams} Prüfungsteilen gelöst</span>
+                    </div>
+                    <div className="h-3 bg-slate-100 rounded-full overflow-hidden"><div className={`h-full bg-${FK.theme}-600 rounded-full transition-all`} style={{ width: `${pct}%` }} /></div>
+                    <p className="text-xs text-slate-500 mt-1.5">Für jedes Thema zählt: gelernt, geübt (5 Aufgaben richtig) und gemeistert (10 in Folge oder 3 Prüfungsteile).</p>
+                </div>
+                {next && (
+                    <a href={`#${next.id}${nextMode === 'lernen' ? '/lernen' : ''}`} className={`shrink-0 bg-${FK.theme}-600 hover:bg-${FK.theme}-700 text-white px-5 py-3 rounded-xl font-bold shadow-md inline-flex items-center gap-3 no-underline`}>
+                        <span className="text-left leading-tight"><span className="block text-xs font-normal text-white/80">{started ? 'Dein nächster Schritt' : 'Starte hier'}</span>{nextMode === 'lernen' ? 'Lernen: ' : 'Üben: '}{next.title}</span>
+                        <ArrowRight className="w-5 h-5" />
+                    </a>
+                )}
+            </div>
+
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
                 {FKC.topics.map(tp => {
-                    const st = tileStats(tp.id);
+                    const st = stats[tp.id];
                     const isExam = tp.id === 'pruefung';
+                    const hasLearn = fkHasLearn(tp.id);
                     return (
-                        <a key={tp.id} href={`#${tp.id}`}
-                           className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm hover:shadow-xl transition-all hover:-translate-y-1 flex flex-col group no-underline">
+                        <div key={tp.id} className={`bg-white rounded-2xl p-5 border shadow-sm hover:shadow-xl transition-all hover:-translate-y-1 flex flex-col group ${!isExam && st.mastered ? 'border-green-300' : 'border-slate-200'}`}>
                             <div className="flex items-start gap-4 mb-3">
                                 <div className={`w-12 h-12 shrink-0 rounded-xl flex items-center justify-center text-xl font-extrabold group-hover:scale-110 transition-transform ${isExam ? 'bg-amber-100 text-amber-700' : `bg-${FK.theme}-100 text-${FK.theme}-700`}`}>{tp.nr}</div>
                                 <h4 className="text-lg font-bold text-slate-800 leading-snug pt-1">{tp.title}</h4>
                             </div>
                             <p className="text-slate-600 text-sm flex-grow mb-4">{tp.desc}</p>
-                            <div className="flex items-center justify-between gap-2">
-                                <div className="flex gap-1.5 flex-wrap">
-                                    {st.streak > 0 && <span className={`text-xs font-bold bg-${FK.theme}-50 text-${FK.theme}-700 border border-${FK.theme}-200 px-2 py-0.5 rounded-full`}>Streak {st.streak}</span>}
-                                    {st.mastered > 0 && <span className="text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300 px-2 py-0.5 rounded-full">★ {st.mastered}× gemeistert</span>}
-                                </div>
-                                <span className={`inline-flex items-center px-4 py-1.5 border font-medium rounded-lg text-sm shadow-sm transition-all ${isExam ? 'border-amber-200 text-amber-700 bg-amber-50 group-hover:bg-amber-500 group-hover:text-white' : `border-${FK.theme}-200 text-${FK.theme}-700 bg-${FK.theme}-50 group-hover:bg-${FK.theme}-600 group-hover:text-white`}`}>Üben</span>
+                            <div className="mb-4 flex items-center justify-between gap-2 flex-wrap">
+                                {isExam
+                                    ? <span className="text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded-full">{solvedExams} / {totalExams} gelöst</span>
+                                    : <LnStatusChips st={st} hasLearn={hasLearn} />}
+                                {st.streak > 0 && <span className={`text-xs font-bold bg-${FK.theme}-50 text-${FK.theme}-700 border border-${FK.theme}-200 px-2 py-0.5 rounded-full`}>Streak {st.streak}</span>}
                             </div>
-                        </a>
+                            <div className="flex gap-2">
+                                {hasLearn && (
+                                    <a href={`#${tp.id}/lernen`} className={`flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 border font-medium rounded-lg text-sm shadow-sm transition-all no-underline border-${FK.theme}-200 text-${FK.theme}-700 bg-white hover:bg-${FK.theme}-50`}>
+                                        <BookOpen className="w-4 h-4" /> Lernen
+                                    </a>
+                                )}
+                                <a href={`#${tp.id}`} className={`flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 border font-medium rounded-lg text-sm shadow-sm transition-all no-underline ${isExam ? 'border-amber-200 text-amber-700 bg-amber-50 hover:bg-amber-500 hover:text-white' : `border-${FK.theme}-200 text-white bg-${FK.theme}-600 hover:bg-${FK.theme}-700`}`}>
+                                    <Target className="w-4 h-4" /> {isExam ? 'Prüfungen' : 'Üben & Prüfen'}
+                                </a>
+                            </div>
+                        </div>
                     );
                 })}
             </div>
@@ -827,25 +879,32 @@ const LfOverview = () => {
 // ==========================================
 // 11. APP (Hash-Routing: #thema → Themen-Trainer)
 // ==========================================
+// Hash-Routing: #thema → Üben & Prüfen, #thema/lernen → Lernkarten
 const FkApp = () => {
     const readHash = () => (window.location.hash || '').replace('#', '');
-    const [topicId, setTopicId] = useState(readHash());
+    const [hash, setHash] = useState(readHash());
     useEffect(() => {
-        const onHash = () => { setTopicId(readHash()); window.scrollTo(0, 0); };
+        const onHash = () => { setHash(readHash()); window.scrollTo(0, 0); };
         window.addEventListener('hashchange', onHash);
         return () => window.removeEventListener('hashchange', onHash);
     }, []);
+    const [topicId, mode] = hash.split('/');
     const topic = FKC.topics.find(t => t.id === topicId);
     if (!topic) return <LfOverview />;
+    if (mode === 'lernen' && fkHasLearn(topic.id)) {
+        return <LnLearnView key={topic.id + '/lernen'} trainer={FKC.key} topic={topic} cards={fkLearnCards(topic.id)} Icon={FKC.icon}
+                            backLink={<LfBackLink />} onPractice={() => { window.location.hash = topic.id; }} />;
+    }
     if (topic.id === 'pruefung') return <LfExamTrainer key={topic.id} topic={topic} />;
     return <LfTopicTrainer key={topic.id} topic={topic} />;
 };
 
 // Startet einen Funktionen-Trainer.
-// cfg: { key, title, icon, theme, beta, topics, gen, exams, examGroups? }
+// cfg: { key, title, icon, theme, beta, topics, gen, exams, examGroups?, learn? }
 //   key    — Präfix für die Speicherung (smarth_streak_<key>_<thema>)
 //   gen    — { themaId: (stufe, gesperrteTypen) => task }
 //   exams  — Prüfungsaufgaben: [{ id, label, nr, intro?, graph?, parts: [{ l, topic, text, steps(), graph?, fg? }] }]
+//   learn  — Lernkarten je Thema: { themaId: { cards: [...] } } (siehe lernen-kern.js)
 const fkMount = (cfg) => {
     FKC = cfg;
     FK.theme = cfg.theme;

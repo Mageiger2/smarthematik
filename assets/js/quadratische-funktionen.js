@@ -955,5 +955,6 @@ fkMount({
     beta: false,
     topics: QF_TOPICS,
     gen: QGEN,
-    exams: QF_EXAMS
+    exams: QF_EXAMS,
+    learn: QF_LEARN_BUILD
 });
