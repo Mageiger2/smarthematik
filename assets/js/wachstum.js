@@ -356,6 +356,7 @@ const WachstumsTrainer = () => {
         <div className="page-transition max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             {showAnim && <CelebrationOverlay />}
             <TrainerHeader theme="emerald" icon={TrendingUp} title="Wachstum & Zerfall" streakIcon={TrendingUp} streak={streak} />
+            <LnSimpleTabs trainer="wachstum" cards={LN_CARDS.wachstum} streakKey="smarth_streak_wachstum" />
 
             <DifficultyMenu theme="emerald" active={difficulty} onChange={handleDifficultyChange} options={[
                 {id: 'leicht', label: 'Leicht'},
@@ -452,4 +453,8 @@ const WachstumsTrainer = () => {
 };
 
 const root = ReactDOM.createRoot(document.getElementById('app-root'));
-root.render(<WachstumsTrainer />);
+root.render(
+    <LnSimpleApp trainer="wachstum" title="Wachstum & Zerfall" Icon={TrendingUp} theme="emerald" cards={LN_CARDS.wachstum} streakKey="smarth_streak_wachstum">
+        <WachstumsTrainer />
+    </LnSimpleApp>
+);

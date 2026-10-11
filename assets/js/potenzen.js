@@ -400,6 +400,7 @@ const PotenzenTrainer = () => {
         <div className="page-transition max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             {showAnim && <CelebrationOverlay />}
             <TrainerHeader theme="cyan" icon={SuperscriptIcon} title="Potenzen" streakIcon={Target} streak={streak} />
+            <LnSimpleTabs trainer="potenzen" cards={LN_CARDS.potenzen} streakKey="smarth_streak_potenzen" />
 
             <DifficultyMenu theme="cyan" active={difficulty} onChange={handleDifficultyChange}
                 options={[
@@ -558,4 +559,8 @@ const PotenzenTrainer = () => {
 };
 
 const root = ReactDOM.createRoot(document.getElementById('app-root'));
-root.render(<PotenzenTrainer />);
+root.render(
+    <LnSimpleApp trainer="potenzen" title="Potenzen" Icon={SuperscriptIcon} theme="cyan" cards={LN_CARDS.potenzen} streakKey="smarth_streak_potenzen">
+        <PotenzenTrainer />
+    </LnSimpleApp>
+);

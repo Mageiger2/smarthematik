@@ -1288,6 +1288,7 @@ const KugelTrainer = () => {
             {tc.showAnim && <CelebrationOverlay />}
             <TrainerHeader theme="indigo" icon={Sphere} title="Die Kugel"
                            streakIcon={Sphere} streak={tc.streak} />
+            <LnSimpleTabs trainer="kugel" cards={LN_CARDS.kugel} streakKey="smarth_streak_kugel" />
 
             <DifficultyMenu theme="indigo" active={difficulty} onChange={handleDifficultyChange}
                             options={[
@@ -1355,4 +1356,8 @@ const KugelTrainer = () => {
 };
 
 const root = ReactDOM.createRoot(document.getElementById('app-root'));
-root.render(<KugelTrainer />);
+root.render(
+    <LnSimpleApp trainer="kugel" title="Die Kugel" Icon={Sphere} theme="indigo" cards={LN_CARDS.kugel} streakKey="smarth_streak_kugel">
+        <KugelTrainer />
+    </LnSimpleApp>
+);

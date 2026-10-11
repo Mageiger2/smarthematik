@@ -74,8 +74,8 @@ def transform(name, html):
 
 def check_links(name, html):
     for ref in re.findall(r'(?:src|href)="([^"]+)"', html):
-        if ref.startswith(('http://', 'https://', 'mailto:', '#')):
-            continue
+        if ref.startswith(('http://', 'https://', 'mailto:', '#')) or "' +" in ref:
+            continue  # externe Ziele und zusammengesetzte Links aus Skript-Vorlagen
         target = ref.split('#')[0]
         if target and not (PKG / target).exists():
             fail(f'{name}.html verweist auf fehlende Datei: {ref}')

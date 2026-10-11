@@ -195,6 +195,7 @@ const BruchgleichungsTrainer = () => {
         <div className="page-transition max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             {showAnim && <CelebrationOverlay />}
             <TrainerHeader theme="amber" icon={FractionIcon} title="Bruchgleichungen" streakIcon={Target} streak={streak} />
+            <LnSimpleTabs trainer="bruchgleichungen" cards={LN_CARDS.bruchgleichungen} streakKey="smarth_streak_brueche" />
 
             <DifficultyMenu theme="amber" active={selectedDiff} onChange={changeDifficulty}
                 options={[
@@ -349,4 +350,8 @@ const BruchgleichungsTrainer = () => {
 };
 
 const root = ReactDOM.createRoot(document.getElementById('app-root'));
-root.render(<BruchgleichungsTrainer />);
+root.render(
+    <LnSimpleApp trainer="bruchgleichungen" title="Bruchgleichungen" Icon={FractionIcon} theme="amber" cards={LN_CARDS.bruchgleichungen} streakKey="smarth_streak_brueche">
+        <BruchgleichungsTrainer />
+    </LnSimpleApp>
+);

@@ -394,6 +394,7 @@ const BinformelnTrainer = () => {
         <div className="page-transition max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             {showAnim && <CelebrationOverlay />}
             <TrainerHeader theme="teal" icon={BracketsIcon} title="Binomische Formeln" streakIcon={Target} streak={streak} />
+            <LnSimpleTabs trainer="binformeln" cards={LN_CARDS.binformeln} streakKey="smarth_streak_binformeln" />
 
             <DifficultyMenu theme="teal" active={difficulty} onChange={handleDifficultyChange}
                 options={[
@@ -487,4 +488,8 @@ const BinformelnTrainer = () => {
 };
 
 const root = ReactDOM.createRoot(document.getElementById('app-root'));
-root.render(<BinformelnTrainer />);
+root.render(
+    <LnSimpleApp trainer="binformeln" title="Binomische Formeln" Icon={BracketsIcon} theme="teal" cards={LN_CARDS.binformeln} streakKey="smarth_streak_binformeln">
+        <BinformelnTrainer />
+    </LnSimpleApp>
+);

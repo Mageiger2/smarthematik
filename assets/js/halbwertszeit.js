@@ -303,6 +303,7 @@ const ZerfallsTrainer = () => {
         <div className="page-transition max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             {showAnim && <CelebrationOverlay />}
             <TrainerHeader theme="rose" icon={TrendingDown} title="Halbwertszeit" streakIcon={TrendingDown} streak={streak} />
+            <LnSimpleTabs trainer="halbwertszeit" cards={LN_CARDS.halbwertszeit} streakKey="smarth_streak_zerfall" />
 
             <DifficultyMenu theme="rose" active={difficulty} onChange={handleDifficultyChange} options={[
                 {id: 'leicht', label: 'Leicht'},
@@ -418,4 +419,8 @@ const ZerfallsTrainer = () => {
 };
 
 const root = ReactDOM.createRoot(document.getElementById('app-root'));
-root.render(<ZerfallsTrainer />);
+root.render(
+    <LnSimpleApp trainer="halbwertszeit" title="Halbwertszeit" Icon={TrendingDown} theme="rose" cards={LN_CARDS.halbwertszeit} streakKey="smarth_streak_zerfall">
+        <ZerfallsTrainer />
+    </LnSimpleApp>
+);

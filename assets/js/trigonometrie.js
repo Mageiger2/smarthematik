@@ -1038,6 +1038,14 @@ const CalculationInput = ({ step, onCorrect, onTipShown }) => {
 // ==========================================
 // 7. HAUPTKOMPONENTE
 // ==========================================
+const TrigIcon = ({className}) => (
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                    <polygon points="3 20 21 20 21 5" />
+                    <polyline points="18 20 18 17 21 17" />
+                    <path d="M 9 20 A 6 6 0 0 0 7.4 16.0" />
+                </svg>
+            );
+
 const TrigonometrieTrainer = () => {
     const [difficulty, setDifficulty] = useState('leicht');
     const [currentTask, setCurrentTask] = useState(null);
@@ -1192,13 +1200,8 @@ const TrigonometrieTrainer = () => {
         <div className="page-transition max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             {showAnim && <CelebrationOverlay />}
 
-            <TrainerHeader theme="orange" icon={({className}) => (
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                    <polygon points="3 20 21 20 21 5" />
-                    <polyline points="18 20 18 17 21 17" />
-                    <path d="M 9 20 A 6 6 0 0 0 7.4 16.0" />
-                </svg>
-            )} title="Trigonometrie & Satzgruppe" streakIcon={Target} streak={streak} />
+            <TrainerHeader theme="orange" icon={TrigIcon} title="Trigonometrie & Satzgruppe" streakIcon={Target} streak={streak} />
+            <LnSimpleTabs trainer="trigonometrie" cards={LN_CARDS.trigonometrie} streakKey="smarth_streak_trigonometrie" />
 
             <DifficultyMenu theme="orange" active={difficulty} onChange={handleDifficultyChange}
                 options={[
@@ -1264,4 +1267,8 @@ const TrigonometrieTrainer = () => {
 };
 
 const root = ReactDOM.createRoot(document.getElementById('app-root'));
-root.render(<TrigonometrieTrainer />);
+root.render(
+    <LnSimpleApp trainer="trigonometrie" title="Trigonometrie & Satzgruppe" Icon={TrigIcon} theme="orange" cards={LN_CARDS.trigonometrie} streakKey="smarth_streak_trigonometrie">
+        <TrigonometrieTrainer />
+    </LnSimpleApp>
+);

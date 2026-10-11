@@ -2516,7 +2516,14 @@ const fkMount = (cfg) => {
 //   LERN[themaId] = { cards: [ { id, title, body, widget?, check?, merke? } ] }
 //   check: { q, options: [JSX], correct: idx, hint } — Auswahlfrage zum Abschluss der Karte
 //   widget: (props) => JSX — interaktives Element; mit props.onDone() kann es die Karte freigeben
+// Trainer ohne Themenauswahl (Kugel, Potenzen, …) nutzen LnSimpleApp + LnSimpleTabs:
+//   Hash #lernen zeigt die Lernkarten, sonst läuft der normale Trainer.
 // ==========================================
+
+// Einstellungen des aktiven Trainers ohne Funktionen-Kern (Theme für die Lernbausteine)
+const LN = { theme: null };
+// Speicher-Kennung: bei Trainern ohne Themen (Thema = Trainer) ohne Anhängsel
+const lnStoreId = (trainer, topic) => (!topic || topic === trainer) ? trainer : `${trainer}_${topic}`;
 
 // ==========================================
 // 1. FORTSCHRITT (pro Trainer und Thema)
@@ -2554,7 +2561,7 @@ const lnMarkExam = (trainer, sig) => { const m = lnExamsSolved(trainer); if (!m[
 const lnTopicStatus = (trainer, topic, learnTotal, examSigs = []) => {
     const lp = lnTopic(trainer, topic);
     const learned = learnTotal > 0 && lp.cards.length >= learnTotal;
-    const adapt = getStorageJSON(`smarth_adaptive_${trainer}_${topic}`, null);
+    const adapt = getStorageJSON(`smarth_adaptive_${lnStoreId(trainer, topic)}`, null);
     const correct = adapt && adapt.perDifficulty ? Object.values(adapt.perDifficulty).reduce((a, d) => a + (d.correct || 0), 0) : 0;
     const mastered = adapt && adapt.mastered ? adapt.mastered.length : 0;
     const solvedMap = lnExamsSolved(trainer);
@@ -2565,7 +2572,7 @@ const lnTopicStatus = (trainer, topic, learnTotal, examSigs = []) => {
         practiced: correct >= 5, correct,
         mastered: mastered > 0 || (need > 0 && exams >= need), masteredLevels: mastered,
         exams, examTotal: examSigs.length,
-        streak: getStorage(`smarth_streak_${trainer}_${topic}`, 0)
+        streak: getStorage(`smarth_streak_${lnStoreId(trainer, topic)}`, 0)
     };
 };
 
@@ -2602,7 +2609,7 @@ const LnSlider = ({ label, value, min, max, step = 1, onChange, format = (v) => 
     );
 };
 // Theme des aktiven Trainers (FK.theme, falls der Funktionen-Kern geladen ist)
-const FK_THEME = () => (typeof FK !== 'undefined' && FK.theme) || 'emerald';
+const FK_THEME = () => (typeof FK !== 'undefined' && FK.theme) || LN.theme || 'emerald';
 
 // Merkkasten „Das musst du können“
 const LnMerke = ({ title = 'Merke', children }) => {
@@ -2714,9 +2721,10 @@ const LnCard = ({ card, idx, state, onDone, onReopen }) => {
 };
 
 // Umschalter Lernen ↔ Üben & Prüfen (unter dem Trainer-Header)
-const LnModeTabs = ({ topicId, mode, hasLearn }) => {
+const LnModeTabs = ({ topicId, mode, hasLearn, simple = false }) => {
     const t = themeColors[FK_THEME()] || themeColors.emerald;
     if (!hasLearn) return null;
+    const learnHref = simple ? '#lernen' : `#${topicId}/lernen`, practiceHref = simple ? '#ueben' : `#${topicId}`;
     const tab = (id, href, Icon, label) => (
         <a href={href} className={`px-4 sm:px-6 py-2 rounded-lg font-bold text-sm sm:text-base inline-flex items-center gap-2 transition-colors no-underline ${mode === id ? `${t.btnBg} text-white shadow-sm` : 'text-slate-600 hover:bg-slate-100'}`}>
             <Icon className="w-4 h-4 sm:w-5 sm:h-5" /> {label}
@@ -2725,8 +2733,8 @@ const LnModeTabs = ({ topicId, mode, hasLearn }) => {
     return (
         <div className="flex justify-center mb-6">
             <div className="inline-flex bg-white border border-slate-200 rounded-xl p-1 shadow-sm gap-1">
-                {tab('lernen', `#${topicId}/lernen`, BookOpen, 'Lernen')}
-                {tab('ueben', `#${topicId}`, Target, 'Üben & Prüfen')}
+                {tab('lernen', learnHref, BookOpen, 'Lernen')}
+                {tab('ueben', practiceHref, Target, 'Üben & Prüfen')}
             </div>
         </div>
     );
@@ -2735,10 +2743,10 @@ const LnModeTabs = ({ topicId, mode, hasLearn }) => {
 // ==========================================
 // 3. LERN-ANSICHT EINES THEMAS
 // ==========================================
-const LnLearnView = ({ trainer, topic, cards, Icon, backLink, onPractice }) => {
+const LnLearnView = ({ trainer, topic, cards, Icon, backLink, onPractice, simple = false }) => {
     const [doneIds, setDoneIds] = useState(() => lnTopic(trainer, topic.id).cards);
     const [runKey, setRunKey] = useState(0);
-    const streak = getStorage(`smarth_streak_${trainer}_${topic.id}`, 0);
+    const streak = getStorage(topic.streakKey || `smarth_streak_${lnStoreId(trainer, topic.id)}`, 0);
     const t = themeColors[FK_THEME()] || themeColors.emerald;
     const firstOpen = cards.findIndex(c => !doneIds.includes(c.id));
     const allDone = firstOpen < 0;
@@ -2753,7 +2761,7 @@ const LnLearnView = ({ trainer, topic, cards, Icon, backLink, onPractice }) => {
         <div className="page-transition max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
             {backLink}
             <TrainerHeader theme={FK_THEME()} icon={Icon} title={topic.title} streakIcon={Icon} streak={streak} />
-            <LnModeTabs topicId={topic.id} mode="lernen" hasLearn={true} />
+            <LnModeTabs topicId={topic.id} mode="lernen" hasLearn={true} simple={simple} />
             <div className="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-slate-200 mb-6 flex flex-wrap items-center justify-between gap-3">
                 <div>
                     <p className="text-slate-700 font-bold">{doneIds.length} von {cards.length} Lernkarten</p>
@@ -2798,6 +2806,43 @@ const LnStatusChips = ({ st, hasLearn }) => {
             {chip(st.mastered, 'Gemeistert', st.examTotal ? `${st.exams} von ${st.examTotal} Prüfungsteilen gelöst` : 'Eine Stufe 10× in Folge richtig')}
         </div>
     );
+};
+
+// ==========================================
+// 4. TRAINER OHNE THEMENAUSWAHL: Lernen ↔ Üben über den Hash (#lernen)
+// ==========================================
+const lnSimpleMode = () => (window.location.hash === '#lernen' ? 'lernen' : 'ueben');
+
+// Umschalter + Status-Chips für einen Trainer ohne Themen (steht unter dem Trainer-Header)
+const LnSimpleTabs = ({ trainer, cards, streakKey }) => {
+    if (!cards || !cards.length) return null;
+    const st = lnTopicStatus(trainer, trainer, cards.length);
+    if (streakKey) st.streak = getStorage(streakKey, 0);
+    return (
+        <div className="mb-6">
+            <LnModeTabs topicId={trainer} mode="ueben" hasLearn={true} simple={true} />
+            <div className="-mt-3 flex flex-col items-center gap-2">
+                <LnStatusChips st={st} hasLearn={true} />
+                <LnHint title="Wie zählt das?">Gelernt: alle Lernkarten durchgearbeitet. Geübt: 5 Aufgaben richtig gelöst. Gemeistert: eine Stufe 10-mal in Folge richtig.</LnHint>
+            </div>
+        </div>
+    );
+};
+
+// Hülle um den Trainer: zeigt bei #lernen die Lernkarten, sonst den Trainer (children)
+const LnSimpleApp = ({ trainer, title, Icon, theme, cards, streakKey, children }) => {
+    LN.theme = theme;
+    const [mode, setMode] = useState(lnSimpleMode);
+    useEffect(() => {
+        const onHash = () => { setMode(lnSimpleMode()); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+        window.addEventListener('hashchange', onHash);
+        return () => window.removeEventListener('hashchange', onHash);
+    }, []);
+    if (mode === 'lernen' && cards && cards.length) {
+        return <LnLearnView key="lernen" trainer={trainer} topic={{ id: trainer, title, streakKey }} cards={cards} Icon={Icon}
+                            onPractice={() => { window.location.hash = 'ueben'; }} simple={true} />;
+    }
+    return children;
 };
 
 

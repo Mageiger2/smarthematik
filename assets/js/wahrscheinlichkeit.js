@@ -1046,6 +1046,7 @@ const WahrscheinlichkeitsTrainer = () => {
         <div className="page-transition max-w-4xl lg:max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             {showAnim && <CelebrationOverlay />}
             <TrainerHeader theme="violet" icon={DicesIcon} title="Wahrscheinlichkeit" streakIcon={Target} streak={streak} />
+            <LnSimpleTabs trainer="wahrscheinlichkeit" cards={LN_CARDS.wahrscheinlichkeit} streakKey="smarth_streak_wahrscheinlichkeit" />
 
             <DifficultyMenu theme="violet" active={difficulty} onChange={handleDifficultyChange} options={[
                 {id: 'leicht', label: 'Leicht'},
@@ -1264,4 +1265,8 @@ const WahrscheinlichkeitsTrainer = () => {
 };
 
 const root = ReactDOM.createRoot(document.getElementById('app-root'));
-root.render(<WahrscheinlichkeitsTrainer />);
+root.render(
+    <LnSimpleApp trainer="wahrscheinlichkeit" title="Wahrscheinlichkeit" Icon={DicesIcon} theme="violet" cards={LN_CARDS.wahrscheinlichkeit} streakKey="smarth_streak_wahrscheinlichkeit">
+        <WahrscheinlichkeitsTrainer />
+    </LnSimpleApp>
+);
