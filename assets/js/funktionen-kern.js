@@ -818,8 +818,8 @@ const LfOverview = () => {
                     </h1>
                 </div>
             </header>
-            <p className="text-slate-600 mb-6 text-center max-w-2xl mx-auto">
-                Wähle ein Thema. Zu jedem Thema gibt es <b>Lernen</b> (Erklärungen zum Ausprobieren), <b>Üben</b> (Leicht, Mittel, Schwer) und <b>Prüfen</b> (MSA-Prüfungsaufgaben). Dein Fortschritt wird in diesem Browser gespeichert.
+            <p className="text-slate-600 mb-6 text-center">
+                Wähle ein Thema: <b>Lernen</b> · <b>Üben</b> · <b>Prüfen</b>
             </p>
 
             {/* Dein Weg: Fortschritt und nächster Schritt */}
@@ -830,7 +830,7 @@ const LfOverview = () => {
                         <span className="text-sm text-slate-500">{pct} % · {solvedExams} von {totalExams} Prüfungsteilen gelöst</span>
                     </div>
                     <div className="h-3 bg-slate-100 rounded-full overflow-hidden"><div className={`h-full bg-${FK.theme}-600 rounded-full transition-all`} style={{ width: `${pct}%` }} /></div>
-                    <p className="text-xs text-slate-500 mt-1.5">Für jedes Thema zählt: gelernt, geübt (5 Aufgaben richtig) und gemeistert (10 in Folge oder 3 Prüfungsteile).</p>
+                    <div className="mt-2"><LnHint title="Wie zählt das?">Für jedes Thema zählt: <b>Gelernt</b> (alle Lernkarten), <b>Geübt</b> (5 Aufgaben richtig) und <b>Gemeistert</b> (10 in Folge oder 3 Prüfungsteile). Dein Fortschritt wird in diesem Browser gespeichert.</LnHint></div>
                 </div>
                 {next && (
                     <a href={`#${next.id}${nextMode === 'lernen' ? '/lernen' : ''}`} className={`shrink-0 bg-${FK.theme}-600 hover:bg-${FK.theme}-700 text-white px-5 py-3 rounded-xl font-bold shadow-md inline-flex items-center gap-3 no-underline`}>

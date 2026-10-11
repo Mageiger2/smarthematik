@@ -1338,6 +1338,7 @@ fkMount({
     topics: LF_TOPICS,
     gen: GEN,
     exams: LF_EXAMS,
+    learn: LF_LEARN_BUILD,
     examGroups: [
         { title: 'Lineare Funktionen', filter: (e) => !e.lgs },
         { title: 'Lineare Gleichungssysteme', filter: (e) => e.lgs }

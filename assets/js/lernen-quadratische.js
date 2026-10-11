@@ -5,9 +5,6 @@
 // Rendern aufgerufen, damit die Helfer des Trainers (Pb, qfVertS, …) bereitstehen.
 // ==========================================
 
-// Mathe-Text in der Formelschrift
-const M = ({ children }) => <span className="font-math whitespace-nowrap">{children}</span>;
-
 // ==========================================
 // 1. INTERAKTIVE BAUSTEINE
 // ==========================================

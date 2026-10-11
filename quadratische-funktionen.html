@@ -2364,8 +2364,8 @@ const LfOverview = () => {
                     </h1>
                 </div>
             </header>
-            <p className="text-slate-600 mb-6 text-center max-w-2xl mx-auto">
-                Wähle ein Thema. Zu jedem Thema gibt es <b>Lernen</b> (Erklärungen zum Ausprobieren), <b>Üben</b> (Leicht, Mittel, Schwer) und <b>Prüfen</b> (MSA-Prüfungsaufgaben). Dein Fortschritt wird in diesem Browser gespeichert.
+            <p className="text-slate-600 mb-6 text-center">
+                Wähle ein Thema: <b>Lernen</b> · <b>Üben</b> · <b>Prüfen</b>
             </p>
 
             {/* Dein Weg: Fortschritt und nächster Schritt */}
@@ -2376,7 +2376,7 @@ const LfOverview = () => {
                         <span className="text-sm text-slate-500">{pct} % · {solvedExams} von {totalExams} Prüfungsteilen gelöst</span>
                     </div>
                     <div className="h-3 bg-slate-100 rounded-full overflow-hidden"><div className={`h-full bg-${FK.theme}-600 rounded-full transition-all`} style={{ width: `${pct}%` }} /></div>
-                    <p className="text-xs text-slate-500 mt-1.5">Für jedes Thema zählt: gelernt, geübt (5 Aufgaben richtig) und gemeistert (10 in Folge oder 3 Prüfungsteile).</p>
+                    <div className="mt-2"><LnHint title="Wie zählt das?">Für jedes Thema zählt: <b>Gelernt</b> (alle Lernkarten), <b>Geübt</b> (5 Aufgaben richtig) und <b>Gemeistert</b> (10 in Folge oder 3 Prüfungsteile). Dein Fortschritt wird in diesem Browser gespeichert.</LnHint></div>
                 </div>
                 {next && (
                     <a href={`#${next.id}${nextMode === 'lernen' ? '/lernen' : ''}`} className={`shrink-0 bg-${FK.theme}-600 hover:bg-${FK.theme}-700 text-white px-5 py-3 rounded-xl font-bold shadow-md inline-flex items-center gap-3 no-underline`}>
@@ -2527,6 +2527,23 @@ const lnTopicStatus = (trainer, topic, learnTotal, examSigs = []) => {
 // ==========================================
 // 2. BAUSTEINE
 // ==========================================
+
+// Mathe-Text in der Formelschrift
+const M = ({ children }) => <span className="font-math whitespace-nowrap">{children}</span>;
+
+// Eingeklappter Erklärtext: kleine Überschrift, Text erst nach Klick
+const LnHint = ({ title = 'Wie funktioniert das?', children }) => {
+    const [open, setOpen] = useState(false);
+    const t = themeColors[FK_THEME()] || themeColors.emerald;
+    return (
+        <div className="text-sm">
+            <button type="button" onClick={() => setOpen(o => !o)} aria-expanded={open} className={`inline-flex items-center gap-1 ${t.activeTitle} hover:underline font-medium`}>
+                <HelpCircle className="w-4 h-4" /> {title} <ChevronRight className={`w-4 h-4 transition-transform ${open ? 'rotate-90' : ''}`} />
+            </button>
+            {open && <div className="mt-2 text-slate-600 animate-fade-in">{children}</div>}
+        </div>
+    );
+};
 
 // Schieberegler mit Beschriftung (Theme-Farbe über accent-color)
 const LnSlider = ({ label, value, min, max, step = 1, onChange, format = (v) => String(v).replace('.', ',').replace('-', '−') }) => {
@@ -2693,9 +2710,10 @@ const LnLearnView = ({ trainer, topic, cards, Icon, backLink, onPractice }) => {
             <TrainerHeader theme={FK_THEME()} icon={Icon} title={topic.title} streakIcon={Icon} streak={streak} />
             <LnModeTabs topicId={topic.id} mode="lernen" hasLearn={true} />
             <div className="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-slate-200 mb-6 flex flex-wrap items-center justify-between gap-3">
-                <p className="text-slate-700">
-                    <span className="font-bold">{doneIds.length} von {cards.length}</span> Lernkarten geschafft. Lies, probiere aus und beantworte die Kontrollfrage — dann öffnet sich die nächste Karte.
-                </p>
+                <div>
+                    <p className="text-slate-700 font-bold">{doneIds.length} von {cards.length} Lernkarten</p>
+                    <LnHint title="So geht's">Lies die Karte, probiere das Beispiel aus und beantworte die Kontrollfrage. Dann öffnet sich die nächste Karte. Fertige Karten kannst du jederzeit wieder aufklappen.</LnHint>
+                </div>
                 <div className="flex gap-1.5">
                     {cards.map((c, i) => <span key={c.id} className={`w-6 h-2 rounded-full ${doneIds.includes(c.id) ? 'bg-green-500' : i === firstOpen ? t.badgeBg : 'bg-slate-200'}`} />)}
                 </div>
@@ -2744,9 +2762,6 @@ const LnStatusChips = ({ st, hasLearn }) => {
 // QF_LEARN_BUILD() liefert die Karten je Thema; die Funktion wird erst beim
 // Rendern aufgerufen, damit die Helfer des Trainers (Pb, qfVertS, …) bereitstehen.
 // ==========================================
-
-// Mathe-Text in der Formelschrift
-const M = ({ children }) => <span className="font-math whitespace-nowrap">{children}</span>;
 
 // ==========================================
 // 1. INTERAKTIVE BAUSTEINE

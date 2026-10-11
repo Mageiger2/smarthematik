@@ -67,6 +67,23 @@ const lnTopicStatus = (trainer, topic, learnTotal, examSigs = []) => {
 // 2. BAUSTEINE
 // ==========================================
 
+// Mathe-Text in der Formelschrift
+const M = ({ children }) => <span className="font-math whitespace-nowrap">{children}</span>;
+
+// Eingeklappter Erklärtext: kleine Überschrift, Text erst nach Klick
+const LnHint = ({ title = 'Wie funktioniert das?', children }) => {
+    const [open, setOpen] = useState(false);
+    const t = themeColors[FK_THEME()] || themeColors.emerald;
+    return (
+        <div className="text-sm">
+            <button type="button" onClick={() => setOpen(o => !o)} aria-expanded={open} className={`inline-flex items-center gap-1 ${t.activeTitle} hover:underline font-medium`}>
+                <HelpCircle className="w-4 h-4" /> {title} <ChevronRight className={`w-4 h-4 transition-transform ${open ? 'rotate-90' : ''}`} />
+            </button>
+            {open && <div className="mt-2 text-slate-600 animate-fade-in">{children}</div>}
+        </div>
+    );
+};
+
 // Schieberegler mit Beschriftung (Theme-Farbe über accent-color)
 const LnSlider = ({ label, value, min, max, step = 1, onChange, format = (v) => String(v).replace('.', ',').replace('-', '−') }) => {
     const col = { emerald: '#059669', rose: '#e11d48', amber: '#f59e0b', sky: '#0ea5e9', violet: '#7c3aed', teal: '#0d9488', cyan: '#0891b2', orange: '#ea580c', indigo: '#4f46e5', blue: '#2563eb', fuchsia: '#c026d3' }[FK_THEME()] || '#059669';
@@ -232,9 +249,10 @@ const LnLearnView = ({ trainer, topic, cards, Icon, backLink, onPractice }) => {
             <TrainerHeader theme={FK_THEME()} icon={Icon} title={topic.title} streakIcon={Icon} streak={streak} />
             <LnModeTabs topicId={topic.id} mode="lernen" hasLearn={true} />
             <div className="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-slate-200 mb-6 flex flex-wrap items-center justify-between gap-3">
-                <p className="text-slate-700">
-                    <span className="font-bold">{doneIds.length} von {cards.length}</span> Lernkarten geschafft. Lies, probiere aus und beantworte die Kontrollfrage — dann öffnet sich die nächste Karte.
-                </p>
+                <div>
+                    <p className="text-slate-700 font-bold">{doneIds.length} von {cards.length} Lernkarten</p>
+                    <LnHint title="So geht's">Lies die Karte, probiere das Beispiel aus und beantworte die Kontrollfrage. Dann öffnet sich die nächste Karte. Fertige Karten kannst du jederzeit wieder aufklappen.</LnHint>
+                </div>
                 <div className="flex gap-1.5">
                     {cards.map((c, i) => <span key={c.id} className={`w-6 h-2 rounded-full ${doneIds.includes(c.id) ? 'bg-green-500' : i === firstOpen ? t.badgeBg : 'bg-slate-200'}`} />)}
                 </div>
