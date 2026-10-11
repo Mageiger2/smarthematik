@@ -985,7 +985,9 @@ GEN.lgs = (level, forbidden) => {
     }
     // Schwer: Sachaufgaben
     const type = lfChooseType([4, 5, 6, 7], forbidden);
-    const sysSelect = (goal, right, wrong1, wrong2, hint) => S.select(goal, [right, wrong1, wrong2].map(o => <span className="font-math">{o}</span>), 0, hint, right);
+    // Optionen: Gleichungen untereinander (Trennzeichen „;“ oder „   “)
+    const sysBox = (o) => <span className="inline-grid grid-cols-[auto_auto] gap-x-2 gap-y-0.5 font-math text-left">{o.split(/;|\s{3}/).map(x => x.trim()).filter(Boolean).map((eq, i) => <React.Fragment key={i}><span className="text-slate-500">{['I', 'II', 'III'][i]}</span><span>{eq.replace(/^I+: /, '')}</span></React.Fragment>)}</span>;
+    const sysSelect = (goal, right, wrong1, wrong2, hint) => S.select(goal, [right, wrong1, wrong2].map(sysBox), 0, hint, right);
     if (type === 4) {
         const x = lfRand(12, 40), y = lfRand(3, x - 2), S_ = x + y, D = x - y;
         return { typeId: 4, title: 'Zwei Zahlen gesucht', desc: <>Die Summe zweier Zahlen beträgt {lfS(S_)}, ihre Differenz ist {lfS(D)}. Ermittle die beiden Zahlen mithilfe eines linearen Gleichungssystems.</>,

@@ -117,6 +117,9 @@ const LLAbstandLab = ({ onDone }) => {
     );
 };
 
+// Gleichungssystem mit I und II untereinander (Lernkarten)
+const LLSys = ({ a, b }) => <span className="inline-grid grid-cols-[auto_auto] gap-x-2 gap-y-0.5 align-middle font-math text-left"><span>I</span><span>{a}</span><span>II</span><span>{b}</span></span>;
+
 // Spiegel-Labor: Gerade an der x- oder y-Achse spiegeln
 const LLSpiegelLab = ({ onDone }) => {
     const g = { m: 0.5, t: 2, n: 'g' };
@@ -520,45 +523,44 @@ const LF_LEARN_BUILD = () => {
             <p>Sind beide Gleichungen nach y aufgelöst, setzt du die rechten Seiten gleich. Das ist dasselbe wie beim Schnittpunkt zweier Geraden.</p>
           </>,
           widget: (p) => <LnSteps onDone={p.onDone} lines={[
-            { f: 'I: y = 2x + 1     II: y = −x + 7', e: 'beide nach y aufgelöst' },
+            { f: <LLSys a="y = 2x + 1" b="y = −x + 7" />, e: 'beide nach y aufgelöst' },
             { f: '2x + 1 = −x + 7', e: 'rechte Seiten gleichsetzen' },
             { f: '3x = 6  →  x = 2', e: '+x, −1, dann : 3' },
             { f: 'y = 2 · 2 + 1 = 5', e: 'x in I einsetzen' },
             { f: 'L = {(2 | 5)}', e: 'Lösung als Zahlenpaar' }]} />,
-          check: { q: 'I: y = x + 3, II: y = 3x − 1. Was ist x?', options: opt('x = 2', 'x = 1', 'x = −2', 'x = 4'), correct: 0, hint: 'x + 3 = 3x − 1 → 4 = 2x.' } },
+          check: { q: <><LLSys a="y = x + 3" b="y = 3x − 1" /> Was ist x?</>, options: opt('x = 2', 'x = 1', 'x = −2', 'x = 4'), correct: 0, hint: 'x + 3 = 3x − 1 → 4 = 2x.' } },
         { id: 'k3', title: 'Einsetzungsverfahren',
           body: <>
             <p>Ist nur eine Gleichung nach einer Variablen aufgelöst, setzt du diesen Term in die andere Gleichung ein. Klammer nicht vergessen!</p>
           </>,
           widget: (p) => <LnSteps onDone={p.onDone} lines={[
-            { f: 'I: y = x − 1     II: 2x + 3y = 12', e: 'I ist nach y aufgelöst' },
+            { f: <LLSys a="y = x − 1" b="2x + 3y = 12" />, e: 'I ist nach y aufgelöst' },
             { f: '2x + 3 · (x − 1) = 12', e: 'y in II ersetzen, Klammer!' },
             { f: '2x + 3x − 3 = 12  →  5x = 15  →  x = 3', e: 'ausmultiplizieren, lösen' },
             { f: 'y = 3 − 1 = 2  →  L = {(3 | 2)}', e: 'x in I einsetzen' }]} />,
-          check: { q: 'I: x = 2y, II: x + y = 9. Was ist y?', options: opt('y = 3', 'y = 6', 'y = 4,5', 'y = 9'), correct: 0, hint: '2y + y = 9 → 3y = 9.' } },
+          check: { q: <><LLSys a="x = 2y" b="x + y = 9" /> Was ist y?</>, options: opt('y = 3', 'y = 6', 'y = 4,5', 'y = 9'), correct: 0, hint: '2y + y = 9 → 3y = 9.' } },
         { id: 'k4', title: 'Additionsverfahren',
           body: <>
             <p>Stehen beide Gleichungen in der Form ax + by = c, addierst du sie so, dass eine Variable wegfällt. Dazu müssen die Zahlen vor dieser Variablen gleich groß sein, aber verschiedene Vorzeichen haben. Sonst vorher eine Gleichung mit einer Zahl malnehmen.</p>
           </>,
           widget: (p) => <LnSteps onDone={p.onDone} lines={[
-            { f: 'I: 3x + 2y = 16     II: 5x − 2y = 8', e: '+2y und −2y' },
+            { f: <LLSys a="3x + 2y = 16" b="5x − 2y = 8" />, e: '+2y und −2y' },
             { f: 'I + II: 8x = 24  →  x = 3', e: 'y fällt weg' },
             { f: '3 · 3 + 2y = 16  →  2y = 7  →  y = 3,5', e: 'x in I einsetzen' },
             { f: 'L = {(3 | 3,5)}', e: 'fertig' }]} />,
           merke: <>Gleichsetzen: beide nach y. Einsetzen: eine nach x oder y. Addieren: beide in der Form ax + by = c, eine Variable muss wegfallen.</>,
-          check: { q: 'I: x + y = 10, II: x − y = 4. Was ergibt I + II?', options: opt('2x = 14', '2y = 14', '2x = 6', 'x = 14'), correct: 0, hint: '+y und −y fallen weg, 10 + 4 = 14.' } },
+          check: { q: <><LLSys a="x + y = 10" b="x − y = 4" /> Was ergibt I + II?</>, options: opt('2x = 14', '2y = 14', '2x = 6', 'x = 14'), correct: 0, hint: '+y und −y fallen weg, 10 + 4 = 14.' } },
         { id: 'k5', title: 'Sachaufgaben: Gleichungen aufstellen',
           body: <>
             <p>Bei Textaufgaben ist das Aufstellen der schwere Teil. Lies den Text Satz für Satz: Jede Angabe wird eine Gleichung. Schreibe dazu, was x und y bedeuten.</p>
           </>,
           widget: (p) => <LnSteps onDone={p.onDone} lines={[
             { f: '„Motorräder und Pkws, zusammen 50 Fahrzeuge und 160 Reifen.“', e: 'x = Motorräder, y = Pkws' },
-            { f: 'I: x + y = 50', e: 'Anzahl der Fahrzeuge' },
-            { f: 'II: 2x + 4y = 160', e: 'Reifen: 2 pro Motorrad, 4 pro Pkw' },
+            { f: <LLSys a="x + y = 50" b="2x + 4y = 160" />, e: 'I: Anzahl der Fahrzeuge · II: Reifen, 2 pro Motorrad und 4 pro Pkw' },
             { f: 'x = 50 − y  →  2(50 − y) + 4y = 160  →  2y = 60  →  y = 30', e: 'Einsetzen' },
             { f: 'x = 20: 20 Motorräder, 30 Pkws', e: 'Antwortsatz nicht vergessen' }]} />,
           merke: <>Sachaufgabe: 1. Variablen festlegen, 2. jede Angabe als Gleichung schreiben, 3. lösen, 4. Antwortsatz und Probe am Text.</>,
-          check: { q: '„Die Summe zweier Zahlen ist 35, ihre Differenz 17.“ Welches System passt?', options: opt('x + y = 35, x − y = 17', 'x + y = 17, x − y = 35', 'x · y = 35, x − y = 17', 'x + y = 35, x + y = 17'), correct: 0, hint: 'Summe = plus, Differenz = minus.' } }
+          check: { q: '„Die Summe zweier Zahlen ist 35, ihre Differenz 17.“ Welches System passt?', options: [<LLSys a="x + y = 35" b="x − y = 17" />, <LLSys a="x + y = 17" b="x − y = 35" />, <LLSys a="x · y = 35" b="x − y = 17" />, <LLSys a="x + y = 35" b="x + y = 17" />], correct: 0, hint: 'Summe = plus, Differenz = minus.' } }
     ]};
 
     L.sachaufgaben = { cards: [
