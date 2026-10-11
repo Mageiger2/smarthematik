@@ -717,7 +717,7 @@ const genWahrscheinlichkeitProblem = (diff) => {
 // TRAINER
 // ==========================================
 const WahrscheinlichkeitsTrainer = () => {
-    const [difficulty, setDifficulty] = useState('mittel');
+    const [difficulty, setDifficulty] = useState('leicht');
     const [problem, setProblem] = useState(null);
     const [step, setStep] = useState(1);
     const [selectedIdentification, setSelectedIdentification] = useState(null);
@@ -846,8 +846,11 @@ const WahrscheinlichkeitsTrainer = () => {
         const val = parseFloat(inputs.perc.replace(',', '.')); if (isNaN(val)) return;
 
         // Akzeptiert die exakte (auf 2 Nachkommastellen gerundete) Lösung ODER die auf ganze Prozent gerundete Lösung
-        const isExactMatch = Math.abs(val - problem.resultPerc) <= 0.05;
-        const isRoundedMatch = Math.abs(val - Math.round(problem.resultPerc)) <= 0.05;
+        // Akzeptiert: auf 2 Nachkommastellen (±0,05), auf 1 Nachkommastelle gerundet oder abgeschnitten,
+        // oder auf ganze Prozent gerundet.
+        const r = problem.resultPerc;
+        const isExactMatch = Math.abs(val - r) <= 0.05 || Math.abs(val - Math.round(r * 10) / 10) <= 0.001 || Math.abs(val - Math.floor(r * 10) / 10) <= 0.001;
+        const isRoundedMatch = Math.abs(val - Math.round(r)) <= 0.05;
 
         if (isExactMatch || isRoundedMatch) {
             setFinalFeedback('correct');

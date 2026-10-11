@@ -385,6 +385,23 @@ const triggerCelebration = (setShowAnim) => {
     setTimeout(() => setShowAnim(false), 3500);
 };
 
+// Prüft eine Zahleneingabe einheitlich für alle Trainer. Neben der Toleranz tol gilt:
+// Ist das Ergebnis keine Dezimalzahl mit höchstens zwei Nachkommastellen (z. B. 1/3 oder
+// 23,333 %), zählt auch jede gerundete oder abgeschnittene Eingabe mit mindestens einer
+// Nachkommastelle — Schüler können kein Periodenzeichen tippen.
+// Beispiel −5/3: −1,7 / −1,67 / −1,66 / −1,667 sind richtig, −1,8 nicht.
+const numOk = (raw, v, correct, tol = 0.011) => {
+    if (isNaN(v)) return false;
+    if (Math.abs(v - correct) <= tol) return true;
+    if (Math.abs(correct * 100 - Math.round(correct * 100)) < 1e-7) return false;
+    const dec = String(raw === null || raw === undefined ? '' : raw).replace(/\s+/g, '').match(/^[+\-−–]?\d*[.,](\d+)$/);
+    if (!dec) return false;
+    const f = Math.pow(10, dec[1].length);
+    const sign = correct < 0 ? -1 : 1, a = Math.abs(correct) * f;
+    const rounded = sign * Math.round(a) / f, cut = sign * Math.floor(a + 1e-9) / f;
+    return Math.abs(v - rounded) <= 1e-9 || Math.abs(v - cut) <= 1e-9;
+};
+
 const formatNum = (num) => { if (num === null || num === undefined) return ""; return num.toString().replace('.', ','); };
 const fDe = (n) => String(n).replace('.', ',');
 // Normalisiert mathematische Eingaben für den Vergleich. Akzeptiert insbesondere
@@ -2263,7 +2280,7 @@ const genWahrscheinlichkeitProblem = (diff) => {
 // TRAINER
 // ==========================================
 const WahrscheinlichkeitsTrainer = () => {
-    const [difficulty, setDifficulty] = useState('mittel');
+    const [difficulty, setDifficulty] = useState('leicht');
     const [problem, setProblem] = useState(null);
     const [step, setStep] = useState(1);
     const [selectedIdentification, setSelectedIdentification] = useState(null);
@@ -2392,8 +2409,11 @@ const WahrscheinlichkeitsTrainer = () => {
         const val = parseFloat(inputs.perc.replace(',', '.')); if (isNaN(val)) return;
 
         // Akzeptiert die exakte (auf 2 Nachkommastellen gerundete) Lösung ODER die auf ganze Prozent gerundete Lösung
-        const isExactMatch = Math.abs(val - problem.resultPerc) <= 0.05;
-        const isRoundedMatch = Math.abs(val - Math.round(problem.resultPerc)) <= 0.05;
+        // Akzeptiert: auf 2 Nachkommastellen (±0,05), auf 1 Nachkommastelle gerundet oder abgeschnitten,
+        // oder auf ganze Prozent gerundet.
+        const r = problem.resultPerc;
+        const isExactMatch = Math.abs(val - r) <= 0.05 || Math.abs(val - Math.round(r * 10) / 10) <= 0.001 || Math.abs(val - Math.floor(r * 10) / 10) <= 0.001;
+        const isRoundedMatch = Math.abs(val - Math.round(r)) <= 0.05;
 
         if (isExactMatch || isRoundedMatch) {
             setFinalFeedback('correct');

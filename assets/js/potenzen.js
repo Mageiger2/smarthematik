@@ -171,7 +171,7 @@ const testEquivalence = (userStr, prob) => {
 // TRAINER
 // ==========================================
 const PotenzenTrainer = () => {
-    const [difficulty, setDifficulty] = useState('mittel');
+    const [difficulty, setDifficulty] = useState('leicht');
     const [problem, setProblem] = useState(null);
     const [step, setStep] = useState(1);
 

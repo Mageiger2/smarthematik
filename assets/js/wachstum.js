@@ -109,7 +109,7 @@ const buildWachstumsExamProblem = (task) => {
 };
 
 const WachstumsTrainer = () => {
-    const [difficulty, setDifficulty] = useState('mittel');
+    const [difficulty, setDifficulty] = useState('leicht');
     const [problem, setProblem] = useState(null);
     const [step, setStep] = useState(1);
     const [selectedIdentification, setSelectedIdentification] = useState(null);

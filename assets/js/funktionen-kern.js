@@ -58,17 +58,7 @@ const lfUseFrac = (v, frac) => {
 // auch jede gerundete oder abgeschnittene Dezimalzahl mit mindestens einer
 // Nachkommastelle — Schüler können kein Periodenzeichen tippen.
 // Beispiel −5/3 = −1,666…: −1,7 / −1,67 / −1,66 / −1,667 sind richtig, −1,8 nicht.
-const fkNumOk = (raw, v, correct, tol = 0.011) => {
-    if (isNaN(v)) return false;
-    if (Math.abs(v - correct) <= tol) return true;
-    if (lfIsShort(correct)) return false;
-    const dec = String(raw === null || raw === undefined ? '' : raw).replace(/\s+/g, '').match(/^[+\-−–]?\d*[.,](\d+)$/);
-    if (!dec) return false;
-    const f = Math.pow(10, dec[1].length);
-    const sign = correct < 0 ? -1 : 1, a = Math.abs(correct) * f;
-    const rounded = sign * Math.round(a) / f, cut = sign * Math.floor(a + 1e-9) / f;
-    return lfSame(v, rounded, 1e-9) || lfSame(v, cut, 1e-9);
-};
+const fkNumOk = (raw, v, correct, tol = 0.011) => numOk(raw, v, correct, tol);
 
 // Zahl als Text: "−2/3", "0,25", "−1,5"
 const lfS = (v, frac) => {

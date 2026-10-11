@@ -85,7 +85,7 @@ const buildHalbwertszeitsExamProblem = (task) => {
 };
 
 const ZerfallsTrainer = () => {
-    const [difficulty, setDifficulty] = useState('mittel');
+    const [difficulty, setDifficulty] = useState('leicht');
     const [problem, setProblem] = useState(null);
     const [step, setStep] = useState(1);
     const [selectedIdentification, setSelectedIdentification] = useState(null);
