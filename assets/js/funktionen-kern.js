@@ -204,7 +204,7 @@ const fkCurvePoints = (g, xmin, xmax, ymin, ymax) => {
     return pts;
 };
 
-const Koord = ({ range = [-6, 6, -6, 6], lines = [], points = [], interactive = null, snap = 0.5 }) => {
+const Koord = ({ range = [-6, 6, -6, 6], lines = [], points = [], segments = [], interactive = null, snap = 0.5 }) => {
     const [xmin, xmax, ymin, ymax] = range;
     const U = 28, pad = 22;
     const W = (xmax - xmin) * U + 2 * pad, H = (ymax - ymin) * U + 2 * pad;
@@ -275,6 +275,14 @@ const Koord = ({ range = [-6, 6, -6, 6], lines = [], points = [], interactive = 
         );
     });
 
+    // Strecken zwischen zwei Punkten: { x1, y1, x2, y2, color, dash, n }
+    const segEls = segments.map((sg, i) => (
+        <g key={'sg' + i}>
+            <line x1={X(sg.x1)} y1={Y(sg.y1)} x2={X(sg.x2)} y2={Y(sg.y2)} stroke={sg.color || '#2563eb'} strokeWidth={sg.dash ? '1.6' : '2.6'} strokeDasharray={sg.dash ? '5 4' : undefined} strokeLinecap="round" />
+            {sg.n && <text x={X((sg.x1 + sg.x2) / 2) + (sg.dx || 6)} y={Y((sg.y1 + sg.y2) / 2) + (sg.dy || -6)} fontSize="13" fontWeight="bold" fontStyle="italic" fill={sg.color || '#2563eb'}>{sg.n}</text>}
+        </g>
+    ));
+
     const pointEls = points.map((p, i) => (
         <g key={'pt' + i}>
             <circle cx={X(p.x)} cy={Y(p.y)} r="4.5" fill={p.color || '#1e293b'} />
@@ -310,6 +318,7 @@ const Koord = ({ range = [-6, 6, -6, 6], lines = [], points = [], interactive = 
                 <text x={axisX + 8} y={Y(ymax) - 6} fontSize="13" fontStyle="italic" fill="#1e293b">y</text>
                 {labels}
                 {lineEls}
+                {segEls}
                 {pointEls}
                 {active && hover && <circle cx={X(hover.x)} cy={Y(hover.y)} r="6" fill="#2563eb" fillOpacity="0.2" stroke="#2563eb" strokeOpacity="0.5" />}
                 {placedEls}

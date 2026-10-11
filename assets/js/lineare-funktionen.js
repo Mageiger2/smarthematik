@@ -761,6 +761,109 @@ GEN.steigung = (level, forbidden) => {
     return { typeId: level === 'leicht' ? 1 : 2, title: 'Steigung aus zwei Punkten', desc: <>Die Gerade g verläuft durch die Punkte {lfPt(A)} und {lfPt(B)}. Berechne ihre Steigung m.</>, steps: S.slope(A, B), finalGraph: { range: lfRangeFor([A, B]), lines: [{ m, t, n: 'g' }], points: [A, B] } };
 };
 
+// 5b. Abstand zweier Punkte (Satz des Pythagoras im Koordinatensystem)
+const lfDist = (A, B) => Math.sqrt((B.x - A.x) ** 2 + (B.y - A.y) ** 2);
+const LF_TRIPEL = [[3, 4], [4, 3], [6, 8], [8, 6], [5, 12], [12, 5], [8, 15], [9, 12], [12, 9]];
+// Zwei Punkte; exact: Pythagoras-Tripel (ganzzahliger Abstand), sonst krumme Länge
+const lfDistPoints = (exact, neg) => {
+    for (let i = 0; i < 100; i++) {
+        const A = { x: lfRand(neg ? -5 : 0, 5), y: lfRand(neg ? -5 : 0, 5), n: 'A' };
+        let dx, dy;
+        if (exact) { const tr = lfPick(LF_TRIPEL); dx = tr[0] * lfPick([1, -1]); dy = tr[1] * lfPick([1, -1]); }
+        else { dx = lfRand(-7, 7); dy = lfRand(-7, 7); }
+        const B = { x: A.x + dx, y: A.y + dy, n: 'B' };
+        if (dx === 0 || dy === 0 || Math.abs(B.x) > 9 || Math.abs(B.y) > 9) continue;
+        if (!exact && Number.isInteger(lfDist(A, B))) continue;
+        if (!neg && (B.x < 0 || B.y < 0)) continue;
+        return { A, B };
+    }
+    return { A: { x: 1, y: 1, n: 'A' }, B: { x: 4, y: 5, n: 'B' } };
+};
+// Ausschnitt eng um die Punkte (plus Ursprung), damit die Strecke groß zu sehen ist
+const lfSegRange = (pts) => {
+    const xs = pts.map(p => p.x), ys = pts.map(p => p.y);
+    let x0 = Math.min(0, ...xs) - 1, x1 = Math.max(0, ...xs) + 1, y0 = Math.min(0, ...ys) - 1, y1 = Math.max(0, ...ys) + 1;
+    while (x1 - x0 < 8) { x0 -= 1; x1 += 1; } while (y1 - y0 < 8) { y0 -= 1; y1 += 1; }
+    return [x0, x1, y0, y1];
+};
+const lfSegGraph = (pts, extra = []) => ({
+    range: lfSegRange(pts), lines: [], points: pts,
+    segments: [...pts.slice(1).map((P, i) => ({ x1: pts[i].x, y1: pts[i].y, x2: P.x, y2: P.y })), ...(pts.length === 3 ? [{ x1: pts[2].x, y1: pts[2].y, x2: pts[0].x, y2: pts[0].y }] : []), ...extra]
+});
+const lfRightTri = (A, B) => [{ x1: A.x, y1: A.y, x2: B.x, y2: A.y, dash: true, color: '#94a3b8' }, { x1: B.x, y1: A.y, x2: B.x, y2: B.y, dash: true, color: '#94a3b8' }];
+// Schritt: Koordinaten in die Abstandsformel einsetzen
+S.distFill = (A, B, name = 'd') => ({
+    type: 'fill', goal: 'Setze die Koordinaten in die Abstandsformel ein.',
+    inputs: [{ id: 'x2', correct: B.x }, { id: 'x1', correct: A.x }, { id: 'y2', correct: B.y }, { id: 'y1', correct: A.y }],
+    altSets: [{ x2: A.x, x1: B.x, y2: A.y, y1: B.y }],
+    render: (h) => (
+        <LfZeile>
+            <V>{name}</V> = <span className="mx-1">√</span><span className="border-t-2 border-current pt-1 px-1 inline-flex items-center flex-wrap gap-y-1">({h.input('x2', 'w-14')} − ({h.input('x1', 'w-14')}))² + ({h.input('y2', 'w-14')} − ({h.input('y1', 'w-14')}))²</span>
+        </LfZeile>
+    ),
+    summary: (v) => `${name} = √((${v.x2} − (${v.x1}))² + (${v.y2} − (${v.y1}))²)`,
+    hint: <>Abstandsformel: <span className="font-math"><V>d</V> = √((<V>x</V>₂ − <V>x</V>₁)² + (<V>y</V>₂ − <V>y</V>₁)²)</span>. Nimm {B.n} als Punkt 2 und {A.n} als Punkt 1. Negative Zahlen in Klammern.</>,
+    solution: `${name} = √((${lfS(B.x)} − ${lfP(A.x)})² + (${lfS(B.y)} − ${lfP(A.y)})²)`
+});
+// Schritt: Abstand ausrechnen
+S.distCalc = (A, B, name = 'd', goal) => {
+    const dx = B.x - A.x, dy = B.y - A.y, d = lfDist(A, B);
+    return S.calc(goal || `Berechne die Länge der Strecke ${A.n}${B.n}.`, <V>{name}</V>, lfR(d, 2),
+        `Differenzen: ${lfS(dx)} und ${lfS(dy)}. Quadrate: ${lfS(dx * dx)} + ${lfS(dy * dy)} = ${lfS(dx * dx + dy * dy)}. Davon die Wurzel.`,
+        `${name} = √(${lfS(dx * dx)} + ${lfS(dy * dy)}) = √${lfS(dx * dx + dy * dy)} ≈ ${lfS(lfR(d, 2))} LE`, 'LE', 0.011);
+};
+GEN.abstand = (level, forbidden) => {
+    if (level === 'leicht') {
+        const { A, B } = lfDistPoints(true, false);
+        return { typeId: 1, title: 'Abstand zweier Punkte', desc: <>Berechne die Länge der Strecke AB mit {lfPt(A)} und {lfPt(B)}.</>,
+            graph: lfSegGraph([A, B], lfRightTri(A, B)), steps: [S.distFill(A, B), S.distCalc(A, B)], finalGraph: lfSegGraph([A, B], lfRightTri(A, B)) };
+    }
+    if (level === 'mittel') {
+        const type = lfChooseType([2, 3], forbidden);
+        if (type === 2) {
+            const { A, B } = lfDistPoints(false, true);
+            return { typeId: 2, title: 'Abstand mit negativen Koordinaten', desc: <>Berechne den Abstand der Punkte {lfPt(A)} und {lfPt(B)}. Runde auf zwei Nachkommastellen.</>,
+                graph: lfSegGraph([A, B]), steps: [S.distFill(A, B), S.distCalc(A, B)], finalGraph: lfSegGraph([A, B], lfRightTri(A, B)) };
+        }
+        // Punkt auf einer Geraden: erst y berechnen, dann Abstand zum Ursprung
+        const m = lfPick([2, -2, 0.5, -0.5, 1, -1, 1.5, 3]), t = lfPick([-3, -2, -1, 1, 2, 3]);
+        const xP = lfPick([-4, -3, -2, 2, 3, 4]), yP = lfR(m * xP + t);
+        const P = { x: xP, y: yP, n: 'P' }, O = { x: 0, y: 0, n: 'O' };
+        return { typeId: 3, title: 'Abstand vom Ursprung', desc: <>Der Punkt P liegt auf der Geraden <Gl m={m} t={t} name="g" /> und hat die x-Koordinate x = {lfS(xP)}. Berechne die y-Koordinate von P und den Abstand von P zum Ursprung O(0 | 0).</>,
+            graph: { range: lfSegRange([P]), lines: [{ m, t, n: 'g' }], points: [O] },
+            steps: [S.calc('Berechne die y-Koordinate von P.', <V>y</V>, yP, `Setze x = ${lfS(xP)} in die Gleichung ein.`, `y = ${lfS(m)} · ${lfP(xP)} + ${lfP(t)} = ${lfS(yP)}`), S.distFill(O, P), S.distCalc(O, P, 'd', 'Berechne den Abstand von P zum Ursprung.')],
+            finalGraph: { range: lfSegRange([P]), lines: [{ m, t, n: 'g' }], points: [O, P], segments: [{ x1: 0, y1: 0, x2: xP, y2: yP }, ...lfRightTri(O, P)] } };
+    }
+    const type = lfChooseType([4, 5], forbidden);
+    if (type === 4) {
+        // Umfang eines Dreiecks
+        let A, B, C;
+        for (let i = 0; i < 100; i++) {
+            A = { x: lfRand(-5, 1), y: lfRand(-5, 0), n: 'A' }; B = { x: A.x + lfRand(3, 8), y: A.y + lfRand(-2, 2), n: 'B' }; C = { x: lfRand(A.x - 1, B.x + 1), y: A.y + lfRand(3, 8), n: 'C' };
+            if (Math.abs(B.x) <= 9 && Math.abs(C.y) <= 9 && Math.abs(C.x) <= 9 && (C.x - A.x) * (B.y - A.y) !== (B.x - A.x) * (C.y - A.y)) break;
+        }
+        const u = lfDist(A, B) + lfDist(B, C) + lfDist(C, A);
+        return { typeId: 4, title: 'Umfang eines Dreiecks', desc: <>Das Dreieck ABC hat die Eckpunkte {lfPt(A)}, {lfPt(B)} und {lfPt(C)}. Berechne die Längen der drei Seiten und den Umfang u. Runde auf zwei Nachkommastellen.</>,
+            graph: lfSegGraph([A, B, C]),
+            steps: [S.distCalc(A, B, 'c', 'Berechne die Seite c = AB.'), S.distCalc(B, C, 'a', 'Berechne die Seite a = BC.'), S.distCalc(C, A, 'b', 'Berechne die Seite b = CA.'),
+                S.calc('Berechne den Umfang u = a + b + c.', <V>u</V>, lfR(u, 2), 'Addiere die drei Seitenlängen (mit den gerundeten Werten).', `u ≈ ${lfS(lfR(lfDist(B, C), 2))} + ${lfS(lfR(lfDist(C, A), 2))} + ${lfS(lfR(lfDist(A, B), 2))} ≈ ${lfS(lfR(u, 2))} LE`, 'LE', 0.05)],
+            finalGraph: lfSegGraph([A, B, C]) };
+    }
+    // Fehlende Koordinate: Abstand bekannt
+    const tr = lfPick(LF_TRIPEL);
+    const A = { x: lfRand(-4, 2), y: lfRand(-4, 4), n: 'A' };
+    const dy = tr[1] * lfPick([1, -1]), B = { x: A.x + tr[0], y: A.y + dy, n: 'B' };
+    const d = Math.sqrt(tr[0] ** 2 + tr[1] ** 2);
+    return { typeId: 5, title: 'Fehlende Koordinate', desc: <>Die Punkte {lfPt(A)} und B(x | {lfS(B.y)}) haben den Abstand d = {lfS(d)} LE. Der Punkt B liegt rechts von A. Berechne die x-Koordinate von B.</>,
+        graph: { range: lfSegRange([A, B]), lines: [{ m: 0, t: B.y, dash: true, color: '#94a3b8' }], points: [A] },
+        steps: [
+            S.calc('Berechne zuerst den Höhenunterschied: (y₂ − y₁)².', <span>(y₂ − y₁)²</span>, dy * dy, `y₂ − y₁ = ${lfS(B.y)} − ${lfP(A.y)} = ${lfS(dy)}, davon das Quadrat.`, `(${lfS(dy)})² = ${lfS(dy * dy)}`),
+            S.calc('Jetzt der Rest: (x₂ − x₁)² = d² − (y₂ − y₁)².', <span>(x₂ − x₁)²</span>, tr[0] ** 2, `d² = ${lfS(d * d)}. Davon ${lfS(dy * dy)} abziehen.`, `${lfS(d * d)} − ${lfS(dy * dy)} = ${lfS(tr[0] ** 2)}`),
+            S.calc('Wurzel ziehen und zu x₁ addieren: x₂ = x₁ + √(…).', <V>x</V>, B.x, `√${lfS(tr[0] ** 2)} = ${lfS(tr[0])}. B liegt rechts von A, also x = ${lfS(A.x)} + ${lfS(tr[0])}.`, `x = ${lfS(A.x)} + ${lfS(tr[0])} = ${lfS(B.x)}`)
+        ],
+        finalGraph: lfSegGraph([A, B], lfRightTri(A, B)) };
+};
+
 // 6. Geradengleichung aufstellen
 GEN.gleichung = (level, forbidden) => {
     if (level === 'leicht') {
@@ -1323,12 +1426,13 @@ const LF_TOPICS = [
     { id: 'zeichnen', nr: 3, title: 'Graph zeichnen', desc: 'Geraden mit y-Achsenabschnitt und Steigungsdreieck ins Koordinatensystem zeichnen.' },
     { id: 'nullstelle', nr: 4, title: 'Nullstelle & Achsenschnittpunkte', desc: 'Schnittpunkte mit der x-Achse und der y-Achse berechnen.' },
     { id: 'steigung', nr: 5, title: 'Steigung aus zwei Punkten', desc: 'm = (y₂ − y₁) : (x₂ − x₁) berechnen — mit der Option Tangens auch den Steigungswinkel α.' },
-    { id: 'gleichung', nr: 6, title: 'Geradengleichung aufstellen', desc: 'Die Gleichung aus Punkt und Steigung oder aus zwei Punkten bestimmen.' },
-    { id: 'punktprobe', nr: 7, title: 'Punktprobe', desc: 'Liegt der Punkt auf der Geraden? Fehlende Koordinaten und Steigungen berechnen.' },
-    { id: 'parallel', nr: 8, title: 'Parallele & senkrechte Geraden', desc: 'm₂ = m₁ oder m₁ · m₂ = −1: Geraden durch einen Punkt bestimmen und Lage prüfen.' },
-    { id: 'schnittpunkt', nr: 9, title: 'Schnittpunkt zweier Geraden', desc: 'Gleichsetzen, x und y berechnen — auch mit Gleichungssystemen.' },
-    { id: 'sachaufgaben', nr: 10, title: 'Sachaufgaben', desc: 'Handytarif, Taxi, Kerze & Co. — lineare Zusammenhänge im Alltag.' },
-    { id: 'pruefung', nr: 11, title: 'MSA-Prüfungsaufgaben', desc: 'Komplette Prüfungsaufgaben 2010–2025 Teilaufgabe für Teilaufgabe durcharbeiten.' }
+    { id: 'abstand', nr: 6, title: 'Abstand zweier Punkte', desc: 'Streckenlänge mit dem Satz des Pythagoras: d = √((x₂ − x₁)² + (y₂ − y₁)²), auch Umfang und fehlende Koordinate.' },
+    { id: 'gleichung', nr: 7, title: 'Geradengleichung aufstellen', desc: 'Die Gleichung aus Punkt und Steigung oder aus zwei Punkten bestimmen.' },
+    { id: 'punktprobe', nr: 8, title: 'Punktprobe', desc: 'Liegt der Punkt auf der Geraden? Fehlende Koordinaten und Steigungen berechnen.' },
+    { id: 'parallel', nr: 9, title: 'Parallele & senkrechte Geraden', desc: 'm₂ = m₁ oder m₁ · m₂ = −1: Geraden durch einen Punkt bestimmen und Lage prüfen.' },
+    { id: 'schnittpunkt', nr: 10, title: 'Schnittpunkt zweier Geraden', desc: 'Gleichsetzen, x und y berechnen — auch mit Gleichungssystemen.' },
+    { id: 'sachaufgaben', nr: 11, title: 'Sachaufgaben', desc: 'Handytarif, Taxi, Kerze & Co. — lineare Zusammenhänge im Alltag.' },
+    { id: 'pruefung', nr: 12, title: 'MSA-Prüfungsaufgaben', desc: 'Komplette Prüfungsaufgaben 2010–2025 Teilaufgabe für Teilaufgabe durcharbeiten.' }
 ];
 
 // ==========================================

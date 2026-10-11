@@ -90,6 +90,33 @@ const LLSteigungLab = ({ onDone }) => {
     );
 };
 
+
+// Abstands-Labor: B verschieben, rechtwinkliges Dreieck und Formel live
+const LLAbstandLab = ({ onDone }) => {
+    const A = { x: -3, y: -2 };
+    const [bx, setBx] = useState(1);
+    const [by, setBy] = useState(1);
+    const dx = bx - A.x, dy = by - A.y, d = Math.sqrt(dx * dx + dy * dy);
+    useEffect(() => { if (onDone) onDone(); /* eslint-disable-next-line */ }, []);
+    return (
+        <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 sm:p-4">
+            <div className="grid md:grid-cols-2 gap-4 items-center">
+                <Koord range={[-6, 6, -6, 6]} points={[{ x: A.x, y: A.y, n: 'A', color: '#16a34a' }, { x: bx, y: by, n: 'B', color: '#dc2626' }, ...(dx && dy ? [{ x: bx, y: A.y, n: 'C', color: '#94a3b8' }] : [])]}
+                       segments={[{ x1: A.x, y1: A.y, x2: bx, y2: by, n: 'd' }, { x1: A.x, y1: A.y, x2: bx, y2: A.y, dash: true, color: '#94a3b8' }, { x1: bx, y1: A.y, x2: bx, y2: by, dash: true, color: '#94a3b8' }]} />
+                <div className="space-y-3">
+                    <LnSlider label="x_B" value={bx} min={-5} max={5} onChange={setBx} />
+                    <LnSlider label="y_B" value={by} min={-5} max={5} onChange={setBy} />
+                    <div className="bg-white border border-slate-200 rounded-lg p-3 font-math text-base sm:text-lg space-y-1">
+                        <div>A(−3 | −2), B({lfS(bx)} | {lfS(by)})</div>
+                        <div>waagrecht: {lfS(bx)} − (−3) = {lfS(dx)} · senkrecht: {lfS(by)} − (−2) = {lfS(dy)}</div>
+                        <div>d = √({lfS(dx)}² + {lfS(dy)}²) = √{lfS(dx * dx + dy * dy)} ≈ <b>{lfS(lfR(d, 2))}</b></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 // Schnitt-Labor: g₂ gegen g₁ bewegen (Schnittpunkt, parallel, identisch)
 const LLSchnittLab = ({ onDone }) => {
     const g1 = { m: 1, t: -1, n: 'g₁' };
@@ -298,6 +325,47 @@ const LF_LEARN_BUILD = () => {
           widget: (p) => <LLWinkelLab onDone={p.onDone} />,
           merke: <>Steigungswinkel: <M>tan α = |m|</M>, also <M>α = tan⁻¹(|m|)</M>.</>,
           check: { q: 'm = 2. Wie groß ist α etwa?', options: opt('α ≈ 63°', 'α ≈ 27°', 'α = 45°', 'α ≈ 2°'), correct: 0, hint: 'tan⁻¹(2) ≈ 63,4°. Steiler als 45°, weil m > 1.' } }
+    ]};
+
+    L.abstand = { cards: [
+        { id: 'k1', title: 'Die Strecke ist eine Hypotenuse',
+          body: <>
+            <p>Zwischen zwei Punkten kannst du ein rechtwinkliges Dreieck zeichnen: ein Stück waagrecht, ein Stück senkrecht. Die Strecke AB ist die Hypotenuse. Darum hilft der Satz des Pythagoras. Verschiebe B und schau zu.</p>
+          </>,
+          widget: (p) => <LLAbstandLab onDone={p.onDone} />,
+          check: { q: 'A(1 | 1), B(4 | 5). Wie lang sind die beiden Katheten?', options: opt('3 und 4', '1 und 1', '4 und 5', '5 und 6'), correct: 0, hint: 'waagrecht: 4 − 1 = 3, senkrecht: 5 − 1 = 4.' } },
+        { id: 'k2', title: 'Die Abstandsformel',
+          body: <>
+            <p>Waagrechte Kathete: <M>x₂ − x₁</M>. Senkrechte Kathete: <M>y₂ − y₁</M>. Pythagoras: <M>d² = (x₂ − x₁)² + (y₂ − y₁)²</M>. Also:</p>
+            <LnMerke title="Abstand zweier Punkte"><M>d = √((x₂ − x₁)² + (y₂ − y₁)²)</M></LnMerke>
+          </>,
+          widget: (p) => <LnSteps onDone={p.onDone} lines={[
+            { f: 'A(1 | 1), B(4 | 5)', e: 'Punkt 1 und Punkt 2' },
+            { f: 'd = √((4 − 1)² + (5 − 1)²)', e: 'einsetzen' },
+            { f: 'd = √(3² + 4²) = √(9 + 16) = √25', e: 'quadrieren, addieren' },
+            { f: 'd = 5 LE', e: 'Wurzel ziehen' }]} />,
+          check: { q: 'A(0 | 0), B(6 | 8). Wie lang ist AB?', options: opt('10 LE', '14 LE', '100 LE', '7 LE'), correct: 0, hint: '√(36 + 64) = √100.' } },
+        { id: 'k3', title: 'Minus macht nichts',
+          body: <>
+            <p>Ist eine Differenz negativ, ist das egal: Beim Quadrieren wird sie positiv. Setze negative Koordinaten in Klammern. Die Reihenfolge der Punkte spielt keine Rolle.</p>
+          </>,
+          widget: (p) => <LnSteps onDone={p.onDone} lines={[
+            { f: 'A(−2 | 3), B(1 | −1)', e: 'negative Koordinaten' },
+            { f: 'd = √((1 − (−2))² + (−1 − 3)²)', e: 'Klammern um negative Zahlen' },
+            { f: 'd = √(3² + (−4)²) = √(9 + 16)', e: '(−4)² = +16' },
+            { f: 'd = √25 = 5 LE', e: 'fertig' }]} />,
+          merke: <>Reihenfolge egal, Vorzeichen egal: Quadrate sind immer positiv. Meistens ist das Ergebnis eine krumme Zahl, dann auf zwei Nachkommastellen runden.</>,
+          check: { q: 'A(3 | 2), B(−1 | 2). Wie lang ist AB?', options: opt('4 LE', '2 LE', '−4 LE', '16 LE'), correct: 0, hint: '(−1 − 3)² = (−4)² = 16, (2 − 2)² = 0, √16 = 4.' } },
+        { id: 'k4', title: 'Umfang und fehlende Koordinate',
+          body: <>
+            <p><b>Umfang eines Dreiecks:</b> Alle drei Seiten mit der Formel berechnen und addieren. <b>Fehlende Koordinate:</b> Ist d bekannt, rechnest du rückwärts: <M>(x₂ − x₁)² = d² − (y₂ − y₁)²</M>, dann Wurzel ziehen.</p>
+          </>,
+          widget: (p) => <LnSteps onDone={p.onDone} lines={[
+            { f: 'A(1 | 2), B(x | 6), d = 5, B rechts von A', e: 'x gesucht' },
+            { f: '(y₂ − y₁)² = (6 − 2)² = 16', e: 'Höhenunterschied' },
+            { f: '(x₂ − x₁)² = 5² − 16 = 9', e: 'Pythagoras rückwärts' },
+            { f: 'x₂ − x₁ = 3  →  x = 1 + 3 = 4', e: 'Wurzel, dann zu x₁ addieren' }]} />,
+          check: { q: 'Ein Dreieck hat die Seiten 5, 5 und 6 LE. Wie groß ist der Umfang?', options: opt('16 LE', '15 LE', '150 LE', '12 LE'), correct: 0, hint: 'Umfang = alle Seiten addieren.' } }
     ]};
 
     L.gleichung = { cards: [

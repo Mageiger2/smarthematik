@@ -35,7 +35,8 @@ Große Sitzung: vom Übungsportal zum Lernkurs.
 11. **Taschenrechner**: Wurzelzeichen ist jetzt eine SVG-Grafik, die sich auf die Höhe des Radikanden streckt (Zahl, Bruch, verschachtelt), Strich endet an der Linie. Rechenfehler behoben: fehlendes Mal-Zeichen wird ergänzt (2π, 3√4, 2(3+4)), „log“ ohne Basis ist der Zehnerlogarithmus (vorher ln), leere Kästchen melden „Ein Kästchen ist noch leer“ statt still 0 zu rechnen.
 12. **Zahlenraum einheitlich ℝ** (Definitionsmenge in den Lernkarten, wie Trainer und Prüfungsaufgaben). Taschenrechner: S↔D wirkt nur einmalig, jede neue Rechnung zeigt wieder Dezimal.
 13. **Notenschlüssel in der Prüfungssimulation** wie in der echten Prüfung: Teil A 8 Punkte, Teil B 40 Punkte, Summe 48; Note 1: 48–41, 2: 40,5–33, 3: 32,5–25, 4: 24,5–16, 5: 15,5–8, 6: 7,5–0. Einzelne Teile werden auf 48 hochgerechnet, bei „Komplett“ zählt die Summe. Ergebnisverlauf und Klassenübersicht zeigen die Note.
-14. **Lernkarten ausgebaut** in einfacher Sprache: Trigonometrie 4 neue Karten (gleichschenkliges Dreieck halbieren, Sachaufgaben mit Skizze, Thaleskreis, Abschnitte im Verhältnis), Wahrscheinlichkeit 3 neue Karten (Gruppen bilden, Reihenfolge egal, „mindestens“ über das Gegenteil).
+14. **Neues Thema „Abstand zweier Punkte“** im Trainer Lineare Funktionen (Nr. 6): Leicht (Pythagoras-Tripel, Strecke mit Hilfsdreieck im Bild), Mittel (negative Koordinaten, Punkt auf Gerade und Abstand zum Ursprung), Schwer (Umfang eines Dreiecks, fehlende Koordinate bei bekanntem Abstand). Vier Lernkarten mit Abstands-Labor. Koordinatensystem kann jetzt Strecken zeichnen (`segments`).
+15. **Lernkarten ausgebaut** in einfacher Sprache: Trigonometrie 4 neue Karten (gleichschenkliges Dreieck halbieren, Sachaufgaben mit Skizze, Thaleskreis, Abschnitte im Verhältnis), Wahrscheinlichkeit 3 neue Karten (Gruppen bilden, Reihenfolge egal, „mindestens“ über das Gegenteil).
 
 ### Offene Punkte und Ideen
 
