@@ -25,7 +25,7 @@ ZIP = BUILD / 'smarthematik-lernpaket.zip'
 
 PAGES = ['index', 'rechner', 'kopfrechnen', 'binformeln', 'bruchgleichungen', 'halbwertszeit', 'kugel',
          'lineare-funktionen', 'potenzen', 'quadratische-funktionen', 'trigonometrie', 'wachstum',
-         'wahrscheinlichkeit', 'pruefung', 'lehrer']
+         'wahrscheinlichkeit', 'pruefung', 'lehrer', 'faq']
 ASSETS = ['assets/js/fehlerheft-map.js', 'assets/vendor/react.production.min.js', 'assets/vendor/react-dom.production.min.js',
           'assets/vendor/tailwindcss.js', 'assets/css/main.css',
           'Logo-sMArTH.png', 'LogoMSsued2.jpg', 'cropped-BdB_Logo-1.png']
@@ -61,7 +61,10 @@ def transform(name, html):
     html = re.sub(r'\s*<div class="mt-4 flex items-center gap-2 opacity-50[^"]*">\s*<img src="https://hits\.sh/[^>]*>\s*</div>', '', html)
     # 4. Impressum/Datenschutz: Menü-Einträge (mit Trennlinie) und Fußzeilen-Links
     html = re.sub(r'<div class="border-t border-slate-200 my-2"></div><a href="impressum\.html"[^>]*>Impressum</a><a href="datenschutz\.html"[^>]*>Datenschutz</a>', '', html)
+    html = re.sub(r'\s*<span[^>]*>\|</span>\s*<a href="impressum\.html"[^>]*>Impressum</a>\s*<span[^>]*>\|</span>\s*<a href="datenschutz\.html"[^>]*>Datenschutz</a>', '', html)
     html = re.sub(r'\s*<div class="flex items-center gap-4">\s*<a href="impressum\.html"[^>]*>Impressum</a>\s*<span[^>]*>\|</span>\s*<a href="datenschutz\.html"[^>]*>Datenschutz</a>\s*</div>', '', html)
+    #    Verbliebene Textlinks auf die Datenschutzerklärung (z. B. in der FAQ) → reiner Text
+    html = re.sub(r'<a href="datenschutz\.html"[^>]*>([^<]*)</a>', r'\1', html)
     # 5. Versions-Parameter
     html = re.sub(r'((?:src|href)="[^"?#]+)\?v=[^"]*"', r'\1"', html)
     # 6. Kontrollen

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="de" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Cache-Hygiene: HTML immer revalidieren (Assets werden über ?v=... versioniert). -->
+    <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <title>Fragen &amp; Antworten — sMArTHEMATIK</title>
+    <meta name="description" content="Häufige Fragen zu sMArTHEMATIK: Lernen, Üben, Prüfungsaufgaben, Fortschritt im Browser, Fortschritts-Code, Prüfungssimulation, Fehlerheft und Klassenübersicht für Lehrkräfte.">
+
+    <link rel="canonical" href="https://www.smarthematik.de/faq.html">
+    <meta property="og:title" content="Fragen &amp; Antworten — sMArTHEMATIK">
+    <meta property="og:description" content="Häufige Fragen zu sMArTHEMATIK: Lernen, Üben, Prüfungsaufgaben, Fortschritt, Prüfungssimulation und Klassenübersicht.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.smarthematik.de/faq.html">
+
+    <!-- Self-hosted Tailwind (kein Cross-Origin zu US-Servern) -->
+    <script src="assets/vendor/tailwindcss.js?v=202605251133"></script>
+    <link rel="stylesheet" href="assets/css/main.css?v=202605251133">
+</head>
+<body class="text-slate-800 font-sans antialiased flex flex-col min-h-screen">
+
+    <noscript>
+        <div style="background:#fef2f2;color:#991b1b;padding:1rem;text-align:center;border-bottom:2px solid #ef4444;font-family:system-ui,sans-serif;">
+            <strong>JavaScript ist deaktiviert.</strong> Manche Funktionen (Menü) brauchen JavaScript.
+        </div>
+    </noscript>
+
+    <header class="bg-white shadow-sm sticky top-0 z-50 border-b border-slate-200 relative">
+        <div class="max-w-[1200px] mx-auto px-2 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-1 sm:gap-4">
+            <a href="index.html" class="flex items-center hover:opacity-80 transition-opacity shrink-0">
+                <img src="Logo-sMArTH.png" alt="sMArTHEMATIK Logo" class="h-5 sm:h-8 md:h-10 w-auto object-contain">
+            </a>
+            <a href="https://ms-dachau-sued.de/" target="_blank" rel="noopener noreferrer" class="flex-grow flex justify-center items-center px-1 sm:px-2 hover:opacity-80 transition-opacity min-w-0">
+                <img src="LogoMSsued2.jpg" alt="Mittelschule Dachau-Süd Logo" class="h-4 sm:h-8 md:h-10 w-auto object-contain shadow-sm rounded-sm">
+            </a>
+            <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+                <button id="nav-toggle" type="button" class="p-2 text-slate-700 hover:bg-slate-100 rounded-lg" aria-label="Menü öffnen" aria-expanded="false" aria-controls="nav-menu">
+                    <svg id="nav-icon-open" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+                    <svg id="nav-icon-close" class="hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>
+                </button>
+                <img src="cropped-BdB_Logo-1.png" alt="Beratung digitale Bildung Logo" class="h-6 sm:h-10 md:h-12 w-auto object-contain">
+            </div>
+        </div>
+        <nav id="nav-menu" class="hidden absolute right-2 sm:right-6 top-full mt-2 w-72 max-w-[calc(100vw-1rem)] bg-white border border-slate-200 rounded-xl shadow-xl p-2 flex flex-col" role="navigation" aria-label="Hauptnavigation"><a href="index.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Startseite</a><a href="faq.html" class="flex items-center gap-2 px-4 py-3 rounded-lg font-semibold bg-indigo-50 text-indigo-700" aria-current="page">Fragen &amp; Antworten</a><div class="px-4 pt-3 pb-1 text-[10px] font-bold tracking-widest uppercase text-slate-400">Werkzeuge</div><a href="rechner.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">M10 Taschenrechner</a><a href="pruefung.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Prüfungssimulation</a><a href="lehrer.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Klassenübersicht (Lehrkräfte)</a><div class="px-4 pt-3 pb-1 text-[10px] font-bold tracking-widest uppercase text-slate-400">Trainer</div><a href="kopfrechnen.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Kopfrechnen</a><a href="binformeln.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Bin. Formeln</a><a href="bruchgleichungen.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Bruchgleichungen</a><a href="halbwertszeit.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Halbwertszeit</a><a href="kugel.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Kugel</a><a href="lineare-funktionen.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Lineare Funktionen</a><a href="potenzen.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Potenzen</a><a href="quadratische-funktionen.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Quadratische Funktionen</a><a href="trigonometrie.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Trigonometrie</a><a href="wachstum.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Wachstum & Zerfall</a><a href="wahrscheinlichkeit.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-indigo-700 transition-colors">Wahrscheinlichkeit</a><div class="border-t border-slate-200 my-2"></div><a href="impressum.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-500 hover:bg-slate-50 hover:text-indigo-700 text-sm transition-colors">Impressum</a><a href="datenschutz.html" class="flex items-center gap-2 px-4 py-3 rounded-lg text-slate-500 hover:bg-slate-50 hover:text-indigo-700 text-sm transition-colors">Datenschutz</a></nav>
+    </header>
+
+    <main class="flex-grow">
+        <div class="page-transition max-w-3xl mx-auto px-4 sm:px-6 py-16 text-slate-800">
+            <div class="flex items-center gap-3 mb-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-600"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <h1 class="text-3xl font-bold">Fragen &amp; Antworten</h1>
+            </div>
+            <p class="text-slate-600 mb-8">Die wichtigsten Antworten für Schüler und Lehrkräfte. Fehlt etwas? Schreib eine kurze Mail.</p>
+            <div class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm mb-6">
+                <h2 class="text-xl font-bold mb-2">Für Schüler</h2>
+                <div>
+                    <details class="group border-b border-slate-200 last:border-0">
+                        <summary class="cursor-pointer list-none py-3 pr-8 font-bold text-slate-800 relative hover:text-indigo-700">Was ist sMArTHEMATIK?<span class="absolute right-0 top-3 text-slate-400 transition-transform group-open:rotate-90">›</span></summary>
+                        <div class="pb-4 text-slate-700 text-sm sm:text-base leading-relaxed space-y-2"><p>Dein Übungsplatz für die Mathe-Abschlussprüfung (Mittlerer Schulabschluss an der Mittelschule in Bayern). Zu jedem Prüfungsthema gibt es einen Trainer mit Lernkarten, Übungen in drei Stufen und echten Prüfungsaufgaben der letzten Jahre.</p></div>
+                    </details>
+                    <details class="group border-b border-slate-200 last:border-0">
+                        <summary class="cursor-pointer list-none py-3 pr-8 font-bold text-slate-800 relative hover:text-indigo-700">Wie fange ich am besten an?<span class="absolute right-0 top-3 text-slate-400 transition-transform group-open:rotate-90">›</span></summary>
+                        <div class="pb-4 text-slate-700 text-sm sm:text-base leading-relaxed space-y-2"><p>Öffne einen Trainer und wähle <strong>Lernen</strong>. Die Lernkarten erklären das Thema in kleinen Schritten mit Kontrollfragen. Danach <strong>Üben &amp; Prüfen</strong>: erst Leicht, dann Mittel und Schwer, zum Schluss die Prüfungsaufgaben. Für die Prüfung selbst gibt es die <a href="pruefung.html" class="text-indigo-600 hover:underline">Prüfungssimulation</a>.</p></div>
+                    </details>
+                    <details class="group border-b border-slate-200 last:border-0">
+                        <summary class="cursor-pointer list-none py-3 pr-8 font-bold text-slate-800 relative hover:text-indigo-700">Was bedeuten „gelernt“, „geübt“ und „gemeistert“?<span class="absolute right-0 top-3 text-slate-400 transition-transform group-open:rotate-90">›</span></summary>
+                        <div class="pb-4 text-slate-700 text-sm sm:text-base leading-relaxed space-y-2"><p><strong>Gelernt:</strong> alle Lernkarten des Themas durchgearbeitet. <strong>Geübt:</strong> 5 Aufgaben richtig gelöst. <strong>Gemeistert:</strong> eine Stufe 10-mal in Folge richtig oder 3 Prüfungsteile gelöst.</p></div>
+                    </details>
+                    <details class="group border-b border-slate-200 last:border-0">
+                        <summary class="cursor-pointer list-none py-3 pr-8 font-bold text-slate-800 relative hover:text-indigo-700">Brauche ich ein Konto? Wo wird mein Fortschritt gespeichert?<span class="absolute right-0 top-3 text-slate-400 transition-transform group-open:rotate-90">›</span></summary>
+                        <div class="pb-4 text-slate-700 text-sm sm:text-base leading-relaxed space-y-2"><p>Nein, kein Konto, keine Anmeldung. Dein Fortschritt (Streaks, gelöste Aufgaben, Lernkarten, Fehlerheft) bleibt nur in deinem Browser auf deinem Gerät. Löschst du die Website-Daten im Browser oder nutzt du den privaten Modus, ist er weg.</p></div>
+                    </details>
+                    <details class="group border-b border-slate-200 last:border-0">
+                        <summary class="cursor-pointer list-none py-3 pr-8 font-bold text-slate-800 relative hover:text-indigo-700">Wie nehme ich meinen Fortschritt auf ein anderes Gerät mit?<span class="absolute right-0 top-3 text-slate-400 transition-transform group-open:rotate-90">›</span></summary>
+                        <div class="pb-4 text-slate-700 text-sm sm:text-base leading-relaxed space-y-2"><p>Auf der Startseite unter <a href="index.html#fortschritt" class="text-indigo-600 hover:underline">„Dein Fortschritt“</a> klickst du auf <strong>Fortschritts-Code kopieren</strong> (oder „Als Datei speichern“). Auf dem anderen Gerät wählst du <strong>Code einlesen</strong> und fügst ihn ein. Der Code ersetzt dort den bisherigen Stand.</p></div>
+                    </details>
+                    <details class="group border-b border-slate-200 last:border-0">
+                        <summary class="cursor-pointer list-none py-3 pr-8 font-bold text-slate-800 relative hover:text-indigo-700">Was ist das Fehlerheft?<span class="absolute right-0 top-3 text-slate-400 transition-transform group-open:rotate-90">›</span></summary>
+                        <div class="pb-4 text-slate-700 text-sm sm:text-base leading-relaxed space-y-2"><p>Jeder Trainer merkt sich, in welchem Schritt du Fehler machst, zum Beispiel „Definitionsmenge“ oder „mittleres Glied“. Auf der Startseite siehst du deine häufigsten Fehler, und ein Klick öffnet genau die Lernkarte, die dazu passt.</p></div>
+                    </details>
+                    <details class="group border-b border-slate-200 last:border-0">
+                        <summary class="cursor-pointer list-none py-3 pr-8 font-bold text-slate-800 relative hover:text-indigo-700">Werden gerundete Ergebnisse akzeptiert?<span class="absolute right-0 top-3 text-slate-400 transition-transform group-open:rotate-90">›</span></summary>
+                        <div class="pb-4 text-slate-700 text-sm sm:text-base leading-relaxed space-y-2"><p>Ja. Bei Dezimalzahlen reicht die übliche Rundung (meist zwei Nachkommastellen, bei Prozent auch eine). Komma oder Punkt sind beide erlaubt. Wenn die Aufgabe eine bestimmte Rundung verlangt, steht das im Text.</p></div>
+                    </details>
+                    <details class="group border-b border-slate-200 last:border-0">
+                        <summary class="cursor-pointer list-none py-3 pr-8 font-bold text-slate-800 relative hover:text-indigo-700">Wo ist der Steigungswinkel (Tangens)?<span class="absolute right-0 top-3 text-slate-400 transition-transform group-open:rotate-90">›</span></summary>
+                        <div class="pb-4 text-slate-700 text-sm sm:text-base leading-relaxed space-y-2"><p>Der Steigungswinkel ist standardmäßig ausgeblendet, weil er im Unterricht oft erst später drankommt. Du schaltest ihn bei den Linearen und Quadratischen Funktionen über die Option <strong>Steigungswinkel</strong> ein. Dann erscheinen die passenden Übungen, Lernkarten und Prüfungsteile.</p></div>
+                    </details>
+                    <details class="group border-b border-slate-200 last:border-0">
+                        <summary class="cursor-pointer list-none py-3 pr-8 font-bold text-slate-800 relative hover:text-indigo-700">Darf ich einen Taschenrechner benutzen?<span class="absolute right-0 top-3 text-slate-400 transition-transform group-open:rotate-90">›</span></summary>
+                        <div class="pb-4 text-slate-700 text-sm sm:text-base leading-relaxed space-y-2"><p>In den Trainern ja, so wie in Teil B der Prüfung. Auf jeder Seite gibt es den eingebauten <a href="rechner.html" class="text-indigo-600 hover:underline">M10-Taschenrechner</a>. Kopfrechnen und Teil A der Prüfungssimulation sind ohne Taschenrechner gedacht, wie in der echten Prüfung.</p></div>
+                    </details>
+                    <details class="group border-b border-slate-200 last:border-0">
+                        <summary class="cursor-pointer list-none py-3 pr-8 font-bold text-slate-800 relative hover:text-indigo-700">Wie funktioniert die Prüfungssimulation?<span class="absolute right-0 top-3 text-slate-400 transition-transform group-open:rotate-90">›</span></summary>
+                        <div class="pb-4 text-slate-700 text-sm sm:text-base leading-relaxed space-y-2"><p><strong>Teil A:</strong> 10 Ankreuzaufgaben ohne Taschenrechner in 15 Minuten, Auswertung erst am Ende. <strong>Teil B:</strong> 8 Prüfungsteile aus verschiedenen Themen in 60 Minuten. Du öffnest jede Aufgabe im Trainer, löst sie dort und kommst zurück; gelöste Teile werden abgehakt. Das Zeitlimit lässt sich ausschalten.</p></div>
+                    </details>
+                    <details class="group border-b border-slate-200 last:border-0">
+                        <summary class="cursor-pointer list-none py-3 pr-8 font-bold text-slate-800 relative hover:text-indigo-700">Woher kommen die Prüfungsaufgaben?<span class="absolute right-0 top-3 text-slate-400 transition-transform group-open:rotate-90">›</span></summary>
+                        <div class="pb-4 text-slate-700 text-sm sm:text-base leading-relaxed space-y-2"><p>Aus den bayerischen Abschlussprüfungen der vergangenen Jahre, nachgebaut als Schritt-für-Schritt-Aufgaben. Die Originale mit Lösungen findest du beim <a href="https://www.isb.bayern.de/schularten/mittelschule/mittlerer-schulabschluss/mathematik/" target="_blank" rel="noopener noreferrer" class="text-indigo-600 hover:underline">ISB Bayern</a> und im <a href="https://www.bycs.de/pruefungsarchiv" target="_blank" rel="noopener noreferrer" class="text-indigo-600 hover:underline">ByCS-Prüfungsarchiv</a>.</p></div>
+                    </details>
+                    <details class="group border-b border-slate-200 last:border-0">
+                        <summary class="cursor-pointer list-none py-3 pr-8 font-bold text-slate-800 relative hover:text-indigo-700">Ich habe einen Fehler gefunden. Was tun?<span class="absolute right-0 top-3 text-slate-400 transition-transform group-open:rotate-90">›</span></summary>
+                        <div class="pb-4 text-slate-700 text-sm sm:text-base leading-relaxed space-y-2"><p>Schreib bitte eine kurze Mail mit Trainer, Stufe und Aufgabe an <a href="mailto:martin.geiger@ms-dachau-sued.de" class="text-indigo-600 hover:underline">martin.geiger@ms-dachau-sued.de</a>. Die generierten Aufgaben werden automatisch geprüft, trotzdem kann sich ein Fehler einschleichen.</p></div>
+                    </details>
+                </div>
+            </div>
+            <div class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm mb-6">
+                <h2 class="text-xl font-bold mb-2">Für Lehrkräfte</h2>
+                <div>
+                    <details class="group border-b border-slate-200 last:border-0">
+                        <summary class="cursor-pointer list-none py-3 pr-8 font-bold text-slate-800 relative hover:text-indigo-700">Wie sehe ich den Stand meiner Klasse?<span class="absolute right-0 top-3 text-slate-400 transition-transform group-open:rotate-90">›</span></summary>
+                        <div class="pb-4 text-slate-700 text-sm sm:text-base leading-relaxed space-y-2"><p>Die Schüler schicken dir ihren Fortschritts-Code (Startseite → „Dein Fortschritt“). In der <a href="lehrer.html" class="text-indigo-600 hover:underline">Klassenübersicht</a> fügst du die Codes ein, eine Zeile je Schüler als „Name: SMARTH1.…“, und siehst je Thema, wer gelernt, geübt oder gemeistert hat, dazu die häufigsten Fehler der Klasse und einen CSV-Export. Die Liste bleibt in deinem Browser.</p></div>
+                    </details>
+                    <details class="group border-b border-slate-200 last:border-0">
+                        <summary class="cursor-pointer list-none py-3 pr-8 font-bold text-slate-800 relative hover:text-indigo-700">Kann ich sMArTHEMATIK in ByCS oder mebis einbinden?<span class="absolute right-0 top-3 text-slate-400 transition-transform group-open:rotate-90">›</span></summary>
+                        <div class="pb-4 text-slate-700 text-sm sm:text-base leading-relaxed space-y-2"><p>Ja, als SCORM-Lernpaket. Das Paket enthält alle Trainer ohne externe Verbindungen und läuft im Kurs der Lernplattform. Melde dich per Mail, dann bekommst du die aktuelle Datei.</p></div>
+                    </details>
+                    <details class="group border-b border-slate-200 last:border-0">
+                        <summary class="cursor-pointer list-none py-3 pr-8 font-bold text-slate-800 relative hover:text-indigo-700">Welche Themen sind abgedeckt?<span class="absolute right-0 top-3 text-slate-400 transition-transform group-open:rotate-90">›</span></summary>
+                        <div class="pb-4 text-slate-700 text-sm sm:text-base leading-relaxed space-y-2"><p>Lineare und Quadratische Funktionen, Kugel, Trigonometrie und Satzgruppe des Pythagoras, Wachstum und Zinsen, Halbwertszeit, Bruchgleichungen, Potenzen, Binomische Formeln, Wahrscheinlichkeit sowie Kopfrechnen zu allen Teil-A-Themen. Grundlage ist der LehrplanPLUS Mittelschule, Jahrgangsstufe 10 (M-Zug).</p></div>
+                    </details>
+                    <details class="group border-b border-slate-200 last:border-0">
+                        <summary class="cursor-pointer list-none py-3 pr-8 font-bold text-slate-800 relative hover:text-indigo-700">Warum ist der Steigungswinkel ausgeblendet?<span class="absolute right-0 top-3 text-slate-400 transition-transform group-open:rotate-90">›</span></summary>
+                        <div class="pb-4 text-slate-700 text-sm sm:text-base leading-relaxed space-y-2"><p>Damit Schüler nicht auf Aufgaben stoßen, die im Unterricht noch nicht behandelt wurden. Wenn der Tangens dran war, schalten die Schüler ihn in den Funktionen-Trainern selbst ein.</p></div>
+                    </details>
+                </div>
+            </div>
+            <div class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm mb-6">
+                <h2 class="text-xl font-bold mb-2">Technik und Datenschutz</h2>
+                <div>
+                    <details class="group border-b border-slate-200 last:border-0">
+                        <summary class="cursor-pointer list-none py-3 pr-8 font-bold text-slate-800 relative hover:text-indigo-700">Welche Geräte und Browser funktionieren?<span class="absolute right-0 top-3 text-slate-400 transition-transform group-open:rotate-90">›</span></summary>
+                        <div class="pb-4 text-slate-700 text-sm sm:text-base leading-relaxed space-y-2"><p>Alle aktuellen Browser (Chrome, Firefox, Safari, Edge) auf Computer, Tablet und Handy. Die Trainer sind für die Bedienung mit dem Finger ausgelegt. Internet wird nur zum Laden der Seite gebraucht.</p></div>
+                    </details>
+                    <details class="group border-b border-slate-200 last:border-0">
+                        <summary class="cursor-pointer list-none py-3 pr-8 font-bold text-slate-800 relative hover:text-indigo-700">Welche Daten werden erhoben?<span class="absolute right-0 top-3 text-slate-400 transition-transform group-open:rotate-90">›</span></summary>
+                        <div class="pb-4 text-slate-700 text-sm sm:text-base leading-relaxed space-y-2"><p>Keine personenbezogenen Daten. Es gibt keine Konten, keine Cookies und kein Tracking. Der Lernfortschritt liegt ausschließlich im Browser. Einzelheiten stehen in der <a href="datenschutz.html" class="text-indigo-600 hover:underline">Datenschutzerklärung</a>.</p></div>
+                    </details>
+                    <details class="group border-b border-slate-200 last:border-0">
+                        <summary class="cursor-pointer list-none py-3 pr-8 font-bold text-slate-800 relative hover:text-indigo-700">Mein Fortschritt ist verschwunden. Warum?<span class="absolute right-0 top-3 text-slate-400 transition-transform group-open:rotate-90">›</span></summary>
+                        <div class="pb-4 text-slate-700 text-sm sm:text-base leading-relaxed space-y-2"><p>Meist wurden die Website-Daten im Browser gelöscht, ein anderer Browser oder der private Modus benutzt. Sichere deinen Stand regelmäßig mit dem Fortschritts-Code, dann kannst du ihn jederzeit wieder einlesen.</p></div>
+                    </details>
+                </div>
+            </div>
+            <div class="mt-12 flex justify-center">
+                <a href="index.html" class="inline-flex items-center gap-2 px-6 py-3 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-medium rounded-lg shadow-sm transition-colors">Zurück zur Startseite</a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-slate-900 text-slate-400 py-10 mt-auto border-t-4 border-indigo-600">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center text-center space-y-6">
+            <div>
+                <h4 class="text-white text-lg font-bold uppercase tracking-wider mb-4">Kontakt &amp; Infos</h4>
+                <a href="mailto:martin.geiger@ms-dachau-sued.de" class="inline-block px-6 py-2 bg-slate-800 text-slate-200 font-semibold rounded-lg hover:bg-indigo-600 hover:text-white transition-colors shadow-sm text-sm">E-Mail senden</a>
+                <p class="text-xs text-slate-500 mt-6 max-w-2xl mx-auto">
+                    Hinweis: Für die Richtigkeit der generierten Aufgaben und Berechnungen kann keine Garantie übernommen werden.
+                    <br><br>
+                    Quelle der Prüfungsaufgaben: <a href="https://www.bycs.de/pruefungsarchiv" target="_blank" rel="noopener noreferrer" class="underline hover:text-slate-300 transition-colors">Prüfungsarchiv des Bayerischen Staatsministeriums für Unterricht und Kultus (bycs.de)</a>. Originalprüfungen, Musterprüfungen und Hinweise zum Mittleren Schulabschluss: <a href="https://www.isb.bayern.de/schularten/mittelschule/mittlerer-schulabschluss/mathematik/" target="_blank" rel="noopener noreferrer" class="underline hover:text-slate-300 transition-colors">ISB Bayern – Mittlerer Schulabschluss Mathematik</a>.
+                </p>
+            </div>
+            <div class="w-full border-t border-slate-800 pt-6 mt-2 flex flex-col justify-between items-center text-sm gap-4">
+                <div class="flex flex-col md:flex-row items-center w-full justify-between gap-4">
+                    <div>&copy; 2026 - <strong class="text-white">Martin Geiger</strong></div>
+                    <div class="flex items-center gap-4">
+                        <a href="faq.html" class="hover:text-white transition-colors">FAQ</a><span class="text-slate-600">|</span><a href="impressum.html" class="hover:text-white transition-colors">Impressum</a>
+                        <span class="text-slate-700">|</span>
+                        <a href="datenschutz.html" class="hover:text-white transition-colors">Datenschutz</a>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center gap-2 opacity-50 hover:opacity-100 transition-opacity grayscale hover:grayscale-0">
+                    <img src="https://hits.sh/ms-dachau-sued.de/smarthematik.svg?label=Aufrufe&color=4f46e5" alt="Seitenaufrufe Zähler" class="h-5">
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        (function () {
+            var btn = document.getElementById('nav-toggle');
+            var menu = document.getElementById('nav-menu');
+            var iconOpen = document.getElementById('nav-icon-open');
+            var iconClose = document.getElementById('nav-icon-close');
+            if (!btn || !menu) return;
+            function setOpen(open) {
+                if (open) { menu.classList.remove('hidden'); iconOpen.classList.add('hidden'); iconClose.classList.remove('hidden'); btn.setAttribute('aria-expanded', 'true'); }
+                else { menu.classList.add('hidden'); iconOpen.classList.remove('hidden'); iconClose.classList.add('hidden'); btn.setAttribute('aria-expanded', 'false'); }
+            }
+            btn.addEventListener('click', function (e) { e.stopPropagation(); setOpen(menu.classList.contains('hidden')); });
+            document.addEventListener('click', function (e) {
+                if (!menu.classList.contains('hidden') && !menu.contains(e.target) && e.target !== btn) setOpen(false);
+            });
+            document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setOpen(false); });
+        })();
+    </script>
+</body>
+</html>
