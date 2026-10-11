@@ -100,14 +100,10 @@ const PrHome = ({ onStart }) => {
                 {card('Teil B', 'mit Taschenrechner', [`${PR_B.n} Prüfungsteile aus allen Trainern`, `${PR_B.min} Minuten`, `zählt wie in der Prüfung ${PR_PTS.B} Punkte`], Calculator, 'B')}
                 {card('Komplett', 'Teil A, dann Teil B', ['Beides hintereinander', `${PR_A.min + PR_B.min} Minuten`, 'Note aus 48 Punkten wie in der Prüfung'], FileText, 'AB')}
             </div>
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-5 mb-6">
-                <p className="font-bold text-slate-800 mb-1 flex items-center gap-2"><BookOpen className={`w-5 h-5 ${PR_T.activeTitle}`} /> Echte Prüfungen zum Nachlesen</p>
-                <p className="text-sm text-slate-600 mb-3">Alle Aufgaben hier stammen aus den bayerischen Abschlussprüfungen. Die vollständigen Originale mit Lösungen findest du beim Staatsinstitut für Schulqualität und Bildungsforschung (ISB) und im Prüfungsarchiv:</p>
-                <ul className="text-sm space-y-1.5">
-                    <li><a href="https://www.isb.bayern.de/schularten/mittelschule/mittlerer-schulabschluss/mathematik/" target="_blank" rel="noopener noreferrer" className={`font-bold ${PR_T.activeTitle} hover:underline`}>ISB Bayern: Mittlerer Schulabschluss Mathematik ↗</a> <span className="text-slate-500">Musterprüfungen, zusätzliche Aufgaben zu Teil A, Schreibweisen und Operatoren</span></li>
-                    <li><a href="https://www.bycs.de/pruefungsarchiv" target="_blank" rel="noopener noreferrer" className={`font-bold ${PR_T.activeTitle} hover:underline`}>ByCS-Prüfungsarchiv ↗</a> <span className="text-slate-500">die Abschlussprüfungen der vergangenen Jahre als PDF</span></li>
-                </ul>
-            </div>
+            <a href="https://archiv.bycs.de/edu-sharing/components/search?filters=%7B%22ccm:examination_context%22:%5B%22MS%22%5D,%22ccm:examination_type%22:%5B%22MSA%22%5D,%22ccm:examination_discipline%22:%5B%22M%22%5D%7D" target="_blank" rel="noopener noreferrer" className="block rounded-xl border-2 border-amber-400 bg-amber-50 hover:bg-amber-100 p-4 sm:p-5 mb-6 no-underline transition-colors">
+                <p className="font-bold text-amber-900 text-lg sm:text-xl flex items-center gap-2"><FileText className="w-6 h-6 shrink-0" /> Übe mit den echten Prüfungen der letzten Jahre! ↗</p>
+                <p className="text-amber-900/80 text-sm mt-1">Im ByCS-Prüfungsarchiv liegen alle bisherigen Abschlussprüfungen mit Lösungen. Wer die durchgerechnet hat, kennt die Prüfung schon.</p>
+            </a>
             {results.length > 0 && (
                 <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-5">
                     <p className="font-bold text-slate-800 mb-2">Deine letzten Ergebnisse</p>
