@@ -289,13 +289,14 @@ const LF_LEARN_BUILD = () => {
             { f: 'm = (−1 − 5) : (1 − (−2))', e: 'y₂ − y₁ oben, x₂ − x₁ unten' },
             { f: 'm = −6 : 3', e: '1 − (−2) = 1 + 2 = 3' },
             { f: 'm = −2', e: 'Gerade fällt' }]} />,
+          merke: <>Steigung aus zwei Punkten: <M>m = (y₂ − y₁) : (x₂ − x₁)</M>, negative Zahlen in Klammern.</>,
           check: { q: 'A(−1 | 4), B(2 | −2). Was ist m?', options: opt('m = −2', 'm = 2', 'm = −1/2', 'm = −6'), correct: 0, hint: '(−2 − 4) : (2 − (−1)) = −6 : 3.' } },
-        { id: 'k3', title: 'Der Steigungswinkel α',
+        { id: 'k3', tag: 'tangens', title: 'Der Steigungswinkel α',
           body: <>
             <p>Der Winkel zwischen Gerade und x-Achse hängt nur von m ab: <M>tan α = |m|</M>, also <M>α = tan⁻¹(|m|)</M>. Bei m = 1 ist α = 45°.</p>
           </>,
           widget: (p) => <LLWinkelLab onDone={p.onDone} />,
-          merke: <>Steigung aus zwei Punkten: <M>m = (y₂ − y₁) : (x₂ − x₁)</M>, negative Zahlen in Klammern. Steigungswinkel: <M>tan α = |m|</M>.</>,
+          merke: <>Steigungswinkel: <M>tan α = |m|</M>, also <M>α = tan⁻¹(|m|)</M>.</>,
           check: { q: 'm = 2. Wie groß ist α etwa?', options: opt('α ≈ 63°', 'α ≈ 27°', 'α = 45°', 'α ≈ 2°'), correct: 0, hint: 'tan⁻¹(2) ≈ 63,4°. Steiler als 45°, weil m > 1.' } }
     ]};
 

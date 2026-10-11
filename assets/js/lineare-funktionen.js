@@ -744,7 +744,12 @@ const lfTwoPoints = (level) => {
 // 5. Steigung aus zwei Punkten
 GEN.steigung = (level, forbidden) => {
     if (level === 'schwer') {
-        const type = lfChooseType([3, 4], forbidden);
+        // Steigungswinkel (Tangens) nur, wenn die Option eingeschaltet ist
+        const type = lfChooseType(fkOpt('tangens') ? [3, 4, 5] : [5], forbidden);
+        if (type === 5) {
+            const { A, B, m, t } = lfTwoPoints('schwer');
+            return { typeId: 5, title: 'Steigung aus zwei Punkten', desc: <>Die Gerade g verläuft durch die Punkte {lfPt(A)} und {lfPt(B)}. Berechne ihre Steigung m.</>, steps: S.slope(A, B), finalGraph: { range: lfRangeFor([A, B]), lines: [{ m, t, n: 'g' }], points: [A, B] } };
+        }
         if (type === 4) {
             const m = lfPick([2, -2, 0.5, -0.5, 1.5, 2/3, -2/3, 1/3, 3, 0.75]), t = lfPick([-3, -2, 1, 2, 4]);
             return { typeId: 4, title: 'Steigungswinkel berechnen', desc: <>Berechne die Größe des spitzen Winkels α, den die Gerade <Gl m={m} t={t} name="g" /> mit der x-Achse einschließt.</>, steps: S.angle(m) };
@@ -1050,11 +1055,11 @@ const LF_EXAMS = [
         { l: 'b', topic: 'parallel', text: <>Die Gerade g₃: {fm('0,5y = 2,5 + x')} steht senkrecht auf der Geraden g₂. Bestimme die Steigung m₂ einer möglichen Geraden g₂.</>, steps: () => [...S.normalStr('0.5y=2.5+x', 'g₃'), S.relation('senkrecht', 'g₃', 'g₂'), S.m2('senkrecht', 2, 'g₃', 'g₂')] },
         { l: 'c', topic: 'nullstelle', text: <>Gegeben ist {gl(2, 4, 'g₄')}. N₄ ist der Schnittpunkt von g₄ mit der x-Achse. Bestimme rechnerisch N₄.</>, steps: () => S.zero(2, 4, 'N₄') },
         { l: 'd', topic: 'zeichnen', text: <>Zeichne die Geraden {gl(1.5, -3, 'g₁')} und {gl(2, 4, 'g₄')} in ein Koordinatensystem.</>, steps: () => S.drawLines([Ln(1.5, -3, 'g₁'), Ln(2, 4, 'g₄')], LF_RANGE), fg: drawFg([Ln(1.5, -3, 'g₁'), Ln(2, 4, 'g₄')], LF_RANGE) },
-        { l: 'e', topic: 'steigung', text: <>Berechne den spitzen Winkel, den die Gerade {gl(1.5, -3, 'g₁')} mit der x-Achse einschließt.</>, steps: () => S.angle(1.5) }
+        { l: 'e', tag: 'tangens', topic: 'steigung', text: <>Berechne den spitzen Winkel, den die Gerade {gl(1.5, -3, 'g₁')} mit der x-Achse einschließt.</>, steps: () => S.angle(1.5) }
     ]},
     { id: '2023-II', label: 'MSA 2023 II', nr: '1', intro: <>Die Abbildung zeigt den Graphen der Geraden g₁.</>, graph: { range: [-2, 9, -4, 4], lines: [Ln(2/3, -2, 'g₁')] }, parts: [
         { l: 'a', topic: 'ablesen', text: <>Gib die Funktionsgleichung der Geraden g₁ an.</>, steps: () => S.readGraph(2/3, -2, 'g₁') },
-        { l: 'b', topic: 'steigung', text: <>Berechne den Winkel α, den die Gerade g₁ mit der x-Achse einschließt.</>, steps: () => S.angle(2/3) },
+        { l: 'b', tag: 'tangens', topic: 'steigung', text: <>Berechne den Winkel α, den die Gerade g₁ mit der x-Achse einschließt.</>, steps: () => S.angle(2/3) },
         { l: 'c', topic: 'gleichung', text: <>Die Gerade g₂ verläuft durch die Punkte A(−4 | 5) und B(1 | −2,5). Bestimme rechnerisch die Funktionsgleichung von g₂.</>, steps: () => S.line2P(Pt(-4, 5, 'A'), Pt(1, -2.5, 'B'), 'g₂') },
         { l: 'd', topic: 'parallel', text: <>Die Gerade {fm('g₃: y = −⅘x + 2')} steht senkrecht auf der Geraden g₄, die durch den Ursprung O(0 | 0) verläuft. Bestimme die Funktionsgleichung von g₄.</>, steps: () => S.perpLine('senkrecht', -0.8, Pt(0, 0, 'O'), 'g₄', { rel: true, ref: 'g₃' }) },
         { l: 'e', topic: 'nullstelle', text: <>N₃ ist der Schnittpunkt der Geraden {fm('g₃: y = −⅘x + 2')} mit der x-Achse. Ermittle rechnerisch N₃.</>, steps: () => S.zero(-0.8, 2, 'N₃') },
@@ -1111,13 +1116,13 @@ const LF_EXAMS = [
         { l: 'd', topic: 'punktprobe', text: <>Überprüfe rechnerisch, ob der Punkt P(7,25 | 11,75) auf {gl(-2, 6, 'g₃')} liegt.</>, steps: () => S.probe(-2, 6, Pt(7.25, 11.75, 'P'), 'g₃') },
         { l: 'e', topic: 'zeichnen', text: <>Zeichne die Geraden {gl(-2, 6, 'g₃')} und {gl(0.5, -1.5, 'g₄')} in ein Koordinatensystem.</>, steps: () => S.drawLines([Ln(-2, 6, 'g₃'), Ln(0.5, -1.5, 'g₄')], LF_RANGE), fg: drawFg([Ln(-2, 6, 'g₃'), Ln(0.5, -1.5, 'g₄')], LF_RANGE) },
         { l: 'f', topic: 'nullstelle', text: <>Bestimme rechnerisch den Schnittpunkt N der Geraden g₅: {fm('0 = −y − 4x + 0,5')} mit der x-Achse.</>, steps: () => [...S.normalStr('0=-y-4x+0.5', 'g₅'), ...S.zero(-4, 0.5, 'N')] },
-        { l: 'h', topic: 'steigung', text: <>Berechne den Winkel α, den g₁ mit der x-Achse einschließt.</>, steps: () => S.angle(-2/3) }
+        { l: 'h', tag: 'tangens', topic: 'steigung', text: <>Berechne den Winkel α, den g₁ mit der x-Achse einschließt.</>, steps: () => S.angle(-2/3) }
     ]},
     { id: '2019-I', label: 'MSA 2019 I', nr: '4', intro: <>Die Gerade g₁ mit der Steigung m₁ = 2 verläuft durch den Punkt A(5 | 3).</>, parts: [
         { l: 'a', topic: 'gleichung', text: <>Bestimme die Funktionsgleichung von g₁ rechnerisch.</>, steps: () => S.linePM(Pt(5, 3, 'A'), 2, 'g₁') },
         { l: 'b', topic: 'parallel', text: <>Die Gerade g₂ verläuft durch den Ursprung O(0 | 0) und schneidet g₁ senkrecht. Ermittle rechnerisch die Funktionsgleichung von g₂.</>, steps: () => S.perpLine('senkrecht', 2, Pt(0, 0, 'O'), 'g₂', { rel: true, ref: 'g₁' }) },
         { l: 'c', topic: 'zeichnen', text: <>Zeichne die Geraden {gl(2, -7, 'g₁')} und {gl(-0.5, 0, 'g₂')} in ein Koordinatensystem.</>, steps: () => S.drawLines([Ln(2, -7, 'g₁'), Ln(-0.5, 0, 'g₂')], [-3, 8, -6, 6]), fg: drawFg([Ln(2, -7, 'g₁'), Ln(-0.5, 0, 'g₂')], [-3, 8, -6, 6]) },
-        { l: 'd', topic: 'steigung', text: <>Berechne die Größe des spitzen Winkels α, den g₁ mit der x-Achse einschließt.</>, steps: () => S.angle(2) },
+        { l: 'd', tag: 'tangens', topic: 'steigung', text: <>Berechne die Größe des spitzen Winkels α, den g₁ mit der x-Achse einschließt.</>, steps: () => S.angle(2) },
         { l: 'e', topic: 'parallel', text: <>Überprüfe, ob die Geraden g₃: {fm('4x + 2y = 8x + 3')} und g₄: {fm('−y/2 = x + 1')} parallel zu {gl(2, -7, 'g₁')} sind.</>, steps: () => [...S.normalStr('4x+2y=8x+3', 'g₃'), S.lage(Ln(2, -7, 'g₁'), Ln(2, 1.5, 'g₃')), ...S.normalStr('-0.5y=x+1', 'g₄'), S.lage(Ln(2, -7, 'g₁'), Ln(-2, -2, 'g₄'))] },
         { l: 'f', topic: 'gleichung', text: <>Auf der Geraden g₅ liegen E(−2 | 4) und F(2 | −2). Bestimme ihre Funktionsgleichung rechnerisch.</>, steps: () => S.line2P(Pt(-2, 4, 'E'), Pt(2, -2, 'F'), 'g₅') }
     ]},
@@ -1127,7 +1132,7 @@ const LF_EXAMS = [
         { l: 'c', topic: 'schnittpunkt', text: <>Die Gerade g₃: {fm('2y + 4 = 4x')} schneidet {gl(0.5, 1, 'g₂')} im Punkt T. Berechne die Koordinaten von T.</>, steps: () => [...S.normalStr('2y+4=4x', 'g₃'), ...S.intersect(Ln(0.5, 1, 'g₂'), Ln(2, -2, 'g₃'), 'T')], fg: { range: LF_RANGE, lines: [Ln(0.5, 1, 'g₂'), Ln(2, -2, 'g₃')], points: [Pt(2, 2, 'T')] } },
         { l: 'd', topic: 'punktprobe', text: <>Überprüfe mithilfe einer Rechnung, ob der Punkt C(1 | −1) auf {gl(2, -2, 'g₃')} liegt.</>, steps: () => S.probe(2, -2, Pt(1, -1, 'C'), 'g₃') },
         { l: 'e', topic: 'zeichnen', text: <>Zeichne die Graphen von {gl(0.5, 1, 'g₂')} und {gl(2, -2, 'g₃')} in ein Koordinatensystem.</>, steps: () => S.drawLines([Ln(0.5, 1, 'g₂'), Ln(2, -2, 'g₃')], LF_RANGE), fg: drawFg([Ln(0.5, 1, 'g₂'), Ln(2, -2, 'g₃')], LF_RANGE) },
-        { l: 'f', topic: 'steigung', text: <>Ermittle rechnerisch den spitzen Winkel α, den {gl(0.5, 1, 'g₂')} mit der x-Achse einschließt.</>, steps: () => S.angle(0.5) }
+        { l: 'f', tag: 'tangens', topic: 'steigung', text: <>Ermittle rechnerisch den spitzen Winkel α, den {gl(0.5, 1, 'g₂')} mit der x-Achse einschließt.</>, steps: () => S.angle(0.5) }
     ]},
     { id: '2018-I', label: 'MSA 2018 I', nr: '4', intro: <>Die Wertepaare (−10 | −4), (−5 | −1), (0 | 2) und (2,5 | 3,5) sind Punkte der Geraden g₁.</>, parts: [
         { l: 'a', topic: 'wertetabelle', text: <>Bestimme die Funktionsgleichung von g₁ rechnerisch. Nutze dazu die Punkte P(−5 | −1) und Q(0 | 2).</>, steps: () => S.line2P(Pt(-5, -1, 'P'), Pt(0, 2, 'Q'), 'g₁') },
@@ -1155,7 +1160,7 @@ const LF_EXAMS = [
         { l: 'c', topic: 'gleichung', text: <>Die Gerade g₃ verläuft durch Q(−3 | 2) und R(6 | −1). Bestimme ihre Funktionsgleichung rechnerisch.</>, steps: () => S.line2P(Pt(-3, 2, 'Q'), Pt(6, -1, 'R'), 'g₃') },
         { l: 'd', topic: 'zeichnen', text: <>Zeichne die Geraden {fm('g₁: y = ⅓x + 2')} und {gl(-3, 7, 'g₂')} in ein Koordinatensystem.</>, steps: () => S.drawLines([Ln(1/3, 2, 'g₁'), Ln(-3, 7, 'g₂')], [-6, 6, -2, 8]), fg: drawFg([Ln(1/3, 2, 'g₁'), Ln(-3, 7, 'g₂')], [-6, 6, -2, 8]) },
         { l: 'e', topic: 'schnittpunkt', text: <>Die Gerade g₄: {fm('2x − y = 7')} schneidet g₁ im Punkt S. Ermittle rechnerisch die Koordinaten von S.</>, steps: () => [...S.normalStr('2x-y=7', 'g₄'), ...S.intersect(Ln(1/3, 2, 'g₁'), Ln(2, -7, 'g₄'), 'S')], fg: { range: [-2, 8, -4, 6], lines: [Ln(1/3, 2, 'g₁'), Ln(2, -7, 'g₄')], points: [Pt(5.4, 3.8, 'S')] } },
-        { l: 'f', topic: 'steigung', text: <>Berechne den spitzen Winkel α, den g₁ mit der x-Achse einschließt.</>, steps: () => S.angle(1/3) },
+        { l: 'f', tag: 'tangens', topic: 'steigung', text: <>Berechne den spitzen Winkel α, den g₁ mit der x-Achse einschließt.</>, steps: () => S.angle(1/3) },
         { l: 'g', topic: 'parallel', text: <>Die Gerade g₅ durch T(15 | 25) verläuft parallel zur x-Achse. Gib ihre Funktionsgleichung an.</>, steps: () => [S.horizontal(Pt(15, 25, 'T'), 'g₅')] }
     ]},
     { id: '2016-I', label: 'MSA 2016 I', nr: '1', parts: [
@@ -1164,7 +1169,7 @@ const LF_EXAMS = [
         { l: 'c', topic: 'nullstelle', text: <>Gegeben ist g₃: {fm('y = 2 − 0,5x')}. Berechne den Schnittpunkt N von g₃ mit der x-Achse.</>, steps: () => S.zero(-0.5, 2, 'N') },
         { l: 'd', topic: 'schnittpunkt', text: <>Die Gerade g₃: {fm('y = 2 − 0,5x')} schneidet {gl(4, 6.5, 'g₂')} im Punkt T. Ermittle rechnerisch die Koordinaten von T.</>, steps: () => S.intersect(Ln(4, 6.5, 'g₂'), Ln(-0.5, 2, 'g₃'), 'T'), fg: { range: LF_RANGE, lines: [Ln(4, 6.5, 'g₂'), Ln(-0.5, 2, 'g₃')], points: [Pt(-1, 2.5, 'T')] } },
         { l: 'e', topic: 'zeichnen', text: <>Zeichne die Geraden {gl(0.5, -0.5, 'g₁')} und {gl(-0.5, 2, 'g₃')} in ein Koordinatensystem.</>, steps: () => S.drawLines([Ln(0.5, -0.5, 'g₁'), Ln(-0.5, 2, 'g₃')], LF_RANGE), fg: drawFg([Ln(0.5, -0.5, 'g₁'), Ln(-0.5, 2, 'g₃')], LF_RANGE) },
-        { l: 'f', topic: 'steigung', text: <>Berechne den spitzen Winkel α, den {gl(0.5, -0.5, 'g₁')} mit der x-Achse einschließt.</>, steps: () => S.angle(0.5) }
+        { l: 'f', tag: 'tangens', topic: 'steigung', text: <>Berechne den spitzen Winkel α, den {gl(0.5, -0.5, 'g₁')} mit der x-Achse einschließt.</>, steps: () => S.angle(0.5) }
     ]},
     { id: '2016-II', label: 'MSA 2016 II', nr: '1', parts: [
         { l: 'a', topic: 'gleichung', text: <>Die Gerade g₁ verläuft durch A(−2 | 6) und B(4 | 3). Bestimme ihre Funktionsgleichung rechnerisch.</>, steps: () => S.line2P(Pt(-2, 6, 'A'), Pt(4, 3, 'B'), 'g₁') },
@@ -1179,7 +1184,7 @@ const LF_EXAMS = [
         { l: 'c', topic: 'schnittpunkt', text: <>Die Geraden {gl(0.4, -2, 'g₁')} und {gl(-2, 4, 'g₂')} schneiden sich im Punkt D. Berechne die Koordinaten von D.</>, steps: () => S.intersect(Ln(0.4, -2, 'g₁'), Ln(-2, 4, 'g₂'), 'D'), fg: { range: LF_RANGE, lines: [Ln(0.4, -2, 'g₁'), Ln(-2, 4, 'g₂')], points: [Pt(2.5, -1, 'D')] } },
         { l: 'd', topic: 'parallel', text: <>Die Gerade g₃ steht senkrecht auf {gl(-2, 4, 'g₂')} und verläuft durch E(−4 | 0). Ermittle ihre Funktionsgleichung rechnerisch.</>, steps: () => S.perpLine('senkrecht', -2, Pt(-4, 0, 'E'), 'g₃', { rel: true, ref: 'g₂' }) },
         { l: 'e', topic: 'zeichnen', text: <>Zeichne die Geraden {gl(0.4, -2, 'g₁')}, {gl(-2, 4, 'g₂')} und {gl(0.5, 2, 'g₃')} in ein Koordinatensystem.</>, steps: () => S.drawLines([Ln(0.4, -2, 'g₁'), Ln(-2, 4, 'g₂'), Ln(0.5, 2, 'g₃')], LF_RANGE), fg: drawFg([Ln(0.4, -2, 'g₁'), Ln(-2, 4, 'g₂'), Ln(0.5, 2, 'g₃')], LF_RANGE) },
-        { l: 'f', topic: 'steigung', text: <>Berechne den spitzen Winkel α, den {gl(-2, 4, 'g₂')} mit der x-Achse einschließt.</>, steps: () => S.angle(-2) }
+        { l: 'f', tag: 'tangens', topic: 'steigung', text: <>Berechne den spitzen Winkel α, den {gl(-2, 4, 'g₂')} mit der x-Achse einschließt.</>, steps: () => S.angle(-2) }
     ]},
     { id: '2014-II', label: 'MSA 2014 II', nr: '1', parts: [
         { l: 'a', topic: 'gleichung', text: <>Die Gerade g₁ verläuft durch A(−4,5 | 6) und B(3 | 1). Ermittle rechnerisch ihre Funktionsgleichung.</>, steps: () => S.line2P(Pt(-4.5, 6, 'A'), Pt(3, 1, 'B'), 'g₁') },
@@ -1195,7 +1200,7 @@ const LF_EXAMS = [
         { l: 'c', topic: 'nullstelle', text: <>Berechne den Schnittpunkt N von {gl(-2, 6, 'g₁')} mit der x-Achse.</>, steps: () => S.zero(-2, 6, 'N') },
         { l: 'd', topic: 'schnittpunkt', text: <>Die Gerade g₃: {fm('3 = −x − y')} schneidet {gl(-2, 6, 'g₁')} im Punkt Q. Berechne die Koordinaten von Q.</>, steps: () => [...S.normalStr('3=-x-y', 'g₃'), ...S.intersect(Ln(-2, 6, 'g₁'), Ln(-1, -3, 'g₃'), 'Q')], fg: { range: [-12, 12, -12, 12], lines: [Ln(-2, 6, 'g₁'), Ln(-1, -3, 'g₃')], points: [Pt(9, -12, 'Q')] } },
         { l: 'e', topic: 'zeichnen', text: <>Zeichne {gl(-2, 6, 'g₁')}, {gl(0.5, 2.25, 'g₂')} und {gl(-1, -3, 'g₃')} in ein Koordinatensystem.</>, steps: () => S.drawLines([Ln(-2, 6, 'g₁'), Ln(0.5, 2.25, 'g₂'), Ln(-1, -3, 'g₃')], LF_RANGE), fg: drawFg([Ln(-2, 6, 'g₁'), Ln(0.5, 2.25, 'g₂'), Ln(-1, -3, 'g₃')], LF_RANGE) },
-        { l: 'f', topic: 'steigung', text: <>Berechne den spitzen Winkel γ, in dem {gl(-2, 6, 'g₁')} die x-Achse schneidet.</>, steps: () => S.angle(-2) }
+        { l: 'f', tag: 'tangens', topic: 'steigung', text: <>Berechne den spitzen Winkel γ, in dem {gl(-2, 6, 'g₁')} die x-Achse schneidet.</>, steps: () => S.angle(-2) }
     ]},
     { id: '2013-II', label: 'MSA 2013 II', nr: '1', parts: [
         { l: 'a', topic: 'gleichung', text: <>Die Gerade g₁ verläuft durch A(2 | 1) und B(4 | 0,5). Ermittle rechnerisch ihre Funktionsgleichung.</>, steps: () => S.line2P(Pt(2, 1, 'A'), Pt(4, 0.5, 'B'), 'g₁') },
@@ -1317,7 +1322,7 @@ const LF_TOPICS = [
     { id: 'ablesen', nr: 2, title: 'Steigung & y-Achsenabschnitt', desc: 'm und t am Graphen ablesen und Gleichungen in die Normalform y = mx + t bringen.' },
     { id: 'zeichnen', nr: 3, title: 'Graph zeichnen', desc: 'Geraden mit y-Achsenabschnitt und Steigungsdreieck ins Koordinatensystem zeichnen.' },
     { id: 'nullstelle', nr: 4, title: 'Nullstelle & Achsenschnittpunkte', desc: 'Schnittpunkte mit der x-Achse und der y-Achse berechnen.' },
-    { id: 'steigung', nr: 5, title: 'Steigung aus zwei Punkten', desc: 'm = (y₂ − y₁) : (x₂ − x₁) — und den Steigungswinkel α berechnen.' },
+    { id: 'steigung', nr: 5, title: 'Steigung aus zwei Punkten', desc: 'm = (y₂ − y₁) : (x₂ − x₁) berechnen — mit der Option Tangens auch den Steigungswinkel α.' },
     { id: 'gleichung', nr: 6, title: 'Geradengleichung aufstellen', desc: 'Die Gleichung aus Punkt und Steigung oder aus zwei Punkten bestimmen.' },
     { id: 'punktprobe', nr: 7, title: 'Punktprobe', desc: 'Liegt der Punkt auf der Geraden? Fehlende Koordinaten und Steigungen berechnen.' },
     { id: 'parallel', nr: 8, title: 'Parallele & senkrechte Geraden', desc: 'm₂ = m₁ oder m₁ · m₂ = −1: Geraden durch einen Punkt bestimmen und Lage prüfen.' },
