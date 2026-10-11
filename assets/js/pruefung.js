@@ -80,6 +80,14 @@ const PrHome = ({ onStart }) => {
                 {card('Teil B', 'mit Taschenrechner', [`${PR_B.n} Prüfungsteile aus allen Trainern`, `${PR_B.min} Minuten`, 'Echte MSA-Aufgaben'], Calculator, 'B')}
                 {card('Komplett', 'Teil A, dann Teil B', ['Beides hintereinander', `${PR_A.min + PR_B.min} Minuten`, 'Wie in der Prüfung'], FileText, 'AB')}
             </div>
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-5 mb-6">
+                <p className="font-bold text-slate-800 mb-1 flex items-center gap-2"><BookOpen className={`w-5 h-5 ${PR_T.activeTitle}`} /> Echte Prüfungen zum Nachlesen</p>
+                <p className="text-sm text-slate-600 mb-3">Alle Aufgaben hier stammen aus den bayerischen Abschlussprüfungen. Die vollständigen Originale mit Lösungen findest du beim Staatsinstitut für Schulqualität und Bildungsforschung (ISB) und im Prüfungsarchiv:</p>
+                <ul className="text-sm space-y-1.5">
+                    <li><a href="https://www.isb.bayern.de/schularten/mittelschule/mittlerer-schulabschluss/mathematik/" target="_blank" rel="noopener noreferrer" className={`font-bold ${PR_T.activeTitle} hover:underline`}>ISB Bayern: Mittlerer Schulabschluss Mathematik ↗</a> <span className="text-slate-500">Musterprüfungen, zusätzliche Aufgaben zu Teil A, Schreibweisen und Operatoren</span></li>
+                    <li><a href="https://www.bycs.de/pruefungsarchiv" target="_blank" rel="noopener noreferrer" className={`font-bold ${PR_T.activeTitle} hover:underline`}>ByCS-Prüfungsarchiv ↗</a> <span className="text-slate-500">die Abschlussprüfungen der vergangenen Jahre als PDF</span></li>
+                </ul>
+            </div>
             {results.length > 0 && (
                 <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-5">
                     <p className="font-bold text-slate-800 mb-2">Deine letzten Ergebnisse</p>
