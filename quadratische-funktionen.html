@@ -2444,6 +2444,12 @@ const qfVertS = (P) => {
 };
 // Zahl mit Vorzeichen für Eingabefelder, in die das Vorzeichen mit eingetippt wird: "+4", "−2,5"
 const qfSg = (v) => (lfR(v) < 0 ? '−' : '+') + lfS(Math.abs(v));
+// Dasselbe mit Abstand für Rechenwege in Tipps: "+ 4", "− 2,5"
+const qfSgSp = (v) => (lfR(v) < 0 ? '− ' : '+ ') + lfS(Math.abs(v));
+// Eingabe eines Vorzeichen-Feldes für die Zusammenfassung: "4" → "+4", "-2" → "−2"
+const qfRaw = (s) => { const t = String(s === undefined || s === null ? '' : s).trim().replace(/^-/, '−'); return t === '' || /^[+−]/.test(t) ? t : '+' + t; };
+// Scheitelpunkt-Koordinaten in Tipps: xₛ, yₛ
+const XS = 'xₛ', YS = 'yₛ';
 // Text „y = ...“ mit Namen
 const qfName = (P, s) => (P.n ? `${P.n}: ${s}` : s);
 // JSX-Varianten
@@ -2487,7 +2493,7 @@ Q.vertexPt = (xs, ys, name = 'S', goal) => ({
     type: 'fill', goal: goal || `Gib den Scheitelpunkt ${name} an.`,
     inputs: [{ id: 'x', correct: xs }, { id: 'y', correct: ys }],
     render: (h) => <LfZeile>{name}( {h.input('x')} | {h.input('y')} )</LfZeile>,
-    hint: 'In der Scheitelpunktform y = (x − x_S)² + y_S: Das Vorzeichen in der Klammer dreht sich um! (x + 2)² gehört zu x_S = −2.',
+    hint: `In der Scheitelpunktform y = (x − ${XS})² + ${YS} dreht sich das Vorzeichen in der Klammer um: (x + 2)² gehört zu ${XS} = −2, (x − 2)² zu ${XS} = 2. Die Zahl hinter der Klammer ist ${YS}.`,
     solution: `${name}(${lfS(xs)} | ${lfS(ys)})`
 });
 
@@ -2496,8 +2502,8 @@ Q.vertForm = (a, xs, ys, name, goal) => ({
     type: 'fill', goal: goal || `Gib die Scheitelpunktform${name ? ' von ' + name : ''} an.`,
     inputs: [{ id: 'd', correct: lfR(-xs) }, { id: 'e', correct: ys }],
     render: (h) => <LfZeile>{name && <span className="mr-1">{name}:</span>}<V>y</V> = {a < 0 ? '−' : ''}(<V>x</V> {h.input('d', 'w-20', '±')})² {h.input('e', 'w-20', '±')}</LfZeile>,
-    summary: (v) => `y = ${a < 0 ? '−' : ''}(x ${v.d})² ${v.e}`,
-    hint: `Scheitelpunktform: y = ${a < 0 ? '−' : ''}(x − x_S)² + y_S. Beim Scheitel S(${lfS(xs)} | ${lfS(ys)}) steht in der Klammer „x ${qfSg(-xs)}“. ${QF_SIGN_TIP}`,
+    summary: (v) => `y = ${a < 0 ? '−' : ''}(x ${qfRaw(v.d)})² ${qfRaw(v.e)}`,
+    hint: `Scheitelpunktform: y = ${a < 0 ? '−' : ''}(x − ${XS})² + ${YS}. Beim Scheitel S(${lfS(xs)} | ${lfS(ys)}) steht in der Klammer „x ${qfSgSp(-xs)}“ und dahinter „${qfSgSp(ys)}“. ${QF_SIGN_TIP}`,
     solution: qfVertS(qfFromVertex(a, xs, ys))
 });
 
@@ -2506,7 +2512,7 @@ Q.normForm = (P, goal, hint) => ({
     type: 'fill', goal: goal || `Gib die Normalform${P.n ? ' von ' + P.n : ''} an.`,
     inputs: [{ id: 'b', correct: P.b }, { id: 'c', correct: P.c }],
     render: (h) => <LfZeile>{P.n && <span className="mr-1">{P.n}:</span>}<V>y</V> = {P.a < 0 ? '−' : ''}<V>x</V>² {h.input('b', 'w-20', '±')}<V>x</V> {h.input('c', 'w-20', '±')}</LfZeile>,
-    summary: (v) => `y = ${P.a < 0 ? '−' : ''}x² ${v.b}x ${v.c}`,
+    summary: (v) => `y = ${P.a < 0 ? '−' : ''}x² ${qfRaw(v.b)}x ${qfRaw(v.c)}`,
     hint: hint || `Fasse zusammen und schreibe die Normalform y = ${P.a < 0 ? '−' : ''}x² + px + q. Steht kein x-Term da, trägst du 0 ein. ${QF_SIGN_TIP}`,
     solution: qfNormS(P)
 });
@@ -2520,8 +2526,8 @@ Q.normFromVertex = (a, xs, ys, name, opts = {}) => {
         type: 'fill', goal: 'Multipliziere die Klammer mit der binomischen Formel aus.',
         inputs: [{ id: 'p', correct: lfR(-2 * xs) }, { id: 'q', correct: lfR(xs * xs) }],
         render: (h) => <LfZeile><V>y</V> = {a < 0 ? '−' : ''}(<V>x</V>² {h.input('p', 'w-20', '±')}<V>x</V> {h.input('q', 'w-20', '±')}){ys !== 0 && <> {ys < 0 ? '−' : '+'} {lfS(Math.abs(ys))}</>}</LfZeile>,
-        summary: (v) => `y = ${a < 0 ? '−' : ''}(x² ${v.p}x ${v.q}) ${ys < 0 ? '−' : '+'} ${lfS(Math.abs(ys))}`,
-        hint: `(x ${qfSg(-xs)})² = x² ${qfSg(-2 * xs)}x + ${lfS(xs * xs)} (1. bzw. 2. binomische Formel: 2 · x · ${lfS(Math.abs(xs))} und ${lfS(Math.abs(xs))}²).`,
+        summary: (v) => `y = ${a < 0 ? '−' : ''}(x² ${qfRaw(v.p)}x ${qfRaw(v.q)}) ${ys < 0 ? '−' : '+'} ${lfS(Math.abs(ys))}`,
+        hint: `${xs < 0 ? '1' : '2'}. binomische Formel: (x ${qfSgSp(-xs)})² = x² ${qfSgSp(-2 * xs)}x + ${lfS(xs * xs)}. Das mittlere Glied ist 2 · x · ${lfS(Math.abs(xs))}, das letzte ${lfS(Math.abs(xs))}² = ${lfS(xs * xs)}. ${QF_SIGN_TIP}`,
         solution: `y = ${a < 0 ? '−' : ''}(x² ${qfSg(-2 * xs)}x + ${lfS(xs * xs)}) ${ys < 0 ? '−' : '+'} ${lfS(Math.abs(ys))}`
     });
     steps.push(Q.normForm(P, `Löse ${a < 0 ? 'die Klammer auf (Minus davor: Vorzeichen drehen!)' : 'die Klammer auf'} und fasse zusammen.`,
@@ -2539,8 +2545,8 @@ Q.vertexFromNorm = (P, sName = 'S', opts = {}) => {
             type: 'fill', goal: 'Klammere −1 bei den x-Termen aus.',
             inputs: [{ id: 'p', correct: bb }],
             render: (h) => <LfZeile><V>y</V> = −(<V>x</V>² {h.input('p', 'w-20', '±')}<V>x</V>){P.c !== 0 && <> {P.c < 0 ? '−' : '+'} {lfS(Math.abs(P.c))}</>}</LfZeile>,
-            summary: (v) => `y = −(x² ${v.p}x) ${P.c < 0 ? '−' : '+'} ${lfS(Math.abs(P.c))}`,
-            hint: 'Beim Ausklammern von −1 dreht sich das Vorzeichen des x-Terms um.',
+            summary: (v) => `y = −(x² ${qfRaw(v.p)}x) ${P.c < 0 ? '−' : '+'} ${lfS(Math.abs(P.c))}`,
+            hint: `Beim Ausklammern von −1 dreht sich das Vorzeichen des x-Terms um: −x² ${qfSgSp(P.b)}x = −(x² ${qfSgSp(bb)}x). Die Zahl ${qfSgSp(P.c)} bleibt außerhalb der Klammer stehen. ${QF_SIGN_TIP}`,
             solution: `y = −(x² ${qfSg(bb)}x) ${P.c < 0 ? '−' : '+'} ${lfS(Math.abs(P.c))}`
         });
     }
@@ -2549,23 +2555,31 @@ Q.vertexFromNorm = (P, sName = 'S', opts = {}) => {
     steps.push(Q.vertForm(P.a, S0.x, S0.y, P.n, 'Schreibe die Scheitelpunktform auf.'));
     const vf = steps[steps.length - 1];
     vf.hint = P.a > 0
-        ? `y = x² ${qfSg(P.b)}x + ${lfS((bb / 2) ** 2)} − ${lfS((bb / 2) ** 2)} ${qfSg(P.c)} = (x ${qfSg(bb / 2)})² ${qfSg(P.c - (bb / 2) ** 2)}. ${QF_SIGN_TIP}`
-        : `y = −(x² ${qfSg(bb)}x + ${lfS((bb / 2) ** 2)} − ${lfS((bb / 2) ** 2)}) ${qfSg(P.c)} = −(x ${qfSg(bb / 2)})² ${qfSg(P.c + (bb / 2) ** 2)}. Achtung: Die abgezogene Ergänzung wird durch das Minus vor der Klammer zu „+“. ${QF_SIGN_TIP}`;
+        ? `Ergänze ${lfS((bb / 2) ** 2)} und ziehe es sofort wieder ab: y = x² ${qfSgSp(P.b)}x + ${lfS((bb / 2) ** 2)} − ${lfS((bb / 2) ** 2)} ${qfSgSp(P.c)} = (x ${qfSgSp(bb / 2)})² ${qfSgSp(P.c - (bb / 2) ** 2)}. ${QF_SIGN_TIP}`
+        : `Ergänze in der Klammer ${lfS((bb / 2) ** 2)} und ziehe es sofort wieder ab: y = −(x² ${qfSgSp(bb)}x + ${lfS((bb / 2) ** 2)} − ${lfS((bb / 2) ** 2)}) ${qfSgSp(P.c)} = −(x ${qfSgSp(bb / 2)})² + ${lfS((bb / 2) ** 2)} ${qfSgSp(P.c)} = −(x ${qfSgSp(bb / 2)})² ${qfSgSp(P.c + (bb / 2) ** 2)}. Achtung: Die abgezogene Ergänzung wird durch das Minus vor der Klammer zu „+“. ${QF_SIGN_TIP}`;
     if (!opts.noPoint) steps.push(Q.vertexPt(S0.x, S0.y, sName));
     return steps;
 };
 
-// pq-Formel für x² + px + q = 0 (ab der Wurzel)
+// pq-Formel für x² + px + q = 0 (ab der Wurzel).
+// opts.what: 'loesung' (Gleichung), 'nullstelle' (Parabel und x-Achse) oder 'schnitt' (zwei Graphen)
+const QF_COUNT = {
+    loesung: { goal: 'Wie viele Lösungen hat die Gleichung?', n: ['keine Lösung', 'genau eine Lösung', 'zwei Lösungen'] },
+    nullstelle: { goal: 'Wie viele Nullstellen hat die Parabel?', n: ['keine Nullstelle — die Parabel schneidet die x-Achse nicht', 'genau eine Nullstelle — die Parabel berührt die x-Achse', 'zwei Nullstellen'] },
+    schnitt: { goal: 'Wie viele gemeinsame Punkte gibt es?', n: ['keinen gemeinsamen Punkt', 'genau einen gemeinsamen Punkt (Berührpunkt)', 'zwei Schnittpunkte'] }
+};
 Q.pqCore = (p, q, xNames = ['x₁', 'x₂'], opts = {}) => {
     const D = lfR((p / 2) * (p / 2) - q);
+    const W = QF_COUNT[opts.what || 'loesung'];
     const steps = [];
     steps.push(S.calc('Berechne den Wert unter der Wurzel: (p : 2)² − q.', <span className="font-math">(<V>p</V> : 2)² − <V>q</V></span>, D,
-        `pq-Formel: x = −p : 2 ± √((p : 2)² − q). Hier: (${lfS(p)} : 2)² − ${lfP(q)} = ${lfS((p / 2) ** 2)} − ${lfP(q)}.`, `(${lfS(p / 2)})² − ${lfP(q)} = ${lfS(D)}`));
+        `pq-Formel: x₁,₂ = −p : 2 ± √((p : 2)² − q). Hier ist p = ${lfS(p)} und q = ${lfS(q)}: (${lfS(p)} : 2)² − ${lfP(q)} = ${lfS((p / 2) ** 2)} − ${lfP(q)}.`, `(${lfS(p / 2)})² − ${lfP(q)} = ${lfS(D)}`));
     const cnt = D < -1e-9 ? 0 : Math.abs(D) < 1e-9 ? 1 : 2;
-    steps.push(S.select(opts.countGoal || 'Wie viele Lösungen gibt es?', [<span>keine Lösung (Wert unter der Wurzel negativ)</span>, <span>genau eine Lösung (Wert unter der Wurzel = 0)</span>, <span>zwei Lösungen (Wert unter der Wurzel positiv)</span>],
-        cnt, 'Ist der Wert unter der Wurzel negativ, gibt es keine Lösung. Ist er 0, gibt es genau eine. Ist er positiv, gibt es zwei.', ['keine Lösung', 'genau eine Lösung', 'zwei Lösungen'][cnt], true));
+    const why = ['Wert unter der Wurzel negativ', 'Wert unter der Wurzel = 0', 'Wert unter der Wurzel positiv'];
+    steps.push(S.select(W.goal, W.n.map((t, i) => <span>{t} <span className="text-slate-500">({why[i]})</span></span>),
+        cnt, `Der Wert unter der Wurzel ist ${lfS(D)}. Ist er negativ, kann man keine Wurzel ziehen → ${W.n[0]}. Ist er 0 → ${W.n[1]}. Ist er positiv → ${W.n[2]}.`, W.n[cnt], true));
     if (cnt === 1) {
-        steps.push(S.calc('Berechne die Lösung.', <V>x</V>, lfR(-p / 2), `x = −p : 2 = ${lfS(-p / 2)}`, `x = ${lfS(-p / 2)}`));
+        steps.push(S.calc('Berechne die Lösung.', <V>x</V>, lfR(-p / 2), `Die Wurzel ist 0, also x = −p : 2 = ${lfS(-p / 2)}.`, `x = ${lfS(-p / 2)}`));
     } else if (cnt === 2) {
         const r = Math.sqrt(D), x1 = lfR(-p / 2 + r), x2 = lfR(-p / 2 - r);
         steps.push({
@@ -2573,7 +2587,7 @@ Q.pqCore = (p, q, xNames = ['x₁', 'x₂'], opts = {}) => {
             inputs: [{ id: 'x1', correct: x1 }, { id: 'x2', correct: x2 }],
             altSets: [{ x1: x2, x2: x1 }],
             render: (h) => <LfZeile>{xNames[0]} = {h.input('x1')} <span className="mx-3">und</span> {xNames[1]} = {h.input('x2')}</LfZeile>,
-            hint: `x = ${lfS(-p / 2)} ± √${lfS(D)} = ${lfS(-p / 2)} ± ${lfS(r)}. Die Reihenfolge ist egal.`,
+            hint: `x₁,₂ = ${lfS(-p / 2)} ± √${lfS(D)} = ${lfS(-p / 2)} ± ${lfS(r)}. Einmal plus, einmal minus rechnen. Die Reihenfolge ist egal.`,
             solution: `${xNames[0]} = ${lfS(x1)}; ${xNames[1]} = ${lfS(x2)}`
         });
     }
@@ -2585,7 +2599,7 @@ Q.eqStep = (p, q, goal, hint) => ({
     type: 'fill', goal,
     inputs: [{ id: 'p', correct: p }, { id: 'q', correct: q }],
     render: (h) => <LfZeile>0 = <V>x</V>² {h.input('p', 'w-20', '±')}<V>x</V> {h.input('q', 'w-20', '±')}</LfZeile>,
-    summary: (v) => `0 = x² ${v.p}x ${v.q}`,
+    summary: (v) => `0 = x² ${qfRaw(v.p)}x ${qfRaw(v.q)}`,
     hint: `${hint} ${QF_SIGN_TIP}`,
     solution: `0 = x² ${qfSg(p)}x ${qfSg(q)}`
 });
@@ -2596,13 +2610,13 @@ Q.zeros = (P, names = ['x₁', 'x₂']) => {
     return [
         Q.eqStep(p, q, P.a > 0 ? 'Setze y = 0.' : 'Setze y = 0 und multipliziere mit (−1).',
             P.a > 0 ? 'An den Nullstellen ist y = 0. Die rechte Seite bleibt gleich.' : 'Für die pq-Formel muss vor x² eine 1 stehen: Multipliziere jede Zahl mit (−1).'),
-        ...Q.pqCore(p, q, names, { countGoal: 'Wie viele Nullstellen gibt es?' })
+        ...Q.pqCore(p, q, names, { what: 'nullstelle' })
     ];
 };
 
 // Punktprobe / fehlende Koordinaten
 Q.valueAt = (P, x, goal) => S.calc(goal || `Setze x = ${lfS(x)} in ${P.n || 'die Gleichung'} ein.`, <V>y</V>, qfVal(P, x),
-    `y = ${P.a < 0 ? '−' : ''}${lfP(x)}² ${qfSg(P.b)} · ${lfP(x)} ${qfSg(P.c)}. Achtung: ${lfP(x)}² = ${lfS(x * x)}${P.a < 0 ? `, mit dem Minus davor also −${lfS(x * x)}` : ''}.`,
+    `y = ${P.a < 0 ? '−' : ''}${lfP(x)}²${P.b !== 0 ? ` ${qfSgSp(P.b)} · ${lfP(x)}` : ''}${P.c !== 0 ? ` ${qfSgSp(P.c)}` : ''} = ${P.a < 0 ? '−' : ''}${lfS(x * x)}${P.b !== 0 ? ` ${qfSgSp(P.b * x)}` : ''}${P.c !== 0 ? ` ${qfSgSp(P.c)}` : ''}. Achtung: ${lfP(x)}² = ${lfS(x * x)}${P.a < 0 ? `, mit dem Minus davor also −${lfS(x * x)}` : ''}.`,
     `y = ${lfS(qfVal(P, x))}`);
 Q.probe = (P, Pt) => {
     const on = lfSame(qfVal(P, Pt.x), Pt.y);
@@ -2629,14 +2643,14 @@ Q.twoPoints = (a, A, B, name) => {
         inputs: [{ id: 'k', correct: P.x }, { id: 'r', correct: r }],
         render: (h) => <LfZeile>({tag}) {h.input('k', 'w-16')} · <V>p</V> + <V>q</V> = {h.input('r')}</LfZeile>,
         summary: (v) => `(${tag}) ${v.k}p + q = ${v.r}`,
-        hint: `${lfS(P.y)} = ${a < 0 ? '−' : ''}(${lfS(P.x)})² + ${lfP(P.x)} · p + q. Bringe die Zahl ${a < 0 ? '−' : ''}${lfS(P.x * P.x)} auf die linke Seite.`,
+        hint: `Einsetzen: ${lfS(P.y)} = ${a < 0 ? '−' : ''}(${lfS(P.x)})² + ${lfP(P.x)} · p + q. Es gilt ${a < 0 ? '−' : ''}(${lfS(P.x)})² = ${lfS(a * P.x * P.x)}. Bringe diese Zahl auf die linke Seite: ${lfS(P.y)} ${qfSgSp(-a * P.x * P.x)} = ${lfS(r)}.`,
         solution: `(${tag}) ${lfS(P.x)}p + q = ${lfS(r)}`
     });
     return [
         eq(A, rA, 'I'),
         eq(B, rB, 'II'),
-        S.calc('Subtrahiere (I) − (II) und berechne p.', <V>p</V>, p, `(I) − (II): ${lfS(A.x - B.x)} · p = ${lfS(rA - rB)}. Das q fällt weg.`, `p = ${lfS(rA - rB)} : ${lfP(A.x - B.x)} = ${lfS(p)}`),
-        S.calc('Setze p in (I) ein und berechne q.', <V>q</V>, q, `${lfP(A.x)} · ${lfP(p)} + q = ${lfS(rA)}.`, `q = ${lfS(q)}`),
+        S.calc('Subtrahiere (I) − (II) und berechne p.', <V>p</V>, p, `(I) − (II): ${lfS(A.x - B.x)} · p = ${lfS(rA - rB)}, denn q − q fällt weg. Teile durch ${lfP(A.x - B.x)}.`, `p = ${lfS(rA - rB)} : ${lfP(A.x - B.x)} = ${lfS(p)}`),
+        S.calc('Setze p in (I) ein und berechne q.', <V>q</V>, q, `${lfP(A.x)} · ${lfP(p)} + q = ${lfS(rA)}, also ${lfS(A.x * p)} + q = ${lfS(rA)}. Bringe ${lfS(A.x * p)} auf die rechte Seite.`, `q = ${lfS(q)}`),
         Q.normForm(Pb(a, p, q, name))
     ];
 };
@@ -2647,7 +2661,7 @@ Q.yValues = (P, xs, goal) => ({
     inputs: xs.map((x, i) => ({ id: 'y' + i, correct: fkEval(P, x) })),
     render: (h) => <LfZeile><span className="flex flex-col gap-2 items-start">{xs.map((x, i) => <span key={i}>für <V>x</V> = {lfS(x)}: <V>y</V> = {h.input('y' + i)}</span>)}</span></LfZeile>,
     summary: (v) => xs.map((x, i) => `(${lfS(x)} | ${v['y' + i]})`).join(', '),
-    hint: `Setze die x-Werte in ${P.n ? P.n : 'eine der Gleichungen'} ein${P.a === undefined ? '' : ' (am einfachsten in die Gerade)'}.`,
+    hint: `Setze ${xs.length > 1 ? 'jeden x-Wert' : 'den x-Wert'} in ${P.n ? P.n : 'eine der beiden Gleichungen'} ein${P.a === undefined ? ' — in der Geradengleichung geht das am schnellsten' : ''}. Beispiel x = ${lfS(xs[0])}: y = ${lfS(fkEval(P, xs[0]))}.`,
     solution: xs.map(x => `(${lfS(x)} | ${lfS(fkEval(P, x))})`).join('; ')
 });
 
@@ -2661,8 +2675,8 @@ Q.intersect = (P1, G, opts = {}) => {
         inputs: [{ id: 'A', correct: A }, { id: 'B', correct: B }, { id: 'C', correct: C }],
         altSets: [{ A: lfR(-A), B: lfR(-B), C: lfR(-C) }],
         render: (h) => <LfZeile>0 = {h.input('A', 'w-16', '±')}<V>x</V>² {h.input('B', 'w-20', '±')}<V>x</V> {h.input('C', 'w-20', '±')}</LfZeile>,
-        summary: (v) => `0 = ${v.A}x² ${v.B}x ${v.C}`,
-        hint: `${qfNormS(P1).slice(4)} = ${isLine ? lfGlS(G.m, G.t).slice(4) : qfNormS(G).slice(4)}. Bringe alle Terme auf die linke Seite${A === 0 ? ' — die x² fallen dabei weg (0 eintragen)' : ''}. ${QF_SIGN_TIP}`,
+        summary: (v) => `0 = ${qfRaw(v.A)}x² ${qfRaw(v.B)}x ${qfRaw(v.C)}`,
+        hint: `Gleichsetzen: ${qfNormS(P1).slice(4)} = ${isLine ? lfGlS(G.m, G.t).slice(4) : qfNormS(G).slice(4)}. Bringe alle Terme der rechten Seite auf die linke (Vorzeichen drehen) und fasse gleiche Terme zusammen${A === 0 ? ' — die x² heben sich dabei auf, trage 0 ein' : ''}. ${QF_SIGN_TIP}`,
         solution: `0 = ${lfS(A)}x² ${qfSg(B)}x ${qfSg(C)}`
     }];
     const ref = isLine ? G : P1;
@@ -2677,7 +2691,7 @@ Q.intersect = (P1, G, opts = {}) => {
         steps.push(Q.eqStep(p, q, A === -1 ? 'Multipliziere mit (−1).' : `Teile durch ${lfS(A)}.`, A === -1 ? 'Vor x² muss eine 1 stehen: Alle Vorzeichen drehen.' : `Teile jede Zahl durch ${lfS(A)}, damit vor x² eine 1 steht.`));
     }
     const D = lfR((p / 2) ** 2 - q);
-    steps.push(...Q.pqCore(p, q, ['x₁', 'x₂'], { countGoal: 'Wie viele Schnittpunkte gibt es?' }));
+    steps.push(...Q.pqCore(p, q, ['x₁', 'x₂'], { what: 'schnitt' }));
     if (D > 1e-9) {
         const r = Math.sqrt(D);
         steps.push(Q.yValues(ref, [lfR(-p / 2 - r), lfR(-p / 2 + r)].sort((u, w) => u - w)));
@@ -2710,13 +2724,22 @@ Q.draw = (P, range, prev = []) => {
             }
         ];
     }
-    // Scheitel liegt nicht auf dem Raster: drei Punkte der Parabel setzen
+    // Scheitel liegt nicht auf dem Raster: drei Punkte der Parabel setzen.
+    // Vorgeschlagen werden nur Rasterpunkte (x und y auf halben Kästchen), die dem Scheitel am nächsten liegen.
+    const cand = [];
+    for (let x = Math.ceil((S0.x - 4) * 2) / 2; x <= S0.x + 4 + 1e-9; x += 0.5) {
+        const y = qfVal(P, x);
+        if (qfOnGrid(y) && x >= range[0] && x <= range[1] && y >= range[2] && y <= range[3]) cand.push({ x: lfR(x), y });
+    }
+    cand.sort((u, w) => Math.abs(u.x - S0.x) - Math.abs(w.x - S0.x));
+    const sug = cand.slice(0, 3).sort((u, w) => u.x - w.x);
+    const ex = sug[0] || { x: Math.round(S0.x), y: qfVal(P, Math.round(S0.x)) };
     return [{
         type: 'points', count: 3, check: qfOnCurve(P),
         goal: `Zeichne ${lbl}: Setze drei Punkte der Parabel.`,
         graph: { range, lines: prev }, line: P,
-        hint: `Der Scheitel S(${lfS(S0.x)} | ${lfS(S0.y)}) liegt zwischen den Kästchen. Berechne mit einer Wertetabelle Punkte mit ganzzahligem x, z. B. x = ${lfS(Math.round(S0.x))}: y = ${lfS(qfVal(P, Math.round(S0.x)))}.`,
-        solution: [Math.round(S0.x) - 1, Math.round(S0.x), Math.round(S0.x) + 1].map(x => `(${lfS(x)} | ${lfS(qfVal(P, x))})`).join(', ')
+        hint: `Der Scheitel S(${lfS(S0.x)} | ${lfS(S0.y)}) liegt nicht auf dem Raster. Lege eine Wertetabelle an und setze Punkte, die auf Kästchen oder halben Kästchen liegen, z. B. x = ${lfS(ex.x)}: y = ${lfS(ex.y)}.`,
+        solution: `z. B. ${sug.map(p => `(${lfS(p.x)} | ${lfS(p.y)})`).join(', ')}`
     }];
 };
 // Gerade zeichnen (zwei Punkte)
@@ -2743,6 +2766,31 @@ Q.mirror = (P, axis, name) => {
         Q.opening(a2, name || 'die gespiegelte Parabel'),
         Q.vertForm(a2, S2.x, S2.y, name)
     ].map((s, i) => i === 0 ? { ...s, hint: axis === 'x' ? `Spiegelung an der x-Achse: Die y-Koordinate wechselt das Vorzeichen, die Öffnung dreht sich. S(${lfS(S0.x)} | ${lfS(S0.y)}) → S'(${lfS(S2.x)} | ${lfS(S2.y)}).` : `Spiegelung an der y-Achse: Die x-Koordinate wechselt das Vorzeichen, die Öffnung bleibt. S(${lfS(S0.x)} | ${lfS(S0.y)}) → S'(${lfS(S2.x)} | ${lfS(S2.y)}).` } : s);
+};
+
+// Verschiebung in Worten: "um 2 nach links und 3 nach oben"
+const qfShiftS = (dx, dy) => {
+    const parts = [];
+    if (dx !== 0) parts.push(`um ${lfS(Math.abs(dx))} nach ${dx > 0 ? 'rechts' : 'links'}`);
+    if (dy !== 0) parts.push(`um ${lfS(Math.abs(dy))} nach ${dy > 0 ? 'oben' : 'unten'}`);
+    return parts.join(' und ') || 'gar nicht';
+};
+// Wie entsteht die Parabel aus der Normalparabel y = x²? (Auswahl mit typischen Vorzeichen-Fehlern)
+Q.shiftDesc = (P) => {
+    const S0 = qfVertex(P);
+    const opts = [[S0.x, S0.y], [-S0.x, S0.y], [S0.x, -S0.y], [S0.y, S0.x]];
+    const seen = new Set();
+    const uniq = opts.filter(([x, y]) => { const k = `${x}|${y}`; if (seen.has(k)) return false; seen.add(k); return true; });
+    return S.select(`Wie entsteht ${P.n || 'die Parabel'} aus der Normalparabel y = x²?`, uniq.map(([x, y]) => <span>{qfShiftS(x, y)} verschoben</span>), 0,
+        `Der Scheitel von y = x² liegt im Ursprung. Die Verschiebung liest du am Scheitel S(${lfS(S0.x)} | ${lfS(S0.y)}) ab: x-Richtung ${lfS(S0.x)}, y-Richtung ${lfS(S0.y)}. Achtung: In der Klammer steht das Vorzeichen umgedreht.`, qfShiftS(S0.x, S0.y));
+};
+// Parabel verschieben → neuer Scheitel + Scheitelpunktform
+Q.shift = (P, dx, dy, name) => {
+    const S0 = qfVertex(P), S2 = { x: lfR(S0.x + dx), y: lfR(S0.y + dy) };
+    return [
+        { ...Q.vertexPt(S2.x, S2.y, "S'", `Bestimme den Scheitelpunkt nach der Verschiebung ${qfShiftS(dx, dy)}.`), hint: `Der Scheitel wandert mit: S(${lfS(S0.x)} | ${lfS(S0.y)}) → S'(${lfS(S0.x)} ${qfSgSp(dx)} | ${lfS(S0.y)} ${qfSgSp(dy)}). Die Öffnung bleibt gleich.` },
+        Q.vertForm(P.a, S2.x, S2.y, name)
+    ];
 };
 
 // Funktionsgleichung einer Normalparabel aus dem Graphen
@@ -2813,10 +2861,16 @@ QGEN.wertetabelle = (level, forbidden) => {
 // 2. Scheitelpunkt & Öffnung
 QGEN.scheitel = (level, forbidden) => {
     if (level === 'leicht') {
+        const type = lfChooseType([1, 2], forbidden);
+        if (type === 2) {
+            const P = qfRandVertex(1, [-4, -3, -2, -1, 1, 2, 3, 4], [-4, -3, -2, -1, 1, 2, 3, 4], 'p');
+            const S0 = qfVertex(P);
+            return { typeId: 2, title: 'Verschobene Normalparabel', desc: <>Die Parabel {pv(P)} entsteht durch Verschieben der Normalparabel y = x². Beschreibe die Verschiebung und gib den Scheitelpunkt an.</>, steps: [Q.shiftDesc(P), Q.vertexPt(S0.x, S0.y)], finalGraph: { range: qfRangeFor([P, Pb(1, 0, 0)]), lines: [Pb(1, 0, 0, 'y = x²'), P], points: [qpt(S0.x, S0.y, 'S')] } };
+        }
         const a = qfSign();
         const P = qfRandVertex(a, QF_INT, QF_INT, 'p');
         const S0 = qfVertex(P);
-        return { typeId: 1, title: 'Scheitelpunkt ablesen', desc: <>Gegeben ist die Parabel {pv(P)}. Gib ihre Öffnung und ihren Scheitelpunkt an.</>, steps: [Q.opening(a, 'p'), Q.vertexPt(S0.x, S0.y)] };
+        return { typeId: 1, title: 'Scheitelpunkt ablesen', desc: <>Gegeben ist die Parabel {pv(P)}. Gib ihre Öffnung und ihren Scheitelpunkt an.</>, steps: [Q.opening(a, 'p'), Q.vertexPt(S0.x, S0.y)], finalGraph: { range: qfRangeFor([P]), lines: [P], points: [qpt(S0.x, S0.y, 'S')] } };
     }
     const a = qfSign();
     const xs = lfPick([-3, -2, -1, 1, 2, 3]), ys = lfPick([-4, -3, -2, -1, 1, 2, 3, 4]);
@@ -2934,10 +2988,23 @@ QGEN.spiegeln = (level, forbidden) => {
         const P2 = qfFromVertex(a2, axis === 'y' ? -S0.x : S0.x, axis === 'x' ? -S0.y : S0.y, "p'");
         return { typeId: 3, title: 'Spiegeln und Normalform', desc: <>Die Parabel {pn(P)} wird an der {axis}-Achse gespiegelt. Bestimme die Normalform der gespiegelten Parabel p'.</>, steps: [...Q.vertexFromNorm(P), ...Q.mirror(P, axis, "p'"), Q.normForm(P2)], finalGraph: { range: qfRangeFor([P, P2]), lines: [P, P2] } };
     }
-    const axis = level === 'leicht' ? 'x' : 'y';
+    // leicht: Verschieben (Scheitelpunktform gegeben) oder Spiegeln an der x-Achse
+    // mittel: Verschieben (Normalform gegeben, Scheitel erst berechnen) oder Spiegeln an der y-Achse
+    const type = lfChooseType(level === 'leicht' ? [1, 2] : [5, 6], forbidden);
+    if (type === 1 || type === 5) {
+        const dx = lfPick([-3, -2, -1, 1, 2, 3]), dy = lfPick([-4, -3, -2, -1, 1, 2, 3, 4]);
+        const S0 = qfVertex(P), P2 = qfFromVertex(a, S0.x + dx, S0.y + dy, "p'");
+        return {
+            typeId: type, title: 'Parabel verschieben',
+            desc: <>Die Parabel {type === 1 ? pv(P) : pn(P)} wird {qfShiftS(dx, dy)} verschoben. Gib die Scheitelpunktform der verschobenen Parabel p' an.</>,
+            steps: [...(type === 5 ? Q.vertexFromNorm(P) : []), ...Q.shift(P, dx, dy, "p'")],
+            finalGraph: { range: qfRangeFor([P, P2]), lines: [P, P2] }
+        };
+    }
+    const axis = type === 2 ? 'x' : 'y';
     const S0 = qfVertex(P), a2 = axis === 'x' ? -a : a;
     const P2 = qfFromVertex(a2, axis === 'y' ? -S0.x : S0.x, axis === 'x' ? -S0.y : S0.y, "p'");
-    return { typeId: level, title: `Spiegeln an der ${axis}-Achse`, desc: <>Die Parabel {pv(P)} wird an der {axis}-Achse gespiegelt. Gib die Scheitelpunktform der gespiegelten Parabel p' an.</>, steps: Q.mirror(P, axis, "p'"), finalGraph: { range: qfRangeFor([P, P2]), lines: [P, P2] } };
+    return { typeId: type, title: `Spiegeln an der ${axis}-Achse`, desc: <>Die Parabel {pv(P)} wird an der {axis}-Achse gespiegelt. Gib die Scheitelpunktform der gespiegelten Parabel p' an.</>, steps: Q.mirror(P, axis, "p'"), finalGraph: { range: qfRangeFor([P, P2]), lines: [P, P2] } };
 };
 
 // 9. Parabel und Gerade
@@ -2961,7 +3028,7 @@ QGEN.gerade = (level, forbidden) => {
             return {
                 typeId: 3, title: 'Parabel und Gerade (Gerade umformen)',
                 desc: <>Gegeben sind die Parabel {pn(P)} und die Gerade g: {fq(show)}. Berechne die Koordinaten aller gemeinsamen Punkte.</>,
-                steps: [{ type: 'fill', goal: 'Bringe die Geradengleichung in die Form y = mx + t.', inputs: [{ id: 'm', correct: m }, { id: 't', correct: t }], render: (h) => <LfZeile>g: <V>y</V> = {h.input('m')}<V>x</V> + {h.input('t')}</LfZeile>, hint: `Bringe den x-Term auf die rechte Seite und teile durch ${lfS(A)}.`, solution: lfGlS(m, t) }, ...Q.intersect(P, g)],
+                steps: [{ type: 'fill', goal: 'Bringe die Geradengleichung in die Form y = mx + t.', inputs: [{ id: 'm', correct: m }, { id: 't', correct: t }], render: (h) => <LfZeile>g: <V>y</V> = {h.input('m')}<V>x</V> {h.input('t', 'w-20', '±')}</LfZeile>, summary: (v) => `g: y = ${v.m}x ${qfRaw(v.t)}`, hint: `Bringe den x-Term auf die rechte Seite (Vorzeichen drehen) und teile dann alles durch ${lfS(A)}. ${QF_SIGN_TIP}`, solution: lfGlS(m, t) }, ...Q.intersect(P, g)],
                 finalGraph: fg
             };
         }
@@ -3069,7 +3136,7 @@ const QF_EXAMS = [
         { l: 'e', topic: 'wertetabelle', text: <>Überprüfe rechnerisch, ob D(−3 | 16) auf {pn(Pb(-1, 7, 14, 'p₃'))} liegt.</>, steps: () => Q.probe(Pb(-1, 7, 14, 'p₃'), qpt(-3, 16, 'D')) },
         { l: 'f', topic: 'scheitelform', text: <>Bestimme durch Rechnung den Scheitelpunkt S₃ von {pn(Pb(-1, 7, 14, 'p₃'))}.</>, steps: () => Q.vertexFromNorm(Pb(-1, 7, 14, 'p₃'), 'S₃') },
         { l: 'g', topic: 'nullstellen', text: <>Die Parabel {pn(Pb(1, -20, 96, 'p₄'))} schneidet die x-Achse in N₁ und N₂. Ermittle die x-Koordinaten rechnerisch.</>, steps: () => Q.zeros(Pb(1, -20, 96, 'p₄')) },
-        { l: 'h', topic: 'gerade', text: <>Zeige rechnerisch, dass die Gerade g: {fq('2y + 6x = 38')} keinen gemeinsamen Punkt mit {pn(Pb(1, -20, 96, 'p₄'))} hat.</>, steps: () => [{ type: 'fill', goal: 'Bringe g in die Form y = mx + t.', inputs: [{ id: 'm', correct: -3 }, { id: 't', correct: 19 }], render: (h) => <LfZeile>g: <V>y</V> = {h.input('m')}<V>x</V> + {h.input('t')}</LfZeile>, hint: '2y = −6x + 38, dann durch 2 teilen.', solution: 'y = −3x + 19' }, ...Q.intersect(Pb(1, -20, 96, 'p₄'), { m: -3, t: 19, n: 'g' })] }
+        { l: 'h', topic: 'gerade', text: <>Zeige rechnerisch, dass die Gerade g: {fq('2y + 6x = 38')} keinen gemeinsamen Punkt mit {pn(Pb(1, -20, 96, 'p₄'))} hat.</>, steps: () => [{ type: 'fill', goal: 'Bringe g in die Form y = mx + t.', inputs: [{ id: 'm', correct: -3 }, { id: 't', correct: 19 }], render: (h) => <LfZeile>g: <V>y</V> = {h.input('m')}<V>x</V> {h.input('t', 'w-20', '±')}</LfZeile>, summary: (v) => `g: y = ${v.m}x ${qfRaw(v.t)}`, hint: `2y = −6x + 38, dann durch 2 teilen. ${QF_SIGN_TIP}`, solution: 'y = −3x + 19' }, ...Q.intersect(Pb(1, -20, 96, 'p₄'), { m: -3, t: 19, n: 'g' })] }
     ]},
     { id: '2021-I', label: 'MSA 2021 I', nr: '1', parts: [
         { l: 'a', topic: 'scheitelform', text: <>Forme {pn(Pb(1, 2, -3, 'p₁'))} in die Scheitelpunktform um und gib S₁ an.</>, steps: () => Q.vertexFromNorm(Pb(1, 2, -3, 'p₁'), 'S₁') },
@@ -3102,7 +3169,7 @@ const QF_EXAMS = [
         { l: 'c', topic: 'scheitelform', text: <>Bestimme rechnerisch den Scheitelpunkt S₂ von {pn(Pb(-1, -6, -5, 'p₂'))}.</>, steps: () => Q.vertexFromNorm(Pb(-1, -6, -5, 'p₂'), 'S₂') },
         { l: 'd', topic: 'zeichnen', text: <>Zeichne {pn(Pb(1, 2, -5, 'p₁'))} und {pn(Pb(-1, -6, -5, 'p₂'))} in ein Koordinatensystem.</>, ...dq([Pb(1, 2, -5, 'p₁'), Pb(-1, -6, -5, 'p₂')], [-7, 3, -7, 5]) },
         { l: 'e', topic: 'zweipunkte', text: <>Die nach oben geöffnete Normalparabel p₃ verläuft durch D(−1 | 2) und E(6 | −5). Ermittle rechnerisch ihre Normalform.</>, steps: () => Q.twoPoints(1, qpt(-1, 2, 'D'), qpt(6, -5, 'E'), 'p₃') },
-        { l: 'f', topic: 'scheitel', text: <>Begründe mit einer Rechnung, dass die Parabel {fq('p₄: 3y + 2x² = −(−36x + 24 + x²)')} nach unten geöffnet ist.</>, steps: () => [{ type: 'fill', goal: 'Löse nach y auf.', inputs: [{ id: 'a', correct: -1 }, { id: 'b', correct: 12 }, { id: 'c', correct: -8 }], render: (h) => <LfZeile><V>y</V> = {h.input('a', 'w-16', '±')}<V>x</V>² {h.input('b', 'w-20', '±')}<V>x</V> {h.input('c', 'w-20', '±')}</LfZeile>, summary: (v) => `y = ${v.a}x² ${v.b}x ${v.c}`, hint: 'Rechte Seite: 36x − 24 − x². Dann − 2x² auf beiden Seiten: 3y = −3x² + 36x − 24, zuletzt durch 3 teilen.', solution: 'y = −x² + 12x − 8' }, Q.opening(-1, 'p₄')] }
+        { l: 'f', topic: 'scheitel', text: <>Begründe mit einer Rechnung, dass die Parabel {fq('p₄: 3y + 2x² = −(−36x + 24 + x²)')} nach unten geöffnet ist.</>, steps: () => [{ type: 'fill', goal: 'Löse nach y auf.', inputs: [{ id: 'a', correct: -1 }, { id: 'b', correct: 12 }, { id: 'c', correct: -8 }], render: (h) => <LfZeile><V>y</V> = {h.input('a', 'w-16', '±')}<V>x</V>² {h.input('b', 'w-20', '±')}<V>x</V> {h.input('c', 'w-20', '±')}</LfZeile>, summary: (v) => `y = ${qfRaw(v.a)}x² ${qfRaw(v.b)}x ${qfRaw(v.c)}`, hint: `Minusklammer auflösen: rechts steht 36x − 24 − x². Dann 2x² auf beiden Seiten abziehen: 3y = −3x² + 36x − 24. Zuletzt durch 3 teilen. ${QF_SIGN_TIP}`, solution: 'y = −x² + 12x − 8' }, Q.opening(-1, 'p₄')] }
     ]},
     { id: '2019-I', label: 'MSA 2019 I', nr: '1', parts: [
         { l: 'a', topic: 'scheitel', text: <>Welche Aussagen sind richtig? (1) Der Graph jeder quadratischen Funktion schneidet die y-Achse. (2) … schneidet die x-Achse. (3) … besitzt einen Scheitelpunkt. (4) An jeder Funktionsgleichung kann man den y-Achsenabschnitt ohne Rechnung ablesen.</>, steps: () => [S.select('Welche Aussagen sind richtig?', [<span>(1) und (3)</span>, <span>(1), (2) und (3)</span>, <span>(1), (3) und (4)</span>, <span>(2) und (4)</span>], 0, 'Jede Parabel hat einen Scheitel und schneidet die y-Achse (bei x = 0). Nicht jede schneidet die x-Achse. In der Scheitelpunktform kann man den y-Achsenabschnitt nicht direkt ablesen.', '(1) und (3)', true)] },
@@ -3140,7 +3207,9 @@ const QF_EXAMS = [
     { id: '2017-I', label: 'MSA 2017 I', nr: '3', parts: [
         { l: 'a', topic: 'zweipunkte', text: <>Die nach oben geöffnete Normalparabel p₁ verläuft durch A(−4 | 6) und B(−2 | 2). Gib ihre Normalform an.</>, steps: () => Q.twoPoints(1, qpt(-4, 6, 'A'), qpt(-2, 2, 'B'), 'p₁') },
         { l: 'b', topic: 'normalform', text: <>Die nach unten geöffnete Normalparabel p₂ hat S₂(−1 | 2). Ermittle rechnerisch ihre Normalform.</>, steps: () => Q.normFromVertex(-1, -1, 2, 'p₂') },
-        { l: 'c', topic: 'zeichnen', text: <>Zeichne {pn(Pb(1, 4, 6, 'p₁'))} und {pn(Pb(-1, -2, 1, 'p₂'))} (x von −5 bis 3, y von −4 bis 7).</>, ...dq([Pb(1, 4, 6, 'p₁'), Pb(-1, -2, 1, 'p₂')], [-5, 3, -4, 7]) }
+        { l: 'c', topic: 'zeichnen', text: <>Zeichne {pn(Pb(1, 4, 6, 'p₁'))} und {pn(Pb(-1, -2, 1, 'p₂'))} (x von −5 bis 3, y von −4 bis 7).</>, ...dq([Pb(1, 4, 6, 'p₁'), Pb(-1, -2, 1, 'p₂')], [-5, 3, -4, 7]) },
+        { l: 'd', topic: 'parabeln', text: <>Die Parabeln p₃: {fq('x² − 4x + 5 = y')} und {pn(Pb(-1, 4, -1, 'p₄'))} schneiden sich in P und Q. Berechne die Koordinaten von P und Q.</>, ...withFg(() => Q.intersect(Pb(1, -4, 5, 'p₃'), Pb(-1, 4, -1, 'p₄')), [Pb(1, -4, 5, 'p₃'), Pb(-1, 4, -1, 'p₄')], [qpt(1, 2, 'P'), qpt(3, 2, 'Q')], [-2, 6, -2, 7]) },
+        { l: 'e', topic: 'spiegeln', text: <>Durch Spiegelung von {pn(Pb(1, -4, 5, 'p₃'))} an der x-Achse entsteht p₅. Gib die Scheitelpunktform von p₅ an.</>, steps: () => [...Q.vertexFromNorm(Pb(1, -4, 5, 'p₃'), 'S₃'), ...Q.mirror(Pb(1, -4, 5, 'p₃'), 'x', 'p₅')] }
     ]},
     { id: '2017-II', label: 'MSA 2017 II', nr: '5', parts: [
         { l: 'a', topic: 'zweipunkte', text: <>Die nach oben geöffnete Normalparabel p₁ verläuft durch A(−2 | 3) und B(1 | −6). Berechne ihre Normalform.</>, steps: () => Q.twoPoints(1, qpt(-2, 3, 'A'), qpt(1, -6, 'B'), 'p₁') },
@@ -3163,7 +3232,7 @@ const QF_EXAMS = [
         { l: 'b', topic: 'scheitelform', text: <>Berechne die Scheitelpunktform von {pn(Pb(1, 3, 4.25, 'p₂'))}.</>, steps: () => Q.vertexFromNorm(Pb(1, 3, 4.25, 'p₂'), 'S₂') },
         { l: 'c', topic: 'spiegeln', text: <>Durch Spiegelung von {pv(Pb(1, 3, 4.25, 'p₂'))} an der y-Achse entsteht p₃. Ermittle die Funktionsgleichung von p₃.</>, steps: () => Q.mirror(Pb(1, 3, 4.25, 'p₂'), 'y', 'p₃') },
         { l: 'd', topic: 'parabeln', text: <>Die Parabel {pn(Pb(-1, 0, 4.25, 'p₄'))} schneidet {pn(Pb(1, 3, 4.25, 'p₂'))} in C und D. Berechne die Koordinaten.</>, ...withFg(() => Q.intersect(Pb(1, 3, 4.25, 'p₂'), Pb(-1, 0, 4.25, 'p₄')), [Pb(1, 3, 4.25, 'p₂'), Pb(-1, 0, 4.25, 'p₄')], [qpt(-1.5, 2, 'D'), qpt(0, 4.25, 'C')]) },
-        { l: 'e', topic: 'gerade', text: <>Die Abbildung zeigt die Normalparabel p₅ und die Gerade g. Bestimme die Gleichung von g (g verläuft durch P(−4 | 3) und Q(−5 | 5)).</>, graph: { range: [-7, 1, -1, 6], lines: [Pb(-1, -6, -5, 'p₅'), { m: -2, t: -5, n: 'g' }], points: [qpt(-4, 3, 'P'), qpt(-3, 4, 'S₅')] }, steps: () => [S.calc('Berechne die Steigung m von g.', <V>m</V>, -2, 'm = (5 − 3) : (−5 − (−4)) = 2 : (−1)', 'm = −2'), S.calc('Berechne den y-Achsenabschnitt t.', <V>t</V>, -5, '3 = −2 · (−4) + t', 't = −5')] },
+        { l: 'e', topic: 'gerade', text: <>Die Abbildung zeigt die Normalparabel p₅ und die Gerade g. Bestimme die Gleichung von g (g verläuft durch P(−4 | 3) und Q(−5 | 5)).</>, graph: { range: [-7, 1, -1, 6], lines: [Pb(-1, -6, -5, 'p₅'), { m: -2, t: -5, n: 'g' }], points: [qpt(-4, 3, 'P'), qpt(-5, 5, 'Q'), qpt(-3, 4, 'S₅')] }, steps: () => [S.calc('Berechne die Steigung m von g.', <V>m</V>, -2, 'Steigungsformel: m = (y₂ − y₁) : (x₂ − x₁) = (5 − 3) : (−5 − (−4)) = 2 : (−1).', 'm = −2'), S.calc('Berechne den y-Achsenabschnitt t.', <V>t</V>, -5, 'Setze P(−4 | 3) in y = −2x + t ein: 3 = −2 · (−4) + t = 8 + t.', 't = −5')] },
         { l: 'f', topic: 'gerade', text: <>Berechne den spitzen Winkel α, den {fq('g: y = −2x − 5')} mit der x-Achse einschließt.</>, steps: () => [S.calc('Berechne α (auf zwei Nachkommastellen).', <span className="font-math-italic">α</span>, 63.43, 'tan α = |m| = 2 → α = tan⁻¹(2).', 'α ≈ 63,43°', '°', 0.06)] },
         { l: 'g', topic: 'scheitel', text: <>Ermittle rechnerisch die Normalform der Parabel p₅ (siehe Abbildung, Scheitel S₅(−3 | 4), nach unten geöffnet).</>, graph: { range: [-7, 1, -1, 6], lines: [Pb(-1, -6, -5, 'p₅')] }, steps: () => Q.readGraph(-1, -3, 4, 'p₅', true, 'S₅') }
     ]},
@@ -3197,7 +3266,7 @@ const QF_EXAMS = [
         { l: 'e', topic: 'zeichnen', text: <>Zeichne {pn(Pb(1, 8, 14, 'p₁'))} und {pn(Pb(-1, -8, -10, 'p₂'))} in ein Koordinatensystem.</>, ...dq([Pb(1, 8, 14, 'p₁'), Pb(-1, -8, -10, 'p₂')], [-8, 0, -3, 7]) }
     ]},
     { id: '2012-I', label: 'MSA 2012 I', nr: '8', intro: <>Alle Punkte dieser Wertetabelle liegen auf der nach oben geöffneten Normalparabel p₁.<LfTabelle xs={['−4', '−3', '−2', '−1', '0', '1', '2', '3', '4']} ys={['17', '10', '5', '2', '1', '2', '5', '10', '17']} /></>, parts: [
-        { l: 'a', topic: 'scheitel', text: <>Gib den Scheitelpunkt S₁ an und ermittle die Normalform von p₁.</>, steps: () => [Q.vertexPt(0, 1, 'S₁'), Q.normForm(Pb(1, 0, 1, 'p₁'))] },
+        { l: 'a', topic: 'scheitel', text: <>Gib den Scheitelpunkt S₁ an und ermittle die Normalform von p₁.</>, steps: () => [{ ...Q.vertexPt(0, 1, 'S₁'), hint: 'Der Scheitel ist der tiefste Punkt: In der Tabelle ist das der kleinste y-Wert.' }, Q.normForm(Pb(1, 0, 1, 'p₁'), 'Stelle die Normalform von p₁ auf.', `Scheitelpunktform mit S₁(0 | 1): y = (x − 0)² + 1 = x² + 1. Es gibt keinen x-Term, trage dort 0 ein. ${QF_SIGN_TIP}`)] },
         { l: 'b', topic: 'scheitelform', text: <>Bestimme rechnerisch den Scheitelpunkt S₂ von {pn(Pb(-1, 8, -12, 'p₂'))}.</>, steps: () => Q.vertexFromNorm(Pb(-1, 8, -12, 'p₂'), 'S₂') },
         { l: 'c', topic: 'zeichnen', text: <>Zeichne {pn(Pb(1, 0, 1, 'p₁'))} und {pn(Pb(-1, 8, -12, 'p₂'))} in ein Koordinatensystem.</>, ...dq([Pb(1, 0, 1, 'p₁'), Pb(-1, 8, -12, 'p₂')], [-3, 8, -2, 6]) },
         { l: 'd', topic: 'nullstellen', text: <>Ermittle rechnerisch die Nullstellen von {pn(Pb(-1, 8, -12, 'p₂'))}.</>, steps: () => Q.zeros(Pb(-1, 8, -12, 'p₂')) },
@@ -3271,7 +3340,7 @@ const QF_TOPICS = [
     { id: 'scheitelform', nr: 5, title: 'Normalform → Scheitelpunktform', desc: 'Mit der quadratischen Ergänzung den Scheitelpunkt berechnen.' },
     { id: 'nullstellen', nr: 6, title: 'Quadratische Gleichungen & Nullstellen', desc: 'Mit der pq-Formel lösen: zwei, eine oder keine Lösung?' },
     { id: 'zweipunkte', nr: 7, title: 'Parabel durch zwei Punkte', desc: 'Mit einem Gleichungssystem p und q bestimmen.' },
-    { id: 'spiegeln', nr: 8, title: 'Spiegeln & Verschieben', desc: 'Parabeln an der x- oder y-Achse spiegeln und die neue Gleichung angeben.' },
+    { id: 'spiegeln', nr: 8, title: 'Verschieben & Spiegeln', desc: 'Die Normalparabel verschieben oder an der x- bzw. y-Achse spiegeln und die neue Gleichung angeben.' },
     { id: 'gerade', nr: 9, title: 'Parabel und Gerade', desc: 'Schnittpunkte, Berührpunkte oder keine gemeinsamen Punkte berechnen.' },
     { id: 'parabeln', nr: 10, title: 'Schnittpunkte zweier Parabeln', desc: 'Gleichsetzen, vereinfachen und mit der pq-Formel lösen.' },
     { id: 'pruefung', nr: 11, title: 'MSA-Prüfungsaufgaben', desc: 'Komplette Prüfungsaufgaben 2010–2025 Teilaufgabe für Teilaufgabe durcharbeiten.' }
