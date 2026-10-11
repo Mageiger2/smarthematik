@@ -1710,7 +1710,7 @@ const leEval = (data) => {
         trainers[tr.key] = { status, correct, masteredLevels, masteredTopics, exams, errors, learned, learnTotal, cards, best };
     });
     const sims = leJSON(data, 'smarth_exam_results', []);
-    const lastA = sims.find(r => r.kind === 'A'), lastB = sims.find(r => r.kind === 'B');
+    const lastA = sims.find(r => r.kind === 'A'), lastB = sims.find(r => r.kind === 'B' || r.kind === 'A+B');
     const totalCorrect = Object.values(trainers).reduce((a, t) => a + t.correct, 0);
     const totalExams = Object.values(trainers).reduce((a, t) => a + t.exams, 0);
     return { trainers, lastA, lastB, totalCorrect, totalExams };
@@ -1895,7 +1895,7 @@ const LehrerApp = () => {
                                                 {LE_TRAINERS.map(t => { const x = s.ev.trainers[t.key]; return <td key={t.key} className="py-1.5 px-1 text-center"><LeChip status={x.status} title={`${t.title}: ${x.status ? LE_STATUS[x.status].title : 'noch nichts'} · ${x.correct} richtig · ${x.exams} Prüfungsteile`} /></td>; })}
                                                 <td className="py-1.5 px-2 text-center">{s.ev.totalCorrect}</td>
                                                 <td className="py-1.5 px-2 text-center">{s.ev.totalExams}</td>
-                                                <td className="py-1.5 px-2 text-center whitespace-nowrap text-xs">{s.ev.lastA ? `A ${s.ev.lastA.ok}/${s.ev.lastA.total}` : ''}{s.ev.lastA && s.ev.lastB ? ' · ' : ''}{s.ev.lastB ? `B ${s.ev.lastB.ok}/${s.ev.lastB.total}` : ''}</td>
+                                                <td className="py-1.5 px-2 text-center whitespace-nowrap text-xs">{s.ev.lastA ? `A ${s.ev.lastA.ok}/${s.ev.lastA.total}${s.ev.lastA.note ? ` (Note ${s.ev.lastA.note})` : ''}` : ''}{s.ev.lastA && s.ev.lastB ? ' · ' : ''}{s.ev.lastB ? `B ${s.ev.lastB.ok}/${s.ev.lastB.total}${s.ev.lastB.note ? ` (Note ${s.ev.lastB.note})` : ''}` : ''}</td>
                                                 <td className="py-1.5 pl-2 text-xs text-slate-600 max-w-[16rem] truncate">{allErr ? `${leErrLabel(allErr.t.key, allErr.k)} (${allErr.c}×)` : ''}</td>
                                                 <td className="py-1.5 pl-2 whitespace-nowrap"><button type="button" title="Umbenennen" onClick={(e) => { e.stopPropagation(); rename(s.id); }} className="text-sm text-slate-400 hover:text-indigo-700 mr-2">✎</button><button type="button" title="Entfernen" onClick={(e) => { e.stopPropagation(); remove(s.id); }} className="text-sm text-slate-400 hover:text-red-700">✕</button></td>
                                             </tr>

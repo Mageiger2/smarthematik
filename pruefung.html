@@ -5371,6 +5371,26 @@ const PR_RESULTS_KEY = 'smarth_exam_results';
 const PR_A = { n: 10, min: 15 };
 const PR_B = { n: 8, min: 60 };
 const PR_T = themeColors.indigo;
+// Bewertung wie in der echten Prüfung: Teil A 8 Punkte, Teil B 40 Punkte, Summe 48.
+// Notenstufen (Punkte): 1: 48–41 · 2: 40,5–33 · 3: 32,5–25 · 4: 24,5–16 · 5: 15,5–8 · 6: 7,5–0
+const PR_PTS = { A: 8, B: 40 };
+const PR_NOTEN = [[41, 1], [33, 2], [25, 3], [16, 4], [8, 5]];
+const prNote = (pts48) => { const p = Math.round(pts48 * 2) / 2; const hit = PR_NOTEN.find(([min]) => p >= min); return hit ? hit[1] : 6; };
+// Punkte eines Teils aus gelöstem Anteil (halbe Punkte wie in der Prüfung)
+const prPunkte = (kind, ok, total) => Math.round(PR_PTS[kind] * ok / total * 2) / 2;
+// Note für einen einzelnen Teil: gleicher Maßstab, auf 48 Punkte hochgerechnet
+const prNoteTeil = (kind, ok, total) => prNote(prPunkte(kind, ok, total) / PR_PTS[kind] * 48);
+const prPts = (v) => fDe(v);
+const PrNotenschluessel = () => (
+    <LnHint title="Notenschlüssel der Prüfung">
+        <p>Wie in der echten Prüfung: Teil A 8 Punkte, Teil B 40 Punkte, zusammen 48. Hier werden deine gelösten Aufgaben darauf hochgerechnet.</p>
+        <table className="mt-2 text-xs sm:text-sm border-collapse"><tbody>
+            <tr>{['Note', 1, 2, 3, 4, 5, 6].map((n, i) => <td key={i} className="border border-slate-300 px-2 py-1 font-bold bg-slate-100">{n}</td>)}</tr>
+            <tr>{['Punkte', '48–41', '40,5–33', '32,5–25', '24,5–16', '15,5–8', '7,5–0'].map((n, i) => <td key={i} className="border border-slate-300 px-2 py-1">{n}</td>)}</tr>
+        </tbody></table>
+    </LnHint>
+);
+const PrNoteBadge = ({ note }) => <span className={`inline-flex items-center justify-center w-14 h-14 rounded-2xl text-3xl font-bold border-2 ${note <= 2 ? 'bg-green-100 text-green-800 border-green-400' : note <= 4 ? 'bg-amber-100 text-amber-800 border-amber-400' : 'bg-red-100 text-red-800 border-red-400'}`}>{note}</span>;
 
 const prResults = () => getStorageJSON(PR_RESULTS_KEY, []);
 const prSaveResult = (r) => setStorageJSON(PR_RESULTS_KEY, [r, ...prResults()].slice(0, 10));
@@ -5437,9 +5457,9 @@ const PrHome = ({ onStart }) => {
                 </div>
             </div>
             <div className="grid sm:grid-cols-3 gap-4 mb-6">
-                {card('Teil A', 'ohne Taschenrechner', [`${PR_A.n} Aufgaben zum Ankreuzen`, `${PR_A.min} Minuten`, 'Kopfrechnen zu allen Themen'], CalculatorOff, 'A')}
-                {card('Teil B', 'mit Taschenrechner', [`${PR_B.n} Prüfungsteile aus allen Trainern`, `${PR_B.min} Minuten`, 'Echte MSA-Aufgaben'], Calculator, 'B')}
-                {card('Komplett', 'Teil A, dann Teil B', ['Beides hintereinander', `${PR_A.min + PR_B.min} Minuten`, 'Wie in der Prüfung'], FileText, 'AB')}
+                {card('Teil A', 'ohne Taschenrechner', [`${PR_A.n} Aufgaben zum Ankreuzen`, `${PR_A.min} Minuten`, `zählt wie in der Prüfung ${PR_PTS.A} Punkte`], CalculatorOff, 'A')}
+                {card('Teil B', 'mit Taschenrechner', [`${PR_B.n} Prüfungsteile aus allen Trainern`, `${PR_B.min} Minuten`, `zählt wie in der Prüfung ${PR_PTS.B} Punkte`], Calculator, 'B')}
+                {card('Komplett', 'Teil A, dann Teil B', ['Beides hintereinander', `${PR_A.min + PR_B.min} Minuten`, 'Note aus 48 Punkten wie in der Prüfung'], FileText, 'AB')}
             </div>
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-5 mb-6">
                 <p className="font-bold text-slate-800 mb-1 flex items-center gap-2"><BookOpen className={`w-5 h-5 ${PR_T.activeTitle}`} /> Echte Prüfungen zum Nachlesen</p>
@@ -5457,7 +5477,7 @@ const PrHome = ({ onStart }) => {
                         <tbody>{results.map((r, i) => (
                             <tr key={i} className="border-b border-slate-100 last:border-0">
                                 <td className="py-1.5 pr-2">{prDate(r.at)}</td><td className="py-1.5 pr-2">Teil {r.kind}</td>
-                                <td className="py-1.5 pr-2"><span className={`font-bold ${r.ok / r.total >= 0.5 ? 'text-green-700' : 'text-red-700'}`}>{r.ok} von {r.total}</span> <span className="text-slate-500">({Math.round(100 * r.ok / r.total)} %)</span></td>
+                                <td className="py-1.5 pr-2"><span className={`font-bold ${r.ok / r.total >= 0.5 ? 'text-green-700' : 'text-red-700'}`}>{r.ok} von {r.total}</span> <span className="text-slate-500">({r.gesamt !== undefined ? `${prPts(r.gesamt)} von 48 Punkten` : r.pts !== undefined ? `${prPts(r.pts)} von ${PR_PTS[r.kind]} Punkten` : `${Math.round(100 * r.ok / r.total)} %`})</span>{r.note && <span className="ml-2 font-bold text-slate-800">Note {r.note}</span>}</td>
                                 <td className="py-1.5">{r.timeUp ? 'Zeit abgelaufen' : prClock(r.used)}</td>
                             </tr>))}</tbody>
                     </table>
@@ -5480,7 +5500,7 @@ const PrTeilA = ({ timed, onFinish }) => {
         const res = qs.map(q => ({ q, given: answers[q.nr], ok: answers[q.nr] === q.correctAnswer }));
         res.filter(r => !r.ok).forEach(r => recordError('kopfrechnen', r.q.category));
         const ok = res.filter(r => r.ok).length;
-        prSaveResult({ at: Date.now(), kind: 'A', ok, total: qs.length, used: Date.now() - start, timeUp: !!timeUp });
+        prSaveResult({ at: Date.now(), kind: 'A', ok, total: qs.length, pts: prPunkte('A', ok, qs.length), note: prNoteTeil('A', ok, qs.length), used: Date.now() - start, timeUp: !!timeUp });
         onFinish({ res, ok, used: Date.now() - start, timeUp: !!timeUp });
     };
     useEffect(() => { if (end && now >= end) finish(true); /* eslint-disable-next-line */ }, [now]);
@@ -5492,7 +5512,7 @@ const PrTeilA = ({ timed, onFinish }) => {
             const res = qs.map(x => ({ q: x, given: a[x.nr], ok: a[x.nr] === x.correctAnswer }));
             res.filter(r => !r.ok).forEach(r => recordError('kopfrechnen', r.q.category));
             const ok = res.filter(r => r.ok).length;
-            prSaveResult({ at: Date.now(), kind: 'A', ok, total: qs.length, used: Date.now() - start, timeUp: false });
+            prSaveResult({ at: Date.now(), kind: 'A', ok, total: qs.length, pts: prPunkte('A', ok, qs.length), note: prNoteTeil('A', ok, qs.length), used: Date.now() - start, timeUp: false });
             onFinish({ res, ok, used: Date.now() - start, timeUp: false });
         } else { setIdx(idx + 1); setSel(null); }
     };
@@ -5526,13 +5546,16 @@ const PrTeilA = ({ timed, onFinish }) => {
 };
 
 const PrErgebnisA = ({ r, onHome, onNext }) => {
-    const pct = Math.round(100 * r.ok / r.res.length);
+    const pts = prPunkte('A', r.ok, r.res.length), note = prNoteTeil('A', r.ok, r.res.length);
     return (
         <>
-            <div className={`rounded-xl border-2 p-6 text-center mb-6 ${pct >= 50 ? 'bg-green-50 border-green-500' : 'bg-amber-50 border-amber-400'}`}>
+            <div className={`rounded-xl border-2 p-6 text-center mb-6 ${note <= 4 ? 'bg-green-50 border-green-500' : 'bg-amber-50 border-amber-400'}`}>
                 <p className="text-sm uppercase tracking-wider font-bold text-slate-500 mb-1">Teil A · Ergebnis</p>
-                <p className="text-4xl font-bold text-slate-800">{r.ok} von {r.res.length} richtig</p>
-                <p className="text-slate-600 mt-1">{pct} % · {r.timeUp ? 'Zeit abgelaufen' : `Zeit: ${prClock(r.used)}`}</p>
+                <div className="flex items-center justify-center gap-5">
+                    <div><p className="text-4xl font-bold text-slate-800">{r.ok} von {r.res.length} richtig</p><p className="text-slate-600 mt-1">{prPts(pts)} von {PR_PTS.A} Punkten · {r.timeUp ? 'Zeit abgelaufen' : `Zeit: ${prClock(r.used)}`}</p></div>
+                    <PrNoteBadge note={note} />
+                </div>
+                <div className="mt-3 flex justify-center"><PrNotenschluessel /></div>
                 <div className="mt-4 flex flex-wrap justify-center gap-3">
                     {onNext ? <PrBtn onClick={onNext}>Weiter zu Teil B <ArrowRight className="w-4 h-4" /></PrBtn> : <PrBtn onClick={onHome}>Zur Übersicht</PrBtn>}
                     {onNext && <PrBtn primary={false} onClick={onHome}>Abbrechen</PrBtn>}
@@ -5571,8 +5594,10 @@ const PrTeilB = ({ run, onFinish, onCancel }) => {
     const timeUp = run.end && now >= run.end;
     const finish = () => {
         if (solved < parts.length && !timeUp && !window.confirm(`Es sind noch ${parts.length - solved} Teile offen. Trotzdem abgeben?`)) return;
-        prSaveResult({ at: Date.now(), kind: 'B', ok: solved, total: parts.length, used: Date.now() - run.start, timeUp: !!timeUp });
-        onFinish({ parts, ok: solved, used: Date.now() - run.start, timeUp: !!timeUp });
+        const ptsB = prPunkte('B', solved, parts.length);
+        const gesamt = run.a ? Math.round((prPunkte('A', run.a.ok, run.a.total) + ptsB) * 2) / 2 : undefined;
+        prSaveResult({ at: Date.now(), kind: run.a ? 'A+B' : 'B', ok: solved, total: parts.length, pts: ptsB, note: gesamt !== undefined ? prNote(gesamt) : prNoteTeil('B', solved, parts.length), gesamt, used: Date.now() - run.start, timeUp: !!timeUp });
+        onFinish({ parts, ok: solved, used: Date.now() - run.start, timeUp: !!timeUp, a: run.a || null });
     };
     return (
         <>
@@ -5600,13 +5625,23 @@ const PrTeilB = ({ run, onFinish, onCancel }) => {
 };
 
 const PrErgebnisB = ({ r, onHome }) => {
-    const pct = Math.round(100 * r.ok / r.parts.length);
+    const ptsB = prPunkte('B', r.ok, r.parts.length);
+    const ptsA = r.a ? prPunkte('A', r.a.ok, r.a.total) : null;
+    const gesamt = ptsA !== null ? ptsA + ptsB : null;
+    const note = gesamt !== null ? prNote(gesamt) : prNoteTeil('B', r.ok, r.parts.length);
     return (
         <>
-            <div className={`rounded-xl border-2 p-6 text-center mb-6 ${pct >= 50 ? 'bg-green-50 border-green-500' : 'bg-amber-50 border-amber-400'}`}>
-                <p className="text-sm uppercase tracking-wider font-bold text-slate-500 mb-1">Teil B · Ergebnis</p>
-                <p className="text-4xl font-bold text-slate-800">{r.ok} von {r.parts.length} Teilen gelöst</p>
-                <p className="text-slate-600 mt-1">{pct} % · {r.timeUp ? 'Zeit abgelaufen' : `Zeit: ${prClock(r.used)}`}</p>
+            <div className={`rounded-xl border-2 p-6 text-center mb-6 ${note <= 4 ? 'bg-green-50 border-green-500' : 'bg-amber-50 border-amber-400'}`}>
+                <p className="text-sm uppercase tracking-wider font-bold text-slate-500 mb-1">{gesamt !== null ? 'Gesamtergebnis · Teil A und B' : 'Teil B · Ergebnis'}</p>
+                <div className="flex items-center justify-center gap-5">
+                    <div>
+                        <p className="text-4xl font-bold text-slate-800">{r.ok} von {r.parts.length} Teilen gelöst</p>
+                        <p className="text-slate-600 mt-1">Teil B: {prPts(ptsB)} von {PR_PTS.B} Punkten · {r.timeUp ? 'Zeit abgelaufen' : `Zeit: ${prClock(r.used)}`}</p>
+                        {gesamt !== null && <p className="text-slate-800 font-bold mt-1">Teil A {prPts(ptsA)} + Teil B {prPts(ptsB)} = {prPts(gesamt)} von 48 Punkten</p>}
+                    </div>
+                    <PrNoteBadge note={note} />
+                </div>
+                <div className="mt-3 flex justify-center"><PrNotenschluessel /></div>
                 <div className="mt-4"><PrBtn onClick={onHome}>Zur Übersicht</PrBtn></div>
             </div>
             <div className="space-y-2">
@@ -5629,9 +5664,10 @@ const PruefungApp = () => {
     const [thenB, setThenB] = useState(false);
     const [result, setResult] = useState(null);
     const run = examRun();
-    const startB = (withTime) => {
+    const startB = (withTime, a = null) => {
+        // a: Ergebnis von Teil A bei „Komplett“ (im Lauf gespeichert, damit es den Seitenwechsel in die Trainer übersteht)
         const start = Date.now();
-        setStorageJSON(EXAM_RUN_KEY, { kind: 'B', start, end: withTime ? start + PR_B.min * 60000 : null, parts: prBuildTeilB(PR_B.n) });
+        setStorageJSON(EXAM_RUN_KEY, { kind: 'B', start, end: withTime ? start + PR_B.min * 60000 : null, parts: prBuildTeilB(PR_B.n), a });
         setView('B');
     };
     const start = (kind, withTime) => {
@@ -5646,7 +5682,7 @@ const PruefungApp = () => {
             <TrainerHeader theme="indigo" icon={FileText} title="Prüfungssimulation" streak={null} />
             {view === 'home' && <PrHome onStart={start} />}
             {view === 'A' && <PrTeilA timed={timed} onFinish={(r) => { setResult(r); setView('resA'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} />}
-            {view === 'resA' && <PrErgebnisA r={result} onHome={home} onNext={thenB ? () => startB(timed) : null} />}
+            {view === 'resA' && <PrErgebnisA r={result} onHome={home} onNext={thenB ? () => startB(timed, { ok: result.ok, total: result.res.length }) : null} />}
             {view === 'B' && (run ? <PrTeilB run={run} onFinish={(r) => { clearRun(); setResult(r); setView('resB'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} onCancel={() => { clearRun(); home(); }} /> : <PrHome onStart={start} />)}
             {view === 'resB' && <PrErgebnisB r={result} onHome={home} />}
         </div>
