@@ -91,25 +91,28 @@ const LLSteigungLab = ({ onDone }) => {
 };
 
 
-// Abstands-Labor: B verschieben, rechtwinkliges Dreieck und Formel live
+// Abstands-Labor: B verschieben, rechtwinkliges Dreieck und Rechnung live
+const LLAB = () => <span className="overline">AB</span>;
 const LLAbstandLab = ({ onDone }) => {
-    const A = { x: -3, y: -2 };
-    const [bx, setBx] = useState(1);
-    const [by, setBy] = useState(1);
+    const A = { x: 1, y: 1 };
+    const [bx, setBx] = useState(4);
+    const [by, setBy] = useState(5);
     const dx = bx - A.x, dy = by - A.y, d = Math.sqrt(dx * dx + dy * dy);
     useEffect(() => { if (onDone) onDone(); /* eslint-disable-next-line */ }, []);
     return (
         <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 sm:p-4">
             <div className="grid md:grid-cols-2 gap-4 items-center">
-                <Koord range={[-6, 6, -6, 6]} points={[{ x: A.x, y: A.y, n: 'A', color: '#16a34a' }, { x: bx, y: by, n: 'B', color: '#dc2626' }, ...(dx && dy ? [{ x: bx, y: A.y, n: 'C', color: '#94a3b8' }] : [])]}
-                       segments={[{ x1: A.x, y1: A.y, x2: bx, y2: by, n: 'd' }, { x1: A.x, y1: A.y, x2: bx, y2: A.y, dash: true, color: '#94a3b8' }, { x1: bx, y1: A.y, x2: bx, y2: by, dash: true, color: '#94a3b8' }]} />
+                <Koord range={[-2, 8, -2, 8]} points={[{ x: A.x, y: A.y, n: 'A', color: '#16a34a' }, { x: bx, y: by, n: 'B', color: '#dc2626' }, ...(dx && dy ? [{ x: bx, y: A.y, n: 'C', color: '#94a3b8' }] : [])]}
+                       segments={[{ x1: A.x, y1: A.y, x2: bx, y2: by }, { x1: A.x, y1: A.y, x2: bx, y2: A.y, dash: true, color: '#94a3b8' }, { x1: bx, y1: A.y, x2: bx, y2: by, dash: true, color: '#94a3b8' }]} />
                 <div className="space-y-3">
-                    <LnSlider label="x_B" value={bx} min={-5} max={5} onChange={setBx} />
-                    <LnSlider label="y_B" value={by} min={-5} max={5} onChange={setBy} />
+                    <LnSlider label="x_B" value={bx} min={-1} max={7} onChange={setBx} />
+                    <LnSlider label="y_B" value={by} min={-1} max={7} onChange={setBy} />
                     <div className="bg-white border border-slate-200 rounded-lg p-3 font-math text-base sm:text-lg space-y-1">
-                        <div>A(−3 | −2), B({lfS(bx)} | {lfS(by)})</div>
-                        <div>waagrecht: {lfS(bx)} − (−3) = {lfS(dx)} · senkrecht: {lfS(by)} − (−2) = {lfS(dy)}</div>
-                        <div>d = √({lfS(dx)}² + {lfS(dy)}²) = √{lfS(dx * dx + dy * dy)} ≈ <b>{lfS(lfR(d, 2))}</b></div>
+                        <div>A(1 | 1), B({lfS(bx)} | {lfS(by)})</div>
+                        <div>waagrecht: {lfS(bx)} − 1 = {lfS(dx)}</div>
+                        <div>senkrecht: {lfS(by)} − 1 = {lfS(dy)}</div>
+                        <div><LLAB />² = {lfS(dx)}² + {lfS(dy)}² = {lfS(dx * dx + dy * dy)}</div>
+                        <div><LLAB /> = √{lfS(dx * dx + dy * dy)} ≈ <b>{lfS(lfR(d, 2))}</b></div>
                     </div>
                 </div>
             </div>
@@ -358,44 +361,43 @@ const LF_LEARN_BUILD = () => {
     ]};
 
     L.abstand = { cards: [
-        { id: 'k1', title: 'Die Strecke ist eine Hypotenuse',
+        { id: 'k1', title: 'Waagrecht und senkrecht zählen',
           body: <>
-            <p>Zwischen zwei Punkten kannst du ein rechtwinkliges Dreieck zeichnen: ein Stück waagrecht, ein Stück senkrecht. Die Strecke AB ist die Hypotenuse. Darum hilft der Satz des Pythagoras. Verschiebe B und schau zu.</p>
+            <p>Zwei Punkte A und B. Wie lang ist die Strecke <LLAB /> dazwischen? Zähle erst, wie weit es <b>waagrecht</b> geht, dann wie weit <b>senkrecht</b>. Das ergibt ein rechtwinkliges Dreieck. Verschiebe B und schau zu.</p>
           </>,
           widget: (p) => <LLAbstandLab onDone={p.onDone} />,
-          check: { q: 'A(1 | 1), B(4 | 5). Wie lang sind die beiden Katheten?', options: opt('3 und 4', '1 und 1', '4 und 5', '5 und 6'), correct: 0, hint: 'waagrecht: 4 − 1 = 3, senkrecht: 5 − 1 = 4.' } },
-        { id: 'k2', title: 'Die Abstandsformel',
+          check: { q: 'A(2 | 1), B(5 | 5). Wie weit geht es waagrecht und senkrecht?', options: opt('3 und 4', '2 und 1', '5 und 5', '7 und 6'), correct: 0, hint: 'waagrecht: 5 − 2 = 3, senkrecht: 5 − 1 = 4.' } },
+        { id: 'k2', title: 'Pythagoras hilft',
           body: <>
-            <p>Waagrechte Kathete: <M>x₂ − x₁</M>. Senkrechte Kathete: <M>y₂ − y₁</M>. Pythagoras: <M>d² = (x₂ − x₁)² + (y₂ − y₁)²</M>. Also:</p>
-            <LnMerke title="Abstand zweier Punkte"><M>d = √((x₂ − x₁)² + (y₂ − y₁)²)</M></LnMerke>
+            <p>Die Strecke <LLAB /> ist die Hypotenuse des Dreiecks. Darum gilt der Satz des Pythagoras: <M><LLAB />² = waagrecht² + senkrecht²</M>. Am Ende die Wurzel ziehen.</p>
           </>,
           widget: (p) => <LnSteps onDone={p.onDone} lines={[
-            { f: 'A(1 | 1), B(4 | 5)', e: 'Punkt 1 und Punkt 2' },
-            { f: 'd = √((4 − 1)² + (5 − 1)²)', e: 'einsetzen' },
-            { f: 'd = √(3² + 4²) = √(9 + 16) = √25', e: 'quadrieren, addieren' },
-            { f: 'd = 5 LE', e: 'Wurzel ziehen' }]} />,
-          check: { q: 'A(0 | 0), B(6 | 8). Wie lang ist AB?', options: opt('10 LE', '14 LE', '100 LE', '7 LE'), correct: 0, hint: '√(36 + 64) = √100.' } },
-        { id: 'k3', title: 'Minus macht nichts',
+            { f: 'A(2 | 1), B(5 | 5)', e: 'waagrecht 3, senkrecht 4' },
+            { f: <><LLAB />² = 3² + 4² = 9 + 16 = 25</>, e: 'Pythagoras' },
+            { f: <><LLAB /> = √25 = 5</>, e: 'Wurzel ziehen' }]} />,
+          check: { q: 'Waagrecht 6, senkrecht 8. Wie lang ist die Strecke?', options: opt('10', '14', '100', '48'), correct: 0, hint: '36 + 64 = 100, √100 = 10.' } },
+        { id: 'k3', title: 'Die Abstandsformel',
           body: <>
-            <p>Ist eine Differenz negativ, ist das egal: Beim Quadrieren wird sie positiv. Setze negative Koordinaten in Klammern. Die Reihenfolge der Punkte spielt keine Rolle.</p>
+            <p>Waagrecht heißt <M>x₂ − x₁</M>, senkrecht heißt <M>y₂ − y₁</M>. Beides zusammen in einer Formel:</p>
+            <LnMerke title="Abstand zweier Punkte"><M><LLAB /> = √((x₂ − x₁)² + (y₂ − y₁)²)</M></LnMerke>
+          </>,
+          widget: (p) => <LnSteps onDone={p.onDone} lines={[
+            { f: 'A(1 | 2), B(7 | 10)', e: 'Punkt 1 und Punkt 2' },
+            { f: <><LLAB /> = √((7 − 1)² + (10 − 2)²)</>, e: 'einsetzen' },
+            { f: <><LLAB /> = √(6² + 8²) = √(36 + 64) = √100</>, e: 'quadrieren, addieren' },
+            { f: <><LLAB /> = 10</>, e: 'Wurzel ziehen' }]} />,
+          check: { q: 'A(0 | 0), B(5 | 12). Wie lang ist AB?', options: opt('13', '17', '169', '7'), correct: 0, hint: '√(25 + 144) = √169.' } },
+        { id: 'k4', title: 'Minus macht nichts',
+          body: <>
+            <p>Meist ist das Ergebnis eine krumme Zahl, dann rundest du auf zwei Nachkommastellen. Ist eine Differenz negativ, ist das egal: Beim Quadrieren wird sie positiv. Negative Koordinaten in Klammern setzen.</p>
           </>,
           widget: (p) => <LnSteps onDone={p.onDone} lines={[
             { f: 'A(−2 | 3), B(1 | −1)', e: 'negative Koordinaten' },
-            { f: 'd = √((1 − (−2))² + (−1 − 3)²)', e: 'Klammern um negative Zahlen' },
-            { f: 'd = √(3² + (−4)²) = √(9 + 16)', e: '(−4)² = +16' },
-            { f: 'd = √25 = 5 LE', e: 'fertig' }]} />,
-          merke: <>Reihenfolge egal, Vorzeichen egal: Quadrate sind immer positiv. Meistens ist das Ergebnis eine krumme Zahl, dann auf zwei Nachkommastellen runden.</>,
-          check: { q: 'A(3 | 2), B(−1 | 2). Wie lang ist AB?', options: opt('4 LE', '2 LE', '−4 LE', '16 LE'), correct: 0, hint: '(−1 − 3)² = (−4)² = 16, (2 − 2)² = 0, √16 = 4.' } },
-        { id: 'k4', title: 'Umfang und fehlende Koordinate',
-          body: <>
-            <p><b>Umfang eines Dreiecks:</b> Alle drei Seiten mit der Formel berechnen und addieren. <b>Fehlende Koordinate:</b> Ist d bekannt, rechnest du rückwärts: <M>(x₂ − x₁)² = d² − (y₂ − y₁)²</M>, dann Wurzel ziehen.</p>
-          </>,
-          widget: (p) => <LnSteps onDone={p.onDone} lines={[
-            { f: 'A(1 | 2), B(x | 6), d = 5, B rechts von A', e: 'x gesucht' },
-            { f: '(y₂ − y₁)² = (6 − 2)² = 16', e: 'Höhenunterschied' },
-            { f: '(x₂ − x₁)² = 5² − 16 = 9', e: 'Pythagoras rückwärts' },
-            { f: 'x₂ − x₁ = 3  →  x = 1 + 3 = 4', e: 'Wurzel, dann zu x₁ addieren' }]} />,
-          check: { q: 'Ein Dreieck hat die Seiten 5, 5 und 6 LE. Wie groß ist der Umfang?', options: opt('16 LE', '15 LE', '150 LE', '12 LE'), correct: 0, hint: 'Umfang = alle Seiten addieren.' } }
+            { f: <><LLAB /> = √((1 − (−2))² + (−1 − 3)²)</>, e: 'Klammern um negative Zahlen' },
+            { f: <><LLAB /> = √(3² + (−4)²) = √(9 + 16)</>, e: '(−4)² = +16' },
+            { f: <><LLAB /> = √25 = 5</>, e: 'fertig' }]} />,
+          merke: <>Reihenfolge egal, Vorzeichen egal: Quadrate sind immer positiv. Krumme Zahl? Auf zwei Nachkommastellen runden.</>,
+          check: { q: 'A(3 | 2), B(−1 | 2). Wie lang ist AB?', options: opt('4', '2', '−4', '16'), correct: 0, hint: '(−1 − 3)² = (−4)² = 16, (2 − 2)² = 0, √16 = 4.' } }
     ]};
 
     L.gleichung = { cards: [
@@ -468,28 +470,39 @@ const LF_LEARN_BUILD = () => {
     ]};
 
     L.schnittpunkt = { cards: [
-        { id: 'k1', title: 'Gleichsetzen',
+        { id: 'k1', title: 'Was ist der Schnittpunkt?', needsWidget: true,
           body: <>
-            <p>Am Schnittpunkt haben beide Geraden denselben y-Wert. Setze die Terme gleich und löse nach x auf. <M>g: y = 2x − 1</M>, <M>h: y = −x + 5</M>:</p>
+            <p>Zwei Geraden kreuzen sich in einem Punkt S. Dieser Punkt liegt auf <b>beiden</b> Geraden. Darum passen seine Koordinaten in beide Gleichungen. Schiebe im Labor g₂ hin und her und beobachte S.</p>
+          </>,
+          widget: (p) => <LLSchnittLab onDone={p.onDone} />,
+          check: { q: 'S(2 | 3) ist der Schnittpunkt von g und h. Was gilt?', options: [<span>S liegt auf g und auf h</span>, <span>S liegt nur auf g</span>, <span>S liegt auf keiner der beiden</span>], correct: 0, hint: 'Schnittpunkt heißt: gemeinsamer Punkt beider Geraden.' } },
+        { id: 'k2', title: 'Einstieg: Schnitt mit einer waagrechten Geraden',
+          body: <>
+            <p>Am einfachsten ist es, wenn eine Gerade waagrecht ist, zum Beispiel <M>h: y = 3</M>. Dann weißt du den y-Wert von S schon. Du setzt den Term der anderen Geraden gleich 3 und rechnest x aus.</p>
           </>,
           widget: (p) => <LnSteps onDone={p.onDone} lines={[
-            { f: '2x − 1 = −x + 5   | + x', e: 'gleichsetzen' },
+            { f: 'g: y = 2x − 1,  h: y = 3', e: 'h ist waagrecht' },
+            { f: '2x − 1 = 3   | + 1', e: 'Term von g gleich 3 setzen' },
+            { f: '2x = 4  →  x = 2', e: 'nach x auflösen' },
+            { f: 'S(2 | 3)', e: 'y ist 3, weil S auf h liegt' }]} />,
+          check: { q: 'g: y = x + 4 und h: y = 6. Schnittpunkt?', options: opt('S(2 | 6)', 'S(6 | 2)', 'S(10 | 6)', 'S(2 | 2)'), correct: 0, hint: 'x + 4 = 6 → x = 2. y ist 6.' } },
+        { id: 'k3', title: 'Gleichsetzen',
+          body: <>
+            <p>Sind beide Geraden schräg, setzt du die beiden Terme gleich. Dann bringst du x auf eine Seite und die Zahlen auf die andere. Mit x rechnest du zum Schluss y aus.</p>
+          </>,
+          widget: (p) => <LnSteps onDone={p.onDone} lines={[
+            { f: 'g: y = 2x − 1,  h: y = −x + 5', e: 'beide schräg' },
+            { f: '2x − 1 = −x + 5   | + x', e: 'Terme gleichsetzen' },
             { f: '3x − 1 = 5   | + 1', e: 'x auf eine Seite' },
             { f: '3x = 6  →  x = 2', e: 'x-Koordinate' },
             { f: 'y = 2 · 2 − 1 = 3  →  S(2 | 3)', e: 'x in g einsetzen (Probe in h: −2 + 5 = 3 ✓)' }]} />,
           check: { q: 'g: y = x + 4 und h: y = 3x. Schnittpunkt?', options: opt('S(2 | 6)', 'S(2 | 2)', 'S(−2 | 2)', 'S(6 | 2)'), correct: 0, hint: 'x + 4 = 3x → 4 = 2x → x = 2, y = 6.' } },
-        { id: 'k2', title: 'Parallel: kein Schnittpunkt', needsWidget: true,
+        { id: 'k4', title: 'Parallel: kein Schnittpunkt',
           body: <>
-            <p>Haben beide Geraden dieselbe Steigung, fällt beim Gleichsetzen x weg und es bleibt etwas Falsches wie <M>−1 = 5</M> übrig: kein Schnittpunkt. Probiere im Labor den Schnittpunkt und den Fall „parallel“ aus.</p>
-          </>,
-          widget: (p) => <LLSchnittLab onDone={p.onDone} />,
-          check: { q: 'Beim Gleichsetzen bleibt 3 = 7 übrig. Was heißt das?', options: [<span>Die Geraden sind parallel, kein Schnittpunkt</span>, <span>Der Schnittpunkt ist S(3 | 7)</span>, <span>Rechenfehler, das kann nicht passieren</span>], correct: 0, hint: 'Eine falsche Aussage ohne x bedeutet: keine Lösung.' } },
-        { id: 'k3', title: 'Als Gleichungssystem',
-          body: <>
-            <p>In Prüfungen steht das oft als <b>lineares Gleichungssystem</b>: (I) y = 2x − 1 und (II) y = −x + 5. Gleichsetzen ist dann das <b>Gleichsetzungsverfahren</b>. Steht y nicht allein, hilft das Einsetzungs- oder Additionsverfahren.</p>
+            <p>Haben beide Geraden dieselbe Steigung, fällt beim Gleichsetzen x weg und es bleibt etwas Falsches wie <M>−1 = 5</M> übrig. Die Geraden sind parallel, es gibt keinen Schnittpunkt.</p>
           </>,
           merke: <>Schnittpunkt: Terme gleichsetzen, nach x auflösen, x in eine Gleichung einsetzen → y. Gleiche Steigung → parallel, kein Schnittpunkt.</>,
-          check: { q: '(I) y = 2x + 1, (II) y = 4x − 3. Lösung?', options: opt('x = 2, y = 5', 'x = 1, y = 3', 'x = −2, y = −3', 'x = 2, y = 1'), correct: 0, hint: '2x + 1 = 4x − 3 → 4 = 2x → x = 2, y = 5.' } }
+          check: { q: 'Beim Gleichsetzen bleibt 3 = 7 übrig. Was heißt das?', options: [<span>Die Geraden sind parallel, kein Schnittpunkt</span>, <span>Der Schnittpunkt ist S(3 | 7)</span>, <span>Rechenfehler, das kann nicht passieren</span>], correct: 0, hint: 'Eine falsche Aussage ohne x bedeutet: keine Lösung.' } }
     ]};
 
     L.spiegeln = { cards: [

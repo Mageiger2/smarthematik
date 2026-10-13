@@ -39,6 +39,11 @@ Große Sitzung: vom Übungsportal zum Lernkurs.
 15. **Lineare Funktionen vollständig nach dem Grundwissen-Katalog**: Abgleich mit den Merkkästen (Normalform, Achsenschnittpunkte, Aufstellen der Gleichung, parallel/senkrecht, Schnittpunkt, Abstand, Achsenspiegelung, Gleichungssysteme). Ergänzt: Gleichung aus y-Achsenabschnitt und Punkt (Stufe Mittel), neues Thema „Spiegeln an den Achsen“ (Nr. 11, mit Spiegel-Labor), neues Thema „Lineare Gleichungssysteme“ (Nr. 12: Gleichsetzen, Einsetzen, Addition, Sachaufgaben Zahlen/Fahrzeuge/Winkel im Viereck/drei Getränke, 5 Lernkarten). Entscheidung: Gleichungssysteme bleiben im Trainer Lineare Funktionen, weil Schritt-Runner, Lernmodus und die LGS-Prüfungsaufgaben dort liegen.
 16. **Lernkarten ausgebaut** in einfacher Sprache: Trigonometrie 4 neue Karten (gleichschenkliges Dreieck halbieren, Sachaufgaben mit Skizze, Thaleskreis, Abschnitte im Verhältnis), Wahrscheinlichkeit 3 neue Karten (Gruppen bilden, Reihenfolge egal, „mindestens“ über das Gegenteil).
 
+## 2026-10-13
+
+1. **Rückmeldung aus dem Unterricht umgesetzt**: Schnittpunkt zweier Geraden: Vorzeichen stehen im Gleichsetzen-Schritt fest, eingetragen werden nur Zahlen; neuer Einstiegstyp „Schnitt mit einer waagrechten Geraden“ (Leicht); Lernkarten beginnen mit dem Labor und dem waagrechten Fall, die Gleichungssystem-Karte ist raus (eigenes Thema). Abstand zweier Punkte: Leicht kleinschrittig (waagrecht, senkrecht, Quadrat, Wurzel), Mittel mit der Formel, Schwer mit negativen Koordinaten und Abstand zum Ursprung; Umfang und fehlende Koordinate entfernt (nicht prüfungstypisch); Ergebnisse 5, 10, 13, 15, 17 gleich häufig; Schreibweise |AB| mit Überstrich statt d; keine Einheit „LE“ mehr; Lernkarten in kleineren Schritten.
+2. **Leitlinie** (vom Lehrer): Jeder Kurs beginnt kleinschrittig; die Stufe Schwer entspricht dem Niveau der M10-Prüfung, nicht Gymnasium. Konstruiert wirkende Aufgaben werden entfernt.
+
 ### Offene Punkte und Ideen
 
 - Wiederholungs-Planer (gemeisterte Themen nach 7 und 30 Tagen wieder vorschlagen).
