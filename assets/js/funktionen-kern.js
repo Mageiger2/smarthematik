@@ -384,6 +384,7 @@ const fkExamTask = (part) => {
         topic: part.topic || null,
         desc: <>{ex.intro && <div className="mb-2 text-slate-600">{ex.intro}</div>}<div>{part.text}</div></>,
         graph: part.graph !== undefined ? part.graph : (ex.graph || null),
+        figure: part.figure !== undefined ? part.figure : (ex.figure || null),
         steps: built,
         finalGraph: part.fg || null
     };
@@ -613,6 +614,7 @@ const LfTaskCard = ({ task }) => (
         </div>
         <div className="p-6 bg-white space-y-4">
             {task.graph && <Koord {...task.graph} />}
+            {task.figure && <div className="flex justify-center">{task.figure}</div>}
             <div className="text-base sm:text-lg leading-relaxed text-slate-700">{task.desc}</div>
         </div>
     </div>

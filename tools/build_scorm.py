@@ -24,7 +24,7 @@ PKG = BUILD / 'pkg'
 ZIP = BUILD / 'smarthematik-lernpaket.zip'
 
 PAGES = ['index', 'rechner', 'kopfrechnen', 'binformeln', 'bruchgleichungen', 'halbwertszeit', 'kugel',
-         'lineare-funktionen', 'potenzen', 'quadratische-funktionen', 'trigonometrie', 'wachstum',
+         'lineare-funktionen', 'potenzen', 'quadratische-funktionen', 'strahlensaetze', 'trigonometrie', 'wachstum',
          'wahrscheinlichkeit', 'pruefung', 'lehrer', 'faq']
 ASSETS = ['assets/js/fehlerheft-map.js', 'assets/vendor/react.production.min.js', 'assets/vendor/react-dom.production.min.js',
           'assets/vendor/tailwindcss.js', 'assets/css/main.css',

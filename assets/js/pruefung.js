@@ -47,7 +47,7 @@ const prBuildTeilA = (n) => {
 // ---------- Teil B: Aufgaben aus dem Katalog ziehen ----------
 const prBuildTeilB = (n) => {
     const tangens = !!(getStorageJSON('smarth_opts', {}).tangens);
-    const slots = ['lineare', 'quadratische', 'kugel', 'trigonometrie', 'bruchgleichungen', 'wahrscheinlichkeit',
+    const slots = ['lineare', 'quadratische', 'kugel', 'trigonometrie', 'bruchgleichungen', Math.random() < 0.5 ? 'wahrscheinlichkeit' : 'strahlen',
                    Math.random() < 0.5 ? 'wachstum' : 'halbwertszeit', Math.random() < 0.5 ? 'potenzen' : 'binformeln'];
     const rest = Object.keys(EXAM_CATALOG).filter(k => !slots.includes(k));
     const chosen = shuffleArray([...slots, ...shuffleArray(rest)].slice(0, n));

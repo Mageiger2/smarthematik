@@ -2257,6 +2257,180 @@ const EXAM_CATALOG = {
    }
   ]
  },
+ "strahlen": {
+  "title": "Strahlensätze & Streckung",
+  "href": "strahlensaetze.html",
+  "items": [
+   {
+    "key": "2025-II-a",
+    "label": "MSA 2025 II/2a",
+    "topic": "streckung",
+    "tag": null
+   },
+   {
+    "key": "2025-II-b",
+    "label": "MSA 2025 II/2b",
+    "topic": "streckung",
+    "tag": null
+   },
+   {
+    "key": "2024-II-a",
+    "label": "MSA 2024 II/8a",
+    "topic": "streckung",
+    "tag": null
+   },
+   {
+    "key": "2024-II-b",
+    "label": "MSA 2024 II/8b",
+    "topic": "streckung",
+    "tag": null
+   },
+   {
+    "key": "2023-II-a",
+    "label": "MSA 2023 II/9a",
+    "topic": "figur",
+    "tag": null
+   },
+   {
+    "key": "2023-II-b",
+    "label": "MSA 2023 II/9b",
+    "topic": "figur",
+    "tag": null
+   },
+   {
+    "key": "2022-II-a",
+    "label": "MSA 2022 II/3a",
+    "topic": "figur",
+    "tag": null
+   },
+   {
+    "key": "2022-II-b",
+    "label": "MSA 2022 II/3b",
+    "topic": "rechnen",
+    "tag": null
+   },
+   {
+    "key": "2020-I-b",
+    "label": "MSA 2020 I/8b",
+    "topic": "rechnen",
+    "tag": null
+   },
+   {
+    "key": "2019-I-a",
+    "label": "MSA 2019 I/7a",
+    "topic": "streckung",
+    "tag": null
+   },
+   {
+    "key": "2019-I-b",
+    "label": "MSA 2019 I/7b",
+    "topic": "streckung",
+    "tag": null
+   },
+   {
+    "key": "2019-II-a",
+    "label": "MSA 2019 II/10a",
+    "topic": "streckung",
+    "tag": null
+   },
+   {
+    "key": "2019-II-b",
+    "label": "MSA 2019 II/10b",
+    "topic": "streckung",
+    "tag": null
+   },
+   {
+    "key": "2019-II-c",
+    "label": "MSA 2019 II/10c",
+    "topic": "streckung",
+    "tag": null
+   },
+   {
+    "key": "2017-I-a",
+    "label": "MSA 2017 I/9a",
+    "topic": "streckung",
+    "tag": null
+   },
+   {
+    "key": "2017-II-b",
+    "label": "MSA 2017 II/9b",
+    "topic": "streckung",
+    "tag": null
+   },
+   {
+    "key": "2016-I-a",
+    "label": "MSA 2016 I/2a",
+    "topic": "figur",
+    "tag": null
+   },
+   {
+    "key": "2016-I-b",
+    "label": "MSA 2016 I/2b",
+    "topic": "figur",
+    "tag": null
+   },
+   {
+    "key": "2016-I-c",
+    "label": "MSA 2016 I/2c",
+    "topic": "rechnen",
+    "tag": null
+   },
+   {
+    "key": "2016-II-a",
+    "label": "MSA 2016 II/2a",
+    "topic": "rechnen",
+    "tag": null
+   },
+   {
+    "key": "2016-IIb-a",
+    "label": "MSA 2016 II/10a",
+    "topic": "streckung",
+    "tag": null
+   },
+   {
+    "key": "2014-I-a",
+    "label": "MSA 2014 I/2a",
+    "topic": "streckung",
+    "tag": null
+   },
+   {
+    "key": "2014-II-a",
+    "label": "MSA 2014 II/2a",
+    "topic": "rechnen",
+    "tag": null
+   },
+   {
+    "key": "2014-II-b",
+    "label": "MSA 2014 II/2b",
+    "topic": "rechnen",
+    "tag": null
+   },
+   {
+    "key": "2012-I-a",
+    "label": "MSA 2012 I/2a",
+    "topic": "streckung",
+    "tag": null
+   },
+   {
+    "key": "2012-I-b",
+    "label": "MSA 2012 I/2b",
+    "topic": "streckung",
+    "tag": null
+   },
+   {
+    "key": "2011-II-a",
+    "label": "MSA 2011 II/4a",
+    "topic": "streckung",
+    "tag": null
+   },
+   {
+    "key": "2011-II-b",
+    "label": "MSA 2011 II/4b",
+    "topic": "streckung",
+    "tag": null
+   }
+  ]
+ },
  "kugel": {
   "title": "Die Kugel",
   "href": "kugel.html",

@@ -93,7 +93,7 @@ const LnHint = ({ title = 'Wie funktioniert das?', children }) => {
 
 // Schieberegler mit Beschriftung (Theme-Farbe über accent-color)
 const LnSlider = ({ label, value, min, max, step = 1, onChange, format = (v) => String(v).replace('.', ',').replace('-', '−') }) => {
-    const col = { emerald: '#059669', rose: '#e11d48', amber: '#f59e0b', sky: '#0ea5e9', violet: '#7c3aed', teal: '#0d9488', cyan: '#0891b2', orange: '#ea580c', indigo: '#4f46e5', blue: '#2563eb', fuchsia: '#c026d3' }[FK_THEME()] || '#059669';
+    const col = { emerald: '#059669', rose: '#e11d48', amber: '#f59e0b', sky: '#0ea5e9', violet: '#7c3aed', teal: '#0d9488', cyan: '#0891b2', orange: '#ea580c', indigo: '#4f46e5', blue: '#2563eb', fuchsia: '#c026d3', lime: '#4d7c0f' }[FK_THEME()] || '#059669';
     return (
         <label className="flex items-center gap-3 text-sm sm:text-base">
             <span className="font-math w-20 shrink-0 text-right">{label} = <b>{format(value)}</b></span>

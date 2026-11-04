@@ -8,12 +8,12 @@ Live unter https://www.smarthematik.de (GitHub Pages, Branch `main`). Dieses Pro
 - **Statische Seiten**, kein Server, kein Konto. Jede Trainer-Seite (`kugel.html`, …) enthält React + Babel aus `assets/vendor/` und ein Inline-Skript, das aus den Dateien in `assets/js/` zusammengesetzt ist:
   - `shared.js` – gemeinsame Bausteine (Kopfzeile, Stufenmenü, Tipps, Rechner, Speicherfunktionen, Prüfungssimulations-Leiste)
   - `lernen-kern.js` – Modus „Lernen“ (Lernkarten, Fortschritt, Status gelernt/geübt/gemeistert)
-  - `funktionen-kern.js` + `lernen-lineare.js` / `lernen-quadratische.js` – Lineare und Quadratische Funktionen (Themenkacheln, Schritt-Runner, Prüfungsteile)
+  - `funktionen-kern.js` + `lernen-lineare.js` / `lernen-quadratische.js` / `lernen-strahlen.js` – Lineare und Quadratische Funktionen sowie Strahlensätze (Themenkacheln, Schritt-Runner, Prüfungsteile, Figuren als SVG)
   - `lernen-trainer.js` – Lernkarten der acht Trainer ohne Themenauswahl
   - `kopfrechnen-gen.js` – Aufgabengeneratoren und Teil-A-Prüfungsaufgaben (Kopfrechnen und Prüfungssimulation)
   - `pruefung.js` + `pruefung-katalog.js` – Prüfungssimulation; der Katalog wird mit `python3 tools/exam_catalog.py` aus den Trainer-Dateien erzeugt
   - `lehrer.js` + `fehlerheft-map.js` – Klassenübersicht; die Fehlerheft-Zuordnung nutzt auch die Startseite
-- **Zusammenbauen:** Nach Änderungen an einer JS-Datei muss das Inline-Skript der betroffenen HTML-Seiten neu erzeugt werden (Reihenfolge: shared, Kern-Dateien, Trainer). Das SCORM-Paket für ByCS/mebis baut `python3 tools/build_scorm.py` nach `build/`.
+- **Zusammenbauen:** Nach Änderungen an einer JS-Datei erzeugt `python3 tools/sync_pages.py` das Inline-Skript aller Seiten neu (Reihenfolge je Seite steht im Skript). Das SCORM-Paket für ByCS/mebis baut `python3 tools/build_scorm.py` nach `build/`.
 - **Speicher im Browser (localStorage, Präfix `smarth_`):** Streak und Bestwert (`smarth_streak_*`, `smarth_best_*`), adaptive Statistik (`smarth_adaptive_<trainer>[_<thema>]`), Lernkarten (`smarth_progress`), gelöste Prüfungsteile (`smarth_exams_<trainer>`), Fehlerheft (`smarth_errors_<trainer>`), Optionen (`smarth_opts`, z. B. `tangens`), Prüfungssimulation (`smarth_exam_run`, `smarth_exam_results`), Klassenliste der Lehrkraft (`smarth_lehrer_klasse`). Der Fortschritts-Code (`SMARTH1.` + Base64 von deflate(JSON)) bündelt alle Schlüssel.
 - **Status je Thema:** gelernt = alle Lernkarten; geübt = 5 Aufgaben richtig; gemeistert = eine Stufe 10-mal in Folge oder 3 Prüfungsteile.
 - **Konventionen:** Du-Form, kurze Texte (lange Erklärungen eingeklappt unter einer Überschrift), echtes Minuszeichen „−“, Startstufe immer „Leicht“, gerundete Ergebnisse werden akzeptiert.
@@ -43,6 +43,11 @@ Große Sitzung: vom Übungsportal zum Lernkurs.
 
 1. **Rückmeldung aus dem Unterricht umgesetzt**: Schnittpunkt zweier Geraden: Vorzeichen stehen im Gleichsetzen-Schritt fest, eingetragen werden nur Zahlen; neuer Einstiegstyp „Schnitt mit einer waagrechten Geraden“ (Leicht); Lernkarten beginnen mit dem Labor und dem waagrechten Fall, die Gleichungssystem-Karte ist raus (eigenes Thema). Abstand zweier Punkte: Leicht kleinschrittig (waagrecht, senkrecht, Quadrat, Wurzel), Mittel mit der Formel, Schwer mit negativen Koordinaten und Abstand zum Ursprung; Umfang und fehlende Koordinate entfernt (nicht prüfungstypisch); Ergebnisse 5, 10, 13, 15, 17 gleich häufig; Schreibweise |AB| mit Überstrich statt d; keine Einheit „LE“ mehr; Lernkarten in kleineren Schritten.
 2. **Leitlinie** (vom Lehrer): Jeder Kurs beginnt kleinschrittig; die Stufe Schwer entspricht dem Niveau der M10-Prüfung, nicht Gymnasium. Konstruiert wirkende Aufgaben werden entfernt.
+
+## 2026-11-04
+
+1. **Neuer Trainer „Strahlensätze & zentrische Streckung“** (`strahlensaetze.html`, Farbe Lime): Themen Zentrische Streckung (k, k², k³, Kopierer-Prozent), Strahlensätze: die Figur (Verhältnisgleichungen auswählen, X-Figur, Platzhalter ergänzen), Strecken berechnen (über Kreuz, erst die ganze Strecke, drei Parallelen, Schatten-Sachaufgabe) und MSA-Prüfungsaufgaben 2011–2025 (28 Teile). Die Figuren werden als SVG gezeichnet (`StrFig`: Zentrum, zwei Strahlen, Parallelen, Beschriftungen, Hervorhebung), weil die Bilder im gelieferten Dokument aus anderen Prüfungsseiten stammten. Wo die Skizze der Prüfung Längen enthielt, die im Text fehlen, steht „Zahlen ergänzt“; Aufgaben ohne nachvollziehbare Bezeichnungen (2021 I/8, 2020 I/3, 2019 I/6, 2018, 2013, 2012 II/9, 2011 I/3, 2010) wurden weggelassen. 14 Lernkarten mit Streck-Labor und Figur-Labor (Partnerstrecke antippen).
+2. **Eingebunden** in Menü aller Seiten, Startseite (Kachel, Fortschritt, Fehlerheft), Klassenübersicht, Prüfungskatalog, Prüfungssimulation (Teil B: Strahlensätze oder Wahrscheinlichkeit im Los) und SCORM-Paket. Neues Werkzeug `tools/sync_pages.py` baut die Inline-Skripte.
 
 ### Offene Punkte und Ideen
 

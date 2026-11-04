@@ -44,6 +44,7 @@ def funktionen(name, exams_name):
 cat = {
     'lineare':            {'title': 'Lineare Funktionen',      'href': 'lineare-funktionen.html',    'items': funktionen('lineare-funktionen', 'LF_EXAMS')},
     'quadratische':       {'title': 'Quadratische Funktionen', 'href': 'quadratische-funktionen.html','items': funktionen('quadratische-funktionen', 'QF_EXAMS')},
+    'strahlen':           {'title': 'Strahlensätze & Streckung', 'href': 'strahlensaetze.html',       'items': funktionen('strahlensaetze', 'ST_EXAMS')},
     'kugel':              {'title': 'Die Kugel',               'href': 'kugel.html',              'items': simple('kugel', r"sigKey:\s*'([^']+)'", r"label:\s*'([^']+)'", 'const kugelExamTasks')},
     'trigonometrie':      {'title': 'Trigonometrie',           'href': 'trigonometrie.html',      'items': simple('trigonometrie', r'id: "([^"]+)"', r'sourceLabel: "([^"]+)"', 'const msaTasks')},
     'wachstum':           {'title': 'Wachstum & Zerfall',      'href': 'wachstum.html',           'items': simple('wachstum', r"sigKey: '([^']+)'", r"label: '([^']+)'", 'const wachstumsExamTasks')},

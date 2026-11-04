@@ -19,6 +19,7 @@ const LE_TRAINERS = [
     { key: 'lineare', title: 'Lineare Funktionen', short: 'Lin. Fkt.', fk: true },
     { key: 'potenzen', title: 'Potenzen', short: 'Potenzen', streak: 'potenzen' },
     { key: 'quadratische', title: 'Quadratische Funktionen', short: 'Quad. Fkt.', fk: true },
+    { key: 'strahlen', title: 'Strahlensätze & Streckung', short: 'Strahlen', fk: true },
     { key: 'trigonometrie', title: 'Trigonometrie', short: 'Trigo', streak: 'trigonometrie' },
     { key: 'wachstum', title: 'Wachstum & Zerfall', short: 'Wachstum', streak: 'wachstum' },
     { key: 'wahrscheinlichkeit', title: 'Wahrscheinlichkeit', short: 'Wahrsch.', streak: 'wahrscheinlichkeit' }
