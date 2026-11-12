@@ -27,7 +27,7 @@ PAGES = ['index', 'rechner', 'kopfrechnen', 'binformeln', 'bruchgleichungen', 'h
          'lineare-funktionen', 'potenzen', 'quadratische-funktionen', 'strahlensaetze', 'trigonometrie', 'wachstum',
          'wahrscheinlichkeit', 'pruefung', 'lehrer', 'faq']
 ASSETS = ['assets/js/fehlerheft-map.js', 'assets/vendor/react.production.min.js', 'assets/vendor/react-dom.production.min.js',
-          'assets/vendor/tailwindcss.js', 'assets/css/main.css',
+          'assets/css/main.css',
           'Logo-sMArTH.png', 'LogoMSsued2.jpg', 'cropped-BdB_Logo-1.png']
 
 BABEL_RE = re.compile(r'<script type="text/babel"[^>]*>\n?(.*?)\n?\s*</script>', re.S)
@@ -54,6 +54,16 @@ def transform(name, html):
         (PKG / 'assets' / 'app' / f'{name}.js').write_text(js, encoding='utf-8')
         html = html[:m.start()] + f'<script src="assets/app/{name}.js"></script>' + html[m.end():]
     html = re.sub(r'\s*<script src="assets/vendor/babel\.min\.js[^"]*"></script>', '', html)
+    # 1b. Tailwind wird vorab als CSS-Datei erzeugt (Lernplattformen blockieren das Laufzeit-Skript)
+    html = re.sub(r'<script src="assets/vendor/tailwindcss\.js[^"]*"></script>', '<link rel="stylesheet" href="assets/css/tailwind.css">', html)
+    # 1c. Inline-Skripte in eigene Dateien (strenge Content-Security-Policy erlaubt keine Inline-Skripte)
+    parts, i = [], 0
+    for k, m2 in enumerate(re.finditer(r'<script>(.*?)</script>', html, re.S)):
+        f = f'{name}-{k + 1}.js'
+        (PKG / 'assets' / 'app').mkdir(parents=True, exist_ok=True)
+        (PKG / 'assets' / 'app' / f).write_text(m2.group(1), encoding='utf-8')
+        parts.append(html[i:m2.start()] + f'<script src="assets/app/{f}"></script>'); i = m2.end()
+    html = ''.join(parts) + html[i:]
     # 2. Online-Metadaten
     html = re.sub(r'\s*<link rel="canonical"[^>]*>', '', html)
     html = re.sub(r'\s*<meta property="og:[^"]*"[^>]*>', '', html)
@@ -113,6 +123,26 @@ def manifest(files):
 '''
 
 
+TW_COLORS = 'slate|gray|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose'
+
+
+def build_tailwind():
+    """Erzeugt assets/css/tailwind.css aus allen Klassen der Paketseiten (Tailwind-CLI 3.4 über npx)."""
+    cfg = BUILD / 'tailwind.config.js'
+    cfg.write_text("module.exports = { content: ['" + (PKG / '**/*.{html,js}').as_posix() + "'], safelist: [ "
+                   "{ pattern: /^(bg|text|border|from|to|via|ring|shadow|accent)-(" + TW_COLORS + ")-(50|100|200|300|400|500|600|700|800|900)$/, "
+                   "variants: ['hover', 'group-hover', 'focus'] } ] };", encoding='utf-8')
+    src = BUILD / 'tw-input.css'
+    src.write_text('@tailwind base;\n@tailwind components;\n@tailwind utilities;\n', encoding='utf-8')
+    out = PKG / 'assets' / 'css' / 'tailwind.css'
+    res = subprocess.run(['npx', '--yes', 'tailwindcss@3.4.17', '-c', str(cfg), '-i', str(src), '-o', str(out), '--minify'],
+                         capture_output=True, text=True)
+    if res.returncode != 0 or not out.exists():
+        fail('Tailwind-CSS konnte nicht erzeugt werden:\n' + res.stderr[-2000:])
+    cfg.unlink(); src.unlink()
+    print(f'  tailwind.css ({out.stat().st_size // 1024} KB)')
+
+
 def main():
     if shutil.which('node') is None:
         fail('Node.js wird für die JSX-Übersetzung benötigt.')
@@ -129,6 +159,7 @@ def main():
         pages[name] = transform(name, html)
         (PKG / f'{name}.html').write_text(pages[name], encoding='utf-8')
         print(f'  {name}.html')
+    build_tailwind()
     for name, html in pages.items():
         check_links(name, html)
     files = sorted(p.relative_to(PKG).as_posix() for p in PKG.rglob('*') if p.is_file())
